@@ -1,0 +1,15 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "regions": [
+    "lhr1"
+  ],
+  "crons": [
+    {
+      "path": "/api/invoices/recurring",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

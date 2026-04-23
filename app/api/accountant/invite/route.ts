@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
+
+export async function POST(req: NextRequest) {
+  const resendKey = process.env.RESEND_API_KEY
+  if (!resendKey) {
+    return NextResponse.json({ error: 'Email service not configured' }, { status: 503 })
+  }
+  const resend = new Resend(resendKey)
+
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const { email } = await req.json()
+  if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+
+  const { data: invite, error } = await supabase
+    .from('accountant_invites')
+    .insert({ owner_id: user.id, email })
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const { data: owner } = await supabase.from('users').select('full_name, business_name').eq('id', user.id).single()
+  const senderName = (owner as any)?.business_name || (owner as any)?.full_name || 'Your client'
+  const acceptUrl  = `${process.env.NEXT_PUBLIC_APP_URL}/accountant/accept?token=${invite.token}`
+
+  try {
+    await resend.emails.send({
+      from:    'FreeDesk <noreply@freedesk.co.uk>',
+      to:      email,
+      subject: `${senderName} has invited you to view their FreeDesk account`,
+      html:    `<p>Hi,</p>
+               <p><strong>${senderName}</strong> has invited you to view their FreeDesk financial data as a read-only accountant.</p>
+               <p><a href="${acceptUrl}" style="background:#111;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
+               <p style="color:#888;font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
+    })
+  } catch (e) {
+    console.error('Email send failed:', e)
+  }
+
+  return NextResponse.json({ success: true, token: invite.token })
+}
+
+export async function GET(req: NextRequest) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const { data } = await supabase
+    .from('accountant_invites')
+    .select('id, email, accepted_at, revoked_at, created_at')
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: false })
+
+  return NextResponse.json({ invites: data ?? [] })
+}
+
+export async function DELETE(req: NextRequest) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const { id } = await req.json()
+  await supabase.from('accountant_invites').update({ revoked_at: new Date().toISOString() }).eq('id', id).eq('owner_id', user.id)
+  return NextResponse.json({ success: true })
+}

@@ -1,0 +1,441 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 0 0% 7%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #FAFAF7;
+  font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+  code, kbd, pre, samp {
+    font-family: 'DM Mono', monospace;
+  }
+}
+
+
+/* ── Smooth scrollbar ───────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D0D0D0 transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #D0D0D0;
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #B0B0B0;
+}
+
+/* ── Badge styles ──────────────────────────────────────────────────────── */
+.badge-draft         { background:#F0F0F0; color:#555; border:1px solid #E0E0E0; }
+.badge-sent          { background:#EBF4FD; color:#1A5E8A; border:1px solid #B8D9F0; }
+.badge-paid          { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-overdue       { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-cancelled     { background:#F0F0F0; color:#888; border:1px solid #DDD; }
+.badge-active        { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-paused        { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
+.badge-archived      { background:#F0F0F0; color:#666; border:1px solid #DDD; }
+.badge-outside-ir35  { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-inside-ir35   { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-needs-review  { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
+.badge-accepted      { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-declined      { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-expired       { background:#F0F0F0; color:#888; border:1px solid #DDD; }
+
+/* ── Nav tab hover zoom ─────────────────────────────────────────────────── */
+.fd-nav-tab {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255,255,255,0.6);
+  border-bottom: 3px solid transparent;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.fd-nav-tab:hover {
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.5);
+}
+.fd-nav-tab.active {
+  color: #fff;
+  border-bottom-color: #fff;
+  font-weight: 600;
+}
+.fd-nav-tab.active:hover {
+  /* no transform */
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+
+/* Fade up — cards and sections entering the viewport */
+@keyframes fd-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Blur fade — premium page entry (blur + fade + subtle rise) */
+@keyframes fd-blur-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Fade in — subtle opacity only, for chart containers */
+@keyframes fd-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scale in — for stat card numbers popping in */
+@keyframes fd-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide in from left — for sidebar/panel */
+@keyframes fd-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse once — for alert/overdue numbers */
+@keyframes fd-pulse-once {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Shimmer — for skeleton loaders */
+@keyframes fd-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ── Animation utility classes ──────────────────────────────────────────── */
+
+/* Dashboard page — staggered entry */
+.fd-animate-page > * {
+  animation: fd-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-animate-page > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-animate-page > *:nth-child(2) { animation-delay: 0.06s; }
+.fd-animate-page > *:nth-child(3) { animation-delay: 0.12s; }
+.fd-animate-page > *:nth-child(4) { animation-delay: 0.18s; }
+.fd-animate-page > *:nth-child(5) { animation-delay: 0.24s; }
+.fd-animate-page > *:nth-child(6) { animation-delay: 0.30s; }
+.fd-animate-page > *:nth-child(7) { animation-delay: 0.36s; }
+.fd-animate-page > *:nth-child(8) { animation-delay: 0.42s; }
+.fd-animate-page > *:nth-child(9) { animation-delay: 0.48s; }
+
+/* Page entry — blur fade with staggered children */
+/* Use fd-page-enter on root div of each page */
+.fd-page-enter {
+  animation: fd-blur-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter > * {
+  animation: fd-blur-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-page-enter > *:nth-child(2) { animation-delay: 0.05s; }
+.fd-page-enter > *:nth-child(3) { animation-delay: 0.10s; }
+.fd-page-enter > *:nth-child(4) { animation-delay: 0.15s; }
+.fd-page-enter > *:nth-child(5) { animation-delay: 0.20s; }
+.fd-page-enter > *:nth-child(6) { animation-delay: 0.25s; }
+.fd-page-enter > *:nth-child(7) { animation-delay: 0.30s; }
+.fd-page-enter > *:nth-child(8) { animation-delay: 0.35s; }
+
+/* Page entry (safe) — fade+rise only, no filter, safe for modals/fixed overlays */
+.fd-page-enter-safe {
+  animation: fd-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter-safe > * {
+  animation: fd-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter-safe > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-page-enter-safe > *:nth-child(2) { animation-delay: 0.05s; }
+.fd-page-enter-safe > *:nth-child(3) { animation-delay: 0.10s; }
+.fd-page-enter-safe > *:nth-child(4) { animation-delay: 0.15s; }
+.fd-page-enter-safe > *:nth-child(5) { animation-delay: 0.20s; }
+.fd-page-enter-safe > *:nth-child(6) { animation-delay: 0.25s; }
+.fd-page-enter-safe > *:nth-child(7) { animation-delay: 0.30s; }
+.fd-page-enter-safe > *:nth-child(8) { animation-delay: 0.35s; }
+
+/* Stat card number — scale in on load */
+.fd-stat-value {
+  animation: fd-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.2s;
+  display: inline-block;
+}
+
+/* Alert stat — pulse once to draw the eye */
+.fd-stat-alert .fd-stat-value {
+  animation: fd-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             fd-pulse-once 0.6s ease 0.8s both;
+}
+
+/* Chart cards — fade in slightly after the stat cards */
+.fd-chart-card {
+  animation: fd-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.28s;
+}
+
+/* Customise panel slide in */
+.fd-panel-enter {
+  animation: fd-slide-left 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Enhanced skeleton shimmer */
+.fd-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 400px 100%;
+  animation: fd-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Table row hover */
+.fd-table-row {
+  transition: background 0.12s ease;
+}
+.fd-table-row:hover {
+  background: #F7F9F7 !important;
+}
+
+/* Sidebar dropdown */
+.fd-dropdown-enter {
+  animation: fd-fade-up 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* IR35 badge pulse for inside/needs_review */
+.badge-inside-ir35,
+.badge-needs-review {
+  animation: fd-pulse-once 0.7s ease 1s both;
+}
+
+/* Slide-over panel */
+.fd-slide-over-enter {
+  animation: fd-slide-left 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  .fd-animate-page > *,
+  .fd-page-enter,
+  .fd-page-enter > *,
+  .fd-stat-value,
+  .fd-chart-card,
+  .fd-panel-enter,
+  .fd-dropdown-enter,
+  .fd-slide-over-enter,
+  .badge-inside-ir35,
+  .badge-needs-review {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@keyframes fd-dropdown-in {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+:focus-visible {
+  outline: 2px solid #1D6B35;
+  outline-offset: 2px;
+}
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* ── Mobile responsive utilities ─────────────────────────────────────── */
+
+/* Three-pots and any 3-col card grid */
+.fd-cards-grid {
+  display: flex;
+  gap: 14px;
+}
+
+/* 4-col stat grid (invoices, clients etc) */
+.fd-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* 2-col grid */
+.fd-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Page header with title + action button */
+.fd-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  /* Stack card grids vertically */
+  .fd-cards-grid {
+    flex-direction: column;
+  }
+
+  /* 4-col → 2-col on mobile */
+  .fd-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* 2-col → 1-col on mobile */
+  .fd-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Page header stacks on very small screens */
+  .fd-page-header {
+    flex-wrap: wrap;
+  }
+
+  /* Reduce page padding on mobile */
+  .p-6 {
+    padding: 16px !important;
+  }
+
+  /* Table overflow on mobile */
+  .fd-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide keyboard shortcut hint on mobile */
+  .fd-shortcut-hint {
+    display: none;
+  }
+
+  /* Reduce large hero text on mobile */
+  .fd-hero-number {
+    font-size: 28px !important;
+  }
+
+  /* Full width buttons on mobile */
+  .fd-mobile-full {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Settings nav on mobile — horizontal pill tabs */
+@media (max-width: 1024px) {
+  nav.w-full.lg\:w-44 button {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+/* Tax pot input grid on mobile */
+@media (max-width: 480px) {
+  .grid.grid-cols-\[1fr_1fr_auto\] {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid.grid-cols-\[1fr_1fr_auto\] button[type="button"],
+  .grid.grid-cols-\[1fr_1fr_auto\] > button {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Invoice/quote detail pages - action button bar */
+@media (max-width: 768px) {
+  /* Wrap action buttons on mobile */
+  .fd-action-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Make page headers wrap nicely */
+  .fd-page-enter h1 {
+    font-size: clamp(18px, 4vw, 28px);
+  }
+}
