@@ -475,23 +475,36 @@ export default function SettingsForm({ profile, email }: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
       {/* Sidebar nav */}
-      <nav className="w-full lg:w-44 shrink-0 flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-0 lg:space-y-0.5">
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              tab === t
-                ? 'bg-slate-100 text-slate-900'
-                : t === 'Danger Zone'
-                ? 'text-red-600 hover:bg-red-50'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </nav>
+      <div className="w-full lg:w-44 shrink-0">
+        <nav className="flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-0 lg:space-y-0.5">
+          {TABS.map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                tab === t
+                  ? 'bg-slate-100 text-slate-900'
+                  : t === 'Danger Zone'
+                  ? 'text-red-600 hover:bg-red-50'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </nav>
+        <button
+          onClick={async () => {
+            const supabase = createClient()
+            await supabase.auth.signOut()
+            router.push('/auth/login')
+            router.refresh()
+          }}
+          className="lg:hidden mt-3 w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+        >
+          Sign out
+        </button>
+      </div>
 
       {/* Content */}
       <div className="flex-1 max-w-xl space-y-4">
