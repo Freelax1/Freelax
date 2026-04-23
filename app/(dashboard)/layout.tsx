@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/sidebar'
 import TaxQAChat from '@/components/tax-qa-chat'
+import { PWAInstallBanner } from '@/components/pwa-install-banner'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </main>
       <TaxQAChat />
+      <PWAInstallBanner />
     </div>
   )
 }
