@@ -75,7 +75,7 @@ export async function GET() {
       .lte('paid_date', end.toISOString())
       .order('paid_date', { ascending: true }),
     supabase.from('expenses')
-      .select('date, merchant, category, amount, vat_amount, vat_reclaimable, receipt_url, notes')
+      .select('date, merchant, category, amount, vat_amount, vat_reclaimable, receipt_url, description')
       .eq('user_id', user.id)
       .gte('date', start.toISOString().slice(0, 10))
       .lte('date', end.toISOString().slice(0, 10))
@@ -289,7 +289,7 @@ export async function GET() {
       vat:      Number(e.vat_amount ?? 0),
       recl:     e.vat_reclaimable ? 'Yes' : 'No',
       receipt:  e.receipt_url ?? '',
-      notes:    e.notes ?? '',
+      notes:    (e as any).description ?? '',
     })
     // Hyperlink receipts
     if (e.receipt_url) {

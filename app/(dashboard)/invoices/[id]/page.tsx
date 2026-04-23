@@ -91,11 +91,12 @@ function ChaseModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col"
+        style={{ maxHeight: '90dvh' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
           <div>
             <h2 className="font-bold text-slate-900 text-base">Chase invoice</h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -108,7 +109,7 @@ function ChaseModal({
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           {/* Tier selector */}
           <div>
             <p className="text-xs font-medium text-slate-500 mb-2">Chase level</p>
@@ -188,7 +189,7 @@ function ChaseModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 gap-3">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 gap-3 flex-shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
