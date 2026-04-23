@@ -634,7 +634,7 @@ export default function Sidebar() {
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 padding: '4px 6px', borderRadius: 6, position: 'relative',
-                display: 'flex', alignItems: 'center',
+                alignItems: 'center',
               }}
               title="Notifications"
             >

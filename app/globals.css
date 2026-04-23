@@ -86,35 +86,38 @@
 .badge-expired       { background:#F0F0F0; color:#888; border:1px solid #DDD; }
 
 /* ── Nav tab hover zoom ─────────────────────────────────────────────────── */
-.fd-nav-tab {
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  font-size: 12.5px;
-  font-weight: 500;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: rgba(255,255,255,0.6);
-  border-bottom: 3px solid transparent;
-  text-decoration: none;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  cursor: pointer;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-}
-.fd-nav-tab:hover {
-  color: #fff;
-  border-bottom-color: rgba(255,255,255,0.5);
-}
-.fd-nav-tab.active {
-  color: #fff;
-  border-bottom-color: #fff;
-  font-weight: 600;
-}
-.fd-nav-tab.active:hover {
-  /* no transform */
+/* In @layer components so Tailwind utilities (hidden, lg:flex) can override */
+@layer components {
+  .fd-nav-tab {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(255,255,255,0.6);
+    border-bottom: 3px solid transparent;
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .fd-nav-tab:hover {
+    color: #fff;
+    border-bottom-color: rgba(255,255,255,0.5);
+  }
+  .fd-nav-tab.active {
+    color: #fff;
+    border-bottom-color: #fff;
+    font-weight: 600;
+  }
+  .fd-nav-tab.active:hover {
+    /* no transform */
+  }
 }
 
 /* ── Keyframes ──────────────────────────────────────────────────────────── */
