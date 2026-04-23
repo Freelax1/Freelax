@@ -2,18 +2,36 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Freedesk — UK Freelancer CRM',
-  description: 'Clients, invoices, IR35, and tax — built for UK freelancers.',
+  title: 'Freedesk — Tax & invoicing for UK freelancers',
+  description: 'Financial control for UK freelancers. Tax estimates, invoicing, expenses, IR35.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Freedesk',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 }
 
 export const viewport: Viewport = {
+  themeColor: '#1D6B35',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Freedesk" />
+      </head>
       <body>{children}</body>
     </html>
   )
