@@ -751,7 +751,7 @@ export default function Sidebar() {
         </div>
       </header>
 
-      {/* Mobile menu — unchanged */}
+      {/* Mobile menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
@@ -759,46 +759,52 @@ export default function Sidebar() {
             background: '#111', position: 'absolute', top: 0, left: 0, bottom: 0,
             width: 240, display: 'flex', flexDirection: 'column',
           }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ flexShrink: 0 }}>
               <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>freedesk</span>
               <button onClick={() => setMobileOpen(false)}>
                 <X style={{ width: 20, height: 20, color: '#fff' }} />
               </button>
             </div>
-            <nav className="flex-1 py-3 px-3 space-y-0.5">
-              {NAV.map(({ href, label }) => {
-                const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-                return (
-                  <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{
-                    display: 'block', padding: '9px 14px', borderRadius: 6,
-                    fontSize: 13, fontWeight: active ? 600 : 400,
-                    color: active ? '#fff' : 'rgba(255,255,255,0.6)',
-                    background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    textDecoration: 'none',
-                  }}>
-                    {label}
+            {/* Scrollable body — nav + footer scroll together so Sign out is always reachable */}
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+              <nav className="py-3 px-3 space-y-0.5" style={{ flexShrink: 0 }}>
+                {NAV.map(({ href, label }) => {
+                  const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+                  return (
+                    <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{
+                      display: 'block', padding: '9px 14px', borderRadius: 6,
+                      fontSize: 13, fontWeight: active ? 600 : 400,
+                      color: active ? '#fff' : 'rgba(255,255,255,0.6)',
+                      background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                      textDecoration: 'none',
+                    }}>
+                      {label}
+                    </Link>
+                  )
+                })}
+              </nav>
+              {/* mt-auto keeps footer pinned to the bottom of the scrollable area;
+                  safe-area-inset-bottom stops iOS chrome from covering Sign out */}
+              <div className="mt-auto px-5 border-t border-white/10 space-y-3"
+                style={{ paddingTop: 16, paddingBottom: 'max(env(safe-area-inset-bottom), 16px)' }}>
+                {!checklistDone && (
+                  <Link href="/dashboard#getting-started" onClick={() => setMobileOpen(false)}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500 }}>
+                    Getting started
+                    <span style={{ fontSize: 10, fontWeight: 700, background: '#1D6B35', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
+                      {completedSteps}/{totalSteps}
+                    </span>
                   </Link>
-                )
-              })}
-            </nav>
-            <div className="px-5 py-4 border-t border-white/10 space-y-3">
-              {!checklistDone && (
-                <Link href="/dashboard#getting-started" onClick={() => setMobileOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500 }}>
-                  Getting started
-                  <span style={{ fontSize: 10, fontWeight: 700, background: '#1D6B35', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
-                    {completedSteps}/{totalSteps}
-                  </span>
+                )}
+                <Link href="/settings" onClick={() => setMobileOpen(false)}
+                  style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+                  Settings
                 </Link>
-              )}
-              <Link href="/settings" onClick={() => setMobileOpen(false)}
-                style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
-                Settings
-              </Link>
-              <button onClick={handleSignOut}
-                style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                Sign out
-              </button>
+                <button onClick={handleSignOut}
+                  style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>
