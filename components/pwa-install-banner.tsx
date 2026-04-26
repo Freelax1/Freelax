@@ -55,15 +55,19 @@ export function PWAInstallBanner() {
       return () => clearTimeout(t);
     } else {
       // Android/Chrome: wait for beforeinstallprompt
+      let timer: ReturnType<typeof setTimeout> | null = null;
+
       const handler = (e: Event) => {
         e.preventDefault();
         setDeferredPrompt(e);
-        const t = setTimeout(() => setShow(true), 30000);
-        // Clean up timeout if component unmounts
-        return () => clearTimeout(t);
+        timer = setTimeout(() => setShow(true), 30000);
       };
+
       window.addEventListener("beforeinstallprompt", handler);
-      return () => window.removeEventListener("beforeinstallprompt", handler);
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handler);
+        if (timer) clearTimeout(timer);
+      };
     }
   }, []);
 
