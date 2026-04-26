@@ -105,7 +105,7 @@ function RightPanel() {
     <div
       className="auth-right"
       style={{
-        flex: '0 0 45%',
+        flex: '0 0 40%',
         minHeight: '100vh',
         position: 'relative',
         overflow: 'hidden',
@@ -121,15 +121,15 @@ function RightPanel() {
         background: 'rgba(0,0,0,0.35)',
       }} />
 
-      {/* Content — bottom half */}
+      {/* Content — vertically centered with top clearance for wordmark */}
       <div style={{
         position: 'relative',
         zIndex: 1,
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-end',
-        padding: '48px 40px 8%',
+        justifyContent: 'center',
+        padding: '100px 40px 48px',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <p style={{
@@ -402,21 +402,21 @@ export default function SignupPage() {
       {/* Page wrapper — position relative so the split wordmark can be absolutely placed */}
       <div style={{ minHeight: '100vh', display: 'flex', position: 'relative' }}>
 
-        {/* Split wordmark — absolutely centered, spans both panels */}
+        {/* Split wordmark — top of page, split aligned to 60/40 panel boundary */}
         <div
           className="auth-split-wordmark"
           style={{
-            position: 'fixed',
-            top: '50%',
+            position: 'absolute',
+            top: 48,
             left: 0,
             right: 0,
-            transform: 'translateY(-50%)',
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
+            paddingLeft: 'calc(60% - 145px)',
             alignItems: 'baseline',
             zIndex: 10,
             pointerEvents: 'none',
-            fontSize: 72,
+            fontSize: 64,
             fontWeight: 800,
             letterSpacing: '-0.03em',
             lineHeight: 1,
@@ -428,9 +428,9 @@ export default function SignupPage() {
           <span style={{ color: '#1D6B35' }}>.</span>
         </div>
 
-        {/* Left — form pushed to bottom half */}
+        {/* Left — form vertically centered with top clearance for wordmark */}
         <div className="auth-left" style={{
-          flex: '0 0 55%',
+          flex: '0 0 60%',
           minHeight: '100vh',
           backgroundColor: '#FAFAF7',
           backgroundImage: "url('/left-panel-bg.png')",
@@ -439,8 +439,8 @@ export default function SignupPage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'flex-end',
-          padding: '48px 32px 10%',
+          justifyContent: 'center',
+          padding: '140px 32px 48px',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             {cardContent}
