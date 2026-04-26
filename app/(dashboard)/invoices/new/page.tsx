@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { fetchClientsForDropdown, createClientRecord } from '@/lib/api/clients'
-import { fetchProjectsForClient } from '@/lib/api/projects'
+import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createInvoice, updateInvoice, createInvoiceLineItems, deleteInvoiceLineItems, fetchMaxInvoiceNumber } from '@/lib/api/invoices'
 import { calcSubtotal, calcVatAmount, calcTotal, generateInvoiceNumber } from '@/lib/logic/invoices'
 import AIFlag from '@/components/ai-flag'
@@ -58,6 +58,11 @@ export default function NewInvoicePage() {
   const [newClientContact, setNewClientContact] = useState('')
   const [newClientEmail, setNewClientEmail] = useState('')
   const [creatingClient, setCreatingClient] = useState(false)
+
+  // Inline create project state
+  const [showNewProject, setShowNewProject]   = useState(false)
+  const [newProjectTitle, setNewProjectTitle] = useState('')
+  const [creatingProject, setCreatingProject] = useState(false)
 
   useEffect(() => {
     fetchClientsForDropdown().then(setClients)
@@ -147,6 +152,29 @@ export default function NewInvoicePage() {
       setNewClientName(''); setNewClientContact(''); setNewClientEmail('')
     } catch (e) { console.error(e) }
     setCreatingClient(false)
+  }
+
+  async function handleCreateProject() {
+    if (!newProjectTitle.trim() || !clientId) return
+    setCreatingProject(true)
+    try {
+      const user = await fetchCurrentUser()
+      const project = await createProject({
+        user_id:   user?.id,
+        client_id: clientId,
+        title:     newProjectTitle.trim(),
+        status:    'active',
+      })
+      if (project) {
+        const updated = await fetchProjectsForClient(clientId)
+        setProjects(updated)
+        setProjectId(project.id)
+        window.dispatchEvent(new Event('fd:data-invalidate'))
+      }
+      setShowNewProject(false)
+      setNewProjectTitle('')
+    } catch (e) { console.error(e) }
+    setCreatingProject(false)
   }
 
   function updateLine(i: number, field: keyof LineItem, value: string | number) {
@@ -348,10 +376,47 @@ export default function NewInvoicePage() {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
-            <select value={projectId} onChange={e => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Select project...</option>
-              {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={projectId}
+                onChange={e => {
+                  if (e.target.value === '__new_project__') { setShowNewProject(true) }
+                  else { setProjectId(e.target.value); setShowNewProject(false) }
+                }}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              >
+                <option value="">Select project...</option>
+                {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                {clientId && <option value="__new_project__">+ Add project</option>}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
+            {showNewProject && (
+              <div className="mt-2 border border-blue-200 rounded-lg p-3 bg-blue-50 space-y-2">
+                <p className="text-xs font-semibold text-blue-700 mb-1">New project</p>
+                <input
+                  value={newProjectTitle}
+                  onChange={e => setNewProjectTitle(e.target.value)}
+                  placeholder="Project name *"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                />
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleCreateProject}
+                    disabled={!newProjectTitle.trim() || creatingProject}
+                    className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {creatingProject ? 'Saving...' : 'Save project'}
+                  </button>
+                  <button
+                    onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}
+                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           {clientWarning && (
             <div className="col-span-2 px-4 py-3 rounded-lg text-sm font-medium bg-amber-50 text-amber-800 border border-amber-200">

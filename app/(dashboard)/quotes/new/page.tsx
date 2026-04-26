@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { fetchClientsForDropdown } from '@/lib/api/clients'
-import { fetchProjectsForClient } from '@/lib/api/projects'
+import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/quotes'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } from '@/lib/logic/quotes'
 import Link from 'next/link'
@@ -43,12 +43,39 @@ export default function NewQuotePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError]   = useState<string | null>(null)
 
+  // Inline create project state
+  const [showNewProject, setShowNewProject]   = useState(false)
+  const [newProjectTitle, setNewProjectTitle] = useState('')
+  const [creatingProject, setCreatingProject] = useState(false)
+
   useEffect(() => { fetchClientsForDropdown().then(setClients) }, [])
 
   useEffect(() => {
     if (!clientId) { setProjects([]); return }
     fetchProjectsForClient(clientId).then(setProjects)
   }, [clientId])
+
+  async function handleCreateProject() {
+    if (!newProjectTitle.trim() || !clientId) return
+    setCreatingProject(true)
+    try {
+      const user = await fetchCurrentUser()
+      const project = await createProject({
+        user_id:   user?.id,
+        client_id: clientId,
+        title:     newProjectTitle.trim(),
+        status:    'active',
+      })
+      if (project) {
+        const updated = await fetchProjectsForClient(clientId)
+        setProjects(updated)
+        setProjectId(project.id)
+      }
+      setShowNewProject(false)
+      setNewProjectTitle('')
+    } catch (e) { console.error(e) }
+    setCreatingProject(false)
+  }
 
   function updateLine(i: number, field: keyof LineItem, value: string | number) {
     setLineItems(prev => prev.map((item, idx) => idx === i ? { ...item, [field]: value } : item))
@@ -131,10 +158,46 @@ export default function NewQuotePage() {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
-            <select value={projectId} onChange={e => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900">
+            <select
+              value={projectId}
+              onChange={e => {
+                if (e.target.value === '__new_project__') { setShowNewProject(true) }
+                else { setProjectId(e.target.value); setShowNewProject(false) }
+              }}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+            >
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+              {clientId && <option value="__new_project__">+ Add project</option>}
             </select>
+            {showNewProject && (
+              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
+                <p className="text-xs font-semibold text-slate-700 mb-1">New project</p>
+                <input
+                  value={newProjectTitle}
+                  onChange={e => setNewProjectTitle(e.target.value)}
+                  placeholder="Project name *"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                />
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCreateProject}
+                    disabled={!newProjectTitle.trim() || creatingProject}
+                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    {creatingProject ? 'Saving...' : 'Save project'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}
+                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           {clientWarning && (
             <div className="col-span-2 px-4 py-3 rounded-lg text-sm font-medium"
