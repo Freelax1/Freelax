@@ -459,6 +459,7 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openTab, setOpenTab] = useState<string | null>(null)
   const [navData, setNavData] = useState<NavData>({ invoices: [], quotes: [], clients: [], projects: [], expenses: [], ir35: [] })
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [notifOpen, setNotifOpen] = useState(false)
   const [notifSeen, setNotifSeen] = useState(false)
@@ -468,6 +469,8 @@ export default function Sidebar() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) setUserEmail(user.email)
       const [
         { data: invoices },
         { data: quotes },
@@ -743,7 +746,7 @@ export default function Sidebar() {
             justifyContent: 'center', fontSize: 12, fontWeight: 700,
             color: '#fff', border: '1px solid #444',
           }}>
-            M
+            {userEmail ? userEmail[0].toUpperCase() : '?'}
           </div>
           <button className="lg:hidden" onClick={() => setMobileOpen(true)}>
             <Menu style={{ width: 20, height: 20, color: '#fff' }} />

@@ -126,7 +126,7 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
           {[
             {
               label: 'Net income this month',
-              value: safeToSpend !== null ? '+' + formatCurrency(monthlyAvg) : '—',
+              value: '+',
               color: '#4ADE80',
               note: 'Your typical monthly net profit (income minus expenses)',
             },

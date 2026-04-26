@@ -7,7 +7,7 @@ import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import { fetchTaxPotTotal } from '@/lib/api/tax-pot'
 import {
   calcMonthlyChart, calcUnpaidTotal, hasOverdue,
-  calcMonthlyAverage, calcTaxDeadline, calcActionItems, calcRunway,
+  calcTaxDeadline, calcActionItems, calcRunway,
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
@@ -181,7 +181,6 @@ export default function DashboardPage() {
       const taxTotal = taxResult.kind === 'sole_trader' ? taxResult.totalTax : taxResult.totalPersonalTax
       const tax = { total: taxTotal }
 
-      const monthlyAvg    = calcMonthlyAverage(raw.paidInvoices, start)
       const taxDeadline   = calcTaxDeadline(end)
       const monthlyChart  = calcMonthlyChart(raw.paidInvoices, raw.expenses, start)
       const taxPotSaved   = await fetchTaxPotTotal(uid, start.getFullYear())
