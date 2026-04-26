@@ -210,6 +210,15 @@ function BulkBar({ count, unpaidCount, onMarkPaid, onDelete, onClear, marking, d
   )
 }
 
+type InvSortField = 'invoice_number' | 'issue_date' | 'due_date' | 'total'
+const INV_SORT_OPTIONS: { label: string; field: InvSortField; dir: 'asc' | 'desc' }[] = [
+  { label: 'Newest first', field: 'issue_date', dir: 'desc' },
+  { label: 'Oldest first', field: 'issue_date', dir: 'asc' },
+  { label: 'Due date',     field: 'due_date',   dir: 'asc' },
+  { label: 'Amount ↓',    field: 'total',       dir: 'desc' },
+  { label: 'Amount ↑',    field: 'total',       dir: 'asc' },
+]
+
 export default function InvoicesPage() {
   const [invoices, setInvoices]         = useState<any[]>([])
   const [loading, setLoading]           = useState(true)
@@ -225,6 +234,8 @@ export default function InvoicesPage() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [statusTarget, setStatusTarget] = useState<{ invoice: Invoice; status: string } | null>(null)
   const [statusUpdating, setStatusUpdating] = useState(false)
+  const [sortField, setSortField] = useState<InvSortField>('issue_date')
+  const [sortDir, setSortDir]     = useState<'desc' | 'asc'>('desc')
 
   async function load() { setInvoices(await fetchInvoices()); setLoading(false) }
   useEffect(() => { load() }, [])
@@ -334,6 +345,24 @@ export default function InvoicesPage() {
     return matchesQuery && matchesStatus
   })
 
+  function toggleInvSort(field: InvSortField) {
+    if (sortField === field) setSortDir(d => d === 'desc' ? 'asc' : 'desc')
+    else { setSortField(field); setSortDir('desc') }
+  }
+  const mobileSortIdx = INV_SORT_OPTIONS.findIndex(o => o.field === sortField && o.dir === sortDir)
+  const mobileSortLabel = mobileSortIdx >= 0 ? INV_SORT_OPTIONS[mobileSortIdx].label : (sortDir === 'asc' ? '↑' : '↓')
+  function cycleInvSort() {
+    const next = INV_SORT_OPTIONS[(mobileSortIdx >= 0 ? mobileSortIdx + 1 : 1) % INV_SORT_OPTIONS.length]
+    setSortField(next.field); setSortDir(next.dir)
+  }
+  const sorted = [...filtered].sort((a, b) => {
+    const av = sortField === 'total' ? Number(a.total) : String(a[sortField] ?? '')
+    const bv = sortField === 'total' ? Number(b.total) : String(b[sortField] ?? '')
+    if (av < bv) return sortDir === 'asc' ? -1 : 1
+    if (av > bv) return sortDir === 'asc' ? 1 : -1
+    return 0
+  })
+
   const overdueCount = invoices.filter(i => i.status === 'sent' && i.due_date < today).length
   const unpaidSelectedCount = Array.from(selected).filter(id => {
     const inv = invoices.find(i => i.id === id)
@@ -409,17 +438,22 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* Search */}
-      <div className="fd-page-enter" style={{ position: 'relative', marginBottom: 16, maxWidth: 360 }}>
-        <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search invoices..."
-            style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
-            onKeyDown={e => e.key === 'Escape' && setQuery('')}
-          />
-          {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
+      {/* Search + mobile sort */}
+      <div className="fd-page-enter" style={{ marginBottom: 16 }}>
+        <div className="flex items-center gap-2">
+          <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+            <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search invoices..."
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
+              onKeyDown={e => e.key === 'Escape' && setQuery('')}
+            />
+            {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
+          </div>
+          <button className="md:hidden flex-shrink-0" onClick={cycleInvSort} style={{ padding: '9px 12px', border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 12, fontWeight: 500, color: '#555', background: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+            {mobileSortLabel}
+          </button>
         </div>
       </div>
 
@@ -451,15 +485,35 @@ export default function InvoicesPage() {
                     className="rounded border-slate-300 cursor-pointer"
                   />
                 </th>
-                {['Invoice #', 'Client', 'Issued', 'Due', 'Total', 'Status', ''].map((h, i) => (
-                  <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === 'Total' ? 'text-right' : h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                ))}
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'invoice_number' ? 700 : 500, color: sortField === 'invoice_number' ? '#1E293B' : '#475569' }}
+                  onClick={() => toggleInvSort('invoice_number')}>
+                  Invoice # <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'invoice_number' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'invoice_number' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </th>
+                <th className="px-4 py-3 font-medium text-slate-600 text-left">Client</th>
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'issue_date' ? 700 : 500, color: sortField === 'issue_date' ? '#1E293B' : '#475569' }}
+                  onClick={() => toggleInvSort('issue_date')}>
+                  Issued <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'issue_date' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'issue_date' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </th>
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'due_date' ? 700 : 500, color: sortField === 'due_date' ? '#1E293B' : '#475569' }}
+                  onClick={() => toggleInvSort('due_date')}>
+                  Due <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'due_date' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'due_date' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </th>
+                <th className="px-4 py-3 text-right select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'total' ? 700 : 500, color: sortField === 'total' ? '#1E293B' : '#475569' }}
+                  onClick={() => toggleInvSort('total')}>
+                  <span style={{ fontSize: 10, marginRight: 2, color: sortField === 'total' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'total' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>Total
+                </th>
+                <th className="px-4 py-3 font-medium text-slate-600 text-left">Status</th>
+                <th className="px-4 py-3 w-10"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 fd-skeleton w-20" /></td>)}</tr>
-              )) : filtered.map(inv => {
+              )) : sorted.map(inv => {
                 const days = calcDaysOverdue(inv.due_date)
                 const pastDue = isPastDue(inv.status, inv.due_date, today)
                 return (
@@ -500,7 +554,7 @@ export default function InvoicesPage() {
               <div className="h-3 fd-skeleton w-32 mb-2" />
               <div className="h-3 fd-skeleton w-20" />
             </div>
-          )) : filtered.map(inv => {
+          )) : sorted.map(inv => {
             const days = calcDaysOverdue(inv.due_date)
             const pastDue = isPastDue(inv.status, inv.due_date, today)
             const isSelected = selected.has(inv.id)
