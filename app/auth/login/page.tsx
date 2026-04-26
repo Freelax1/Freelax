@@ -336,7 +336,7 @@ export default function LoginPage() {
             right: 0,
             display: 'flex',
             justifyContent: 'flex-start',
-            paddingLeft: 'calc(60% - 145px)',
+            paddingLeft: 'calc(60% - 170px)',
             alignItems: 'baseline',
             zIndex: 10,
             pointerEvents: 'none',
