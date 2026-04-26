@@ -410,7 +410,7 @@ export default function SignupPage() {
           }}
         >
           <span style={{ color: '#FFFFFF' }}>Free</span>
-          <span style={{ color: 'rgba(255,255,255,0.75)' }}>lax</span>
+          <span style={{ color: '#0F172A' }}>lax</span>
           <span style={{ color: '#1D6B35' }}>.</span>
         </div>
 
