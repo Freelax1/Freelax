@@ -99,7 +99,7 @@ function RightPanel() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '48px 40px 80px',
+        padding: '48px 40px 8%',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <p style={{
@@ -330,7 +330,7 @@ export default function LoginPage() {
         <div
           className="auth-split-wordmark"
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: '50%',
             left: 0,
             right: 0,
@@ -364,7 +364,7 @@ export default function LoginPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'flex-end',
-          padding: '48px 32px 80px',
+          padding: '48px 32px 10%',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             <Suspense fallback={<LoginFallback />}>
