@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       const businessName = sender?.business_name || sender?.full_name || 'Freelax User'
       const expiryDate   = new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       const clientName   = client.contact_name || client.name
-      const portalLink   = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://freedesk.co.uk'}/q/${quote.public_token}`
+      const portalLink   = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://freelax.co.uk'}/q/${quote.public_token}`
 
       // Template variables
       const vars: Record<string, string> = {

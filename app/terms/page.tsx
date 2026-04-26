@@ -64,7 +64,7 @@ export default function TermsPage() {
         <Section id="account" title="3. Your account">
           <p style={{ margin: 0 }}>
             You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Notify us immediately at{' '}
-            <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>{' '}
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>{' '}
             if you suspect unauthorised access. We reserve the right to suspend or terminate accounts that violate these terms.
           </p>
         </Section>
@@ -131,7 +131,7 @@ export default function TermsPage() {
         <Section id="contact" title="12. Contact">
           <p style={{ margin: 0 }}>
             Questions about these terms? Email{' '}
-            <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
 

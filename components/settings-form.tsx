@@ -152,8 +152,8 @@ function BillingSection({ profile }: { profile: any }) {
           {currentPlan !== 'free' && (
             <p className="text-sm text-slate-500">
               To manage your subscription email{' '}
-              <a href="mailto:support@freedesk.co.uk" className="font-medium text-slate-700 underline underline-offset-2">
-                support@freedesk.co.uk
+              <a href="mailto:support@freelax.co.uk" className="font-medium text-slate-700 underline underline-offset-2">
+                support@freelax.co.uk
               </a>
             </p>
           )}
@@ -276,8 +276,8 @@ function BillingSection({ profile }: { profile: any }) {
                         isDark ? 'bg-white/10 text-slate-300' : 'bg-slate-100 text-slate-600'
                       }`}>
                         Contact{' '}
-                        <a href="mailto:support@freedesk.co.uk" className={`font-semibold underline underline-offset-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                          support@freedesk.co.uk
+                        <a href="mailto:support@freelax.co.uk" className={`font-semibold underline underline-offset-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                          support@freelax.co.uk
                         </a>
                       </div>
                     ) : (

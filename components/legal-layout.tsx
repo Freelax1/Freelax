@@ -191,7 +191,7 @@ export default async function LegalLayout({
             <Link href="/security" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Security</Link>
             <Link href="/privacy" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Privacy</Link>
             <Link href="/terms" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Terms</Link>
-            <a href="mailto:support@freedesk.co.uk" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Contact</a>
+            <a href="mailto:support@freelax.co.uk" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Contact</a>
           </div>
         </div>
       </div>

@@ -153,7 +153,7 @@ export default function SecurityPage() {
         <Section id="export" Icon={Database} title="Export & deletion">
           <p style={{ margin: '0 0 12px' }}>
             You can export your full data at any time from <strong>Settings</strong>, or request a machine-readable copy by emailing{' '}
-            <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
           <p style={{ margin: 0 }}>
             Account deletion is a self-service action in <strong>Settings → Danger Zone</strong>. Deleted accounts and all associated personal data are erased within <strong>30 days</strong>, aligned with UK GDPR requirements.
@@ -175,7 +175,7 @@ export default function SecurityPage() {
         <Section id="contact" Icon={Mail} title="Contact">
           <p style={{ margin: 0 }}>
             Questions about security, compliance, or data protection? Email{' '}
-            <a href="mailto:security@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>security@freedesk.co.uk</a>. We aim to respond within two business days.
+            <a href="mailto:security@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>security@freelax.co.uk</a>. We aim to respond within two business days.
           </p>
         </Section>
       </div>

@@ -53,7 +53,7 @@ export default function PrivacyPage() {
         <Section id="who-we-are" title="1. Who we are">
           <p style={{ margin: 0 }}>
             Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. You can reach us at{' '}
-            <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
 
@@ -130,7 +130,7 @@ export default function PrivacyPage() {
           </ul>
           <p style={{ margin: '12px 0 0' }}>
             To exercise any of these rights, email{' '}
-            <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>. We will respond within 30 days.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days.
           </p>
         </Section>
 

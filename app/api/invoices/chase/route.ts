@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
           <p style="margin-top:24px;">Kind regards,<br/><strong>${sender?.full_name || businessName}</strong><br/>${sender?.email || ''}</p>
 
           <hr style="margin:32px 0;border:none;border-top:1px solid #e2e8f0;"/>
-          <p style="font-size:11px;color:#94a3b8;">This is an automated payment reminder sent via <a href="https://freedesk.co.uk" style="color:#94a3b8;">Freelax</a> — hassle-free invoicing for freelancers.</p>
+          <p style="font-size:11px;color:#94a3b8;">This is an automated payment reminder sent via <a href="https://freelax.co.uk" style="color:#94a3b8;">Freelax</a> — hassle-free invoicing for freelancers.</p>
         </div>
       `
 

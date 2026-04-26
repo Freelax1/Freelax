@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await resend.emails.send({
-      from:    'Freelax <noreply@freedesk.co.uk>',
+      from:    'Freelax <noreply@freelax.co.uk>',
       to:      email,
       subject: `${senderName} has invited you to view their Freelax account`,
       html:    `<p>Hi,</p>
