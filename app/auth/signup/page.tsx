@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
-const TAGLINES = [
-  'Your finances, finally under control.',
-  'Tax done. Invoices sent. Time saved.',
-  'Built for UK freelancers, by UK freelancers.',
+const taglines = [
+  'Stop guessing your tax bill.',
+  'Send invoices in 30 seconds.',
+  'Know exactly what\'s safe to spend.',
 ]
 
 const INPUT_STYLE: React.CSSProperties = {
@@ -80,99 +80,116 @@ function PasswordStrength({ password }: { password: string }) {
 
 function RightPanel() {
   const [taglineIdx, setTaglineIdx] = useState(0)
-  const [visible, setVisible] = useState(true)
+  const [taglineVisible, setTaglineVisible] = useState(true)
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setVisible(false)
+    const interval = setInterval(() => {
+      setTaglineVisible(false)
       setTimeout(() => {
-        setTaglineIdx(i => (i + 1) % TAGLINES.length)
-        setVisible(true)
+        setTaglineIdx(i => (i + 1) % taglines.length)
+        setTaglineVisible(true)
       }, 400)
     }, 3000)
-    return () => clearInterval(id)
+    return () => clearInterval(interval)
   }, [])
 
-  const avatars = [
-    { initial: 'A', bg: '#1D6B35' },
-    { initial: 'J', bg: '#2563EB' },
-    { initial: 'S', bg: '#9333EA' },
-  ]
+  const avatars = ['A', 'J', 'S']
 
   const features = [
-    'Invoices & Quotes — get paid faster',
-    'Tax pot — set aside exactly what you owe',
-    'IR35 check — know your status in minutes',
+    'Tax calculated automatically',
+    'IR35 assessment built in',
+    'SA pack ready to download',
   ]
 
   return (
-    <div className="auth-right" style={{
-      flex: '0 0 40%',
-      minHeight: '100vh',
-      background: '#111111',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '48px 40px',
-    }}>
-      {/* Wordmark */}
-      <div>
-        <span style={{ fontSize: 26, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
-          Freelax<span style={{ color: '#1D6B35' }}>.</span>
-        </span>
-      </div>
+    <div
+      className="auth-right"
+      style={{
+        flex: '0 0 45%',
+        minHeight: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundImage: "url('/right-panel-bg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* Dark overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'rgba(0,0,0,0.35)',
+      }} />
 
-      {/* Centre content */}
-      <div>
-        <p style={{
-          fontSize: 26, fontWeight: 700, color: '#FFFFFF',
-          lineHeight: 1.3, letterSpacing: '-0.02em',
-          marginTop: 0, marginBottom: 40,
-          opacity: visible ? 1 : 0,
-          transition: 'opacity 400ms ease',
-        }}>
-          {TAGLINES[taglineIdx]}
-        </p>
-
-        {features.map((feat, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <div style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: '#1D6B35', flexShrink: 0,
-            }} />
-            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5 }}>
-              {feat}
-            </span>
-          </div>
-        ))}
-
-        {/* Social proof */}
-        <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex' }}>
-            {avatars.map(({ initial, bg }, i) => (
-              <div key={i} style={{
-                width: 32, height: 32, borderRadius: '50%',
-                background: bg,
-                border: '2px solid #111111',
-                marginLeft: i > 0 ? -8 : 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700, color: '#FFFFFF',
-                flexShrink: 0,
-              }}>
-                {initial}
-              </div>
-            ))}
-          </div>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-            Joined by 1,200+ UK freelancers
+      {/* Content */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '48px 40px',
+      }}>
+        {/* Wordmark */}
+        <div>
+          <span style={{ fontSize: 28, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
+            Freelax<span style={{ color: '#1D6B35' }}>.</span>
           </span>
         </div>
-      </div>
 
-      {/* Footer */}
-      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: 0 }}>
-        Built in the UK · Encrypted &amp; never sold.
-      </p>
+        {/* Centre content */}
+        <div>
+          <p style={{
+            fontSize: 26, fontWeight: 700, color: '#FFFFFF',
+            lineHeight: 1.3, letterSpacing: '-0.02em',
+            marginTop: 0, marginBottom: 40,
+            opacity: taglineVisible ? 1 : 0,
+            transition: 'opacity 400ms ease',
+          }}>
+            {taglines[taglineIdx]}
+          </p>
+
+          {features.map((feat, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#1D6B35', flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+                {feat}
+              </span>
+            </div>
+          ))}
+
+          {/* Social proof */}
+          <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex' }}>
+              {avatars.map((initial, i) => (
+                <div key={i} style={{
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: '#1D6B35',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  marginLeft: i > 0 ? -8 : 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 700, color: '#FFFFFF',
+                  flexShrink: 0,
+                }}>
+                  {initial}
+                </div>
+              ))}
+            </div>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              Join UK freelancers saving time on tax
+            </span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: 0 }}>
+          Built in the UK · Encrypted &amp; never sold.
+        </p>
+      </div>
     </div>
   )
 }
@@ -369,7 +386,7 @@ export default function SignupPage() {
       <div style={{ minHeight: '100vh', display: 'flex' }}>
         {/* Left — form */}
         <div className="auth-left" style={{
-          flex: '0 0 60%',
+          flex: '0 0 55%',
           minHeight: '100vh',
           backgroundColor: '#FAFAF7',
           backgroundImage: 'radial-gradient(circle, #d0cfc8 1px, transparent 1px)',
@@ -403,7 +420,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Right — dark panel */}
+        {/* Right — showcase panel */}
         <RightPanel />
       </div>
     </>
