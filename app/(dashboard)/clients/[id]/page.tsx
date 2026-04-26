@@ -1,6 +1,6 @@
 'use client'
 
-// app/(dashboard)/clients/[id]/page.tsx — v1.3
+// app/(dashboard)/clients/[id]/page.tsx — v1.4
 
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
@@ -13,6 +13,24 @@ import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
 
+// Badge component uses bg-slate-100/text-slate-700 for "completed" which reads as grey.
+// Override it here with a proper blue pill to match the completed project colour.
+function ProjectStatusBadge({ status }: { status: string }) {
+  if (status === 'completed') {
+    return (
+      <span style={{
+        fontSize: 11, fontWeight: 600,
+        padding: '2px 8px', borderRadius: 20,
+        background: '#EFF6FF', color: '#1A5E8A',
+        border: '1px solid rgba(26,94,138,0.2)',
+        display: 'inline-flex', alignItems: 'center',
+      }}>
+        Completed
+      </span>
+    )
+  }
+  return <Badge status={status} />
+}
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
   const [client, setClient]     = useState<any>(null)
@@ -65,14 +83,27 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
     <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 400, marginLeft: 6 }}>({n})</span>
   )
 
-  const projectRow = (p: any) => (
-    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-      <Link href={`/projects/${p.id}`} className="text-sm font-medium text-blue-600 hover:underline">{p.title}</Link>
-      <div className="flex items-center gap-2">
-        <Badge status={p.ir35_status} />
-        <Badge status={p.status} />
-      </div>
-    </div>
+  const projectTable = (
+    <table className="w-full text-sm">
+      <thead>
+        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'left' }}>Project</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>IR35</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>Status</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-50">
+        {projects.map(p => (
+          <tr key={p.id}>
+            <td className="py-2">
+              <Link href={`/projects/${p.id}`} className="text-blue-600 hover:underline font-medium">{p.title}</Link>
+            </td>
+            <td className="py-2 text-right"><Badge status={p.ir35_status} /></td>
+            <td className="py-2 text-right"><ProjectStatusBadge status={p.status} /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 
   return (
@@ -145,15 +176,11 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
             {chevron(projectsOpen)}
           </div>
         </div>
-        {projectsOpen && (
-          projects.length > 10 ? (
-            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-              <div className="space-y-2">{projects.map(projectRow)}</div>
-            </div>
-          ) : projects.length ? (
-            <div className="space-y-2">{projects.map(projectRow)}</div>
-          ) : <p className="text-sm text-slate-400">No projects.</p>
-        )}
+        {projectsOpen && (() => {
+          if (!projects.length) return <p className="text-sm text-slate-400">No projects.</p>
+          if (projects.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{projectTable}</div>
+          return projectTable
+        })()}
       </div>
 
       {/* Quotes */}
