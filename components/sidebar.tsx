@@ -136,8 +136,7 @@ const NAV: NavItem[] = [
     label: 'Expenses',
     dropdown: ({ expenses }) => expenses.slice(0, 4).map(e => ({
       label: e.merchant,
-      sub: `${e.category.replace(/_/g, ' ')} · ${fmt(e.amount)}`,
-      badge: { text: new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), color: '#666' },
+      sub: `${e.category.replace(/_/g, ' ')} · ${fmt(e.amount)} · ${new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
       href: '/expenses',
     })),
   },
@@ -175,7 +174,7 @@ function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; vie
         <Link key={i} href={item.href} style={{ display: 'block', textDecoration: 'none' }}>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '9px 14px',
+            padding: '7px 14px',
             borderBottom: i < items.length - 1 ? '1px solid #252525' : 'none',
             transition: 'background 0.1s',
           }}
@@ -193,16 +192,11 @@ function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; vie
               )}
             </div>
             {item.badge && (
-              <span style={{
-                marginLeft: 8, fontSize: 9, fontWeight: 700,
-                color: item.badge.color,
-                background: statusBg(item.badge.text.toLowerCase().replace(/ /g, '_')),
-                padding: '2px 6px', borderRadius: 4,
-                whiteSpace: 'nowrap', flexShrink: 0,
-                border: `1px solid ${item.badge.color}22`,
-              }}>
-                {item.badge.text}
-              </span>
+              <div style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: item.badge.color,
+                flexShrink: 0,
+              }} />
             )}
           </div>
         </Link>
@@ -712,13 +706,10 @@ export default function Sidebar() {
                     width: 9, height: 9, background: '#1A1A1A', border: '1px solid #2A2A2A',
                     borderRight: 'none', borderBottom: 'none',
                   }} />
-                  <div style={{ padding: '8px 14px 6px', borderBottom: '1px solid #252525' }}>
-                    <p style={{ fontSize: 9, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Settings</p>
-                  </div>
                   {SETTINGS_TABS.map((tab, i) => (
                     <Link key={i} href={tab.href} style={{ display: 'block', textDecoration: 'none' }}>
                       <div style={{
-                        padding: '9px 14px',
+                        padding: '7px 14px',
                         borderBottom: i < SETTINGS_TABS.length - 1 ? '1px solid #252525' : 'none',
                         transition: 'background 0.1s',
                       }}
@@ -726,7 +717,7 @@ export default function Sidebar() {
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
                         <p style={{ fontSize: 12, fontWeight: 600, color: '#F0F0F0' }}>{tab.label}</p>
-                        <p style={{ fontSize: 10, color: '#666', marginTop: 1 }}>{tab.sub}</p>
+                        <p style={{ fontSize: 10, color: '#777', marginTop: 1 }}>{tab.sub}</p>
                       </div>
                     </Link>
                   ))}
