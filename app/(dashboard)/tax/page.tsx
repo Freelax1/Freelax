@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
+import { useState, useEffect, useRef } from 'react'
+import { fetchCurrentUser, fetchUserProfile, updateUserProfile } from '@/lib/api/users'
 import { fetchPaidInvoicesByUser } from '@/lib/api/invoices'
 import { fetchExpensesByUser } from '@/lib/api/expenses'
 import {
@@ -284,6 +284,17 @@ export default function TaxPage() {
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
   const [exportLoading, setExportLoading]   = useState(false)
+  const [baseInputs, setBaseInputs]                   = useState<Record<string, any> | null>(null)
+  const [otherIncome, setOtherIncome]                 = useState(0)
+  const [investmentDividends, setInvestmentDividends] = useState(0)
+  const [savingAdditional, setSavingAdditional]       = useState(false)
+  const userIdRef = useRef('')
+
+  useEffect(() => {
+    if (!baseInputs) return
+    const newDetail = calculateTax({ ...baseInputs, otherIncome, investmentDividends })
+    setPageData(prev => prev ? { ...prev, taxDetail: newDetail } : null)
+  }, [baseInputs, otherIncome, investmentDividends])
 
   useEffect(() => {
     async function load() {
@@ -303,7 +314,7 @@ export default function TaxPage() {
       const totalExpenses     = expenses?.reduce((s: number, e: ExpRow) => s + Number(e.amount), 0) ?? 0
       const vatReclaimable    = expenses?.filter((e: ExpRow) => e.vat_reclaimable).reduce((s: number, e: ExpRow) => s + Number(e.vat_amount), 0) ?? 0
 
-      const taxInputs = {
+      const baseInputsObj = {
         grossIncome:          totalIncomeExVat,
         totalExpenses,
         businessType:         (profile?.business_type ?? 'sole_trader') as BusinessType,
@@ -313,7 +324,10 @@ export default function TaxPage() {
         dividendsDrawn:       profile?.dividends_drawn ? Number(profile.dividends_drawn) : undefined,
       }
 
-      const taxDetail = calculateTax(taxInputs)
+      const otherIncomeVal         = Number(profile?.other_income ?? 0)
+      const investmentDividendsVal = Number(profile?.investment_dividends ?? 0)
+
+      const taxDetail = calculateTax({ ...baseInputsObj, otherIncome: otherIncomeVal, investmentDividends: investmentDividendsVal })
       const vatWarning = getVatThresholdWarning(totalIncomeExVat)
 
       // Banner hides if the user has explicitly set their tax profile (student_loan_plan not null)
@@ -341,6 +355,10 @@ export default function TaxPage() {
       setTaxPotTotal(potTotal)
       setTaxPotEntries(potEntries)
 
+      userIdRef.current = userId
+      setBaseInputs(baseInputsObj)
+      setOtherIncome(otherIncomeVal)
+      setInvestmentDividends(investmentDividendsVal)
       setLoading(false)
     }
     load()
@@ -355,6 +373,18 @@ export default function TaxPage() {
       setNarrative(json.narrative ?? json.error ?? 'Could not generate summary.')
     } catch { setNarrative('Failed to connect. Please try again.') }
     setNarrativeLoading(false)
+  }
+
+  async function saveAdditionalIncome() {
+    if (!userIdRef.current) return
+    setSavingAdditional(true)
+    try {
+      await updateUserProfile(userIdRef.current, {
+        other_income: otherIncome,
+        investment_dividends: investmentDividends,
+      })
+    } catch (e) { console.error(e) }
+    setSavingAdditional(false)
   }
 
   const exportCSV = (type: string) => { window.location.href = `/api/invoices/export?type=${type}` }
@@ -638,6 +668,39 @@ export default function TaxPage() {
             )
           })()}
 
+          {/* ── Additional income inputs ─── */}
+          {(pageData.taxDetail.grossIncome > 0 || pageData.taxDetail.totalExpenses > 0) && (
+            <Card title="Additional income">
+              <div className="py-3 space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">Other income</label>
+                  <input
+                    type="number" min="0" placeholder="0.00"
+                    value={otherIncome || ''}
+                    onChange={e => setOtherIncome(Number(e.target.value) || 0)}
+                    onBlur={saveAdditionalIncome}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  />
+                  <p className="text-xs text-slate-400 mt-1.5">PAYE employment income, rental income, savings interest or any other taxable income outside your freelance work.</p>
+                </div>
+                {pageData.businessType === 'sole_trader' && (
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 block mb-1.5">Investment dividends</label>
+                    <input
+                      type="number" min="0" placeholder="0.00"
+                      value={investmentDividends || ''}
+                      onChange={e => setInvestmentDividends(Number(e.target.value) || 0)}
+                      onBlur={saveAdditionalIncome}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    />
+                    <p className="text-xs text-slate-400 mt-1.5">Dividends from shares, funds or investment ISAs. Not dividends from your own limited company.</p>
+                  </div>
+                )}
+                {savingAdditional && <p className="text-xs text-slate-400">Saving…</p>}
+              </div>
+            </Card>
+          )}
+
           {/* ── SOLE TRADER ── */}
           {pageData.taxDetail.kind === 'sole_trader' && (() => {
             const t = pageData.taxDetail
@@ -672,6 +735,9 @@ export default function TaxPage() {
                         hint={`Tax relief: ${formatCurrency(t.pensionTaxRelief)} (basic rate at source)`} />
                     )}
                     <Row label="Net profit"             value={formatCurrency(t.netProfit)} bold />
+                    {t.otherIncome > 0 && (
+                      <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
+                    )}
                     <Row label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
                       hint={t.paAlert ? 'Reduced — income over £100k' : undefined} />
                     <Row label="Taxable income"         value={formatCurrency(t.taxableIncome)} bold />
@@ -689,6 +755,9 @@ export default function TaxPage() {
                       hint="Class 2 NI abolished April 2024" />
                     {t.studentLoanRepayment > 0 && (
                       <Row label="Student loan repayment" value={formatCurrency(t.studentLoanRepayment)} />
+                    )}
+                    {t.investmentDividendTax > 0 && (
+                      <Row label="Investment dividend tax" value={formatCurrency(t.investmentDividendTax)} />
                     )}
                     <Row label="Total deductions"        value={formatCurrency(t.totalTax)} bold />
                   </Card>
@@ -750,6 +819,9 @@ export default function TaxPage() {
                   </Card>
 
                   <Card title="Personal — Director Self Assessment">
+                    {t.otherIncome > 0 && (
+                      <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
+                    )}
                     <Row label="Salary"                       value={formatCurrency(t.salaryDrawn)} />
                     <Row label="Salary income tax"            value={formatCurrency(t.salaryIncomeTax)} indent red />
                     <Row label={<span>Employee NI (8%)<InfoTooltip>Your personal National Insurance on salary income. 8% on earnings between £12,570 and £50,270, then 2% on anything above.</InfoTooltip></span>}             value={formatCurrency(t.employeeNI)} indent red />

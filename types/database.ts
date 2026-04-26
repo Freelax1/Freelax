@@ -211,6 +211,9 @@ export interface SoleTraderTaxDetail {
   incomeTax: number
   classFourNI: number
   studentLoanRepayment: number
+  otherIncome: number
+  investmentDividends: number
+  investmentDividendTax: number
   pensionContributions: number
   pensionTaxRelief: number
   paymentsOnAccount: number
@@ -241,6 +244,7 @@ export interface LtdCompanyTaxDetail {
   taxableDividends: number
   dividendTax: number
   studentLoanRepayment: number
+  otherIncome: number
   pensionContributions: number
   paymentsOnAccount: number
   totalJanuaryPayment: number
