@@ -95,12 +95,6 @@ function RightPanel() {
 
   const avatars = ['A', 'J', 'S']
 
-  const features = [
-    'Tax calculated automatically',
-    'IR35 assessment built in',
-    'SA pack ready to download',
-  ]
-
   return (
     <div
       className="auth-right"
@@ -132,13 +126,13 @@ function RightPanel() {
         overflowY: 'auto',
         padding: '100px 40px 48px',
       }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+        <div style={{ width: '100%', maxWidth: 420, marginTop: 80 }}>
           <img
             src="/dashboard-mockup.svg"
             alt="Freelax dashboard preview"
             style={{
               width: '100%',
-              maxWidth: 420,
+              maxWidth: 360,
               borderRadius: 12,
               opacity: 0.92,
               marginBottom: 24,
@@ -166,23 +160,8 @@ function RightPanel() {
             {taglines[taglineIdx]}
           </p>
 
-          {/* Feature list */}
-          <div style={{ marginTop: 40 }}>
-            {features.map((feat, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <div style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: '#1D6B35', flexShrink: 0,
-                }} />
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
-                  {feat}
-                </span>
-              </div>
-            ))}
-          </div>
-
           {/* Social proof */}
-          <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex' }}>
               {avatars.map((initial, i) => (
                 <div key={i} style={{
