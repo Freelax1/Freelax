@@ -13,7 +13,7 @@ export async function fetchUserProfile(userId: string) {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('users')
-    .select('business_type, student_loan_plan, pension_contributions, salary_drawn, dividends_drawn, vat_registered, monthly_expenses_estimate, monthly_personal_outgoings')
+    .select('business_type, student_loan_plan, pension_contributions, salary_drawn, dividends_drawn, vat_registered, monthly_expenses_estimate, monthly_personal_outgoings, other_income, investment_dividends')
     .eq('id', userId)
     .single()
   if (error) throw error
