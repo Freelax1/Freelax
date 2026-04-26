@@ -175,6 +175,8 @@ export default function DashboardPage() {
         studentLoanPlan:      (profile?.student_loan_plan ?? 'none') as StudentLoanPlan,
         salaryDrawn:          profile?.salary_drawn ? Number(profile.salary_drawn) : undefined,
         dividendsDrawn:       profile?.dividends_drawn ? Number(profile.dividends_drawn) : undefined,
+        otherIncome:          Number((profile as any)?.other_income ?? 0),
+        investmentDividends:  Number((profile as any)?.investment_dividends ?? 0),
       })
       const taxTotal = taxResult.kind === 'sole_trader' ? taxResult.totalTax : taxResult.totalPersonalTax
       const tax = { total: taxTotal }
