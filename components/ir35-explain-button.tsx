@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Sparkles, Loader2, X } from 'lucide-react'
+import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface IR35ExplainButtonProps {
   projectId: string
@@ -130,9 +131,10 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 </div>
               )}
 
-              <p className="text-xs text-slate-400 border-t border-slate-100 pt-3">
-                Not tax advice. Consult a qualified IR35 specialist for a formal determination.
-              </p>
+              <div className="border-t border-slate-100 pt-3 space-y-2">
+                <p className="text-xs text-slate-400">Not tax advice. Consult a qualified IR35 specialist for a formal determination.</p>
+                <NotTaxAdviceDisclaimer />
+              </div>
             </div>
           </div>
         </div>

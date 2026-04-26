@@ -5,6 +5,7 @@ import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
+import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface Props {
   projectId: string
@@ -188,9 +189,10 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             </div>
           )}
 
-          <p className="text-xs text-slate-400 border-t border-slate-100 pt-3">
-            Not tax advice. Consult a qualified IR35 specialist for a formal determination.
-          </p>
+          <div className="border-t border-slate-100 pt-3 space-y-2">
+            <p className="text-xs text-slate-400">Not tax advice. Consult a qualified IR35 specialist for a formal determination.</p>
+            <NotTaxAdviceDisclaimer />
+          </div>
         </div>
       )}
 
