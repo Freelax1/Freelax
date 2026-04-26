@@ -1,18 +1,15 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchInvoices, deleteInvoice, fetchInvoiceWithLineItems, createInvoice, createInvoiceLineItems, fetchMaxInvoiceNumber } from '@/lib/api/invoices'
+import { fetchInvoices, deleteInvoice } from '@/lib/api/invoices'
 import { calcDaysOverdue, isPastDue } from '@/lib/logic/invoices'
 import PageHeader from '@/components/page-header'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { MoreVertical, Eye, Pencil, Trash2, Copy, Mail } from 'lucide-react'
-import { generateInvoiceNumber } from '@/lib/logic/invoices'
-import { fetchCurrentUser } from '@/lib/api/users'
-import type { Invoice, InvoiceLineItem } from '@/types/database'
+import { MoreVertical, Eye, Pencil, Trash2, Mail } from 'lucide-react'
+import type { Invoice } from '@/types/database'
 
 // ── Delete modal ──────────────────────────────────────────────────────
 function DeleteModal({ invoiceNumber, count, paidCount, onConfirm, onCancel, loading }: {
@@ -84,9 +81,9 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
-function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, onSendByEmail, duplicating }: {
-  invoice: Invoice; onDelete: (inv: Invoice) => void; onDuplicate: (inv: Invoice) => void
-  onStatusChange: (inv: Invoice, status: string) => void; onSendByEmail: (inv: Invoice) => void; duplicating?: boolean
+function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
+  invoice: Invoice; onDelete: (inv: Invoice) => void
+  onStatusChange: (inv: Invoice, status: string) => void; onSendByEmail: (inv: Invoice) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -103,10 +100,10 @@ function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, onSendByEma
 
   // Status options — never show paid for already-paid invoices
   const allStatuses = [
-    { key: 'sent',      label: 'Mark as Sent', dot: '#1A5E8A', bg: '#EBF4FD', border: 'rgba(26,94,138,0.2)',  text: '#1A5E8A' },
-    { key: 'paid',      label: 'Paid',      dot: '#1D6B35', bg: '#F0FDF4', border: 'rgba(29,107,53,0.2)',  text: '#1D6B35' },
-    { key: 'cancelled', label: 'Cancelled', dot: '#C0392B', bg: '#FEF2F2', border: 'rgba(192,57,43,0.2)',  text: '#C0392B' },
-    { key: 'draft',     label: 'Draft',     dot: '#94A3B8', bg: '#F8FAFC', border: 'rgba(0,0,0,0.08)',     text: '#64748B' },
+    { key: 'sent',      label: 'Mark as Sent', dot: '#1A5E8A' },
+    { key: 'paid',      label: 'Paid',         dot: '#1D6B35' },
+    { key: 'cancelled', label: 'Cancelled',    dot: '#C0392B' },
+    { key: 'draft',     label: 'Draft',        dot: '#94A3B8' },
   ]
   const statusOptions = allStatuses.filter(s => {
     if (s.key === invoice.status) return false   // hide current status
@@ -139,35 +136,17 @@ function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, onSendByEma
               <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
             </Link>
           )}
-          <button onClick={e => { e.stopPropagation(); setOpen(false); onDuplicate(invoice) }}
-            disabled={duplicating}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left border-t border-slate-100 disabled:opacity-40">
-            <Copy className="w-3.5 h-3.5 text-slate-400" /> {duplicating ? 'Duplicating…' : 'Duplicate'}
-          </button>
-
           {/* Status options */}
           {statusOptions.length > 0 && (
             <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 8px' }}>
               <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
               {statusOptions.map(s => (
                 <button key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    width: '100%', padding: '6px 8px', borderRadius: 6,
-                    background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.1s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = s.bg)}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left rounded-md"
+                  style={{ border: 'none', cursor: 'pointer', background: 'transparent' }}
                 >
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    fontSize: 11, fontWeight: 600, color: s.text,
-                    background: s.bg, border: `1px solid ${s.border}`,
-                    borderRadius: 20, padding: '2px 8px',
-                  }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
-                    {s.label}
-                  </span>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
+                  {s.label}
                 </button>
               ))}
             </div>
@@ -232,7 +211,6 @@ function BulkBar({ count, unpaidCount, onMarkPaid, onDelete, onClear, marking, d
 }
 
 export default function InvoicesPage() {
-  const router = useRouter()
   const [invoices, setInvoices]         = useState<any[]>([])
   const [loading, setLoading]           = useState(true)
   const [updating, setUpdating]         = useState(false)
@@ -241,7 +219,6 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null)
   const [deleting, setDeleting]         = useState(false)
-  const [duplicating, setDuplicating]   = useState(false)
   const [selected, setSelected]         = useState<Set<string>>(new Set())
   const [bulkMarking, setBulkMarking]   = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
@@ -321,36 +298,6 @@ export default function InvoicesPage() {
       setTimeout(() => setMsg(null), 5000)
       load()
     } catch (e) { console.error('Send by email failed', e) }
-  }
-
-  async function duplicateInvoice(inv: Invoice) {
-    setDuplicating(true)
-    try {
-      const user = await fetchCurrentUser()
-      const uid = user?.id ?? ''
-      const full = await fetchInvoiceWithLineItems(inv.id)
-      const maxNum = await fetchMaxInvoiceNumber(uid)
-      const newNumber = generateInvoiceNumber(maxNum)
-      const dueDate = new Date(); dueDate.setDate(dueDate.getDate() + 30)
-      const newInvoice = await createInvoice({
-        user_id: uid, client_id: full.client_id, project_id: full.project_id ?? null,
-        invoice_number: newNumber, status: 'draft',
-        issue_date: new Date().toISOString().slice(0, 10),
-        due_date: dueDate.toISOString().slice(0, 10),
-        payment_terms: full.payment_terms ?? 'Payment due within 30 days',
-        notes: full.notes ?? '', subtotal: full.subtotal,
-        vat_amount: full.vat_amount, total: full.total, currency: full.currency ?? 'GBP',
-      })
-      if (full.invoice_line_items?.length) {
-        await createInvoiceLineItems(full.invoice_line_items.map((li: InvoiceLineItem) => ({
-          invoice_id: newInvoice.id, description: li.description,
-          quantity: li.quantity, unit_price: li.unit_price, vat_rate: li.vat_rate,
-          line_total: li.line_total ?? (Number(li.quantity) * Number(li.unit_price)),
-        })))
-      }
-      router.push(`/invoices/${newInvoice.id}`)
-    } catch (e) { console.error('Duplicate failed', e) }
-    finally { setDuplicating(false) }
   }
 
   async function handleUpdateOverdue() {
@@ -532,10 +479,9 @@ export default function InvoicesPage() {
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(inv.total)}</td>
                     <td className="px-4 py-3"><Badge status={inv.status} /></td>
                     <td className="px-4 py-3 text-right">
-                      <KebabMenu invoice={inv} onDelete={setDeleteTarget} onDuplicate={duplicateInvoice}
+                      <KebabMenu invoice={inv} onDelete={setDeleteTarget}
                         onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
-                        onSendByEmail={handleSendByEmail}
-                        duplicating={duplicating} />
+                        onSendByEmail={handleSendByEmail} />
                     </td>
                   </tr>
                 )
@@ -583,10 +529,9 @@ export default function InvoicesPage() {
                     Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
                     {pastDue && ` · ${days}d late`}
                   </span>
-                  <KebabMenu invoice={inv} onDelete={setDeleteTarget} onDuplicate={duplicateInvoice}
+                  <KebabMenu invoice={inv} onDelete={setDeleteTarget}
                     onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
-                    onSendByEmail={handleSendByEmail}
-                    duplicating={duplicating} />
+                    onSendByEmail={handleSendByEmail} />
                 </div>
               </div>
             )
