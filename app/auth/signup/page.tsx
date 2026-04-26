@@ -129,9 +129,22 @@ function RightPanel() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        overflowY: 'auto',
         padding: '100px 40px 48px',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
+          <img
+            src="/dashboard-mockup.svg"
+            alt="Freelax dashboard preview"
+            style={{
+              width: '100%',
+              maxWidth: 420,
+              borderRadius: 12,
+              opacity: 0.92,
+              marginBottom: 24,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+          />
           <p style={{
             fontSize: 14,
             color: 'rgba(255,255,255,0.6)',
