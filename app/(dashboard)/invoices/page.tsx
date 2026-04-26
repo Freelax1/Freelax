@@ -9,7 +9,7 @@ import PageHeader from '@/components/page-header'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { MoreVertical, Eye, Pencil, Trash2, Copy } from 'lucide-react'
+import { MoreVertical, Eye, Pencil, Trash2, Copy, Mail } from 'lucide-react'
 import { generateInvoiceNumber } from '@/lib/logic/invoices'
 import { fetchCurrentUser } from '@/lib/api/users'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
@@ -70,7 +70,6 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
         <p className="text-sm text-slate-500 mb-5">
           {count} invoice{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
           {newStatus === 'paid' && <span className="block mt-1 text-amber-700 text-xs">Paid date will be set to today for any unpaid invoices.</span>}
-          {newStatus === 'sent' && <span className="block mt-1 text-blue-700 text-xs">The invoice will be emailed to the client if their email address is on record.</span>}
         </p>
         <div className="flex gap-3">
           <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
@@ -85,9 +84,9 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
-function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, duplicating }: {
+function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, onSendByEmail, duplicating }: {
   invoice: Invoice; onDelete: (inv: Invoice) => void; onDuplicate: (inv: Invoice) => void
-  onStatusChange: (inv: Invoice, status: string) => void; duplicating?: boolean
+  onStatusChange: (inv: Invoice, status: string) => void; onSendByEmail: (inv: Invoice) => void; duplicating?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -104,7 +103,7 @@ function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, duplicating
 
   // Status options — never show paid for already-paid invoices
   const allStatuses = [
-    { key: 'sent',      label: 'Sent',      dot: '#1A5E8A', bg: '#EBF4FD', border: 'rgba(26,94,138,0.2)',  text: '#1A5E8A' },
+    { key: 'sent',      label: 'Mark as Sent', dot: '#1A5E8A', bg: '#EBF4FD', border: 'rgba(26,94,138,0.2)',  text: '#1A5E8A' },
     { key: 'paid',      label: 'Paid',      dot: '#1D6B35', bg: '#F0FDF4', border: 'rgba(29,107,53,0.2)',  text: '#1D6B35' },
     { key: 'cancelled', label: 'Cancelled', dot: '#C0392B', bg: '#FEF2F2', border: 'rgba(192,57,43,0.2)',  text: '#C0392B' },
     { key: 'draft',     label: 'Draft',     dot: '#94A3B8', bg: '#F8FAFC', border: 'rgba(0,0,0,0.08)',     text: '#64748B' },
@@ -171,6 +170,15 @@ function KebabMenu({ invoice, onDelete, onDuplicate, onStatusChange, duplicating
                   </span>
                 </button>
               ))}
+            </div>
+          )}
+
+          {invoice.status !== 'sent' && invoice.status !== 'paid' && (
+            <div style={{ borderTop: '1px solid #F1F5F9' }}>
+              <button onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+                <Mail className="w-3.5 h-3.5 text-slate-400" /> Send by email
+              </button>
             </div>
           )}
 
@@ -281,29 +289,38 @@ export default function InvoicesPage() {
 
   async function handleStatusChange() {
     if (!statusTarget) return
+    const wasSent = statusTarget.status === 'sent'
     setStatusUpdating(true)
     try {
       if (statusTarget.status === 'paid') {
-        // Use mark-paid route — sets paid_date to today
         await fetch('/api/invoices/mark-paid', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ invoiceId: statusTarget.invoice.id }),
         })
-      } else if (statusTarget.status === 'sent') {
-        // Use send route — sets sent_at and dispatches email to client
-        await fetch('/api/invoices/send', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invoiceId: statusTarget.invoice.id }),
-        })
       } else {
-        // cancelled, overdue — server-side route with auth check
         await fetch('/api/invoices/update-status', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ invoiceId: statusTarget.invoice.id, status: statusTarget.status }),
         })
       }
       setStatusTarget(null); setStatusUpdating(false); load()
+      if (wasSent) {
+        setMsg('Marked as sent — no email was dispatched. Use Send by email to notify the client.')
+        setTimeout(() => setMsg(null), 5000)
+      }
     } catch { setStatusUpdating(false) }
+  }
+
+  async function handleSendByEmail(inv: Invoice) {
+    try {
+      await fetch('/api/invoices/send', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: inv.id }),
+      })
+      setMsg('Invoice sent by email.')
+      setTimeout(() => setMsg(null), 5000)
+      load()
+    } catch (e) { console.error('Send by email failed', e) }
   }
 
   async function duplicateInvoice(inv: Invoice) {
@@ -517,6 +534,7 @@ export default function InvoicesPage() {
                     <td className="px-4 py-3 text-right">
                       <KebabMenu invoice={inv} onDelete={setDeleteTarget} onDuplicate={duplicateInvoice}
                         onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
+                        onSendByEmail={handleSendByEmail}
                         duplicating={duplicating} />
                     </td>
                   </tr>
@@ -567,6 +585,7 @@ export default function InvoicesPage() {
                   </span>
                   <KebabMenu invoice={inv} onDelete={setDeleteTarget} onDuplicate={duplicateInvoice}
                     onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
+                    onSendByEmail={handleSendByEmail}
                     duplicating={duplicating} />
                 </div>
               </div>
