@@ -235,7 +235,8 @@ export default function ProjectsPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try { await deleteProject(deleteTarget.id); setDeleteTarget(null); load() }
-    catch { setDeleting(false) }
+    catch (e) { console.error(e) }
+    finally { setDeleting(false) }
   }
 
   async function handleBulkDelete() {

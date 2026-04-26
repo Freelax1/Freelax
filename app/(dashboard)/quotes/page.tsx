@@ -259,7 +259,8 @@ export default function QuotesPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try { await deleteQuote(deleteTarget.id); setDeleteTarget(null); load() }
-    catch { setDeleting(false) }
+    catch (e) { console.error(e) }
+    finally { setDeleting(false) }
   }
 
   async function handleBulkDelete() {

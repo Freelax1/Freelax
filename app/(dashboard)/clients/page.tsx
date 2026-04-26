@@ -240,7 +240,8 @@ export default function ClientsPage() {
       await supabase.from('clients').delete().eq('id', deleteTarget.id)
       setDeleteTarget(null)
       load()
-    } catch { setDeleting(false) }
+    } catch (e) { console.error(e) }
+    finally { setDeleting(false) }
   }
 
   async function handleBulkDelete() {

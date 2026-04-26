@@ -248,7 +248,8 @@ export default function InvoicesPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try { await deleteInvoice(deleteTarget.id); setDeleteTarget(null); load() }
-    catch { setDeleting(false) }
+    catch (e) { console.error(e) }
+    finally { setDeleting(false) }
   }
 
   async function handleBulkDelete() {
