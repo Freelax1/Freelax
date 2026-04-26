@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     supabase.from('clients').select('id, name')
       .eq('user_id', user.id),
     supabase.from('users')
-      .select('business_type, student_loan_plan, pension_contributions, salary_drawn, dividends_drawn, vat_registered')
+      .select('business_type, student_loan_plan, pension_contributions, salary_drawn, dividends_drawn, vat_registered, other_income, investment_dividends')
       .eq('id', user.id)
       .single(),
   ])
@@ -46,10 +46,12 @@ export async function POST(req: NextRequest) {
   const vatReclaimable   = expenses?.filter((e: ExpRow) => e.vat_reclaimable).reduce((s: number, e: ExpRow) => s + Number(e.vat_amount ?? 0), 0) ?? 0
   const netProfit        = totalIncome - totalExpenses
 
-  const businessType = (profile?.business_type ?? 'sole_trader') as 'sole_trader' | 'limited_company' | 'partnership'
-  const pension      = Number(profile?.pension_contributions ?? 0)
-  const slPlan       = (profile?.student_loan_plan ?? 'none') as StudentLoanPlan
-  const vatRegistered = !!profile?.vat_registered
+  const businessType        = (profile?.business_type ?? 'sole_trader') as 'sole_trader' | 'limited_company' | 'partnership'
+  const pension             = Number(profile?.pension_contributions ?? 0)
+  const slPlan              = (profile?.student_loan_plan ?? 'none') as StudentLoanPlan
+  const vatRegistered       = !!profile?.vat_registered
+  const otherIncome         = Number((profile as any)?.other_income ?? 0)
+  const investmentDividends = Number((profile as any)?.investment_dividends ?? 0)
 
   const taxDetail = calculateTax({
     grossIncome:          totalIncome,
@@ -59,6 +61,8 @@ export async function POST(req: NextRequest) {
     studentLoanPlan:      slPlan,
     salaryDrawn:          profile?.salary_drawn    ? Number(profile.salary_drawn)    : undefined,
     dividendsDrawn:       profile?.dividends_drawn ? Number(profile.dividends_drawn) : undefined,
+    otherIncome,
+    investmentDividends,
   })
 
   const totalTax     = taxDetail.kind === 'sole_trader' ? taxDetail.totalTax : taxDetail.totalPersonalTax
@@ -102,6 +106,8 @@ export async function POST(req: NextRequest) {
     `Estimated take-home: £${takeHome.toFixed(2)}`,
     `Effective tax rate: ${effectiveRate}%`,
     `Pension contributions this year: £${pension.toFixed(2)}`,
+    `Other income (employment, rental, savings etc.): £${otherIncome.toFixed(2)}`,
+    ...(businessType === 'sole_trader' && investmentDividends > 0 ? [`Investment dividends: £${investmentDividends.toFixed(2)}`] : []),
     `Student loan plan: ${slPlan}`,
     `Number of clients: ${clientCount}`,
     `Top client: ${topClient} (${topClientShare}% of invoices)`,
