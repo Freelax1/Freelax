@@ -13,29 +13,6 @@ import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
 
-const PROJECT_STATUS_DOT: Record<string, { dot: string; label: string }> = {
-  active:    { dot: '#1D6B35', label: 'Active' },
-  completed: { dot: '#1A5E8A', label: 'Completed' },
-  on_hold:   { dot: '#9A7B0A', label: 'On Hold' },
-  cancelled: { dot: '#C0392B', label: 'Cancelled' },
-}
-
-const IR35_STATUS_DOT: Record<string, { dot: string; label: string }> = {
-  outside_ir35: { dot: '#1D6B35', label: 'Outside IR35' },
-  inside_ir35:  { dot: '#C0392B', label: 'Inside IR35' },
-  needs_review: { dot: '#9A7B0A', label: 'Needs review' },
-}
-
-function StatusDot({ map, value }: { map: Record<string, { dot: string; label: string }>; value: string }) {
-  const cfg = map[value]
-  if (!cfg) return null
-  return (
-    <span className="flex items-center gap-1.5 text-sm text-slate-600">
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot, flexShrink: 0, display: 'inline-block' }} />
-      {cfg.label}
-    </span>
-  )
-}
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
   const [client, setClient]     = useState<any>(null)
@@ -91,9 +68,9 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   const projectRow = (p: any) => (
     <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
       <Link href={`/projects/${p.id}`} className="text-sm font-medium text-blue-600 hover:underline">{p.title}</Link>
-      <div className="flex items-center gap-4">
-        <StatusDot map={IR35_STATUS_DOT} value={p.ir35_status} />
-        <StatusDot map={PROJECT_STATUS_DOT} value={p.status} />
+      <div className="flex items-center gap-2">
+        <Badge status={p.ir35_status} />
+        <Badge status={p.status} />
       </div>
     </div>
   )
