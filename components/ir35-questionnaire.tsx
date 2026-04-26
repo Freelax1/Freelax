@@ -13,6 +13,33 @@ interface Props {
   onSave?: (answers: IR35Answer[], status: IR35Status) => Promise<void>
 }
 
+function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
+  const segments = [
+    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
+    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
+    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
+  ] as const
+  return (
+    <div className="flex gap-2">
+      {segments.map(s => {
+        const active = level === s.key
+        return (
+          <div key={s.key} style={{
+            flex: 1, padding: '6px 0', borderRadius: 8, textAlign: 'center',
+            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
+            background: active ? s.activeBg : '#F8FAFC',
+            opacity: active ? 1 : 0.45,
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
+              {s.key.toUpperCase()}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function IR35Questionnaire({ projectId, initialAnswers, initialStatus, onSave }: Props) {
   const [answers, setAnswers] = useState<Record<number, boolean>>(
     Object.fromEntries(initialAnswers?.map(a => [a.question_number, a.value]) ?? [])
@@ -125,37 +152,45 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       )}
 
       {aiResult && !aiResult.error && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-3">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-slate-900">IR35 Assessment — AI Analysis</h3>
+        <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-5">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900">IR35 Assessment</h3>
             <AIFlag />
           </div>
-          <p className="text-sm text-slate-700">{aiResult.summary}</p>
-          {aiResult.risk_factors?.length > 0 && (
+
+          {/* Verdict */}
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
+            <p className="text-sm text-slate-800 leading-relaxed">{aiResult.verdict}</p>
+          </div>
+
+          {/* Risk level */}
+          {aiResult.risk_level && (
             <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase mb-1">Risk factors</p>
-              <ul className="space-y-1">{aiResult.risk_factors.map((r: string, i: number) => (
-                <li key={i} className="text-sm text-slate-600 flex gap-2"><span className="text-red-500">•</span>{r}</li>
-              ))}</ul>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
+              <IR35RiskBar level={aiResult.risk_level} />
+              <p className="text-sm text-slate-600 mt-2">{aiResult.risk_level_explanation}</p>
             </div>
           )}
-          {aiResult.protective_factors?.length > 0 && (
+
+          {/* Next steps */}
+          {aiResult.next_steps?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase mb-1">Protective factors</p>
-              <ul className="space-y-1">{aiResult.protective_factors.map((r: string, i: number) => (
-                <li key={i} className="text-sm text-slate-600 flex gap-2"><span className="text-green-500">•</span>{r}</li>
-              ))}</ul>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
+              <ol className="space-y-2.5">
+                {aiResult.next_steps.map((step: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
-          {aiResult.recommendations?.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase mb-1">Recommendations</p>
-              <ul className="space-y-1">{aiResult.recommendations.map((r: string, i: number) => (
-                <li key={i} className="text-sm text-slate-600 flex gap-2"><span className="text-blue-500">→</span>{r}</li>
-              ))}</ul>
-            </div>
-          )}
-          <p className="text-xs text-slate-400 border-t border-blue-200 pt-3">{aiResult.disclaimer}</p>
+
+          <p className="text-xs text-slate-400 border-t border-slate-100 pt-3">
+            Not tax advice. Consult a qualified IR35 specialist for a formal determination.
+          </p>
         </div>
       )}
 

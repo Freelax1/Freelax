@@ -267,11 +267,10 @@ export interface ScannedReceipt {
 }
 
 export interface IR35AIExplanation {
-  summary: string
-  risk_factors: string[]
-  protective_factors: string[]
-  recommendations: string[]
-  disclaimer: string
+  verdict: string
+  risk_level: 'Low' | 'Medium' | 'High'
+  risk_level_explanation: string
+  next_steps: string[]
 }
 
 export interface InvoiceAssistResult {

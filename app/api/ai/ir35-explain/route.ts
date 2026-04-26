@@ -22,32 +22,30 @@ export async function POST(req: NextRequest) {
     .eq('id', projectId)
     .single()
 
-  const systemPrompt = `You are a UK IR35 specialist with expertise in HMRC CEST methodology and off-payroll working rules. Provide clear, practical guidance. Always include a disclaimer that this is guidance only, not formal tax advice.`
+  const systemPrompt = `You are a UK IR35 specialist. Give plain English, practical guidance a freelancer can act on immediately. Be direct and concise — no jargon, no hedging.`
 
-  const userPrompt = `Analyse this IR35 assessment and provide a plain English explanation.
+  const userPrompt = `Analyse this IR35 assessment for a freelancer.
 
 Project: ${project?.title ?? 'Unknown'}
 Client: ${(project as any)?.clients?.name ?? 'Unknown'}
 Rate: ${project?.rate_type} £${project?.rate_amount}
+Calculated status: ${calculatedStatus}
 
 Questionnaire answers:
 ${JSON.stringify(answers, null, 2)}
 
-Calculated status: ${calculatedStatus}
-
-Return ONLY valid JSON:
+Return ONLY valid JSON with exactly these four fields:
 {
-  "summary": "2-3 sentence plain English explanation",
-  "risk_factors": ["array of specific risks"],
-  "protective_factors": ["array working in their favour"],
-  "recommendations": ["practical steps"],
-  "disclaimer": "This assessment is based on HMRC CEST questionnaire logic and is a guide only. Consult a qualified accountant or IR35 specialist for formal determination."
+  "verdict": "One plain English sentence saying whether this contract looks inside or outside IR35 and the single most important reason why.",
+  "risk_level": "Low" | "Medium" | "High",
+  "risk_level_explanation": "One sentence explaining what is driving this risk level.",
+  "next_steps": ["Up to 3 specific, actionable steps the freelancer should take now — plain English, no bullet padding."]
 }`
 
   try {
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
+      max_tokens: 600,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     })

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Loader2, X, AlertTriangle, ShieldCheck, Info } from 'lucide-react'
-import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import { Sparkles, Loader2, X } from 'lucide-react'
 
 interface IR35ExplainButtonProps {
   projectId: string
@@ -11,11 +10,37 @@ interface IR35ExplainButtonProps {
 }
 
 interface ExplainResult {
-  summary: string
-  risk_factors: string[]
-  protective_factors: string[]
-  recommendations: string[]
-  disclaimer: string
+  verdict: string
+  risk_level: 'Low' | 'Medium' | 'High'
+  risk_level_explanation: string
+  next_steps: string[]
+}
+
+function RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
+  const segments = [
+    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
+    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
+    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
+  ] as const
+  return (
+    <div style={{ display: 'flex', gap: 8 }}>
+      {segments.map(s => {
+        const active = level === s.key
+        return (
+          <div key={s.key} style={{
+            flex: 1, padding: '7px 0', borderRadius: 8, textAlign: 'center' as const,
+            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
+            background: active ? s.activeBg : '#F8FAFC',
+            opacity: active ? 1 : 0.45,
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
+              {s.key.toUpperCase()}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 export default function IR35ExplainButton({ projectId, answers, calculatedStatus }: IR35ExplainButtonProps) {
@@ -76,71 +101,38 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
-              {/* Summary */}
-              <div className="bg-slate-50 rounded-xl p-4">
-                <p className="text-sm text-slate-700 leading-relaxed">{result.summary}</p>
+            <div className="p-5 space-y-5">
+              {/* Verdict */}
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
+                <p className="text-sm text-slate-800 leading-relaxed">{result.verdict}</p>
               </div>
 
-              {/* Risk factors */}
-              {result.risk_factors?.length > 0 && (
+              {/* Risk level */}
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
+                <RiskBar level={result.risk_level} />
+                <p className="text-sm text-slate-600 mt-2">{result.risk_level_explanation}</p>
+              </div>
+
+              {/* Next steps */}
+              {result.next_steps?.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Risk factors</p>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {result.risk_factors.map((r, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-red-400 mt-0.5 shrink-0">•</span>
-                        {r}
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
+                  <ol className="space-y-2.5">
+                    {result.next_steps.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                        {step}
                       </li>
                     ))}
-                  </ul>
+                  </ol>
                 </div>
               )}
 
-              {/* Protective factors */}
-              {result.protective_factors?.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
-                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Working in your favour</p>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {result.protective_factors.map((r, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-green-400 mt-0.5 shrink-0">•</span>
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Recommendations */}
-              {result.recommendations?.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Info className="w-3.5 h-3.5 text-blue-500" />
-                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Recommendations</p>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {result.recommendations.map((r, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-blue-400 mt-0.5 shrink-0">{i + 1}.</span>
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Disclaimer */}
-              <p className="text-xs text-slate-400 border-t border-slate-100 pt-3 leading-relaxed">
-                {result.disclaimer}
+              <p className="text-xs text-slate-400 border-t border-slate-100 pt-3">
+                Not tax advice. Consult a qualified IR35 specialist for a formal determination.
               </p>
-              <NotTaxAdviceDisclaimer />
             </div>
           </div>
         </div>
