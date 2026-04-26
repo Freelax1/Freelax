@@ -173,7 +173,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
             {/* Doc footer */}
             <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 10, color: '#e2e8f0' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
-              <span style={{ fontSize: 10, color: '#e2e8f0' }}>Powered by freedesk</span>
+              <span style={{ fontSize: 10, color: '#e2e8f0' }}>Powered by Freelax</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
@@ -82,7 +82,7 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
         {isPaid && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 18px', marginBottom: 20 }}>
             <CheckCircle style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>Payment received — thank you!</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>Payment received â€” thank you!</span>
           </div>
         )}
         {isOverdue && !isPaid && (
@@ -219,20 +219,20 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
                   }}
                 >
                   {paying
-                    ? <><Loader2 style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} /> Redirecting to payment…</>
+                    ? <><Loader2 style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} /> Redirecting to paymentâ€¦</>
                     : <><CreditCard style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely</>
                   }
                 </button>
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#cbd5e1', marginTop: 10 }}>
-                  Secured by Stripe · Your card details are never stored
+                  Secured by Stripe Â· Your card details are never stored
                 </p>
               </div>
             )}
 
             {/* Doc footer */}
             <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 10, color: '#e2e8f0' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
-              <span style={{ fontSize: 10, color: '#e2e8f0' }}>Powered by freedesk</span>
+              <span style={{ fontSize: 10, color: '#e2e8f0' }}>{invoice.invoice_number} Â· {sender?.business_name || sender?.full_name || ''}</span>
+              <span style={{ fontSize: 10, color: '#e2e8f0' }}>Powered by Freelax</span>
             </div>
           </div>
         </div>

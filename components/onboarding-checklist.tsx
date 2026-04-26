@@ -68,7 +68,7 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 600, color: '#111' }}>
-            Get started with Freedesk
+            Get started with Freelax
           </h2>
           <p style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
             {completedCount} of {steps.length} complete

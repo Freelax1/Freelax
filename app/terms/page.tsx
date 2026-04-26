@@ -1,14 +1,14 @@
 import LegalLayout from '@/components/legal-layout'
 
 export const metadata = {
-  title: 'Terms of Service — Freedesk',
-  description: 'Terms that govern your use of Freedesk — a financial management tool for UK freelancers.',
+  title: 'Terms of Service — Freelax by Britnova',
+  description: 'Terms that govern your use of Freelax by Britnova — a financial management tool for UK freelancers.',
 }
 
 const UPDATED = '22 April 2026'
 
 const TOC = [
-  { id: 'about',              label: '1. About Freedesk' },
+  { id: 'about',              label: '1. About Freelax by Britnova' },
   { id: 'eligibility',        label: '2. Eligibility' },
   { id: 'account',            label: '3. Your account' },
   { id: 'acceptable-use',     label: '4. Acceptable use' },
@@ -43,21 +43,21 @@ export default function TermsPage() {
     <LegalLayout
       eyebrow="Legal"
       title="Terms of Service"
-      subtitle="The terms that govern your use of Freedesk. Plain-English where possible, legally binding where it matters."
+      subtitle="The terms that govern your use of Freelax by Britnova. Plain-English where possible, legally binding where it matters."
       updated={UPDATED}
       toc={TOC}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
 
-        <Section id="about" title="1. About Freedesk">
+        <Section id="about" title="1. About Freelax by Britnova">
           <p style={{ margin: 0 }}>
-            Freedesk is a financial management tool for UK freelancers and sole traders. It helps you track invoices, expenses, and tax obligations. Freedesk is <strong>not a regulated financial adviser, accountant, or tax professional</strong>. Nothing in this service constitutes financial, tax, or legal advice.
+            Freelax by Britnova is a financial management tool for UK freelancers and sole traders. It helps you track invoices, expenses, and tax obligations. Freelax by Britnova is <strong>not a regulated financial adviser, accountant, or tax professional</strong>. Nothing in this service constitutes financial, tax, or legal advice.
           </p>
         </Section>
 
         <Section id="eligibility" title="2. Eligibility">
           <p style={{ margin: 0 }}>
-            You must be at least 18 years old and resident in the United Kingdom to use Freedesk. By creating an account you confirm that the information you provide is accurate and that you have the legal capacity to enter into these terms.
+            You must be at least 18 years old and resident in the United Kingdom to use Freelax by Britnova. By creating an account you confirm that the information you provide is accurate and that you have the legal capacity to enter into these terms.
           </p>
         </Section>
 
@@ -71,7 +71,7 @@ export default function TermsPage() {
 
         <Section id="acceptable-use" title="4. Acceptable use">
           <p style={{ margin: 0 }}>
-            You agree not to use Freedesk to:
+            You agree not to use Freelax by Britnova to:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
             <li>Submit false or misleading financial information</li>
@@ -86,7 +86,7 @@ export default function TermsPage() {
 
         <Section id="payments" title="5. Payments and subscriptions">
           <p style={{ margin: 0 }}>
-            Freedesk offers a free tier and paid subscription plans. Paid plans are billed monthly or annually via <strong>Stripe</strong>. You may cancel your subscription at any time; cancellation takes effect at the end of your current billing period. We do not offer refunds for partial periods except where required by UK consumer law.
+            Freelax by Britnova offers a free tier and paid subscription plans. Paid plans are billed monthly or annually via <strong>Stripe</strong>. You may cancel your subscription at any time; cancellation takes effect at the end of your current billing period. We do not offer refunds for partial periods except where required by UK consumer law.
           </p>
         </Section>
 
@@ -100,19 +100,19 @@ export default function TermsPage() {
 
         <Section id="tax" title="7. Tax calculations">
           <p style={{ margin: 0 }}>
-            Freedesk&rsquo;s tax estimates are based on publicly available HMRC rates and general assumptions about your circumstances. They are <strong>indicative only</strong> and may not reflect your actual tax liability. Always verify your figures with a qualified accountant before filing a tax return.
+            Freelax by Britnova&rsquo;s tax estimates are based on publicly available HMRC rates and general assumptions about your circumstances. They are <strong>indicative only</strong> and may not reflect your actual tax liability. Always verify your figures with a qualified accountant before filing a tax return.
           </p>
         </Section>
 
         <Section id="ip" title="8. Intellectual property">
           <p style={{ margin: 0 }}>
-            All content, design, and software in Freedesk is owned by or licensed to us. You may not copy, modify, or redistribute any part of the service without written permission.
+            All content, design, and software in Freelax by Britnova is owned by or licensed to us. You may not copy, modify, or redistribute any part of the service without written permission.
           </p>
         </Section>
 
         <Section id="liability" title="9. Limitation of liability">
           <p style={{ margin: 0 }}>
-            To the maximum extent permitted by UK law, Freedesk&rsquo;s total liability for any claim arising out of or relating to this service is limited to <strong>the amount you paid us in the 12 months preceding the claim</strong>. We are not liable for indirect, incidental, or consequential losses, including lost profits or data.
+            To the maximum extent permitted by UK law, Freelax by Britnova&rsquo;s total liability for any claim arising out of or relating to this service is limited to <strong>the amount you paid us in the 12 months preceding the claim</strong>. We are not liable for indirect, incidental, or consequential losses, including lost profits or data.
           </p>
         </Section>
 

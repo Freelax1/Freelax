@@ -480,7 +480,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
           {/* Doc footer */}
           <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 10, color: '#94a3b8' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>Powered by freedesk</span>
+            <span style={{ fontSize: 10, color: '#94a3b8' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>

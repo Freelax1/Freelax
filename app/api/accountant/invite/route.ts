@@ -30,11 +30,11 @@ export async function POST(req: NextRequest) {
 
   try {
     await resend.emails.send({
-      from:    'FreeDesk <noreply@freedesk.co.uk>',
+      from:    'Freelax <noreply@freedesk.co.uk>',
       to:      email,
-      subject: `${senderName} has invited you to view their FreeDesk account`,
+      subject: `${senderName} has invited you to view their Freelax account`,
       html:    `<p>Hi,</p>
-               <p><strong>${senderName}</strong> has invited you to view their FreeDesk financial data as a read-only accountant.</p>
+               <p><strong>${senderName}</strong> has invited you to view their Freelax financial data as a read-only accountant.</p>
                <p><a href="${acceptUrl}" style="background:#111;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
                <p style="color:#888;font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
     })

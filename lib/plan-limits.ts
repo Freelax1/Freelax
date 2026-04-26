@@ -1,6 +1,6 @@
 // lib/plan-limits.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// Plan limits for each Freedesk subscription tier.
+// Plan limits for each Freelax subscription tier.
 // To bypass all limits during development:
 //   → Go to Supabase → Table Editor → users → find your row
 //   → Set subscription_plan = 'studio'

@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       const { Resend } = await import('resend')
       const resend = new Resend(resendKey)
 
-      const businessName = sender?.business_name || sender?.full_name || 'Freedesk User'
+      const businessName = sender?.business_name || sender?.full_name || 'Freelax User'
       const dueDate = new Date(invoice.due_date).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'long', year: 'numeric',
       })
@@ -108,12 +108,12 @@ export async function POST(req: NextRequest) {
           <p style="margin-top:24px;">Kind regards,<br/><strong>${sender?.full_name || businessName}</strong><br/>${sender?.email || ''}</p>
 
           <hr style="margin:32px 0;border:none;border-top:1px solid #e2e8f0;"/>
-          <p style="font-size:11px;color:#94a3b8;">This is an automated payment reminder sent via <a href="https://freedesk.co.uk" style="color:#94a3b8;">Freedesk</a> — hassle-free invoicing for freelancers.</p>
+          <p style="font-size:11px;color:#94a3b8;">This is an automated payment reminder sent via <a href="https://freedesk.co.uk" style="color:#94a3b8;">Freelax</a> — hassle-free invoicing for freelancers.</p>
         </div>
       `
 
       await resend.emails.send({
-        from:     `Freedesk <onboarding@resend.dev>`,
+        from:     `Freelax <onboarding@resend.dev>`,
         reply_to: sender?.email || undefined,
         to: client.email,
         subject: tier === 'legal'

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Freedesk — Tax Calculations Engine v1.3
+// Freelax — Tax Calculations Engine v1.3
 // Built for UK freelancers and contractors: sole traders, Ltd company PSCs,
 // and partnerships. Current tax year: 2026/27 (from 6 April 2026).
 // ─────────────────────────────────────────────────────────────────────────────

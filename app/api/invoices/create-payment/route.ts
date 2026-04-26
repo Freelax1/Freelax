@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           unit_amount: Math.round(Number(invoice.total) * 100),
           product_data: {
             name: `Invoice ${invoice.invoice_number}`,
-            description: `Payment to ${sender?.business_name || sender?.full_name || 'FreeDesk user'}`,
+            description: `Payment to ${sender?.business_name || sender?.full_name || 'Freelax user'}`,
           },
         },
         quantity: 1,

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Freedesk — Database & Domain Types v1.1
+// Freelax — Database & Domain Types v1.1
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type BusinessType     = 'sole_trader' | 'limited_company' | 'partnership'

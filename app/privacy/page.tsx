@@ -2,8 +2,8 @@ import Link from 'next/link'
 import LegalLayout from '@/components/legal-layout'
 
 export const metadata = {
-  title: 'Privacy Policy — Freedesk',
-  description: 'How Freedesk collects, uses, and protects your personal data under UK GDPR.',
+  title: 'Privacy Policy — Freelax by Britnova',
+  description: 'How Freelax by Britnova collects, uses, and protects your personal data under UK GDPR.',
 }
 
 const UPDATED = '22 April 2026'
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
     <LegalLayout
       eyebrow="Legal"
       title="Privacy Policy"
-      subtitle="How Freedesk collects, uses, stores, and protects your personal data — in plain English, compliant with UK GDPR."
+      subtitle="How Freelax by Britnova collects, uses, stores, and protects your personal data — in plain English, compliant with UK GDPR."
       updated={UPDATED}
       toc={TOC}
     >
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
 
         <Section id="who-we-are" title="1. Who we are">
           <p style={{ margin: 0 }}>
-            Freedesk is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. You can reach us at{' '}
+            Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. You can reach us at{' '}
             <a href="mailto:support@freedesk.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freedesk.co.uk</a>.
           </p>
         </Section>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
 
         <Section id="how-we-use" title="3. How we use your data">
           <p style={{ margin: 0 }}>
-            We use your data to provide and improve the Freedesk service, calculate tax estimates based on the information you supply, send transactional emails (invoice confirmations, payment notifications, account alerts), and respond to support requests. <strong>We do not use your data for advertising or sell it to third parties under any circumstances.</strong>
+            We use your data to provide and improve the Freelax by Britnova service, calculate tax estimates based on the information you supply, send transactional emails (invoice confirmations, payment notifications, account alerts), and respond to support requests. <strong>We do not use your data for advertising or sell it to third parties under any circumstances.</strong>
           </p>
         </Section>
 
@@ -136,13 +136,13 @@ export default function PrivacyPage() {
 
         <Section id="cookies" title="9. Cookies">
           <p style={{ margin: 0 }}>
-            Freedesk uses <strong>strictly necessary cookies</strong> to maintain your login session. We do not use advertising or tracking cookies. You can delete cookies at any time through your browser settings, though this will log you out of your account.
+            Freelax by Britnova uses <strong>strictly necessary cookies</strong> to maintain your login session. We do not use advertising or tracking cookies. You can delete cookies at any time through your browser settings, though this will log you out of your account.
           </p>
         </Section>
 
         <Section id="children" title="10. Children">
           <p style={{ margin: 0 }}>
-            Freedesk is not intended for anyone under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with their data, please contact us and we will delete it promptly.
+            Freelax by Britnova is not intended for anyone under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with their data, please contact us and we will delete it promptly.
           </p>
         </Section>
 

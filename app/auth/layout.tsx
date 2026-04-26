@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             margin: 0,
           }}
         >
-          freedesk
+          Freelax
           <span style={{ color: '#1D6B35' }}>.</span>
         </h1>
         <p

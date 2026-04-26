@@ -55,7 +55,7 @@ export default async function LegalLayout({
             fontSize: 20, fontWeight: 800, color: '#0F172A',
             textDecoration: 'none', letterSpacing: '-0.03em',
           }}>
-            freedesk<span style={{ color: '#1D6B35' }}>.</span>
+            Freelax<span style={{ color: '#1D6B35' }}>.</span>
           </Link>
 
           <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>

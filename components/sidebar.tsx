@@ -582,7 +582,7 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginRight: 28, letterSpacing: '-0.03em' }}>
-          freedesk
+          Freelax
         </div>
 
         {/* Desktop nav */}
@@ -754,7 +754,7 @@ export default function Sidebar() {
             width: 240, display: 'flex', flexDirection: 'column',
           }}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ flexShrink: 0 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>freedesk</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>Freelax</span>
               <button onClick={() => setMobileOpen(false)}>
                 <X style={{ width: 20, height: 20, color: '#fff' }} />
               </button>

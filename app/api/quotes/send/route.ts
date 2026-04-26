@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       const { Resend } = await import('resend')
       const resend = new Resend(resendKey)
 
-      const businessName = sender?.business_name || sender?.full_name || 'Freedesk User'
+      const businessName = sender?.business_name || sender?.full_name || 'Freelax User'
       const expiryDate   = new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       const clientName   = client.contact_name || client.name
       const portalLink   = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://freedesk.co.uk'}/q/${quote.public_token}`
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       ).catch(() => null)
 
       await resend.emails.send({
-        from:    'Freedesk <onboarding@resend.dev>',
+        from:    'Freelax <onboarding@resend.dev>',
         reply_to: sender?.email || undefined,
         to:      client.email,
         subject,

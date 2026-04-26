@@ -3,7 +3,7 @@ import { Info } from 'lucide-react'
 
 // Shared with app/api/tax/export-pack/route.ts — keep as plain string, no JSX.
 export const DISCLAIMER_FOOTER_TEXT =
-  'Freedesk provides estimates to help you plan — not professional tax advice. ' +
+  'Freelax provides estimates to help you plan — not professional tax advice. ' +
   'Confirm figures with a qualified adviser before filing.'
 
 export const DISCLAIMER_INLINE_TEXT =

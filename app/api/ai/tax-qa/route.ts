@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   const currentExpenses = expenses?.reduce((s, e) => s + Number(e.amount), 0) ?? 0
   const netProfit = currentIncome - currentExpenses
 
-  const systemPrompt = `You are a helpful UK tax assistant inside Freedesk, a UK freelancer CRM.
+  const systemPrompt = `You are a helpful UK tax assistant inside Freelax, a UK freelancer CRM.
 
 User context:
 - Business type: ${userData?.business_type ?? 'sole_trader'}

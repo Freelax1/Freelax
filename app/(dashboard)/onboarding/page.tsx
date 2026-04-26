@@ -76,7 +76,7 @@ export default function OnboardingPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 28, fontWeight: 800, color: '#111', letterSpacing: '-0.03em' }}>
-            freedesk
+            Freelax
           </span>
           <p className="text-sm text-slate-500 mt-1">Let's get you set up — takes about 2 minutes</p>
         </div>

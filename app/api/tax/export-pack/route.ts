@@ -98,8 +98,8 @@ export async function GET() {
 
   // Build workbook
   const wb = new ExcelJS.Workbook()
-  wb.creator  = 'Freedesk'
-  wb.lastModifiedBy = 'Freedesk'
+  wb.creator  = 'Freelax'
+  wb.lastModifiedBy = 'Freelax'
   wb.created  = new Date()
   wb.modified = new Date()
   wb.properties.date1904 = false

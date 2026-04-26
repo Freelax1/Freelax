@@ -203,7 +203,7 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
 
   <div class="page-footer">
     <span class="page-footer-l">${invoice.invoice_number} · ${sender?.business_name || sender?.full_name || ''}</span>
-    <span class="page-footer-r">Powered by freedesk</span>
+    <span class="page-footer-r">Powered by Freelax</span>
   </div>
 
 </div>
@@ -398,7 +398,7 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
   ${notesBlock}
   <div class="page-footer">
     <span class="page-footer-l">${quote.quote_number} · ${sender?.business_name || sender?.full_name || ''}</span>
-    <span class="page-footer-r">Powered by freedesk</span>
+    <span class="page-footer-r">Powered by Freelax</span>
   </div>
 </div>
 ${withPrintScript ? '<script>window.onload = () => window.print()</script>' : ''}

@@ -5,8 +5,8 @@ import {
 } from 'lucide-react'
 
 export const metadata = {
-  title: 'Security — Freedesk',
-  description: 'How Freedesk protects your financial data — encryption, compliance, infrastructure, and incident response.',
+  title: 'Security — Freelax by Britnova',
+  description: 'How Freelax by Britnova protects your financial data — encryption, compliance, infrastructure, and incident response.',
 }
 
 const UPDATED = '22 April 2026'
@@ -101,7 +101,7 @@ export default function SecurityPage() {
     <LegalLayout
       eyebrow="Trust & security"
       title="Your data is safe with us."
-      subtitle="Freedesk protects your financial information with the same standards used by banks and enterprise SaaS — strong encryption, audited infrastructure, and strict access controls."
+      subtitle="Freelax by Britnova protects your financial information with the same standards used by banks and enterprise SaaS — strong encryption, audited infrastructure, and strict access controls."
       updated={UPDATED}
       toc={TOC}
       hero={hero}
@@ -110,7 +110,7 @@ export default function SecurityPage() {
 
         <Section id="encryption" Icon={Lock} title="Data encryption">
           <p style={{ margin: '0 0 12px' }}>
-            Every byte you send to Freedesk is encrypted in transit using <strong>TLS 1.2 or higher</strong>. Once it reaches our infrastructure, it is encrypted at rest with <strong>AES-256</strong> — the same algorithm trusted by governments and the financial industry.
+            Every byte you send to Freelax by Britnova is encrypted in transit using <strong>TLS 1.2 or higher</strong>. Once it reaches our infrastructure, it is encrypted at rest with <strong>AES-256</strong> — the same algorithm trusted by governments and the financial industry.
           </p>
           <p style={{ margin: 0 }}>
             Database backups, file uploads (receipts, logos), and payment-related metadata inherit the same encryption. Encryption keys are managed and rotated by our hosting provider.
@@ -119,10 +119,10 @@ export default function SecurityPage() {
 
         <Section id="infrastructure" Icon={ServerCog} title="Infrastructure">
           <p style={{ margin: '0 0 12px' }}>
-            Freedesk is hosted on <strong>Supabase</strong> (database and auth) and <strong>Vercel</strong> (application layer). Both providers are <strong>SOC 2 Type II</strong> certified and maintain transparent, independently audited security controls.
+            Freelax by Britnova is hosted on <strong>Supabase</strong> (database and auth) and <strong>Vercel</strong> (application layer). Both providers are <strong>SOC 2 Type II</strong> certified and maintain transparent, independently audited security controls.
           </p>
           <p style={{ margin: 0 }}>
-            Payment processing is handled exclusively by <strong>Stripe</strong>, which is <strong>PCI-DSS Level 1</strong> compliant — the highest tier of payment-card data security. Freedesk never stores your card details on our servers.
+            Payment processing is handled exclusively by <strong>Stripe</strong>, which is <strong>PCI-DSS Level 1</strong> compliant — the highest tier of payment-card data security. Freelax by Britnova never stores your card details on our servers.
           </p>
         </Section>
 
@@ -137,7 +137,7 @@ export default function SecurityPage() {
 
         <Section id="compliance" Icon={ShieldCheck} title="UK GDPR & compliance">
           <p style={{ margin: '0 0 12px' }}>
-            Freedesk is built for UK users and complies with the <strong>UK General Data Protection Regulation (UK GDPR)</strong> and the Data Protection Act 2018. Your data is processed lawfully, stored only as long as necessary, and <strong>never sold or shared with advertisers</strong>.
+            Freelax by Britnova is built for UK users and complies with the <strong>UK General Data Protection Regulation (UK GDPR)</strong> and the Data Protection Act 2018. Your data is processed lawfully, stored only as long as necessary, and <strong>never sold or shared with advertisers</strong>.
           </p>
           <p style={{ margin: 0 }}>
             Under UK GDPR you have the right to access, correct, port, restrict, and delete your personal data. See the <a href="/privacy" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Privacy Policy</a> for full details on your rights.
@@ -146,7 +146,7 @@ export default function SecurityPage() {
 
         <Section id="location" Icon={Globe2} title="Data location">
           <p style={{ margin: 0 }}>
-            Your data is stored in data centres within the <strong>European Economic Area</strong>. Freedesk does not transfer personal data outside the UK or EEA without appropriate safeguards — such as Standard Contractual Clauses and adequacy decisions — where such transfers are strictly necessary.
+            Your data is stored in data centres within the <strong>European Economic Area</strong>. Freelax by Britnova does not transfer personal data outside the UK or EEA without appropriate safeguards — such as Standard Contractual Clauses and adequacy decisions — where such transfers are strictly necessary.
           </p>
         </Section>
 
@@ -162,7 +162,7 @@ export default function SecurityPage() {
 
         <Section id="banking" Icon={CreditCard} title="Bank details">
           <p style={{ margin: 0 }}>
-            Any bank details you add are used <strong>solely for display on invoice PDFs</strong> you send to clients. Freedesk does not access your bank account, does not initiate payments, and does not share your banking information with any third party.
+            Any bank details you add are used <strong>solely for display on invoice PDFs</strong> you send to clients. Freelax by Britnova does not access your bank account, does not initiate payments, and does not share your banking information with any third party.
           </p>
         </Section>
 

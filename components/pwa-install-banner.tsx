@@ -97,7 +97,7 @@ export function PWAInstallBanner() {
           <Download className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900">Add Freedesk to your home screen</p>
+          <p className="text-sm font-semibold text-gray-900">Add Freelax to your home screen</p>
           {isIOSDevice ? (
             <p className="text-xs text-gray-500 mt-0.5">
               Tap <span className="font-medium">Share</span> then <span className="font-medium">Add to Home Screen</span>

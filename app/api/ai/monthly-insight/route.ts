@@ -60,12 +60,12 @@ export async function POST(req: NextRequest) {
   const pct     = monthlyAvg > 0 ? Math.round((Math.abs(diff) / monthlyAvg) * 100) : 0
   const trend   = diff > 0 ? `${pct}% above` : diff < 0 ? `${pct}% below` : 'right on'
 
-  const prompt = `You are a friendly financial assistant inside Freedesk, a UK freelancer finance app.
+  const prompt = `You are a friendly financial assistant inside Freelax, a UK freelancer finance app.
 
 Write a single short paragraph (2-3 sentences max) summarising this freelancer's ${monthName}.
 Be conversational, warm, and specific. Use plain English — no jargon.
 If things look good, be encouraging. If it's a quiet month, be reassuring.
-Never use bullet points or headers. Never mention "Freedesk".
+Never use bullet points or headers. Never mention "Freelax".
 
 Data for ${monthName}:
 - Income so far: £${thisMonthIncome.toLocaleString('en-GB')}

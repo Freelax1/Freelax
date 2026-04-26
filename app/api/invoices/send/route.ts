@@ -43,14 +43,14 @@ export async function POST(req: NextRequest) {
     try {
       const { Resend } = await import('resend')
       const resend = new Resend(resendKey)
-      const businessName = sender?.business_name || sender?.full_name || 'Freedesk User'
+      const businessName = sender?.business_name || sender?.full_name || 'Freelax User'
       const dueDate = new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
       // Generate PDF — if it fails we still send the email, just without attachment
       const pdfBuffer = await generateInvoicePdfBuffer(invoice)
 
       await resend.emails.send({
-        from:     `Freedesk <onboarding@resend.dev>`,
+        from:     `Freelax <onboarding@resend.dev>`,
         reply_to: sender?.email || undefined,
         to: client.email,
         subject: `Invoice ${invoice.invoice_number} from ${businessName}`,

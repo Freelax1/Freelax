@@ -316,7 +316,7 @@ function BillingSection({ profile }: { profile: any }) {
             </div>
             <div>
               <p className="font-semibold text-slate-900">You are on the Studio plan</p>
-              <p className="text-sm text-slate-500 mt-0.5">This is our highest tier — you have access to everything Freedesk offers.</p>
+              <p className="text-sm text-slate-500 mt-0.5">This is our highest tier — you have access to everything Freelax offers.</p>
             </div>
           </div>
         </div>
@@ -754,7 +754,7 @@ export default function SettingsForm({ profile, email }: Props) {
 
             <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 text-xs text-slate-500 leading-relaxed">
               <p className="font-medium text-slate-600 mb-1">Why does this matter?</p>
-              <p>Without these details, Freedesk can only estimate basic Income Tax and NI. With them, it calculates your actual take-home after student loan, pension, and for Ltd company directors — the difference between salary and dividend tax. The more accurate your profile, the better your cash flow planning.</p>
+              <p>Without these details, Freelax can only estimate basic Income Tax and NI. With them, it calculates your actual take-home after student loan, pension, and for Ltd company directors — the difference between salary and dividend tax. The more accurate your profile, the better your cash flow planning.</p>
             </div>
           </div>
         )}
@@ -850,7 +850,7 @@ export default function SettingsForm({ profile, email }: Props) {
         {tab === 'Banking' && (
           <div className="space-y-4">
             <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-              These details appear on your invoice PDFs only. FreeDesk does not process payments or access your bank account.
+              These details appear on your invoice PDFs only. Freelax does not process payments or access your bank account.
             </p>
             <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
               <div className="flex items-center gap-2 mb-1">
@@ -963,7 +963,7 @@ export default function SettingsForm({ profile, email }: Props) {
             <div>
               <h2 className="font-semibold text-slate-900 mb-1">Accountant access</h2>
               <p className="text-sm text-slate-500 mb-4">
-                Invite your accountant to view your FreeDesk data in read-only mode. They can see invoices, expenses, and tax summaries but cannot make any changes.
+                Invite your accountant to view your Freelax data in read-only mode. They can see invoices, expenses, and tax summaries but cannot make any changes.
               </p>
               <div className="flex gap-2">
                 <input

@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="freedesk-income-${label.replace('/', '-')}.csv"`,
+        'Content-Disposition': `attachment; filename="freelax-income-${label.replace('/', '-')}.csv"`,
       },
     })
   }
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="freedesk-expenses-${label.replace('/', '-')}.csv"`,
+        'Content-Disposition': `attachment; filename="freelax-expenses-${label.replace('/', '-')}.csv"`,
       },
     })
   }
@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="freedesk-full-${label.replace('/', '-')}.csv"`,
+      'Content-Disposition': `attachment; filename="freelax-full-${label.replace('/', '-')}.csv"`,
     },
   })
 }
