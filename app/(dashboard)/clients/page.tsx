@@ -12,6 +12,7 @@ import SlideOver from '@/components/slide-over'
 import ClientForm from '@/components/client-form'
 import Link from 'next/link'
 import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import type { Client } from '@/types/database'
 
 interface ClientWithStats extends Client { outstanding: number }
@@ -235,7 +236,6 @@ export default function ClientsPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try {
-      const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       await supabase.from('clients').delete().eq('id', deleteTarget.id)
       setDeleteTarget(null)
@@ -247,7 +247,6 @@ export default function ClientsPage() {
   async function handleBulkDelete() {
     setBulkUpdating(true)
     try {
-      const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       await supabase.from('clients').delete().in('id', Array.from(selected))
       setSelected(new Set())
@@ -258,7 +257,6 @@ export default function ClientsPage() {
   }
 
   async function handleStatusChange(client: ClientWithStats, newStatus: string) {
-    const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
     await supabase.from('clients').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', client.id)
     load()
@@ -268,7 +266,6 @@ export default function ClientsPage() {
     if (!bulkStatusTarget) return
     setBulkUpdating(true)
     try {
-      const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       await supabase.from('clients').update({ status: bulkStatusTarget, updated_at: new Date().toISOString() }).in('id', Array.from(selected))
       setSelected(new Set())

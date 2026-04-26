@@ -613,69 +613,6 @@ export function getVatThresholdWarning(rollingIncome: number): string | null {
 }
 
 /**
- * Estimate daily rate needed to hit a desired net take-home.
- * Accounts for tax, NI, holidays, and sick days.
- */
-export function calcRequiredDayRate(params: {
-  desiredTakeHome: number
-  workingDaysPerYear?: number    // default 228 (260 days minus 20 holiday + 12 bank hols)
-  businessType?: 'sole_trader' | 'limited_company'
-  pensionContributions?: number
-  studentLoanPlan?: StudentLoanPlan
-}): {
-  dayRate: number
-  annualGross: number
-  effectiveTaxRate: number
-} {
-  const {
-    desiredTakeHome,
-    workingDaysPerYear = 228,
-    businessType = 'sole_trader',
-    pensionContributions = 0,
-    studentLoanPlan = 'none',
-  } = params
-
-  // Binary search for the gross income that yields the desired take-home
-  let low = desiredTakeHome
-  let high = desiredTakeHome * 3
-  let annualGross = high
-
-  for (let i = 0; i < 50; i++) {
-    const mid = (low + high) / 2
-    const result = calculateTax({
-      grossIncome: mid,
-      totalExpenses: 0,
-      businessType,
-      pensionContributions,
-      studentLoanPlan,
-    })
-
-    const th = 'takeHome' in result ? result.takeHome : mid
-    if (Math.abs(th - desiredTakeHome) < 1) {
-      annualGross = mid
-      break
-    }
-    if (th < desiredTakeHome) low = mid
-    else high = mid
-    annualGross = mid
-  }
-
-  const fullResult = calculateTax({
-    grossIncome: annualGross,
-    totalExpenses: 0,
-    businessType,
-    pensionContributions,
-    studentLoanPlan,
-  })
-
-  return {
-    dayRate: Math.ceil(annualGross / workingDaysPerYear),
-    annualGross: Math.round(annualGross),
-    effectiveTaxRate: 'effectiveTaxRate' in fullResult ? fullResult.effectiveTaxRate : 0,
-  }
-}
-
-/**
  * Allowable expense categories and their HMRC deductibility rules.
  * Used to flag partial or non-allowable expenses at the point of entry.
  */

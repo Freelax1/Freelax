@@ -467,7 +467,7 @@ export default function QuotesPage() {
 
 
         {/* Mobile cards */}
-        <div className="md:hidden space-y-2">
+        <div className="md:hidden fd-page-enter space-y-2">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
               <div className="h-4 fd-skeleton w-24 mb-3" /><div className="h-3 fd-skeleton w-32" />
