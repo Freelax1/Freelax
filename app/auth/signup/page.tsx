@@ -151,7 +151,7 @@ function RightPanel() {
 
           {/* Animated tagline */}
           <p style={{
-            fontSize: 26, fontWeight: 700, color: '#FFFFFF',
+            fontSize: 22, fontWeight: 700, color: '#FFFFFF',
             lineHeight: 1.3, letterSpacing: '-0.02em',
             marginTop: 0, marginBottom: 0,
             opacity: taglineVisible ? 1 : 0,
