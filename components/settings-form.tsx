@@ -422,11 +422,13 @@ export default function SettingsForm({ profile, email }: Props) {
 
   // Tax Profile
   const [tp, setTp] = useState({
-    student_loan_plan:         profile?.student_loan_plan         ?? 'none',
-    pension_contributions:     profile?.pension_contributions     ?? '',
-    salary_drawn:              profile?.salary_drawn              ?? '',
-    dividends_drawn:           profile?.dividends_drawn           ?? '',
+    student_loan_plan:           profile?.student_loan_plan           ?? 'none',
+    pension_contributions:       profile?.pension_contributions       ?? '',
+    salary_drawn:                profile?.salary_drawn                ?? '',
+    dividends_drawn:             profile?.dividends_drawn             ?? '',
     monthly_personal_outgoings:  profile?.monthly_personal_outgoings  ?? '',
+    other_income:                profile?.other_income                ?? '',
+    investment_dividends:        profile?.investment_dividends        ?? '',
   })
 
   async function save(data: Record<string, any>) {
@@ -701,6 +703,38 @@ export default function SettingsForm({ profile, email }: Props) {
                 </>
               )}
 
+              <Field
+                label="Other income (annual, £)"
+                hint="PAYE employment, rental income, savings interest or any other taxable income outside your freelance work."
+              >
+                <input
+                  type="number"
+                  min="0"
+                  step="100"
+                  className={inputClass}
+                  value={tp.other_income}
+                  onChange={e => setTp(p => ({ ...p, other_income: e.target.value }))}
+                  placeholder="0"
+                />
+              </Field>
+
+              {bf.business_type === 'sole_trader' && (
+                <Field
+                  label="Investment dividends (annual, £)"
+                  hint="Dividends from shares, funds or investment ISAs. Not dividends from your own limited company."
+                >
+                  <input
+                    type="number"
+                    min="0"
+                    step="100"
+                    className={inputClass}
+                    value={tp.investment_dividends}
+                    onChange={e => setTp(p => ({ ...p, investment_dividends: e.target.value }))}
+                    placeholder="0"
+                  />
+                </Field>
+              )}
+
               <button
                 className={btnClass}
                 disabled={saving}
@@ -710,6 +744,8 @@ export default function SettingsForm({ profile, email }: Props) {
                   salary_drawn: tp.salary_drawn !== '' ? Number(tp.salary_drawn) : null,
                   dividends_drawn: tp.dividends_drawn !== '' ? Number(tp.dividends_drawn) : null,
                   monthly_personal_outgoings: tp.monthly_personal_outgoings !== '' ? Number(tp.monthly_personal_outgoings) : null,
+                  other_income: tp.other_income !== '' ? Number(tp.other_income) : 0,
+                  investment_dividends: tp.investment_dividends !== '' ? Number(tp.investment_dividends) : 0,
                 })}
               >
                 {saving ? 'Saving...' : 'Save tax profile'}

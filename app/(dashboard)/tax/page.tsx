@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { fetchCurrentUser, fetchUserProfile, updateUserProfile } from '@/lib/api/users'
+import { useState, useEffect } from 'react'
+import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import { fetchPaidInvoicesByUser } from '@/lib/api/invoices'
 import { fetchExpensesByUser } from '@/lib/api/expenses'
 import {
@@ -9,7 +9,6 @@ import {
   calculateTax,
   getCurrentTaxYear,
   getVatThresholdWarning,
-  type TaxInputs,
 } from '@/lib/tax-calculations'
 import PageHeader from '@/components/page-header'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
@@ -285,17 +284,6 @@ export default function TaxPage() {
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
   const [exportLoading, setExportLoading]   = useState(false)
-  const [baseInputs, setBaseInputs]                   = useState<TaxInputs | null>(null)
-  const [otherIncome, setOtherIncome]                 = useState(0)
-  const [investmentDividends, setInvestmentDividends] = useState(0)
-  const [savingAdditional, setSavingAdditional]       = useState(false)
-  const userIdRef = useRef('')
-
-  useEffect(() => {
-    if (!baseInputs) return
-    const newDetail = calculateTax({ ...baseInputs, otherIncome, investmentDividends })
-    setPageData(prev => prev ? { ...prev, taxDetail: newDetail } : null)
-  }, [baseInputs, otherIncome, investmentDividends])
 
   useEffect(() => {
     async function load() {
@@ -356,10 +344,6 @@ export default function TaxPage() {
       setTaxPotTotal(potTotal)
       setTaxPotEntries(potEntries)
 
-      userIdRef.current = userId
-      setBaseInputs(baseInputsObj)
-      setOtherIncome(otherIncomeVal)
-      setInvestmentDividends(investmentDividendsVal)
       setLoading(false)
     }
     load()
@@ -374,18 +358,6 @@ export default function TaxPage() {
       setNarrative(json.narrative ?? json.error ?? 'Could not generate summary.')
     } catch { setNarrative('Failed to connect. Please try again.') }
     setNarrativeLoading(false)
-  }
-
-  async function saveAdditionalIncome() {
-    if (!userIdRef.current) return
-    setSavingAdditional(true)
-    try {
-      await updateUserProfile(userIdRef.current, {
-        other_income: otherIncome,
-        investment_dividends: investmentDividends,
-      })
-    } catch (e) { console.error(e) }
-    setSavingAdditional(false)
   }
 
   const exportCSV = (type: string) => { window.location.href = `/api/invoices/export?type=${type}` }
@@ -669,39 +641,6 @@ export default function TaxPage() {
             )
           })()}
 
-          {/* ── Additional income inputs ─── */}
-          {(pageData.taxDetail.grossIncome > 0 || pageData.taxDetail.totalExpenses > 0) && (
-            <Card title="Additional income">
-              <div className="py-3 space-y-4">
-                <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-1.5">Other income <span className="font-normal text-slate-400">(annual)</span></label>
-                  <input
-                    type="number" min="0" placeholder="0.00"
-                    value={otherIncome || ''}
-                    onChange={e => setOtherIncome(Number(e.target.value) || 0)}
-                    onBlur={saveAdditionalIncome}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  />
-                  <p className="text-xs text-slate-400 mt-1.5">Full-year total — PAYE employment, rental income, savings interest or any other taxable income outside your freelance work.</p>
-                </div>
-                {pageData.businessType === 'sole_trader' && (
-                  <div>
-                    <label className="text-xs font-medium text-slate-600 block mb-1.5">Investment dividends <span className="font-normal text-slate-400">(annual)</span></label>
-                    <input
-                      type="number" min="0" placeholder="0.00"
-                      value={investmentDividends || ''}
-                      onChange={e => setInvestmentDividends(Number(e.target.value) || 0)}
-                      onBlur={saveAdditionalIncome}
-                      className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                    />
-                    <p className="text-xs text-slate-400 mt-1.5">Full-year total — dividends from shares, funds or investment ISAs. Not dividends from your own limited company.</p>
-                  </div>
-                )}
-                {savingAdditional && <p className="text-xs text-slate-400">Saving…</p>}
-              </div>
-            </Card>
-          )}
-
           {/* ── SOLE TRADER ── */}
           {pageData.taxDetail.kind === 'sole_trader' && (() => {
             const t = pageData.taxDetail
@@ -739,6 +678,9 @@ export default function TaxPage() {
                     {t.otherIncome > 0 && (
                       <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
+                    <p className="text-xs text-slate-400 mt-1">
+                      <a href="/settings?tab=Personal+tax+inputs" className="text-slate-500 hover:underline">Edit in Settings →</a>
+                    </p>
                     <Row label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
                       hint={t.paAlert ? 'Reduced — income over £100k' : undefined} />
                     <Row label="Taxable income"         value={formatCurrency(t.taxableIncome)} bold />
