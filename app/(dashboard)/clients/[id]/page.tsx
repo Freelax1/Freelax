@@ -1,7 +1,6 @@
 'use client'
 
-// app/(dashboard)/clients/[id]/page.tsx — v1.2
-// UI only. Data via lib/api/clients. Logic via lib/logic/clients.
+// app/(dashboard)/clients/[id]/page.tsx — v1.3
 
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
@@ -13,6 +12,30 @@ import ClientForm from '@/components/client-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
+
+const PROJECT_STATUS_DOT: Record<string, { dot: string; label: string }> = {
+  active:    { dot: '#1D6B35', label: 'Active' },
+  completed: { dot: '#1A5E8A', label: 'Completed' },
+  on_hold:   { dot: '#9A7B0A', label: 'On Hold' },
+  cancelled: { dot: '#C0392B', label: 'Cancelled' },
+}
+
+const IR35_STATUS_DOT: Record<string, { dot: string; label: string }> = {
+  outside_ir35: { dot: '#1D6B35', label: 'Outside IR35' },
+  inside_ir35:  { dot: '#C0392B', label: 'Inside IR35' },
+  needs_review: { dot: '#9A7B0A', label: 'Needs review' },
+}
+
+function StatusDot({ map, value }: { map: Record<string, { dot: string; label: string }>; value: string }) {
+  const cfg = map[value]
+  if (!cfg) return null
+  return (
+    <span className="flex items-center gap-1.5 text-sm text-slate-600">
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot, flexShrink: 0, display: 'inline-block' }} />
+      {cfg.label}
+    </span>
+  )
+}
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
   const [client, setClient]     = useState<any>(null)
@@ -61,6 +84,20 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
     <ChevronDown className="w-4 h-4 text-slate-400" style={{ transform: `rotate(${open ? '0deg' : '180deg'})`, transition: 'transform 200ms', flexShrink: 0 }} />
   )
 
+  const sectionCount = (n: number) => (
+    <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 400, marginLeft: 6 }}>({n})</span>
+  )
+
+  const projectRow = (p: any) => (
+    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+      <Link href={`/projects/${p.id}`} className="text-sm font-medium text-blue-600 hover:underline">{p.title}</Link>
+      <div className="flex items-center gap-4">
+        <StatusDot map={IR35_STATUS_DOT} value={p.ir35_status} />
+        <StatusDot map={PROJECT_STATUS_DOT} value={p.status} />
+      </div>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
       <div>
@@ -85,6 +122,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         </div>
       </div>
 
+      {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Total invoiced</p>
@@ -100,7 +138,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Quotes pipeline</p>
-          <p className={`text-2xl font-bold mt-1 ${quotesPipeline > 0 ? 'text-blue-700' : 'text-slate-900'}`}>{formatCurrency(quotesPipeline)}</p>
+          <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{formatCurrency(quotesPipeline)}</p>
         </div>
       </div>
 
@@ -123,8 +161,8 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: projectsOpen ? 16 : 0 }}
           onClick={() => setProjectsOpen(o => !o)}>
-          <h2 className="font-semibold text-slate-900">Projects</h2>
-          <div className="flex items-center gap-3">
+          <h2 className="font-semibold text-slate-900">Projects{sectionCount(projects.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/projects/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-blue-600 hover:underline">Add project</Link>
             {chevron(projectsOpen)}
@@ -133,30 +171,10 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         {projectsOpen && (
           projects.length > 10 ? (
             <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-              <div className="space-y-2">
-                {projects.map(p => (
-                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                    <Link href={`/projects/${p.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{p.title}</Link>
-                    <div className="flex items-center gap-2">
-                      <Badge status={p.ir35_status} />
-                      <Badge status={p.status} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <div className="space-y-2">{projects.map(projectRow)}</div>
             </div>
           ) : projects.length ? (
-            <div className="space-y-2">
-              {projects.map(p => (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                  <Link href={`/projects/${p.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{p.title}</Link>
-                  <div className="flex items-center gap-2">
-                    <Badge status={p.ir35_status} />
-                    <Badge status={p.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="space-y-2">{projects.map(projectRow)}</div>
           ) : <p className="text-sm text-slate-400">No projects.</p>
         )}
       </div>
@@ -165,43 +183,15 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: quotesOpen ? 16 : 0 }}
           onClick={() => setQuotesOpen(o => !o)}>
-          <h2 className="font-semibold text-slate-900">Quotes</h2>
-          <div className="flex items-center gap-3">
+          <h2 className="font-semibold text-slate-900">Quotes{sectionCount(quotes.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/quotes/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-blue-600 hover:underline">New quote</Link>
             {chevron(quotesOpen)}
           </div>
         </div>
-        {quotesOpen && (
-          quotes.length > 10 ? (
-            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
-                    <th className="pb-2 font-medium">Quote #</th>
-                    <th className="pb-2 font-medium">Issued</th>
-                    <th className="pb-2 font-medium">Valid until</th>
-                    <th className="pb-2 font-medium">Total</th>
-                    <th className="pb-2 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {quotes.map(q => {
-                    const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
-                    return (
-                      <tr key={q.id}>
-                        <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
-                        <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
-                        <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
-                        <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
-                        <td className="py-2"><Badge status={q.status} /></td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : quotes.length ? (
+        {quotesOpen && (() => {
+          const quoteTable = (
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
@@ -227,48 +217,26 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
                 })}
               </tbody>
             </table>
-          ) : <p className="text-sm text-slate-400">No quotes yet.</p>
-        )}
+          )
+          if (!quotes.length) return <p className="text-sm text-slate-400">No quotes yet.</p>
+          if (quotes.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{quoteTable}</div>
+          return quoteTable
+        })()}
       </div>
 
       {/* Invoices */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: invoicesOpen ? 16 : 0 }}
           onClick={() => setInvoicesOpen(o => !o)}>
-          <h2 className="font-semibold text-slate-900">Invoices</h2>
-          <div className="flex items-center gap-3">
+          <h2 className="font-semibold text-slate-900">Invoices{sectionCount(invoices.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/invoices/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-blue-600 hover:underline">New invoice</Link>
             {chevron(invoicesOpen)}
           </div>
         </div>
-        {invoicesOpen && (
-          invoices.length > 10 ? (
-            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
-                    <th className="pb-2 font-medium">Invoice</th>
-                    <th className="pb-2 font-medium">Issued</th>
-                    <th className="pb-2 font-medium">Due</th>
-                    <th className="pb-2 font-medium">Total</th>
-                    <th className="pb-2 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {invoices.map(inv => (
-                    <tr key={inv.id}>
-                      <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
-                      <td className="py-2 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
-                      <td className="py-2 text-slate-500">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
-                      <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
-                      <td className="py-2"><Badge status={inv.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : invoices.length ? (
+        {invoicesOpen && (() => {
+          const invoiceTable = (
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
@@ -291,8 +259,11 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
                 ))}
               </tbody>
             </table>
-          ) : <p className="text-sm text-slate-400">No invoices.</p>
-        )}
+          )
+          if (!invoices.length) return <p className="text-sm text-slate-400">No invoices.</p>
+          if (invoices.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{invoiceTable}</div>
+          return invoiceTable
+        })()}
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit client"
