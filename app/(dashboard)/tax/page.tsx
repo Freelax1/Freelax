@@ -325,8 +325,8 @@ export default function TaxPage() {
         dividendsDrawn:       profile?.dividends_drawn ? Number(profile.dividends_drawn) : undefined,
       }
 
-      const otherIncomeVal         = Number(profile?.other_income ?? 0)
-      const investmentDividendsVal = Number(profile?.investment_dividends ?? 0)
+      const otherIncomeVal         = Number((profile as any)?.other_income ?? 0)
+      const investmentDividendsVal = Number((profile as any)?.investment_dividends ?? 0)
 
       const taxDetail = calculateTax({ ...baseInputsObj, otherIncome: otherIncomeVal, investmentDividends: investmentDividendsVal })
       const vatWarning = getVatThresholdWarning(totalIncomeExVat)
