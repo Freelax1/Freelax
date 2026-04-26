@@ -91,15 +91,15 @@ function RightPanel() {
         background: 'rgba(0,0,0,0.35)',
       }} />
 
-      {/* Content — centered */}
+      {/* Content — bottom half */}
       <div style={{
         position: 'relative',
         zIndex: 1,
         minHeight: '100vh',
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '48px 40px',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: '48px 40px 80px',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <p style={{
@@ -123,7 +123,7 @@ function RightPanel() {
             {taglines[taglineIdx]}
           </p>
 
-          {/* Feature list — fix 3: marginTop 40 gap from tagline */}
+          {/* Feature list */}
           <div style={{ marginTop: 40 }}>
             {features.map((feat, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -159,7 +159,6 @@ function RightPanel() {
               Join UK freelancers saving time on tax
             </span>
           </div>
-
         </div>
       </div>
     </div>
@@ -169,11 +168,6 @@ function RightPanel() {
 function LoginFallback() {
   return (
     <>
-      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
-        <span style={{ color: '#0F172A' }}>Free</span>
-        <span style={{ color: '#1D6B35' }}>lax</span>
-        <span style={{ color: '#1D6B35' }}>.</span>
-      </div>
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 24 }}>
         Sign in
       </h2>
@@ -218,7 +212,8 @@ function LoginForm() {
 
   return (
     <>
-      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
+      {/* Mobile-only wordmark (split wordmark is hidden on mobile) */}
+      <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
         <span style={{ color: '#0F172A' }}>Free</span>
         <span style={{ color: '#1D6B35' }}>lax</span>
         <span style={{ color: '#1D6B35' }}>.</span>
@@ -314,14 +309,50 @@ export default function LoginPage() {
     <>
       <style>{`
         @keyframes fd-spin { to { transform: rotate(360deg) } }
+        /* Mobile: hide right panel and split wordmark; show mobile wordmark */
         @media (max-width: 768px) {
           .auth-right { display: none !important; }
-          .auth-left { flex: none !important; width: 100% !important; }
+          .auth-left { flex: none !important; width: 100% !important; justify-content: center !important; padding-bottom: 48px !important; }
+          .auth-split-wordmark { display: none !important; }
+          .auth-wordmark-mobile { display: block !important; }
+        }
+        /* Desktop: hide mobile wordmark; show split wordmark */
+        @media (min-width: 769px) {
+          .auth-wordmark-mobile { display: none !important; }
+          .auth-split-wordmark { display: flex !important; }
         }
       `}</style>
 
-      <div style={{ minHeight: '100vh', display: 'flex' }}>
-        {/* Left — form */}
+      {/* Page wrapper — position relative so the split wordmark can be absolutely placed */}
+      <div style={{ minHeight: '100vh', display: 'flex', position: 'relative' }}>
+
+        {/* Split wordmark — absolutely centered, spans both panels */}
+        <div
+          className="auth-split-wordmark"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            right: 0,
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'baseline',
+            zIndex: 10,
+            pointerEvents: 'none',
+            fontSize: 72,
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+          }}
+        >
+          <span style={{ color: '#0F172A' }}>Free</span>
+          <span style={{ color: '#ffffff' }}>lax</span>
+          <span style={{ color: '#1D6B35' }}>.</span>
+        </div>
+
+        {/* Left — form pushed to bottom half */}
         <div className="auth-left" style={{
           flex: '0 0 55%',
           minHeight: '100vh',
@@ -332,8 +363,8 @@ export default function LoginPage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '48px 32px',
+          justifyContent: 'flex-end',
+          padding: '48px 32px 80px',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             <Suspense fallback={<LoginFallback />}>
