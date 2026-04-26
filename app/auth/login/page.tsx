@@ -91,46 +91,49 @@ function RightPanel() {
         background: 'rgba(0,0,0,0.35)',
       }} />
 
-      {/* Content */}
+      {/* Content — centered */}
       <div style={{
         position: 'relative',
         zIndex: 1,
         minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: '48px 40px',
       }}>
-        {/* Wordmark */}
-        <div>
-          <span style={{ fontSize: 28, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
-            Freelax<span style={{ color: '#1D6B35' }}>.</span>
-          </span>
-        </div>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          {/* Wordmark — fix 2: dot is off-white so it shows against the image */}
+          <div style={{ marginBottom: 48 }}>
+            <span style={{ fontSize: 28, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
+              Freelax<span style={{ color: '#FAFAF7' }}>.</span>
+            </span>
+          </div>
 
-        {/* Centre content */}
-        <div>
+          {/* Animated tagline */}
           <p style={{
             fontSize: 26, fontWeight: 700, color: '#FFFFFF',
             lineHeight: 1.3, letterSpacing: '-0.02em',
-            marginTop: 0, marginBottom: 40,
+            marginTop: 0, marginBottom: 0,
             opacity: taglineVisible ? 1 : 0,
             transition: 'opacity 400ms ease',
           }}>
             {taglines[taglineIdx]}
           </p>
 
-          {features.map((feat, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: '#1D6B35', flexShrink: 0,
-              }} />
-              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
-                {feat}
-              </span>
-            </div>
-          ))}
+          {/* Feature list — fix 3: marginTop 40 gap from tagline */}
+          <div style={{ marginTop: 40 }}>
+            {features.map((feat, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: '#1D6B35', flexShrink: 0,
+                }} />
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+                  {feat}
+                </span>
+              </div>
+            ))}
+          </div>
 
           {/* Social proof */}
           <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -153,12 +156,11 @@ function RightPanel() {
               Join UK freelancers saving time on tax
             </span>
           </div>
-        </div>
 
-        {/* Footer */}
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: 0 }}>
-          Built in the UK · Encrypted &amp; never sold.
-        </p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 48, marginBottom: 0 }}>
+            Built in the UK · Encrypted &amp; never sold.
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -167,6 +169,11 @@ function RightPanel() {
 function LoginFallback() {
   return (
     <>
+      <div style={{ marginBottom: 32 }}>
+        <span style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>
+          Freelax<span style={{ color: '#1D6B35' }}>.</span>
+        </span>
+      </div>
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 24 }}>
         Sign in
       </h2>
@@ -211,6 +218,12 @@ function LoginForm() {
 
   return (
     <>
+      <div style={{ marginBottom: 32 }}>
+        <span style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>
+          Freelax<span style={{ color: '#1D6B35' }}>.</span>
+        </span>
+      </div>
+
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 24 }}>
         Sign in
       </h2>
@@ -322,16 +335,9 @@ export default function LoginPage() {
           padding: '48px 32px',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
-            <div style={{
-              background: '#FFFFFF',
-              borderRadius: 14,
-              border: '1px solid rgba(0,0,0,0.06)',
-              padding: '36px 32px 32px',
-            }}>
-              <Suspense fallback={<LoginFallback />}>
-                <LoginForm />
-              </Suspense>
-            </div>
+            <Suspense fallback={<LoginFallback />}>
+              <LoginForm />
+            </Suspense>
 
             <p style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', marginTop: 28, marginBottom: 4, lineHeight: 1.7 }}>
               Built in the UK · Your data is encrypted and never sold.
