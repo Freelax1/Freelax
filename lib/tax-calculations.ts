@@ -18,6 +18,16 @@ export interface TaxInputs {
   pensionContributions?: number  // annual SIPP / personal pension contributions
   studentLoanPlan?: StudentLoanPlan
 
+  // Additional income sources (all business types)
+  // Adds to adjusted net income for PA taper, taxable income for band placement,
+  // and student loan calculations. Covers PAYE employment, rental, savings interest, etc.
+  otherIncome?: number
+
+  // Investment dividends — sole trader / partnership only
+  // Dividends received from personal investment portfolios (ISA wrappers excluded).
+  // Taxed via calcDividendTax on top of all other taxable income.
+  investmentDividends?: number
+
   // Ltd company only
   salaryDrawn?: number           // director salary (usually ~£12,570)
   dividendsDrawn?: number        // dividends taken from company profits
@@ -42,6 +52,11 @@ export interface SoleTraderTax {
 
   // Student loan
   studentLoanRepayment: number
+
+  // Other income
+  otherIncome: number
+  investmentDividends: number
+  investmentDividendTax: number
 
   // Pension
   pensionContributions: number
@@ -89,8 +104,11 @@ export interface LtdCompanyTax {
   taxableDividends: number
   dividendTax: number            // 10.75% / 35.75% / 39.35% (2026/27 rates)
 
-  // Student loan (on salary + dividends combined)
+  // Student loan (on salary + dividends + otherIncome combined)
   studentLoanRepayment: number
+
+  // Other income
+  otherIncome: number
 
   // Pension
   pensionContributions: number
@@ -363,6 +381,8 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
     businessType,
     pensionContributions = 0,
     studentLoanPlan = 'none',
+    otherIncome = 0,
+    investmentDividends = 0,
     salaryDrawn,
     dividendsDrawn,
   } = inputsOrProfit
@@ -371,20 +391,26 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
   if (businessType === 'sole_trader' || businessType === 'partnership') {
     const netProfit = Math.max(0, grossIncome - totalExpenses)
 
-    // Adjusted net income for PA taper = profit minus pension (HMRC rules)
+    // Adjusted net income for PA taper = all income minus pension (HMRC rules)
     // For relief-at-source pensions (SIPP — standard for freelancers):
     //   - pension contributions reduce adjusted net income (affects PA taper)
     //   - pension contributions extend the basic rate band
     //   - pension contributions do NOT reduce taxable income (no double relief)
-    const adjustedNetIncome = netProfit - pensionContributions
+    // otherIncome (PAYE, rental, savings, etc.) is included in adjusted net income
+    // and taxable income for correct band placement per HMRC SA rules.
+    const adjustedNetIncome = netProfit + otherIncome - pensionContributions
     const pa = effectivePA(adjustedNetIncome)
     const paAlert = adjustedNetIncome > PA_TAPER_START
 
-    // taxableIncome = profit minus PA only (pension handled via band extension)
-    const taxableIncome = Math.max(0, netProfit - pa)
+    // taxableIncome = all earned income minus PA (pension handled via band extension)
+    const taxableIncome = Math.max(0, netProfit + otherIncome - pa)
     const incomeTax = calcIncomeTax(taxableIncome, pa, pensionContributions)
+    // Class 4 NI applies to self-employed profit only, not to otherIncome
     const classFourNI = calcClassFourNI(netProfit)
-    const studentLoan = calcStudentLoan(netProfit, studentLoanPlan)
+    const studentLoan = calcStudentLoan(netProfit + otherIncome, studentLoanPlan)
+
+    // Investment dividends sit on top of all other taxable income
+    const investmentDividendTax = calcDividendTax(investmentDividends, taxableIncome, pa, pensionContributions)
 
     // Pension tax relief:
     //   Basic rate (20%) is added to the pension pot automatically by the provider (relief at source).
@@ -413,15 +439,16 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
     const additionalRatePensionRelief = additionalAbsorbed * (INCOME_TAX_ADDL - INCOME_TAX_HIGHER)
     const totalExtraReliefViaSA       = higherRatePensionRelief + additionalRatePensionRelief
 
-    const totalTax = incomeTax + classFourNI + studentLoan
+    const totalTax = incomeTax + classFourNI + studentLoan + investmentDividendTax
     const totalDeductions = totalTax + pensionContributions
-    const takeHome = netProfit - totalTax - pensionContributions
+    const takeHome = netProfit + otherIncome + investmentDividends - totalTax - pensionContributions
     const effectiveTaxRate = grossIncome > 0
       ? Math.round((totalTax / grossIncome) * 1000) / 10
       : 0
 
     // HMRC: POA is based on IT + Class 4 NI only — student loan excluded
-    const { poa, januaryTotal, julyPayment } = calcPOA(Math.round(incomeTax + classFourNI))
+    // Investment dividend tax is income tax for SA purposes so is included in POA base
+    const { poa, januaryTotal, julyPayment } = calcPOA(Math.round(incomeTax + classFourNI + investmentDividendTax))
 
     return {
       kind: 'sole_trader',
@@ -438,6 +465,9 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
       incomeTax: Math.round(incomeTax),
       classFourNI: Math.round(classFourNI),
       studentLoanRepayment: Math.round(studentLoan),
+      otherIncome: Math.round(otherIncome),
+      investmentDividends: Math.round(investmentDividends),
+      investmentDividendTax: Math.round(investmentDividendTax),
       pensionContributions: Math.round(pensionContributions),
       pensionTaxRelief: Math.round(pensionTaxRelief),
       higherRatePensionRelief:       Math.round(higherRatePensionRelief),
@@ -475,16 +505,17 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
       : 0
 
     // Personal — director's SA
-    const pa = effectivePA(salary + divs - pensionContributions)
-    const taxableEarned = Math.max(0, salary - pa)
+    // otherIncome stacks with salary for income tax band placement and PA taper
+    const pa = effectivePA(salary + divs + otherIncome - pensionContributions)
+    const taxableEarned = Math.max(0, salary + otherIncome - pa)
     const salaryIT = calcIncomeTax(taxableEarned, pa, pensionContributions)
-    const divTax   = calcDividendTax(divs, Math.max(0, salary - pa), pa, pensionContributions)
-    const studentLoan = calcStudentLoan(salary + divs, studentLoanPlan)
+    const divTax   = calcDividendTax(divs, Math.max(0, salary + otherIncome - pa), pa, pensionContributions)
+    const studentLoan = calcStudentLoan(salary + divs + otherIncome, studentLoanPlan)
 
     const totalPersonalTax = salaryIT + empNI + divTax + studentLoan
     const totalCompanyTax  = corpTax + erNI
 
-    const takeHome = salary + divs - totalPersonalTax - pensionContributions
+    const takeHome = salary + divs + otherIncome - totalPersonalTax - pensionContributions
     const effectiveTaxRate = grossIncome > 0
       ? Math.round(((totalPersonalTax + totalCompanyTax) / grossIncome) * 1000) / 10
       : 0
@@ -511,6 +542,7 @@ export function calculateTax(inputsOrProfit: TaxInputs | number): TaxCalculation
       taxableDividends: Math.round(Math.max(0, divs - DIVIDEND_ALLOWANCE)),
       dividendTax: Math.round(divTax),
       studentLoanRepayment: Math.round(studentLoan),
+      otherIncome: Math.round(otherIncome),
       pensionContributions: Math.round(pensionContributions),
       paymentsOnAccount: Math.round(poa),
       totalJanuaryPayment: Math.round(januaryTotal),
