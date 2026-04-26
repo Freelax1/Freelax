@@ -132,17 +132,10 @@ function RightPanel() {
         padding: '48px 40px',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
-          {/* Wordmark — fix 2: dot is off-white so it shows against the image */}
-          <div style={{ marginBottom: 48 }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
-              Freelax<span style={{ color: '#FAFAF7' }}>.</span>
-            </span>
-          </div>
-
           <p style={{
             fontSize: 14,
             color: 'rgba(255,255,255,0.6)',
-            marginTop: 8,
+            marginTop: 0,
             marginBottom: 32,
             fontWeight: 400,
           }}>
@@ -197,9 +190,6 @@ function RightPanel() {
             </span>
           </div>
 
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 48, marginBottom: 0 }}>
-            Built in the UK · Encrypted &amp; never sold.
-          </p>
         </div>
       </div>
     </div>
@@ -275,10 +265,10 @@ export default function SignupPage() {
     </div>
   ) : (
     <>
-      <div style={{ marginBottom: 32 }}>
-        <span style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>
-          Freelax<span style={{ color: '#1D6B35' }}>.</span>
-        </span>
+      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
+        <span style={{ color: '#0F172A' }}>Free</span>
+        <span style={{ color: '#1D6B35' }}>lax</span>
+        <span style={{ color: '#1D6B35' }}>.</span>
       </div>
 
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 6 }}>
