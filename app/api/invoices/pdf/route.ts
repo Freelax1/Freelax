@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('*, clients(*), invoice_line_items(*), users(*)')
+    .select('*, clients(*), invoice_line_items(*), users(*), projects(title)')
     .eq('id', invoiceId)
     .single()
 

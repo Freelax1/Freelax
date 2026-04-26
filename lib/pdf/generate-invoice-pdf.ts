@@ -4,6 +4,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 export function buildInvoiceHtml(invoice: any, withPrintScript = false): string {
   const client    = invoice.clients           as any
   const sender    = invoice.users             as any
+  const project   = (invoice.projects ?? null) as any
   const lineItems = (invoice.invoice_line_items ?? []) as any[]
 
   const rows = lineItems.map((item: any) => `
@@ -51,6 +52,13 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
     ? `<div class="status-stamp overdue-stamp">Overdue</div>`
     : invoice.status === 'draft'
     ? `<div class="status-stamp">Draft</div>` : ''
+
+  const projectRow = project?.title
+    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${project.title}</span></div>`
+    : ''
+  const notesBlock = invoice.notes
+    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${invoice.notes}</div>`
+    : ''
 
   return `<!DOCTYPE html>
 <html>
@@ -130,9 +138,14 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
   <div class="doc-header">
     <div>
       ${senderBlock}
+      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${sender.full_name}</div>` : ''}
+      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}</div>` : ''}
+      ${sender?.address_line2 ? `<div class="sender-det">${sender.address_line2}</div>` : ''}
+      ${sender?.city || sender?.postcode ? `<div class="sender-det">${[sender?.city, sender?.postcode].filter(Boolean).join(', ')}</div>` : ''}
+      ${sender?.phone ? `<div class="sender-det">${sender.phone}</div>` : ''}
       ${sender?.email ? `<div class="sender-det">${sender.email}</div>` : ''}
-      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}${sender?.city ? `, ${sender.city}` : ''}</div>` : ''}
-      ${sender?.vat_number ? `<div class="sender-det">VAT: ${sender.vat_number}</div>` : ''}
+      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${sender.vat_number}</div>` : ''}
+      ${sender?.utr_number ? `<div class="sender-det">UTR: ${sender.utr_number}</div>` : ''}
     </div>
     <div>
       <div class="doc-type-label">Invoice</div>
@@ -185,7 +198,8 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
     </div>
   </div>
 
-  ${invoice.notes ? `<div class="notes">${invoice.notes}</div>` : ''}
+  ${projectRow}
+  ${notesBlock}
 
   <div class="page-footer">
     <span class="page-footer-l">${invoice.invoice_number} · ${sender?.business_name || sender?.full_name || ''}</span>
@@ -230,6 +244,7 @@ export async function generateInvoicePdfBuffer(invoice: any): Promise<Buffer | n
 
 export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false): string {
   const client    = quote.clients as any
+  const project   = (quote.projects ?? null) as any
   const lineItems = (quote.quote_line_items ?? []) as any[]
   const expired   = new Date(quote.expiry_date) < new Date()
 
@@ -254,6 +269,13 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
     ? `<div class="status-stamp expired-stamp">Expired</div>`
     : quote.status === 'declined'
     ? `<div class="status-stamp declined-stamp">Declined</div>` : ''
+
+  const projectRow = project?.title
+    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${project.title}</span></div>`
+    : ''
+  const notesBlock = quote.notes
+    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${quote.notes}</div>`
+    : ''
 
   return `<!DOCTYPE html>
 <html>
@@ -314,9 +336,14 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
   <div class="doc-header">
     <div>
       ${senderBlock}
+      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${sender.full_name}</div>` : ''}
+      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}</div>` : ''}
+      ${sender?.address_line2 ? `<div class="sender-det">${sender.address_line2}</div>` : ''}
+      ${sender?.city || sender?.postcode ? `<div class="sender-det">${[sender?.city, sender?.postcode].filter(Boolean).join(', ')}</div>` : ''}
+      ${sender?.phone ? `<div class="sender-det">${sender.phone}</div>` : ''}
       ${sender?.email ? `<div class="sender-det">${sender.email}</div>` : ''}
-      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}${sender?.city ? `, ${sender.city}` : ''}</div>` : ''}
-      ${sender?.vat_number ? `<div class="sender-det">VAT: ${sender.vat_number}</div>` : ''}
+      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${sender.vat_number}</div>` : ''}
+      ${sender?.utr_number ? `<div class="sender-det">UTR: ${sender.utr_number}</div>` : ''}
     </div>
     <div>
       <div class="doc-type-label">Quote</div>
@@ -360,7 +387,6 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
     <div class="validity-col">
       <div class="validity-label">Validity</div>
       <div class="validity-text">Valid until ${new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. To accept, please reply to this email or contact us directly.</div>
-      ${quote.notes ? `<div class="notes">${quote.notes}</div>` : ''}
     </div>
     <div class="totals-col">
       <div class="tot-row"><span class="tot-l">Subtotal</span><span class="tot-r">${formatCurrency(quote.subtotal)}</span></div>
@@ -368,6 +394,8 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
       <div class="tot-grand"><span>Total</span><span>${formatCurrency(quote.total)}</span></div>
     </div>
   </div>
+  ${projectRow}
+  ${notesBlock}
   <div class="page-footer">
     <span class="page-footer-l">${quote.quote_number} · ${sender?.business_name || sender?.full_name || ''}</span>
     <span class="page-footer-r">Powered by freedesk</span>
