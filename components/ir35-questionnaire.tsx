@@ -189,8 +189,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             </div>
           )}
 
-          <div className="border-t border-slate-100 pt-3 space-y-2">
-            <p className="text-xs text-slate-400">Not tax advice. Consult a qualified IR35 specialist for a formal determination.</p>
+          <div className="border-t border-slate-100 pt-3">
             <NotTaxAdviceDisclaimer />
           </div>
         </div>
