@@ -151,7 +151,10 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
+    let active = true
+
     async function load() {
+      if (!active) return
       const user = await fetchCurrentUser()
       const uid  = user?.id ?? ''
       const raw  = await fetchDashboardData(uid, start, end)
@@ -319,6 +322,15 @@ export default function DashboardPage() {
       setSyncedAt(new Date())
     }
     load()
+
+    function onVisible() {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      active = false
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [])
 
   function syncedLabel() {
