@@ -109,6 +109,16 @@ function RightPanel() {
             </span>
           </div>
 
+          <p style={{
+            fontSize: 14,
+            color: 'rgba(255,255,255,0.6)',
+            marginTop: 8,
+            marginBottom: 32,
+            fontWeight: 400,
+          }}>
+            The finance app built for UK freelancers
+          </p>
+
           {/* Animated tagline */}
           <p style={{
             fontSize: 26, fontWeight: 700, color: '#FFFFFF',
@@ -326,8 +336,9 @@ export default function LoginPage() {
           flex: '0 0 55%',
           minHeight: '100vh',
           backgroundColor: '#FAFAF7',
-          backgroundImage: 'radial-gradient(circle, #d0cfc8 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
+          backgroundImage: "url('/left-panel-bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
