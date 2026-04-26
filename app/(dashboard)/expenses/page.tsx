@@ -426,49 +426,81 @@ export default function ExpensesPage() {
             <button onClick={openAdd} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Log journey</button>
           </div>
         ) : (
-          <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {['Date', 'Description', 'Route', 'Miles', 'Relief', ''].map((h, i) => (
-                    <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === 'Miles' || h === 'Relief' ? 'text-right' : h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {mileage.map((e, idx) => {
-                  const milesBefore = mileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
-                  const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
-                  const relief = Number(e.miles) * rate
-                  return (
-                    <tr key={e.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{new Date(e.date).toLocaleDateString('en-GB')}</td>
-                      <td className="px-4 py-3 font-medium text-slate-800">{e.description}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">
-                        {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-right font-medium">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
-                      <td className="px-4 py-3 text-right text-green-700 font-medium">£{relief.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right">
-                        <button onClick={() => setDeleteTarget({ id: e.id, type: 'mileage' })}
-                          className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-              <tfoot className="bg-slate-50 border-t border-slate-200">
-                <tr>
-                  <td colSpan={3} className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Total</td>
-                  <td className="px-4 py-3 text-right font-bold text-slate-900">{totalMiles.toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</td>
-                  <td className="px-4 py-3 text-right font-bold text-green-700">£{totalMileageRelief.toFixed(2)}</td>
-                  <td />
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <>
+            <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    {['Date', 'Description', 'Route', 'Miles', 'Relief', ''].map((h, i) => (
+                      <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === 'Miles' || h === 'Relief' ? 'text-right' : h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {mileage.map((e, idx) => {
+                    const milesBefore = mileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
+                    const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
+                    const relief = Number(e.miles) * rate
+                    return (
+                      <tr key={e.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{new Date(e.date).toLocaleDateString('en-GB')}</td>
+                        <td className="px-4 py-3 font-medium text-slate-800">{e.description}</td>
+                        <td className="px-4 py-3 text-slate-400 text-xs">
+                          {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
+                        <td className="px-4 py-3 text-right text-green-700 font-medium">£{relief.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-right">
+                          <button onClick={() => setDeleteTarget({ id: e.id, type: 'mileage' })}
+                            className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot className="bg-slate-50 border-t border-slate-200">
+                  <tr>
+                    <td colSpan={3} className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Total</td>
+                    <td className="px-4 py-3 text-right font-bold text-slate-900">{totalMiles.toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</td>
+                    <td className="px-4 py-3 text-right font-bold text-green-700">£{totalMileageRelief.toFixed(2)}</td>
+                    <td />
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div className="md:hidden space-y-2">
+              {mileage.map((e, idx) => {
+                const milesBefore = mileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
+                const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
+                const relief = Number(e.miles) * rate
+                const hasRoute = e.from_location || e.to_location
+                return (
+                  <div key={e.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <span className="font-medium text-slate-800">{e.description}</span>
+                      <span className="font-semibold text-slate-900 flex-shrink-0">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</span>
+                    </div>
+                    <p className="text-green-700 font-medium text-sm mb-2">{formatCurrency(relief)} tax relief</p>
+                    {hasRoute && (
+                      <p className="text-xs text-slate-400 mb-2">
+                        {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-400">{new Date(e.date).toLocaleDateString('en-GB')}</span>
+                      <button onClick={() => setDeleteTarget({ id: e.id, type: 'mileage' })}
+                        className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )
       )}
 
