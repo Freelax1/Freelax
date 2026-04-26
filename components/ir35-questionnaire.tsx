@@ -85,6 +85,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
 
   return (
     <div className="space-y-6">
+      {!aiResult && <NotTaxAdviceDisclaimer />}
       <div className="space-y-3">
         {IR35_QUESTIONS.map(q => (
           <div key={q.number} className="bg-slate-50 rounded-lg p-4">

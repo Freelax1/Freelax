@@ -114,9 +114,6 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           <h2 className="font-semibold text-slate-900">IR35 Assessment</h2>
           <Badge status={ir35Status} />
         </div>
-        <div className="mb-4">
-          <NotTaxAdviceDisclaimer />
-        </div>
         <IR35Questionnaire
           projectId={project.id}
           initialAnswers={project.ir35_answers ?? []}
