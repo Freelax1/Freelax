@@ -236,7 +236,7 @@ export default function NewQuotePage() {
                 <tr key={i}>
                   <td className="py-1 pr-2"><input value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
                   <td className="py-1 pr-2"><input type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
-                  <td className="py-1 pr-2"><input type="number" step="0.01" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
+                  <td className="py-1 pr-2"><input type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
                   <td className="py-1 pr-2">
                     <select value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900">
                       <option value={20}>20%</option>
