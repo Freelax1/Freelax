@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchClientById, fetchClientProjects, fetchClientInvoices } from '@/lib/api/clients'
+import { createClient } from '@/lib/supabase/client'
 import { calcOutstanding, calcTotalInvoiced, calcTotalPaid } from '@/lib/logic/clients'
 import Badge from '@/components/badge'
 import ClientForm from '@/components/client-form'
@@ -17,19 +18,24 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   const [client, setClient]   = useState<any>(null)
   const [projects, setProjects] = useState<any[]>([])
   const [invoices, setInvoices] = useState<any[]>([])
+  const [quotes, setQuotes]     = useState<any[]>([])
   const [loading, setLoading]   = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
   async function load() {
-    const [cl, proj, inv] = await Promise.all([
+    const supabase = createClient()
+    const [cl, proj, inv, { data: qt }] = await Promise.all([
       fetchClientById(params.id),
       fetchClientProjects(params.id),
       fetchClientInvoices(params.id),
+      supabase.from('quotes').select('id, quote_number, issue_date, expiry_date, total, status')
+        .eq('client_id', params.id).order('issue_date', { ascending: false }),
     ])
     if (!cl) return
     setClient(cl)
     setProjects(proj)
     setInvoices(inv)
+    setQuotes(qt ?? [])
     setLoading(false)
   }
 
@@ -42,9 +48,10 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   )
   if (!client) return null
 
-  const totalInvoiced = calcTotalInvoiced(invoices)
-  const totalPaid     = calcTotalPaid(invoices)
-  const outstanding   = calcOutstanding(invoices)
+  const totalInvoiced   = calcTotalInvoiced(invoices)
+  const totalPaid       = calcTotalPaid(invoices)
+  const outstanding     = calcOutstanding(invoices)
+  const quotesPipeline  = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
 
   return (
     <div className="space-y-6">
@@ -70,7 +77,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Total invoiced</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(totalInvoiced)}</p>
@@ -82,6 +89,10 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Outstanding</p>
           <p className={`text-2xl font-bold mt-1 ${outstanding > 0 ? 'text-red-600' : 'text-slate-900'}`}>{formatCurrency(outstanding)}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Quotes pipeline</p>
+          <p className={`text-2xl font-bold mt-1 ${quotesPipeline > 0 ? 'text-blue-700' : 'text-slate-900'}`}>{formatCurrency(quotesPipeline)}</p>
         </div>
       </div>
 
@@ -118,6 +129,40 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
             ))}
           </div>
         ) : <p className="text-sm text-slate-400">No projects.</p>}
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-slate-900">Quotes</h2>
+          <Link href={`/quotes/new?client=${client.id}`} className="text-sm text-blue-600 hover:underline">New quote</Link>
+        </div>
+        {quotes.length ? (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                <th className="pb-2 font-medium">Quote #</th>
+                <th className="pb-2 font-medium">Issued</th>
+                <th className="pb-2 font-medium">Valid until</th>
+                <th className="pb-2 font-medium">Total</th>
+                <th className="pb-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {quotes.map(q => {
+                const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
+                return (
+                  <tr key={q.id}>
+                    <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
+                    <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
+                    <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
+                    <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
+                    <td className="py-2"><Badge status={q.status} /></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : <p className="text-sm text-slate-400">No quotes yet.</p>}
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-6">
