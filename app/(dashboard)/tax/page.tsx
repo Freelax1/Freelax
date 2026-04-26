@@ -674,7 +674,7 @@ export default function TaxPage() {
             <Card title="Additional income">
               <div className="py-3 space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-1.5">Other income</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">Other income <span className="font-normal text-slate-400">(annual)</span></label>
                   <input
                     type="number" min="0" placeholder="0.00"
                     value={otherIncome || ''}
@@ -682,11 +682,11 @@ export default function TaxPage() {
                     onBlur={saveAdditionalIncome}
                     className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
-                  <p className="text-xs text-slate-400 mt-1.5">PAYE employment income, rental income, savings interest or any other taxable income outside your freelance work.</p>
+                  <p className="text-xs text-slate-400 mt-1.5">Full-year total — PAYE employment, rental income, savings interest or any other taxable income outside your freelance work.</p>
                 </div>
                 {pageData.businessType === 'sole_trader' && (
                   <div>
-                    <label className="text-xs font-medium text-slate-600 block mb-1.5">Investment dividends</label>
+                    <label className="text-xs font-medium text-slate-600 block mb-1.5">Investment dividends <span className="font-normal text-slate-400">(annual)</span></label>
                     <input
                       type="number" min="0" placeholder="0.00"
                       value={investmentDividends || ''}
@@ -694,7 +694,7 @@ export default function TaxPage() {
                       onBlur={saveAdditionalIncome}
                       className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                     />
-                    <p className="text-xs text-slate-400 mt-1.5">Dividends from shares, funds or investment ISAs. Not dividends from your own limited company.</p>
+                    <p className="text-xs text-slate-400 mt-1.5">Full-year total — dividends from shares, funds or investment ISAs. Not dividends from your own limited company.</p>
                   </div>
                 )}
                 {savingAdditional && <p className="text-xs text-slate-400">Saving…</p>}
