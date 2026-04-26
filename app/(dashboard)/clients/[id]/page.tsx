@@ -1,6 +1,6 @@
 'use client'
 
-// app/(dashboard)/clients/[id]/page.tsx — v1.1
+// app/(dashboard)/clients/[id]/page.tsx — v1.2
 // UI only. Data via lib/api/clients. Logic via lib/logic/clients.
 
 import { useState, useEffect } from 'react'
@@ -12,15 +12,19 @@ import Badge from '@/components/badge'
 import ClientForm from '@/components/client-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronDown } from 'lucide-react'
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
-  const [client, setClient]   = useState<any>(null)
+  const [client, setClient]     = useState<any>(null)
   const [projects, setProjects] = useState<any[]>([])
   const [invoices, setInvoices] = useState<any[]>([])
   const [quotes, setQuotes]     = useState<any[]>([])
   const [loading, setLoading]   = useState(true)
   const [editOpen, setEditOpen] = useState(false)
+
+  const [projectsOpen, setProjectsOpen] = useState(true)
+  const [quotesOpen, setQuotesOpen]     = useState(true)
+  const [invoicesOpen, setInvoicesOpen] = useState(true)
 
   async function load() {
     const supabase = createClient()
@@ -48,10 +52,14 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   )
   if (!client) return null
 
-  const totalInvoiced   = calcTotalInvoiced(invoices)
-  const totalPaid       = calcTotalPaid(invoices)
-  const outstanding     = calcOutstanding(invoices)
-  const quotesPipeline  = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
+  const totalInvoiced  = calcTotalInvoiced(invoices)
+  const totalPaid      = calcTotalPaid(invoices)
+  const outstanding    = calcOutstanding(invoices)
+  const quotesPipeline = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
+
+  const chevron = (open: boolean) => (
+    <ChevronDown className="w-4 h-4 text-slate-400" style={{ transform: `rotate(${open ? '0deg' : '180deg'})`, transition: 'transform 200ms', flexShrink: 0 }} />
+  )
 
   return (
     <div className="space-y-6">
@@ -111,89 +119,180 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
         </div>
       )}
 
+      {/* Projects */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: projectsOpen ? 16 : 0 }}
+          onClick={() => setProjectsOpen(o => !o)}>
           <h2 className="font-semibold text-slate-900">Projects</h2>
-          <Link href={`/projects/new?client=${client.id}`} className="text-sm text-blue-600 hover:underline">Add project</Link>
-        </div>
-        {projects.length ? (
-          <div className="space-y-2">
-            {projects.map(p => (
-              <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                <Link href={`/projects/${p.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{p.title}</Link>
-                <div className="flex items-center gap-2">
-                  <Badge status={p.ir35_status} />
-                  <Badge status={p.status} />
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center gap-3">
+            <Link href={`/projects/new?client=${client.id}`} onClick={e => e.stopPropagation()}
+              className="text-sm text-blue-600 hover:underline">Add project</Link>
+            {chevron(projectsOpen)}
           </div>
-        ) : <p className="text-sm text-slate-400">No projects.</p>}
-      </div>
-
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">Quotes</h2>
-          <Link href={`/quotes/new?client=${client.id}`} className="text-sm text-blue-600 hover:underline">New quote</Link>
         </div>
-        {quotes.length ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
-                <th className="pb-2 font-medium">Quote #</th>
-                <th className="pb-2 font-medium">Issued</th>
-                <th className="pb-2 font-medium">Valid until</th>
-                <th className="pb-2 font-medium">Total</th>
-                <th className="pb-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {quotes.map(q => {
-                const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
-                return (
-                  <tr key={q.id}>
-                    <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
-                    <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
-                    <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
-                    <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
-                    <td className="py-2"><Badge status={q.status} /></td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        ) : <p className="text-sm text-slate-400">No quotes yet.</p>}
-      </div>
-
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">Invoices</h2>
-          <Link href={`/invoices/new?client=${client.id}`} className="text-sm text-blue-600 hover:underline">New invoice</Link>
-        </div>
-        {invoices.length ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
-                <th className="pb-2 font-medium">Invoice</th>
-                <th className="pb-2 font-medium">Issued</th>
-                <th className="pb-2 font-medium">Due</th>
-                <th className="pb-2 font-medium">Total</th>
-                <th className="pb-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {invoices.map(inv => (
-                <tr key={inv.id}>
-                  <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
-                  <td className="py-2 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
-                  <td className="py-2 text-slate-500">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
-                  <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
-                  <td className="py-2"><Badge status={inv.status} /></td>
-                </tr>
+        {projectsOpen && (
+          projects.length > 10 ? (
+            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+              <div className="space-y-2">
+                {projects.map(p => (
+                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                    <Link href={`/projects/${p.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{p.title}</Link>
+                    <div className="flex items-center gap-2">
+                      <Badge status={p.ir35_status} />
+                      <Badge status={p.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : projects.length ? (
+            <div className="space-y-2">
+              {projects.map(p => (
+                <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                  <Link href={`/projects/${p.id}`} className="text-sm font-medium text-slate-800 hover:text-blue-600">{p.title}</Link>
+                  <div className="flex items-center gap-2">
+                    <Badge status={p.ir35_status} />
+                    <Badge status={p.status} />
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        ) : <p className="text-sm text-slate-400">No invoices.</p>}
+            </div>
+          ) : <p className="text-sm text-slate-400">No projects.</p>
+        )}
+      </div>
+
+      {/* Quotes */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: quotesOpen ? 16 : 0 }}
+          onClick={() => setQuotesOpen(o => !o)}>
+          <h2 className="font-semibold text-slate-900">Quotes</h2>
+          <div className="flex items-center gap-3">
+            <Link href={`/quotes/new?client=${client.id}`} onClick={e => e.stopPropagation()}
+              className="text-sm text-blue-600 hover:underline">New quote</Link>
+            {chevron(quotesOpen)}
+          </div>
+        </div>
+        {quotesOpen && (
+          quotes.length > 10 ? (
+            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                    <th className="pb-2 font-medium">Quote #</th>
+                    <th className="pb-2 font-medium">Issued</th>
+                    <th className="pb-2 font-medium">Valid until</th>
+                    <th className="pb-2 font-medium">Total</th>
+                    <th className="pb-2 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {quotes.map(q => {
+                    const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
+                    return (
+                      <tr key={q.id}>
+                        <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
+                        <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
+                        <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
+                        <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
+                        <td className="py-2"><Badge status={q.status} /></td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : quotes.length ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                  <th className="pb-2 font-medium">Quote #</th>
+                  <th className="pb-2 font-medium">Issued</th>
+                  <th className="pb-2 font-medium">Valid until</th>
+                  <th className="pb-2 font-medium">Total</th>
+                  <th className="pb-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {quotes.map(q => {
+                  const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
+                  return (
+                    <tr key={q.id}>
+                      <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
+                      <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
+                      <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
+                      <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
+                      <td className="py-2"><Badge status={q.status} /></td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          ) : <p className="text-sm text-slate-400">No quotes yet.</p>
+        )}
+      </div>
+
+      {/* Invoices */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: invoicesOpen ? 16 : 0 }}
+          onClick={() => setInvoicesOpen(o => !o)}>
+          <h2 className="font-semibold text-slate-900">Invoices</h2>
+          <div className="flex items-center gap-3">
+            <Link href={`/invoices/new?client=${client.id}`} onClick={e => e.stopPropagation()}
+              className="text-sm text-blue-600 hover:underline">New invoice</Link>
+            {chevron(invoicesOpen)}
+          </div>
+        </div>
+        {invoicesOpen && (
+          invoices.length > 10 ? (
+            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                    <th className="pb-2 font-medium">Invoice</th>
+                    <th className="pb-2 font-medium">Issued</th>
+                    <th className="pb-2 font-medium">Due</th>
+                    <th className="pb-2 font-medium">Total</th>
+                    <th className="pb-2 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {invoices.map(inv => (
+                    <tr key={inv.id}>
+                      <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
+                      <td className="py-2 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
+                      <td className="py-2 text-slate-500">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
+                      <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
+                      <td className="py-2"><Badge status={inv.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : invoices.length ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                  <th className="pb-2 font-medium">Invoice</th>
+                  <th className="pb-2 font-medium">Issued</th>
+                  <th className="pb-2 font-medium">Due</th>
+                  <th className="pb-2 font-medium">Total</th>
+                  <th className="pb-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {invoices.map(inv => (
+                  <tr key={inv.id}>
+                    <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
+                    <td className="py-2 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
+                    <td className="py-2 text-slate-500">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
+                    <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
+                    <td className="py-2"><Badge status={inv.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p className="text-sm text-slate-400">No invoices.</p>
+        )}
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit client"
