@@ -412,7 +412,7 @@ export default function SignupPage() {
             right: 0,
             display: 'flex',
             justifyContent: 'flex-start',
-            paddingLeft: 'calc(60% - 170px)',
+            paddingLeft: 'calc(60% - 145px)',
             alignItems: 'baseline',
             zIndex: 10,
             pointerEvents: 'none',
