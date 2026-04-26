@@ -16,9 +16,9 @@ const INPUT_STYLE: React.CSSProperties = {
   padding: '11px 14px',
   fontSize: 16,
   lineHeight: 1.4,
-  color: '#0F172A',
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
+  color: '#FFFFFF',
+  background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(255,255,255,0.15)',
   borderRadius: 8,
   outline: 'none',
   fontFamily: 'inherit',
@@ -30,7 +30,7 @@ const LABEL_STYLE: React.CSSProperties = {
   display: 'block',
   fontSize: 12,
   fontWeight: 500,
-  color: '#64748B',
+  color: 'rgba(255,255,255,0.6)',
   marginBottom: 6,
 }
 
@@ -64,14 +64,14 @@ function PasswordStrength({ password }: { password: string }) {
               flex: 1,
               borderRadius: 99,
               background: met
-                ? i === 1 ? '#1D6B35' : i === 2 ? '#1D6B35' : len >= 12 ? '#1D6B35' : '#E2E8F0'
-                : i === 1 ? '#F59E0B' : '#E2E8F0',
+                ? i === 1 ? '#1D6B35' : i === 2 ? '#1D6B35' : len >= 12 ? '#1D6B35' : 'rgba(255,255,255,0.15)'
+                : i === 1 ? '#F59E0B' : 'rgba(255,255,255,0.15)',
               transition: 'background 200ms',
             }}
           />
         ))}
       </div>
-      <span style={{ fontSize: 11, color: met ? '#1D6B35' : '#F59E0B', fontWeight: 500, whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 11, color: met ? '#4ADE80' : '#F59E0B', fontWeight: 500, whiteSpace: 'nowrap' }}>
         {!met ? 'Too short' : len >= 12 ? 'Strong' : 'Good'}
       </span>
     </div>
@@ -103,18 +103,11 @@ function RightPanel() {
         minHeight: '100vh',
         position: 'relative',
         overflow: 'hidden',
-        backgroundImage: "url('/right-panel-bg.png')",
+        backgroundImage: "url('/left-panel-bg.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      {/* Dark overlay */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'rgba(0,0,0,0.35)',
-      }} />
-
       {/* Content — vertically centered with top clearance for wordmark */}
       <div style={{
         position: 'relative',
@@ -136,12 +129,12 @@ function RightPanel() {
               borderRadius: 12,
               opacity: 0.92,
               marginBottom: 24,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
           />
           <p style={{
             fontSize: 14,
-            color: 'rgba(255,255,255,0.6)',
+            color: '#64748B',
             marginTop: 0,
             marginBottom: 32,
             fontWeight: 400,
@@ -151,7 +144,7 @@ function RightPanel() {
 
           {/* Animated tagline */}
           <p style={{
-            fontSize: 22, fontWeight: 700, color: '#FFFFFF',
+            fontSize: 22, fontWeight: 700, color: '#0F172A',
             lineHeight: 1.3, letterSpacing: '-0.02em',
             marginTop: 0, marginBottom: 0,
             opacity: taglineVisible ? 1 : 0,
@@ -177,7 +170,7 @@ function RightPanel() {
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <span style={{ fontSize: 13, color: '#64748B' }}>
               Join UK freelancers saving time on tax
             </span>
           </div>
@@ -220,11 +213,11 @@ export default function SignupPage() {
   }
 
   function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#1D6B35'
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,107,53,0.12)'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.08)'
   }
   function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#E2E8F0'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
     e.currentTarget.style.boxShadow = 'none'
   }
 
@@ -233,24 +226,24 @@ export default function SignupPage() {
       <div style={{
         width: 48, height: 48,
         borderRadius: '50%',
-        background: '#EAFAF0',
+        background: 'rgba(255,255,255,0.1)',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
       }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D6B35" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
           <polyline points="22,6 12,13 2,6" />
         </svg>
       </div>
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.01em' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
         Check your email
       </h2>
-      <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, margin: 0 }}>
-        We sent a confirmation link to <strong style={{ color: '#0F172A' }}>{email}</strong>.
+      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+        We sent a confirmation link to <strong style={{ color: '#FFFFFF' }}>{email}</strong>.
       </p>
-      <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, marginTop: 8, marginBottom: 0 }}>
+      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginTop: 8, marginBottom: 0 }}>
         Once confirmed, we'll take you through a quick setup.
       </p>
     </div>
@@ -258,15 +251,15 @@ export default function SignupPage() {
     <>
       {/* Mobile-only wordmark (split wordmark is hidden on mobile) */}
       <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
-        <span style={{ color: '#0F172A' }}>Free</span>
-        <span style={{ color: '#1D6B35' }}>lax</span>
+        <span style={{ color: '#FFFFFF' }}>Free</span>
+        <span style={{ color: 'rgba(255,255,255,0.7)' }}>lax</span>
         <span style={{ color: '#1D6B35' }}>.</span>
       </div>
 
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 6 }}>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 6 }}>
         Create your account
       </h2>
-      <p style={{ fontSize: 13, color: '#64748B', marginTop: 0, marginBottom: 22 }}>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 0, marginBottom: 22 }}>
         Free to start. No card needed.
       </p>
 
@@ -317,7 +310,7 @@ export default function SignupPage() {
         </div>
 
         {error && (
-          <p style={{ fontSize: 13, color: '#C0392B', marginTop: -4 }}>{error}</p>
+          <p style={{ fontSize: 13, color: '#F87171', marginTop: -4 }}>{error}</p>
         )}
 
         <button
@@ -348,25 +341,25 @@ export default function SignupPage() {
           {loading ? 'Creating account…' : 'Get started free'}
         </button>
 
-        <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', lineHeight: 1.6, margin: '4px 0 0' }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.6, margin: '4px 0 0' }}>
           By creating an account, you agree to our{' '}
-          <Link href="/terms" style={{ color: '#64748B', textDecoration: 'underline' }}>Terms</Link>
+          <Link href="/terms" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'underline' }}>Terms</Link>
           {' and '}
-          <Link href="/privacy" style={{ color: '#64748B', textDecoration: 'underline' }}>Privacy Policy</Link>.
+          <Link href="/privacy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'underline' }}>Privacy Policy</Link>.
         </p>
       </form>
 
       <p style={{
         fontSize: 13,
-        color: '#64748B',
+        color: 'rgba(255,255,255,0.5)',
         textAlign: 'center',
         marginTop: 22,
         marginBottom: 0,
         paddingTop: 18,
-        borderTop: '1px solid rgba(0,0,0,0.06)',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
       }}>
         Already have an account?{' '}
-        <Link href="/auth/login" style={{ color: '#1D6B35', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/auth/login" style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none' }}>
           Sign in
         </Link>
       </p>
@@ -377,6 +370,7 @@ export default function SignupPage() {
     <>
       <style>{`
         @keyframes fd-spin { to { transform: rotate(360deg) } }
+        .auth-left input::placeholder { color: rgba(255,255,255,0.35) !important; }
         /* Mobile: hide right panel and split wordmark; show mobile wordmark */
         @media (max-width: 768px) {
           .auth-right { display: none !important; }
@@ -415,17 +409,16 @@ export default function SignupPage() {
             fontFamily: "'Plus Jakarta Sans', sans-serif",
           }}
         >
-          <span style={{ color: '#0F172A' }}>Free</span>
-          <span style={{ color: '#ffffff' }}>lax</span>
+          <span style={{ color: '#FFFFFF' }}>Free</span>
+          <span style={{ color: 'rgba(255,255,255,0.75)' }}>lax</span>
           <span style={{ color: '#1D6B35' }}>.</span>
         </div>
 
-        {/* Left — form vertically centered with top clearance for wordmark */}
+        {/* Left — dark green form panel */}
         <div className="auth-left" style={{
           flex: '0 0 60%',
           minHeight: '100vh',
-          backgroundColor: '#FAFAF7',
-          backgroundImage: "url('/left-panel-bg.png')",
+          backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -437,20 +430,20 @@ export default function SignupPage() {
           <div style={{ width: '100%', maxWidth: 420 }}>
             {cardContent}
 
-            <p style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', marginTop: 28, marginBottom: 4, lineHeight: 1.7 }}>
+            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 28, marginBottom: 4, lineHeight: 1.7 }}>
               Built in the UK · Your data is encrypted and never sold.
             </p>
-            <p style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', margin: 0 }}>
-              <Link href="/security" style={{ color: '#94A3B8', textDecoration: 'none' }}>Security</Link>
+            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: 0 }}>
+              <Link href="/security" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Security</Link>
               {' · '}
-              <Link href="/privacy" style={{ color: '#94A3B8', textDecoration: 'none' }}>Privacy</Link>
+              <Link href="/privacy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Privacy</Link>
               {' · '}
-              <Link href="/terms" style={{ color: '#94A3B8', textDecoration: 'none' }}>Terms</Link>
+              <Link href="/terms" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms</Link>
             </p>
           </div>
         </div>
 
-        {/* Right — showcase panel */}
+        {/* Right — light mockup panel */}
         <RightPanel />
       </div>
     </>
