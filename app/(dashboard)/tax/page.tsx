@@ -9,6 +9,7 @@ import {
   calculateTax,
   getCurrentTaxYear,
   getVatThresholdWarning,
+  type TaxInputs,
 } from '@/lib/tax-calculations'
 import PageHeader from '@/components/page-header'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
@@ -284,7 +285,7 @@ export default function TaxPage() {
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
   const [exportLoading, setExportLoading]   = useState(false)
-  const [baseInputs, setBaseInputs]                   = useState<Record<string, any> | null>(null)
+  const [baseInputs, setBaseInputs]                   = useState<TaxInputs | null>(null)
   const [otherIncome, setOtherIncome]                 = useState(0)
   const [investmentDividends, setInvestmentDividends] = useState(0)
   const [savingAdditional, setSavingAdditional]       = useState(false)
