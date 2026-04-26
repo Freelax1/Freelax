@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
-import { fetchClientsForDropdown } from '@/lib/api/clients'
+import { fetchClientsForDropdown, createClientRecord } from '@/lib/api/clients'
 import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/quotes'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } from '@/lib/logic/quotes'
@@ -43,6 +43,13 @@ export default function NewQuotePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError]   = useState<string | null>(null)
 
+  // Inline create client state
+  const [showNewClient, setShowNewClient]       = useState(false)
+  const [newClientName, setNewClientName]       = useState('')
+  const [newClientContact, setNewClientContact] = useState('')
+  const [newClientEmail, setNewClientEmail]     = useState('')
+  const [creatingClient, setCreatingClient]     = useState(false)
+
   // Inline create project state
   const [showNewProject, setShowNewProject]   = useState(false)
   const [newProjectTitle, setNewProjectTitle] = useState('')
@@ -54,6 +61,29 @@ export default function NewQuotePage() {
     if (!clientId) { setProjects([]); return }
     fetchProjectsForClient(clientId).then(setProjects)
   }, [clientId])
+
+  async function handleCreateClient() {
+    if (!newClientName.trim()) return
+    setCreatingClient(true)
+    try {
+      const user = await fetchCurrentUser()
+      const client = await createClientRecord({
+        user_id:      user?.id,
+        name:         newClientName.trim(),
+        contact_name: newClientContact.trim() || null,
+        email:        newClientEmail.trim() || null,
+        status:       'active',
+      })
+      if (client) {
+        const updated = await fetchClientsForDropdown()
+        setClients(updated)
+        setClientId(client.id)
+      }
+      setShowNewClient(false)
+      setNewClientName(''); setNewClientContact(''); setNewClientEmail('')
+    } catch (e) { console.error(e) }
+    setCreatingClient(false)
+  }
 
   async function handleCreateProject() {
     if (!newProjectTitle.trim() || !clientId) return
@@ -151,10 +181,59 @@ export default function NewQuotePage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Client</label>
-            <select value={clientId} onChange={e => setClientId(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900">
+            <select
+              value={clientId}
+              onChange={e => {
+                if (e.target.value === '__new__') { setShowNewClient(true) }
+                else { setClientId(e.target.value); setShowNewClient(false) }
+              }}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+            >
               <option value="">Select client...</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <option value="__new__">+ Create new client</option>
             </select>
+            {showNewClient && (
+              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
+                <p className="text-xs font-semibold text-slate-700 mb-1">New client</p>
+                <input
+                  value={newClientName}
+                  onChange={e => setNewClientName(e.target.value)}
+                  placeholder="Company / client name *"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                />
+                <input
+                  value={newClientContact}
+                  onChange={e => setNewClientContact(e.target.value)}
+                  placeholder="Contact name"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                />
+                <input
+                  value={newClientEmail}
+                  onChange={e => setNewClientEmail(e.target.value)}
+                  placeholder="Email"
+                  type="email"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                />
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCreateClient}
+                    disabled={!newClientName.trim() || creatingClient}
+                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    {creatingClient ? 'Saving...' : 'Save client'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
+                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
