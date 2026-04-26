@@ -114,39 +114,55 @@ export async function POST(req: NextRequest) {
     `Self Assessment deadline: 31 January ${deadlineYear}`,
   ].join('\n')
 
-  // NOTE: Dividend rate label hard-coded inside this prompt. Update every 6 April when the tax year rolls over.
-  // See DIV_BASIC_RATE / DIV_HIGHER_RATE in lib/tax-calculations.ts.
-  const userPrompt = `You are a UK-tax-aware assistant summarising a freelancer's year. Address them DIRECTLY using "you"/"your". Never use "they", "the freelancer", or any third-person phrasing.
+  const invoiceCount = paidInvoices?.length ?? 0
+  const expenseCount = expenses?.length ?? 0
+  const basedOnLine  = `Based on ${invoiceCount} paid invoice${invoiceCount !== 1 ? 's' : ''} and ${expenseCount} expense${expenseCount !== 1 ? 's' : ''} logged this tax year.`
+
+  const systemPrompt = 'You are a UK tax assistant. Output ONLY the structured summary in the exact format specified — nothing before SNAPSHOT, nothing after the final line. No markdown, no asterisks, no bold, no introductions.'
+
+  const userPrompt = `Produce a structured Self Assessment summary for this UK freelancer. Use "you"/"your" throughout — never third-person.
 
 FACTS
 ${facts}
+Paid invoices this tax year: ${invoiceCount}
+Expenses logged this tax year: ${expenseCount}
 
-Write THREE short paragraphs, separated by a blank line. No markdown (no **bold**, no headings). Use "•" bullets only inside paragraph 3.
+Output exactly this structure with these exact section headers (copy the headers verbatim):
 
-Paragraph 1 — The year at a glance (2–3 sentences)
-Cover: your income, expenses, profit, estimated tax, take-home, and effective rate. Be specific with pounds.
+SNAPSHOT
+2–3 sentences. Cover: net profit, estimated tax bill, effective rate, estimated take-home. Specific £ figures. No filler words.
 
-Paragraph 2 — What stands out (2–3 sentences)
-Pick the most notable observation(s) from the facts: client concentration, biggest expense category, VAT threshold proximity, £100k taper, higher-rate exposure, Payments on Account, or anything unusual. Explain why it matters in one line.
+BASED ON
+${basedOnLine}
 
-Paragraph 3 — Suggestions (2–3 concrete, actionable bullets prefixed with "• ")
-Pick the MOST relevant to this person's situation. Examples of suggestions (use only those that fit the facts):
-• Pension contributions — if pension is £0 or low and you're in higher rate, mention that every £1 contributed reclaims ~40p tax in the higher band (or ~60p effective in the £100–125k taper zone)
-• Limited company — if sole trader with profit > £50k, mention incorporation can reduce combined tax via dividends (10.75% basic) + £12,570 salary
-• VAT — if within £10k of the £90k threshold and not registered, flag that registration becomes compulsory
-• Payments on Account — if tax > £1,000, warn that 31 Jan bill = current liability + 50% POA (which feels like a shock the first year)
-• Expense review — if one category dominates, suggest checking for missed deductions (home office use-of-home, phone %, training, subscriptions, software, professional indemnity insurance)
-• Client concentration — if top client > 60% of invoices, briefly mention IR35 risk and the benefit of diversifying
-• Student loan — if plan is "none" but income is clearly above the plan-1/2/4 thresholds, suggest confirming in Settings
+WHAT'S GOING WELL
+- [positive observation specific to these numbers, with £ where possible]
+- [up to 3 bullets total]
 
-Every suggestion must be specific and actionable — no generic platitudes. Use pound figures where the facts support them.
+WHERE TO IMPROVE
+- [specific improvement area referencing these numbers]
+- [up to 3 bullets total]
 
-End the final paragraph with a standalone closing sentence (not a bullet): "Remember to file by 31 January ${deadlineYear}."`
+TAX REDUCTION OPPORTUNITIES
+- [specific opportunity with estimated £ saving — pension, mileage, home office, expense categories]
+- [up to 3 bullets total — always estimate the £ saving]
+
+KEY DEADLINE
+One sentence: file and pay your Self Assessment by 31 January ${deadlineYear}.
+
+Strict rules:
+- Maximum 3 bullets per section
+- Every bullet must be specific to this user's actual figures — no generic platitudes
+- Always estimate the £ saving in Tax Reduction Opportunities where calculable
+- Plain text only — no bold, no asterisks, no markdown
+- Start directly with SNAPSHOT — no greeting, no preamble
+- End with the KEY DEADLINE line — no closing remarks`
 
   try {
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 1500,
+      system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     })
 

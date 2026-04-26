@@ -271,6 +271,28 @@ function TaxPotCard({
   )
 }
 
+// ── SA narrative parser ──────────────────────────────────────────────────────
+const NARRATIVE_SECTION_HEADERS = ['SNAPSHOT', 'BASED ON', "WHAT'S GOING WELL", 'WHERE TO IMPROVE', 'TAX REDUCTION OPPORTUNITIES', 'KEY DEADLINE']
+const NARRATIVE_BULLET_SECTIONS = new Set(["WHAT'S GOING WELL", 'WHERE TO IMPROVE', 'TAX REDUCTION OPPORTUNITIES'])
+
+function parseNarrativeSections(text: string): { header: string; content: string }[] {
+  const sections: { header: string; content: string }[] = []
+  let currentHeader = ''
+  let currentLines: string[] = []
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim()
+    if (NARRATIVE_SECTION_HEADERS.includes(trimmed)) {
+      if (currentHeader) sections.push({ header: currentHeader, content: currentLines.join('\n').trim() })
+      currentHeader = trimmed
+      currentLines = []
+    } else if (currentHeader) {
+      currentLines.push(line)
+    }
+  }
+  if (currentHeader) sections.push({ header: currentHeader, content: currentLines.join('\n').trim() })
+  return sections
+}
+
 export default function TaxPage() {
   const [pageData, setPageData]             = useState<TaxPageData | null>(null)
   const [loading, setLoading]               = useState(true)
@@ -469,24 +491,46 @@ export default function TaxPage() {
               <div className="h-3 bg-slate-700 rounded animate-pulse w-3/5" />
             </div>
           ) : (
-            <div className="text-sm text-slate-100 leading-relaxed space-y-3">
-              {(narrative ?? '').split(/\n\n+/).map((para, i) => {
-                const lines = para.split('\n').map(l => l.trim()).filter(Boolean)
-                const isBulletBlock = lines.length > 1 && lines.every(l => l.startsWith('•') || l.startsWith('-'))
-                if (isBulletBlock) {
-                  return (
-                    <ul key={i} className="space-y-1.5 pl-1">
-                      {lines.map((l, j) => (
-                        <li key={j} className="flex gap-2">
-                          <span className="text-slate-400 shrink-0">•</span>
-                          <span>{l.replace(/^[•\-]\s*/, '')}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )
-                }
-                return <p key={i}>{para}</p>
-              })}
+            <div className="text-sm text-slate-100 leading-relaxed">
+              {(() => {
+                const sections = parseNarrativeSections(narrative ?? '')
+                if (!sections.length) return <p>{narrative}</p>
+                return (
+                  <div>
+                    {sections.map(({ header, content }, i) => {
+                      const isBullet = NARRATIVE_BULLET_SECTIONS.has(header)
+                      const lines = content.split('\n').map(l => l.trim()).filter(Boolean)
+                      return (
+                        <div key={header}>
+                          {i > 0 && (
+                            <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
+                          )}
+                          <p style={{
+                            fontSize: 10, fontWeight: 600,
+                            color: 'rgba(255,255,255,0.4)',
+                            textTransform: 'uppercase', letterSpacing: '0.1em',
+                            marginBottom: 6,
+                          }}>
+                            {header}
+                          </p>
+                          {isBullet ? (
+                            <ul className="space-y-1.5">
+                              {lines.map((l, j) => (
+                                <li key={j} className="flex gap-2">
+                                  <span style={{ color: 'rgba(255,255,255,0.35)', flexShrink: 0 }}>•</span>
+                                  <span>{l.replace(/^[-•]\s*/, '')}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p style={{ lineHeight: 1.65 }}>{content}</p>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
             </div>
           )}
         </div>
