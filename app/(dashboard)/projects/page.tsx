@@ -91,10 +91,10 @@ function KebabMenu({ project, onDelete, onStatusChange }: {
   }, [])
 
   const allStatuses = [
-    { key: 'active',    label: 'Active',    dot: '#1D6B35', bg: '#F0FDF4', border: 'rgba(29,107,53,0.2)',  text: '#1D6B35' },
-    { key: 'completed', label: 'Completed', dot: '#1A5E8A', bg: '#EBF4FD', border: 'rgba(26,94,138,0.2)',  text: '#1A5E8A' },
-    { key: 'on_hold',   label: 'On Hold',   dot: '#9A7B0A', bg: '#FEFCE8', border: 'rgba(154,123,10,0.2)', text: '#9A7B0A' },
-    { key: 'cancelled', label: 'Cancelled', dot: '#C0392B', bg: '#FEF2F2', border: 'rgba(192,57,43,0.2)',  text: '#C0392B' },
+    { key: 'active',    label: 'Active',    dot: '#1D6B35' },
+    { key: 'completed', label: 'Completed', dot: '#1A5E8A' },
+    { key: 'on_hold',   label: 'On Hold',   dot: '#9A7B0A' },
+    { key: 'cancelled', label: 'Cancelled', dot: '#C0392B' },
   ]
   const otherStatuses = allStatuses.filter(s => s.key !== project.status)
 
@@ -120,27 +120,13 @@ function KebabMenu({ project, onDelete, onStatusChange }: {
             <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
           </Link>
           {/* Status options */}
-          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 8px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
+          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {otherStatuses.map(s => (
               <button key={s.key} onClick={() => { setOpen(false); onStatusChange(project, s.key) }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  width: '100%', padding: '6px 8px', borderRadius: 6,
-                  background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.1s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = s.bg)}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontSize: 11, fontWeight: 600, color: s.text,
-                  background: s.bg, border: `1px solid ${s.border}`,
-                  borderRadius: 20, padding: '2px 8px',
-                }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
-                  {s.label}
-                </span>
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
+                {s.label}
               </button>
             ))}
           </div>

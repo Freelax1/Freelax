@@ -3,15 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchCurrentUser } from '@/lib/api/users'
-import { fetchQuotes, deleteQuote, fetchQuoteWithLineItems, createQuote, createQuoteLineItems, fetchMaxQuoteNumber } from '@/lib/api/quotes'
-import { isQuoteExpired, daysUntilExpiry, generateQuoteNumber } from '@/lib/logic/quotes'
+import { fetchQuotes, deleteQuote } from '@/lib/api/quotes'
+import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import PageHeader from '@/components/page-header'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { MoreVertical, Eye, Pencil, Trash2, Copy, CheckSquare, Square } from 'lucide-react'
-import type { Quote, QuoteLineItem } from '@/types/database'
+import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
+import type { Quote } from '@/types/database'
 
 // ── Delete modal ──────────────────────────────────────────────────────
 function DeleteModal({ quoteNumber, count, onConfirm, onCancel, loading }: {
@@ -76,9 +75,9 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
-function KebabMenu({ quote, onDelete, onDuplicate, onStatusChange, duplicating }: {
-  quote: Quote; onDelete: (q: Quote) => void; onDuplicate: (q: Quote) => void
-  onStatusChange: (q: Quote, status: string) => void; duplicating?: boolean
+function KebabMenu({ quote, onDelete, onStatusChange }: {
+  quote: Quote; onDelete: (q: Quote) => void
+  onStatusChange: (q: Quote, status: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -122,24 +121,14 @@ function KebabMenu({ quote, onDelete, onDuplicate, onStatusChange, duplicating }
               <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
             </Link>
           )}
-          <button onClick={e => { e.stopPropagation(); setOpen(false); onDuplicate(quote) }}
-            disabled={duplicating}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left border-t border-slate-100 disabled:opacity-40">
-            <Copy className="w-3.5 h-3.5 text-slate-400" /> {duplicating ? 'Duplicating…' : 'Duplicate'}
-          </button>
           {/* Status options */}
-          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 8px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
+          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {statusOptions.map(s => (
               <button key={s.key} onClick={() => { setOpen(false); onStatusChange(quote, s.key) }}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 8px', borderRadius: 6, background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = s.bg)}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: s.text, background: s.bg, border: `1px solid ${s.border}`, borderRadius: 20, padding: '2px 8px' }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
-                  {s.label}
-                </span>
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
+                {s.label}
               </button>
             ))}
           </div>
@@ -221,7 +210,6 @@ export default function QuotesPage() {
   const [loading, setLoading]         = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null)
   const [deleting, setDeleting]       = useState(false)
-  const [duplicating, setDuplicating] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [query, setQuery]             = useState('')
   const [selected, setSelected]       = useState<Set<string>>(new Set())
@@ -235,36 +223,6 @@ export default function QuotesPage() {
 
   async function load() { setQuotes(await fetchQuotes()); setLoading(false) }
   useEffect(() => { load() }, [])
-
-  async function duplicateQuote(q: Quote) {
-    setDuplicating(true)
-    try {
-      const user = await fetchCurrentUser()
-      const uid  = user?.id ?? ''
-      const full = await fetchQuoteWithLineItems(q.id)
-      const maxNum = await fetchMaxQuoteNumber(uid)
-      const newNumber = generateQuoteNumber(maxNum)
-      const expiry = new Date(); expiry.setDate(expiry.getDate() + 30)
-      const newQuote = await createQuote({
-        user_id: uid, client_id: full.client_id, project_id: full.project_id ?? null,
-        quote_number: newNumber, status: 'draft',
-        issue_date: new Date().toISOString().slice(0, 10),
-        expiry_date: expiry.toISOString().slice(0, 10),
-        notes: full.notes ?? '', subtotal: full.subtotal,
-        vat_amount: full.vat_amount, total: full.total,
-      })
-      if (full.quote_line_items?.length) {
-        await createQuoteLineItems(full.quote_line_items.map((li: QuoteLineItem) => ({
-          quote_id: newQuote.id, description: li.description,
-          quantity: li.quantity, unit_price: li.unit_price, vat_rate: li.vat_rate,
-          line_total: li.line_total ?? (Number(li.quantity) * Number(li.unit_price)),
-        })))
-      }
-      window.dispatchEvent(new Event('fd:data-invalidate'))
-      router.push(`/quotes/${newQuote.id}`)
-    } catch (e) { console.error('Duplicate quote failed', e) }
-    finally { setDuplicating(false) }
-  }
 
   async function handleDelete() {
     if (!deleteTarget) return
@@ -506,9 +464,8 @@ export default function QuotesPage() {
                       <td className="px-4 py-3 text-right font-medium">{formatCurrency(q.total)}</td>
                       <td className="px-4 py-3"><Badge status={q.status} /></td>
                       <td className="px-4 py-3 text-right">
-                        <KebabMenu quote={q} onDelete={setDeleteTarget} onDuplicate={duplicateQuote}
-                          onStatusChange={(q, status) => setStatusTarget({ quote: q, status })}
-                          duplicating={duplicating} />
+                        <KebabMenu quote={q} onDelete={setDeleteTarget}
+                          onStatusChange={(q, status) => setStatusTarget({ quote: q, status })} />
                       </td>
                     </tr>
                   )
@@ -551,8 +508,8 @@ export default function QuotesPage() {
                     {expired && ' · expired'}
                     {!expired && days <= 3 && days >= 0 && q.status === 'sent' && ` · ${days}d left`}
                   </span>
-                  <KebabMenu quote={q} onDelete={setDeleteTarget} onDuplicate={duplicateQuote}
-                    onStatusChange={(q, status) => setStatusTarget({ quote: q, status })} duplicating={duplicating} />
+                  <KebabMenu quote={q} onDelete={setDeleteTarget}
+                    onStatusChange={(q, status) => setStatusTarget({ quote: q, status })} />
                 </div>
               </div>
             )
