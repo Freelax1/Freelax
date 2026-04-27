@@ -19,13 +19,13 @@ export async function POST(req: NextRequest) {
 
   const [{ data: userData }, { data: paidInvoices }, { data: expenses }] = await Promise.all([
     supabase.from('users').select('business_type, vat_registered, other_income, investment_dividends, pension_contributions, student_loan_plan, salary_drawn, dividends_drawn').eq('id', user.id).single(),
-    supabase.from('invoices').select('total').eq('status', 'paid')
+    supabase.from('invoices').select('total, vat_amount').eq('status', 'paid')
       .gte('paid_date', start.toISOString()).lte('paid_date', end.toISOString()),
     supabase.from('expenses').select('amount')
       .gte('date', start.toISOString().slice(0, 10)).lte('date', end.toISOString().slice(0, 10)),
   ])
 
-  const currentIncome = paidInvoices?.reduce((s, i) => s + Number(i.total), 0) ?? 0
+  const currentIncome = paidInvoices?.reduce((s, i) => s + (Number(i.total) - Number(i.vat_amount ?? 0)), 0) ?? 0
   const currentExpenses = expenses?.reduce((s, e) => s + Number(e.amount), 0) ?? 0
   const netProfit = currentIncome - currentExpenses
 
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 User's current tax position (already calculated correctly — use these figures, do not recalculate):
 - Business type: ${userData?.business_type ?? 'sole_trader'}
 - VAT registered: ${userData?.vat_registered ?? false}
-- Freelance income this tax year: £${currentIncome.toFixed(2)}
+- Freelance income this tax year (ex-VAT): £${currentIncome.toFixed(2)}
 - Allowable expenses: £${currentExpenses.toFixed(2)}
 - Net profit from freelance: £${netProfit.toFixed(2)}
 - Other income (PAYE, rental, savings interest): £${Number((userData as any)?.other_income ?? 0).toFixed(2)}
