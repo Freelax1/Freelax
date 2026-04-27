@@ -63,8 +63,6 @@ function RightPanel() {
     return () => clearInterval(interval)
   }, [])
 
-  const avatars = ['A', 'J', 'S']
-
   return (
     <div
       className="auth-right"
@@ -102,46 +100,84 @@ function RightPanel() {
               boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
           />
-          <p style={{
-            fontSize: 14,
-            color: '#64748B',
-            marginTop: 0,
-            marginBottom: 32,
-            fontWeight: 400,
-          }}>
-            The finance app built for UK freelancers
-          </p>
+
+          {/* Feature pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+            {['✓ Tax auto-calculated', '✓ IR35 assessed', '✓ SA pack included'].map(pill => (
+              <div key={pill} style={{
+                background: '#fff',
+                border: '0.5px solid #E2E8F0',
+                borderRadius: 20,
+                padding: '5px 12px',
+                fontSize: 11,
+                fontWeight: 600,
+                color: '#1D6B35',
+              }}>{pill}</div>
+            ))}
+          </div>
 
           {/* Animated tagline */}
-          <p style={{
-            fontSize: 22, fontWeight: 700, color: '#0F172A',
-            lineHeight: 1.3, letterSpacing: '-0.02em',
-            marginTop: 0, marginBottom: 0,
+          <div style={{
+            fontSize: 22,
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+            marginBottom: 20,
             opacity: taglineVisible ? 1 : 0,
             transition: 'opacity 400ms ease',
+            minHeight: 56,
           }}>
             {taglines[taglineIdx]}
-          </p>
+          </div>
+
+          {/* Testimonial card */}
+          <div style={{
+            background: '#fff',
+            borderRadius: 12,
+            border: '0.5px solid #E2E8F0',
+            padding: '16px 18px',
+            marginBottom: 20,
+          }}>
+            <p style={{
+              fontSize: 13,
+              color: '#0F172A',
+              lineHeight: 1.6,
+              fontStyle: 'italic',
+              marginBottom: 12,
+            }}>
+              "I used to dread January. Now Freelax tells me exactly what I owe and I've already set it aside. It's changed how I run my business."
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: '#1D6B35',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0,
+              }}>SJ</div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A' }}>Sarah Jenkins</div>
+                <div style={{ fontSize: 11, color: '#94A3B8' }}>Freelance UX Designer · London</div>
+              </div>
+            </div>
+          </div>
 
           {/* Social proof */}
-          <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex' }}>
-              {avatars.map((initial, i) => (
-                <div key={i} style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: '#1D6B35',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  marginLeft: i > 0 ? -8 : 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: 700, color: '#FFFFFF',
-                  flexShrink: 0,
-                }}>
-                  {initial}
-                </div>
-              ))}
-            </div>
-            <span style={{ fontSize: 13, color: '#64748B' }}>
-              Join UK freelancers saving time on tax
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            {['A', 'J', 'S'].map((initial, i) => (
+              <div key={i} style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: '#1D6B35',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 700, color: '#fff',
+                marginRight: -6,
+                border: '2px solid #f0ede4',
+                zIndex: 3 - i,
+                position: 'relative',
+              }}>{initial}</div>
+            ))}
+            <span style={{ fontSize: 12, color: '#64748B', marginLeft: 18 }}>
+              Join UK freelancers who actually know their tax bill
             </span>
           </div>
         </div>
