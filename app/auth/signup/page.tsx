@@ -146,14 +146,14 @@ function RightPanel() {
       <div style={{
         position: 'relative',
         zIndex: 1,
-        minHeight: '100vh',
+        height: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         overflowY: 'hidden',
-        padding: '100px 40px 48px',
+        padding: '80px 40px 24px',
       }}>
-        <div style={{ width: '100%', maxWidth: 420, marginTop: 60 }}>
+        <div style={{ width: '100%', maxWidth: 420, marginTop: 32 }}>
           {/* Animated tagline */}
           <div style={{
             fontSize: 17,
