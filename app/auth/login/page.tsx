@@ -239,7 +239,7 @@ function LoginForm() {
       </div>
 
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 24 }}>
-        Sign in
+        Welcome back.
       </h2>
 
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

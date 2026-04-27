@@ -298,7 +298,7 @@ export default function SignupPage() {
       </div>
 
       <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 6 }}>
-        Create your account
+        Let's get you set up.
       </h2>
       <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 0, marginBottom: 22 }}>
         Free to start. No card needed.
