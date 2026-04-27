@@ -493,7 +493,7 @@ export default function SignupPage() {
       `}</style>
 
       {/* Page wrapper — position relative so the split wordmark can be absolutely placed */}
-      <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', position: 'relative' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', position: 'relative' }}>
 
         {/* Split wordmark — top of page, split aligned to 60/40 panel boundary */}
         <div
@@ -524,7 +524,7 @@ export default function SignupPage() {
         {/* Left — dark green form panel */}
         <div className="auth-left" style={{
           flex: '0 0 60%',
-          height: '100vh',
+          minHeight: '100vh',
           backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -532,7 +532,7 @@ export default function SignupPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '100px 32px 32px',
+          padding: '140px 32px 48px',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             {cardContent}

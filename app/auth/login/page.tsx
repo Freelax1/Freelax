@@ -441,7 +441,7 @@ export default function LoginPage() {
         {/* Left — dark green form panel */}
         <div className="auth-left" style={{
           flex: '0 0 60%',
-          height: '100vh',
+          minHeight: '100vh',
           backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -449,7 +449,7 @@ export default function LoginPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '100px 32px 32px',
+          padding: '140px 32px 48px',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             <Suspense fallback={<LoginFallback />}>
