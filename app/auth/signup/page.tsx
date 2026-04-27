@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 const taglines = [
-  'Stop guessing your tax bill.',
-  'Send invoices in 30 seconds.',
-  'Know exactly what\'s safe to spend.',
+  "Know exactly what you owe. Instantly.",
+  "See your real income after tax.",
+  "Your business finances. Finally clear.",
 ]
 
 const INPUT_STYLE: React.CSSProperties = {
@@ -120,6 +120,46 @@ function RightPanel() {
         padding: '100px 40px 48px',
       }}>
         <div style={{ width: '100%', maxWidth: 420, marginTop: 60 }}>
+          {/* Animated tagline */}
+          <div style={{
+            fontSize: 17,
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+            marginBottom: 12,
+            opacity: taglineVisible ? 1 : 0,
+            transition: 'opacity 400ms ease',
+            minHeight: 44,
+          }}>
+            {taglines[taglineIdx]}
+          </div>
+
+          <p style={{
+            fontSize: 13,
+            color: '#64748B',
+            lineHeight: 1.5,
+            marginBottom: 16,
+            marginTop: -4,
+          }}>
+            Freelax shows your real income after tax — so you're never surprised again.
+          </p>
+
+          {/* Feature pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+            {['✓ Real-time tax calculations', '✓ IR35 status clarity', '✓ Self Assessment ready'].map(pill => (
+              <div key={pill} style={{
+                background: '#fff',
+                border: '0.5px solid #E2E8F0',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 10,
+                fontWeight: 600,
+                color: '#1D6B35',
+              }}>{pill}</div>
+            ))}
+          </div>
+
           <img
             src="/dashboard-mockup.svg"
             alt="Freelax dashboard preview"
@@ -136,36 +176,6 @@ function RightPanel() {
             }}
           />
 
-          {/* Feature pills */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {['✓ Tax auto-calculated', '✓ IR35 assessed', '✓ SA pack included'].map(pill => (
-              <div key={pill} style={{
-                background: '#fff',
-                border: '0.5px solid #E2E8F0',
-                borderRadius: 20,
-                padding: '4px 10px',
-                fontSize: 10,
-                fontWeight: 600,
-                color: '#1D6B35',
-              }}>{pill}</div>
-            ))}
-          </div>
-
-          {/* Animated tagline */}
-          <div style={{
-            fontSize: 17,
-            fontWeight: 800,
-            color: '#0F172A',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.2,
-            marginBottom: 12,
-            opacity: taglineVisible ? 1 : 0,
-            transition: 'opacity 400ms ease',
-            minHeight: 44,
-          }}>
-            {taglines[taglineIdx]}
-          </div>
-
           {/* Testimonial card */}
           <div style={{
             background: '#fff',
@@ -181,7 +191,7 @@ function RightPanel() {
               fontStyle: 'italic',
               marginBottom: 12,
             }}>
-              "I used to dread January. Now Freelax tells me exactly what I owe and I've already set it aside. It's changed how I run my business."
+              "Before Freelax, I had no idea what I owed. Now I know my exact tax bill every month."
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
