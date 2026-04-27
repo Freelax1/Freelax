@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react'
-import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import { MessageCircle, X, Send, Loader2, RotateCcw } from 'lucide-react'
+import Link from 'next/link'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -35,6 +35,11 @@ export default function TaxQAChat() {
     setLoading(false)
   }
 
+  function handleReset() {
+    setMessages([])
+    setInput('')
+  }
+
   return (
     <>
       {/* Floating button — icon by default, expands on hover */}
@@ -52,16 +57,24 @@ export default function TaxQAChat() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden" style={{ maxHeight: '480px' }}>
+        <div
+          className="fixed bottom-20 right-6 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden"
+          style={{ width: '360px', maxWidth: '360px', maxHeight: '480px' }}
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
             <div>
               <p className="text-sm font-semibold">Tax Q&A</p>
               <p className="text-xs text-blue-200">Ask anything about your taxes</p>
             </div>
-            <button onClick={() => setOpen(false)} className="p-1 hover:bg-blue-700 rounded-lg">
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button onClick={handleReset} aria-label="New question" title="New question" className="p-1 hover:bg-blue-700 rounded-lg">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+              <button onClick={() => setOpen(false)} aria-label="Close" className="p-1 hover:bg-blue-700 rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -72,7 +85,7 @@ export default function TaxQAChat() {
                 <p className="text-sm text-slate-500">Ask me anything about UK freelance tax, VAT, expenses, or Self Assessment.</p>
                 <div className="mt-3 space-y-1.5">
                   {['Can I claim my home office?', 'What is the VAT threshold?', 'When is my SA deadline?'].map(q => (
-                    <button key={q} onClick={() => { setInput(q); }} className="block w-full text-left text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                    <button key={q} onClick={() => { setInput(q) }} className="block w-full text-left text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                       {q}
                     </button>
                   ))}
@@ -81,11 +94,14 @@ export default function TaxQAChat() {
             )}
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                  m.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-sm'
-                    : 'bg-slate-100 text-slate-700 rounded-bl-sm'
-                }`}>
+                <div
+                  className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                    m.role === 'user'
+                      ? 'rounded-br-sm'
+                      : 'bg-slate-100 text-slate-700 rounded-bl-sm'
+                  }`}
+                  style={m.role === 'user' ? { backgroundColor: '#1D6B35', color: '#FFFFFF' } : undefined}
+                >
                   {m.text}
                 </div>
               </div>
@@ -117,9 +133,10 @@ export default function TaxQAChat() {
                 <Send className="w-4 h-4" />
               </button>
             </div>
-            <div className="mt-1.5">
-              <NotTaxAdviceDisclaimer variant="footer" />
-            </div>
+            <p className="mt-1.5 text-center whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 11, color: '#94A3B8' }}>
+              AI estimates only · not professional advice ·{' '}
+              <Link href="/terms" className="underline hover:text-slate-500">Learn more</Link>
+            </p>
           </div>
         </div>
       )}
