@@ -154,22 +154,6 @@ function RightPanel() {
         padding: '100px 40px 48px',
       }}>
         <div style={{ width: '100%', maxWidth: 420, marginTop: 60 }}>
-          <div style={{
-            display: 'inline-block',
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: '#1D6B35',
-            background: '#EAFAF0',
-            border: '0.5px solid rgba(29,107,53,0.2)',
-            borderRadius: 20,
-            padding: '3px 10px',
-            marginBottom: 12,
-          }}>
-            v1.0 · Beta
-          </div>
-
           {/* Animated tagline */}
           <div style={{
             fontSize: 17,
