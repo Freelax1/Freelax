@@ -354,7 +354,7 @@ export default function LoginPage() {
       `}</style>
 
       {/* Page wrapper — position relative so the split wordmark can be absolutely placed */}
-      <div style={{ minHeight: '100vh', display: 'flex', position: 'relative' }}>
+      <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', position: 'relative' }}>
 
         {/* Split wordmark — top of page, split aligned to 60/40 panel boundary */}
         <div
