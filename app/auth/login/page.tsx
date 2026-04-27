@@ -71,6 +71,8 @@ function RightPanel() {
         minHeight: '100vh',
         position: 'relative',
         overflow: 'hidden',
+        overflowY: 'hidden',
+        justifyContent: 'center',
         backgroundImage: "url('/left-panel-bg.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -84,16 +86,19 @@ function RightPanel() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        overflowY: 'auto',
+        overflowY: 'hidden',
         padding: '100px 40px 48px',
       }}>
-        <div style={{ width: '100%', maxWidth: 420, marginTop: 80 }}>
+        <div style={{ width: '100%', maxWidth: 420, marginTop: 60 }}>
           <img
             src="/dashboard-mockup.svg"
             alt="Freelax dashboard preview"
             style={{
               width: '100%',
               maxWidth: 360,
+              maxHeight: 200,
+              objectFit: 'cover',
+              objectPosition: 'top',
               borderRadius: 12,
               opacity: 0.92,
               marginBottom: 24,
@@ -102,14 +107,14 @@ function RightPanel() {
           />
 
           {/* Feature pills */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
             {['✓ Tax auto-calculated', '✓ IR35 assessed', '✓ SA pack included'].map(pill => (
               <div key={pill} style={{
                 background: '#fff',
                 border: '0.5px solid #E2E8F0',
                 borderRadius: 20,
-                padding: '5px 12px',
-                fontSize: 11,
+                padding: '4px 10px',
+                fontSize: 10,
                 fontWeight: 600,
                 color: '#1D6B35',
               }}>{pill}</div>
@@ -118,15 +123,15 @@ function RightPanel() {
 
           {/* Animated tagline */}
           <div style={{
-            fontSize: 22,
+            fontSize: 17,
             fontWeight: 800,
             color: '#0F172A',
             letterSpacing: '-0.02em',
             lineHeight: 1.2,
-            marginBottom: 20,
+            marginBottom: 12,
             opacity: taglineVisible ? 1 : 0,
             transition: 'opacity 400ms ease',
-            minHeight: 56,
+            minHeight: 44,
           }}>
             {taglines[taglineIdx]}
           </div>
@@ -136,11 +141,11 @@ function RightPanel() {
             background: '#fff',
             borderRadius: 12,
             border: '0.5px solid #E2E8F0',
-            padding: '16px 18px',
-            marginBottom: 20,
+            padding: '12px 14px',
+            marginBottom: 14,
           }}>
             <p style={{
-              fontSize: 13,
+              fontSize: 11,
               color: '#0F172A',
               lineHeight: 1.6,
               fontStyle: 'italic',
@@ -150,7 +155,7 @@ function RightPanel() {
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
-                width: 34, height: 34, borderRadius: '50%',
+                width: 28, height: 28, borderRadius: '50%',
                 background: '#1D6B35',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0,
@@ -166,7 +171,7 @@ function RightPanel() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             {['A', 'J', 'S'].map((initial, i) => (
               <div key={i} style={{
-                width: 28, height: 28, borderRadius: '50%',
+                width: 24, height: 24, borderRadius: '50%',
                 background: '#1D6B35',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 10, fontWeight: 700, color: '#fff',
@@ -176,7 +181,7 @@ function RightPanel() {
                 position: 'relative',
               }}>{initial}</div>
             ))}
-            <span style={{ fontSize: 12, color: '#64748B', marginLeft: 18 }}>
+            <span style={{ fontSize: 11, color: '#64748B', marginLeft: 18 }}>
               Join UK freelancers who actually know their tax bill
             </span>
           </div>
