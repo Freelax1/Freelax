@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session
     const invoiceId = session.metadata?.invoice_id
     if (invoiceId && session.payment_status === 'paid') {
-      const supabase = createClient()
+      const supabase = createServiceClient()
       await supabase.from('invoices').update({
         status: 'paid',
         paid_date: new Date().toISOString().slice(0, 10),
