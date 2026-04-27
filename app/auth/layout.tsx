@@ -262,7 +262,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           alignItems: 'center',
           justifyContent: 'center',
           padding: '140px 32px 48px',
-          overflowY: 'auto',
         }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             <div key={pathname} style={{ animation: 'auth-form-in 220ms ease' }}>
