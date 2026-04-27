@@ -140,6 +140,7 @@ export interface Invoice {
 export interface ChaseEntry {
   chased_at: string
   note: string | null
+  tier?: 'friendly' | 'formal' | 'legal'
 }
 
 export interface InvoiceLineItem {
