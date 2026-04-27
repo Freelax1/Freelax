@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { logActivity } from '@/lib/api/invoice-activity'
 import { canSendByEmail } from '@/lib/plan-limits'
 import { generateInvoicePdfBuffer } from '@/lib/pdf/generate-invoice-pdf'
+import { escapeHtml } from '@/lib/escape-html'
 
 export async function POST(req: NextRequest) {
   const supabase = createClient()
@@ -60,15 +61,15 @@ export async function POST(req: NextRequest) {
         }] : [],
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#1e293b;">
-            <h2 style="font-size:20px;margin-bottom:8px;">Invoice ${invoice.invoice_number}</h2>
-            <p style="color:#64748b;">Hi ${client.contact_name || client.name},</p>
+            <h2 style="font-size:20px;margin-bottom:8px;">Invoice ${escapeHtml(invoice.invoice_number)}</h2>
+            <p style="color:#64748b;">Hi ${escapeHtml(client.contact_name || client.name)},</p>
             <p>Please find your invoice attached to this email.</p>
             <table style="width:100%;border-collapse:collapse;margin:24px 0;">
-              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Invoice</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${invoice.invoice_number}</td></tr>
-              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Amount</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${formatCurrency(invoice.total)}</td></tr>
-              <tr><td style="padding:8px 0;color:#64748b;">Due</td><td style="padding:8px 0;font-weight:600;">${dueDate}</td></tr>
+              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Invoice</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(invoice.invoice_number)}</td></tr>
+              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Amount</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(formatCurrency(invoice.total))}</td></tr>
+              <tr><td style="padding:8px 0;color:#64748b;">Due</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(dueDate)}</td></tr>
             </table>
-            <p style="margin-top:24px;color:#64748b;font-size:14px;">${businessName}<br/>${sender?.email || ''}</p>
+            <p style="margin-top:24px;color:#64748b;font-size:14px;">${escapeHtml(businessName)}<br/>${escapeHtml(sender?.email || '')}</p>
           </div>
         `,
       })

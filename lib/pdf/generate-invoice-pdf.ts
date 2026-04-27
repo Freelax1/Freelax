@@ -1,5 +1,6 @@
 // lib/pdf/generate-invoice-pdf.ts
 import { formatCurrency } from '@/lib/tax-calculations'
+import { escapeHtml } from '@/lib/escape-html'
 
 export function buildInvoiceHtml(invoice: any, withPrintScript = false): string {
   const client    = invoice.clients           as any
@@ -9,11 +10,11 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
 
   const rows = lineItems.map((item: any) => `
     <tr>
-      <td class="td-desc">${item.description}</td>
-      <td class="td-num">${item.quantity}</td>
-      <td class="td-num">${formatCurrency(item.unit_price)}</td>
-      <td class="td-vat">${item.vat_rate}%</td>
-      <td class="td-total">${formatCurrency(item.line_total)}</td>
+      <td class="td-desc">${escapeHtml(item.description)}</td>
+      <td class="td-num">${escapeHtml(item.quantity)}</td>
+      <td class="td-num">${escapeHtml(formatCurrency(item.unit_price))}</td>
+      <td class="td-vat">${escapeHtml(item.vat_rate)}%</td>
+      <td class="td-total">${escapeHtml(formatCurrency(item.line_total))}</td>
     </tr>`).join('')
 
   const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
@@ -22,28 +23,28 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
       <div class="payment-label">Payment details</div>
       <div class="pay-grid">
         <span class="pay-l">Account name</span>
-        <span class="pay-r">${sender.bank_account_name || sender.business_name || sender.full_name || ''}</span>
+        <span class="pay-r">${escapeHtml(sender.bank_account_name || sender.business_name || sender.full_name || '')}</span>
         <span class="pay-l">Sort code</span>
-        <span class="pay-r">${sender.bank_sort_code}</span>
+        <span class="pay-r">${escapeHtml(sender.bank_sort_code)}</span>
         <span class="pay-l">Account number</span>
-        <span class="pay-r">${sender.bank_account_number}</span>
+        <span class="pay-r">${escapeHtml(sender.bank_account_number)}</span>
         <span class="pay-l">Reference</span>
-        <span class="pay-r ref">${sender.bank_reference_note || invoice.invoice_number}</span>
+        <span class="pay-r ref">${escapeHtml(sender.bank_reference_note || invoice.invoice_number)}</span>
       </div>
-      ${invoice.payment_terms ? `<div class="terms">${invoice.payment_terms}</div>` : ''}
+      ${invoice.payment_terms ? `<div class="terms">${escapeHtml(invoice.payment_terms)}</div>` : ''}
     </div>`
-    : `<div class="payment-col">${invoice.payment_terms ? `<div class="terms">${invoice.payment_terms}</div>` : ''}</div>`
+    : `<div class="payment-col">${invoice.payment_terms ? `<div class="terms">${escapeHtml(invoice.payment_terms)}</div>` : ''}</div>`
 
   const senderBlock = sender?.logo_url
-    ? `<img src="${sender.logo_url}" alt="" class="sender-logo" />`
-    : `<div class="sender-name">${sender?.business_name || sender?.full_name || ''}</div>`
+    ? `<img src="${escapeHtml(sender.logo_url)}" alt="" class="sender-logo" />`
+    : `<div class="sender-name">${escapeHtml(sender?.business_name || sender?.full_name || '')}</div>`
 
   const dueCls = invoice.status === 'overdue' ? 'date-val overdue' : 'date-val'
 
   const paidDate = invoice.paid_date
     ? `<div class="date-block">
         <div class="date-label">Paid on</div>
-        <div class="date-val paid">${new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+        <div class="date-val paid">${escapeHtml(new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}</div>
        </div>` : ''
 
   const stamp = invoice.status === 'paid'
@@ -54,10 +55,10 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
     ? `<div class="status-stamp">Draft</div>` : ''
 
   const projectRow = project?.title
-    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${project.title}</span></div>`
+    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${escapeHtml(project.title)}</span></div>`
     : ''
   const notesBlock = invoice.notes
-    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${invoice.notes}</div>`
+    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${escapeHtml(invoice.notes)}</div>`
     : ''
 
   return `<!DOCTYPE html>
@@ -66,7 +67,7 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <title>${invoice.invoice_number}</title>
+  <title>${escapeHtml(invoice.invoice_number)}</title>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     html, body { font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; line-height:1.5; color:#111827; background:#fff; -webkit-font-smoothing:antialiased; }
@@ -138,38 +139,38 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
   <div class="doc-header">
     <div>
       ${senderBlock}
-      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${sender.full_name}</div>` : ''}
-      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}</div>` : ''}
-      ${sender?.address_line2 ? `<div class="sender-det">${sender.address_line2}</div>` : ''}
-      ${sender?.city || sender?.postcode ? `<div class="sender-det">${[sender?.city, sender?.postcode].filter(Boolean).join(', ')}</div>` : ''}
-      ${sender?.phone ? `<div class="sender-det">${sender.phone}</div>` : ''}
-      ${sender?.email ? `<div class="sender-det">${sender.email}</div>` : ''}
-      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${sender.vat_number}</div>` : ''}
-      ${sender?.utr_number ? `<div class="sender-det">UTR: ${sender.utr_number}</div>` : ''}
+      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${escapeHtml(sender.full_name)}</div>` : ''}
+      ${sender?.address_line1 ? `<div class="sender-det">${escapeHtml(sender.address_line1)}</div>` : ''}
+      ${sender?.address_line2 ? `<div class="sender-det">${escapeHtml(sender.address_line2)}</div>` : ''}
+      ${sender?.city || sender?.postcode ? `<div class="sender-det">${escapeHtml([sender?.city, sender?.postcode].filter(Boolean).join(', '))}</div>` : ''}
+      ${sender?.phone ? `<div class="sender-det">${escapeHtml(sender.phone)}</div>` : ''}
+      ${sender?.email ? `<div class="sender-det">${escapeHtml(sender.email)}</div>` : ''}
+      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${escapeHtml(sender.vat_number)}</div>` : ''}
+      ${sender?.utr_number ? `<div class="sender-det">UTR: ${escapeHtml(sender.utr_number)}</div>` : ''}
     </div>
     <div>
       <div class="doc-type-label">Invoice</div>
-      <div class="doc-number">${invoice.invoice_number}</div>
+      <div class="doc-number">${escapeHtml(invoice.invoice_number)}</div>
     </div>
   </div>
 
   <div class="meta-row">
     <div>
       <div class="bill-label">Bill to</div>
-      <div class="client-name">${client?.name ?? ''}</div>
-      ${client?.contact_name ? `<div class="client-det">${client.contact_name}</div>` : ''}
-      ${client?.email ? `<div class="client-det">${client.email}</div>` : ''}
-      ${client?.address_line1 ? `<div class="client-det">${client.address_line1}</div>` : ''}
-      ${client?.city ? `<div class="client-det">${client.city}${client.postcode ? `, ${client.postcode}` : ''}</div>` : ''}
+      <div class="client-name">${escapeHtml(client?.name ?? '')}</div>
+      ${client?.contact_name ? `<div class="client-det">${escapeHtml(client.contact_name)}</div>` : ''}
+      ${client?.email ? `<div class="client-det">${escapeHtml(client.email)}</div>` : ''}
+      ${client?.address_line1 ? `<div class="client-det">${escapeHtml(client.address_line1)}</div>` : ''}
+      ${client?.city ? `<div class="client-det">${escapeHtml(client.city)}${client.postcode ? `, ${escapeHtml(client.postcode)}` : ''}</div>` : ''}
     </div>
     <div class="dates-col">
       <div class="date-block">
         <div class="date-label">Issue date</div>
-        <div class="date-val">${new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+        <div class="date-val">${escapeHtml(new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}</div>
       </div>
       <div class="date-block">
         <div class="date-label">Due date</div>
-        <div class="${dueCls}">${new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+        <div class="${dueCls}">${escapeHtml(new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}</div>
       </div>
       ${paidDate}
       ${stamp}
@@ -192,9 +193,9 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
   <div class="doc-footer-row">
     ${bankBlock}
     <div class="totals-col">
-      <div class="tot-row"><span class="tot-l">Subtotal</span><span class="tot-r">${formatCurrency(invoice.subtotal)}</span></div>
-      <div class="tot-row"><span class="tot-l">VAT</span><span class="tot-r">${formatCurrency(invoice.vat_amount)}</span></div>
-      <div class="tot-grand"><span>Total due</span><span>${formatCurrency(invoice.total)}</span></div>
+      <div class="tot-row"><span class="tot-l">Subtotal</span><span class="tot-r">${escapeHtml(formatCurrency(invoice.subtotal))}</span></div>
+      <div class="tot-row"><span class="tot-l">VAT</span><span class="tot-r">${escapeHtml(formatCurrency(invoice.vat_amount))}</span></div>
+      <div class="tot-grand"><span>Total due</span><span>${escapeHtml(formatCurrency(invoice.total))}</span></div>
     </div>
   </div>
 
@@ -202,7 +203,7 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
   ${notesBlock}
 
   <div class="page-footer">
-    <span class="page-footer-l">${invoice.invoice_number} · ${sender?.business_name || sender?.full_name || ''}</span>
+    <span class="page-footer-l">${escapeHtml(invoice.invoice_number)} · ${escapeHtml(sender?.business_name || sender?.full_name || '')}</span>
     <span class="page-footer-r">Powered by Freelax</span>
   </div>
 
@@ -240,7 +241,7 @@ export async function generateInvoicePdfBuffer(invoice: any): Promise<Buffer | n
   }
 }
 
-// ── Quote PDF ─────────────────────────────────────────────────────────────
+// ── Quote PDF ─────────────────────────────────────────────────────────────────
 
 export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false): string {
   const client    = quote.clients as any
@@ -250,16 +251,16 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
 
   const rows = lineItems.map((item: any) => `
     <tr>
-      <td class="td-desc">${item.description}</td>
-      <td class="td-num">${item.quantity}</td>
-      <td class="td-num">${formatCurrency(item.unit_price)}</td>
-      <td class="td-vat">${item.vat_rate}%</td>
-      <td class="td-total">${formatCurrency(item.line_total)}</td>
+      <td class="td-desc">${escapeHtml(item.description)}</td>
+      <td class="td-num">${escapeHtml(item.quantity)}</td>
+      <td class="td-num">${escapeHtml(formatCurrency(item.unit_price))}</td>
+      <td class="td-vat">${escapeHtml(item.vat_rate)}%</td>
+      <td class="td-total">${escapeHtml(formatCurrency(item.line_total))}</td>
     </tr>`).join('')
 
   const senderBlock = sender?.logo_url
-    ? `<img src="${sender.logo_url}" alt="" class="sender-logo" />`
-    : `<div class="sender-name">${sender?.business_name || sender?.full_name || ''}</div>`
+    ? `<img src="${escapeHtml(sender.logo_url)}" alt="" class="sender-logo" />`
+    : `<div class="sender-name">${escapeHtml(sender?.business_name || sender?.full_name || '')}</div>`
 
   const expiryCls = expired ? 'date-val overdue' : 'date-val'
 
@@ -271,10 +272,10 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
     ? `<div class="status-stamp declined-stamp">Declined</div>` : ''
 
   const projectRow = project?.title
-    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${project.title}</span></div>`
+    ? `<div class="notes" style="font-style:normal;margin-top:20px;color:#64748b;">Project: <span style="color:#334155;font-weight:600;">${escapeHtml(project.title)}</span></div>`
     : ''
   const notesBlock = quote.notes
-    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${quote.notes}</div>`
+    ? `<div class="notes"${project?.title ? ' style="margin-top:6px;"' : ''}>Notes: ${escapeHtml(quote.notes)}</div>`
     : ''
 
   return `<!DOCTYPE html>
@@ -283,7 +284,7 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <title>${quote.quote_number}</title>
+  <title>${escapeHtml(quote.quote_number)}</title>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     html, body { font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; line-height:1.5; color:#111827; background:#fff; -webkit-font-smoothing:antialiased; }
@@ -336,37 +337,37 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
   <div class="doc-header">
     <div>
       ${senderBlock}
-      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${sender.full_name}</div>` : ''}
-      ${sender?.address_line1 ? `<div class="sender-det">${sender.address_line1}</div>` : ''}
-      ${sender?.address_line2 ? `<div class="sender-det">${sender.address_line2}</div>` : ''}
-      ${sender?.city || sender?.postcode ? `<div class="sender-det">${[sender?.city, sender?.postcode].filter(Boolean).join(', ')}</div>` : ''}
-      ${sender?.phone ? `<div class="sender-det">${sender.phone}</div>` : ''}
-      ${sender?.email ? `<div class="sender-det">${sender.email}</div>` : ''}
-      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${sender.vat_number}</div>` : ''}
-      ${sender?.utr_number ? `<div class="sender-det">UTR: ${sender.utr_number}</div>` : ''}
+      ${(sender?.logo_url || sender?.business_name) && sender?.full_name ? `<div class="sender-det">${escapeHtml(sender.full_name)}</div>` : ''}
+      ${sender?.address_line1 ? `<div class="sender-det">${escapeHtml(sender.address_line1)}</div>` : ''}
+      ${sender?.address_line2 ? `<div class="sender-det">${escapeHtml(sender.address_line2)}</div>` : ''}
+      ${sender?.city || sender?.postcode ? `<div class="sender-det">${escapeHtml([sender?.city, sender?.postcode].filter(Boolean).join(', '))}</div>` : ''}
+      ${sender?.phone ? `<div class="sender-det">${escapeHtml(sender.phone)}</div>` : ''}
+      ${sender?.email ? `<div class="sender-det">${escapeHtml(sender.email)}</div>` : ''}
+      ${sender?.vat_number ? `<div class="sender-det">VAT No: ${escapeHtml(sender.vat_number)}</div>` : ''}
+      ${sender?.utr_number ? `<div class="sender-det">UTR: ${escapeHtml(sender.utr_number)}</div>` : ''}
     </div>
     <div>
       <div class="doc-type-label">Quote</div>
-      <div class="doc-number">${quote.quote_number}</div>
+      <div class="doc-number">${escapeHtml(quote.quote_number)}</div>
     </div>
   </div>
   <div class="meta-row">
     <div>
       <div class="bill-label">Prepared for</div>
-      <div class="client-name">${client?.name ?? ''}</div>
-      ${client?.contact_name ? `<div class="client-det">${client.contact_name}</div>` : ''}
-      ${client?.email ? `<div class="client-det">${client.email}</div>` : ''}
-      ${client?.address_line1 ? `<div class="client-det">${client.address_line1}</div>` : ''}
-      ${client?.city ? `<div class="client-det">${client.city}${client.postcode ? `, ${client.postcode}` : ''}</div>` : ''}
+      <div class="client-name">${escapeHtml(client?.name ?? '')}</div>
+      ${client?.contact_name ? `<div class="client-det">${escapeHtml(client.contact_name)}</div>` : ''}
+      ${client?.email ? `<div class="client-det">${escapeHtml(client.email)}</div>` : ''}
+      ${client?.address_line1 ? `<div class="client-det">${escapeHtml(client.address_line1)}</div>` : ''}
+      ${client?.city ? `<div class="client-det">${escapeHtml(client.city)}${client.postcode ? `, ${escapeHtml(client.postcode)}` : ''}</div>` : ''}
     </div>
     <div class="dates-col">
       <div class="date-block">
         <div class="date-label">Issue date</div>
-        <div class="date-val">${new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+        <div class="date-val">${escapeHtml(new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}</div>
       </div>
       <div class="date-block">
         <div class="date-label">Valid until</div>
-        <div class="${expiryCls}">${new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+        <div class="${expiryCls}">${escapeHtml(new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}</div>
       </div>
       ${stamp}
     </div>
@@ -386,18 +387,18 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
   <div class="doc-footer-row">
     <div class="validity-col">
       <div class="validity-label">Validity</div>
-      <div class="validity-text">Valid until ${new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. To accept, please reply to this email or contact us directly.</div>
+      <div class="validity-text">Valid until ${escapeHtml(new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))}. To accept, please reply to this email or contact us directly.</div>
     </div>
     <div class="totals-col">
-      <div class="tot-row"><span class="tot-l">Subtotal</span><span class="tot-r">${formatCurrency(quote.subtotal)}</span></div>
-      <div class="tot-row"><span class="tot-l">VAT</span><span class="tot-r">${formatCurrency(quote.vat_amount)}</span></div>
-      <div class="tot-grand"><span>Total</span><span>${formatCurrency(quote.total)}</span></div>
+      <div class="tot-row"><span class="tot-l">Subtotal</span><span class="tot-r">${escapeHtml(formatCurrency(quote.subtotal))}</span></div>
+      <div class="tot-row"><span class="tot-l">VAT</span><span class="tot-r">${escapeHtml(formatCurrency(quote.vat_amount))}</span></div>
+      <div class="tot-grand"><span>Total</span><span>${escapeHtml(formatCurrency(quote.total))}</span></div>
     </div>
   </div>
   ${projectRow}
   ${notesBlock}
   <div class="page-footer">
-    <span class="page-footer-l">${quote.quote_number} · ${sender?.business_name || sender?.full_name || ''}</span>
+    <span class="page-footer-l">${escapeHtml(quote.quote_number)} · ${escapeHtml(sender?.business_name || sender?.full_name || '')}</span>
     <span class="page-footer-r">Powered by Freelax</span>
   </div>
 </div>
