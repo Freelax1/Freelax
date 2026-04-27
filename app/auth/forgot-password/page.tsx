@@ -9,14 +9,22 @@ const INPUT_STYLE: React.CSSProperties = {
   padding: '11px 14px',
   fontSize: 16,
   lineHeight: 1.4,
-  color: '#0F172A',
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
+  color: '#FFFFFF',
+  background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(255,255,255,0.15)',
   borderRadius: 8,
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',
   transition: 'border-color 150ms, box-shadow 150ms',
+}
+
+const LABEL_STYLE: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'rgba(255,255,255,0.6)',
+  marginBottom: 6,
 }
 
 function Spinner() {
@@ -56,39 +64,38 @@ export default function ForgotPasswordPage() {
   }
 
   function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#1D6B35'
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,107,53,0.12)'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.08)'
   }
   function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#E2E8F0'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
     e.currentTarget.style.boxShadow = 'none'
   }
 
   if (done) {
     return (
       <div style={{ textAlign: 'center', padding: '12px 0' }}>
-        <style>{`@keyframes fd-spin { to { transform: rotate(360deg) } }`}</style>
         <div style={{
           width: 48, height: 48,
           borderRadius: '50%',
-          background: '#EAFAF0',
+          background: 'rgba(255,255,255,0.1)',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 16,
         }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D6B35" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
           Check your email
         </h2>
-        <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, margin: 0 }}>
-          If an account exists for <strong style={{ color: '#0F172A' }}>{email}</strong>, you'll receive a reset link shortly.
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+          If an account exists for <strong style={{ color: '#FFFFFF' }}>{email}</strong>, you'll receive a reset link shortly.
         </p>
-        <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, marginTop: 8, marginBottom: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginTop: 8, marginBottom: 0 }}>
           Check your spam folder if it doesn't arrive within a few minutes.
         </p>
         <Link
@@ -97,7 +104,7 @@ export default function ForgotPasswordPage() {
             display: 'inline-block',
             marginTop: 24,
             fontSize: 13,
-            color: '#1D6B35',
+            color: '#FFFFFF',
             fontWeight: 600,
             textDecoration: 'none',
           }}
@@ -110,27 +117,29 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <style>{`@keyframes fd-spin { to { transform: rotate(360deg) } }`}</style>
+      <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
+        <span style={{ color: '#FFFFFF' }}>Free</span>
+        <span style={{ color: 'rgba(255,255,255,0.7)' }}>lax</span>
+        <span style={{ color: '#1D6B35' }}>.</span>
+      </div>
 
       <Link
         href="/auth/login"
-        style={{ fontSize: 12, color: '#94A3B8', textDecoration: 'none', display: 'inline-block', marginBottom: 20 }}
+        style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', display: 'inline-block', marginBottom: 20, fontWeight: 500 }}
       >
         ← Back to sign in
       </Link>
 
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 8 }}>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 8 }}>
         Reset your password
       </h2>
-      <p style={{ fontSize: 13, color: '#64748B', marginTop: 0, marginBottom: 24, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 0, marginBottom: 24, lineHeight: 1.5 }}>
         Enter your email and we'll send you a link to reset your password.
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#64748B', marginBottom: 6 }}>
-            Email
-          </label>
+          <label style={LABEL_STYLE}>Email</label>
           <input
             type="email"
             autoComplete="email"
@@ -145,7 +154,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {error && (
-          <p style={{ fontSize: 13, color: '#C0392B', marginTop: -4 }}>{error}</p>
+          <p style={{ fontSize: 13, color: '#F87171', marginTop: -4 }}>{error}</p>
         )}
 
         <button
