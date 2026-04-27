@@ -192,14 +192,7 @@ function RightPanel() {
 }
 
 function LoginFallback() {
-  return (
-    <>
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 24 }}>
-        Sign in
-      </h2>
-      <div style={{ height: 200 }} />
-    </>
-  )
+  return <div style={{ height: 200 }} />
 }
 
 function LoginForm() {
