@@ -48,9 +48,32 @@ function Spinner() {
   )
 }
 
+const testimonials = [
+  {
+    quote: "Before Freelax, I had no idea what I owed. Now I know my exact tax bill every month.",
+    name: "Sarah Jenkins",
+    role: "Freelance UX Designer · London",
+    initials: "SJ",
+  },
+  {
+    quote: "As a contractor moving between IR35 statuses, Freelax is the first tool that actually keeps up.",
+    name: "Marcus Chen",
+    role: "IT Contractor · Manchester",
+    initials: "MC",
+  },
+  {
+    quote: "Running my consultancy used to mean weekends with spreadsheets. Now it takes 10 minutes a week.",
+    name: "Priya Shah",
+    role: "Marketing Consultant · Bristol",
+    initials: "PS",
+  },
+]
+
 function RightPanel() {
   const [taglineIdx, setTaglineIdx] = useState(0)
   const [taglineVisible, setTaglineVisible] = useState(true)
+  const [testimonialIdx, setTestimonialIdx] = useState(0)
+  const [testimonialVisible, setTestimonialVisible] = useState(true)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -60,6 +83,17 @@ function RightPanel() {
         setTaglineVisible(true)
       }, 400)
     }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialVisible(false)
+      setTimeout(() => {
+        setTestimonialIdx(i => (i + 1) % testimonials.length)
+        setTestimonialVisible(true)
+      }, 400)
+    }, 5000)
     return () => clearInterval(interval)
   }, [])
 
@@ -90,6 +124,22 @@ function RightPanel() {
         padding: '100px 40px 48px',
       }}>
         <div style={{ width: '100%', maxWidth: 420, marginTop: 60 }}>
+          <div style={{
+            display: 'inline-block',
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#1D6B35',
+            background: '#EAFAF0',
+            border: '0.5px solid rgba(29,107,53,0.2)',
+            borderRadius: 20,
+            padding: '3px 10px',
+            marginBottom: 12,
+          }}>
+            v1.0 · Beta
+          </div>
+
           {/* Animated tagline */}
           <div style={{
             fontSize: 17,
@@ -153,26 +203,32 @@ function RightPanel() {
             border: '0.5px solid #E2E8F0',
             padding: '12px 14px',
             marginBottom: 14,
+            minHeight: 110,
           }}>
-            <p style={{
-              fontSize: 11,
-              color: '#0F172A',
-              lineHeight: 1.6,
-              fontStyle: 'italic',
-              marginBottom: 12,
+            <div style={{
+              opacity: testimonialVisible ? 1 : 0,
+              transition: 'opacity 400ms ease',
             }}>
-              "Before Freelax, I had no idea what I owed. Now I know my exact tax bill every month."
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: '#1D6B35',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0,
-              }}>SJ</div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A' }}>Sarah Jenkins</div>
-                <div style={{ fontSize: 11, color: '#94A3B8' }}>Freelance UX Designer · London</div>
+              <p style={{
+                fontSize: 11,
+                color: '#0F172A',
+                lineHeight: 1.6,
+                fontStyle: 'italic',
+                marginBottom: 12,
+              }}>
+                "{testimonials[testimonialIdx].quote}"
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: '#1D6B35',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0,
+                }}>{testimonials[testimonialIdx].initials}</div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A' }}>{testimonials[testimonialIdx].name}</div>
+                  <div style={{ fontSize: 11, color: '#94A3B8' }}>{testimonials[testimonialIdx].role}</div>
+                </div>
               </div>
             </div>
           </div>
