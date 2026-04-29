@@ -1,20 +1,18 @@
 // app/q/[token]/page.tsx — Public quote view (no login required)
 // Brand-matched design — charcoal & black, matching landing page identity
 
-import { createClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { notFound } from 'next/navigation'
 
 export default async function PublicQuotePage({ params }: { params: { token: string } }) {
-  const supabase = createClient()
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/quotes/public/${params.token}`,
+    { cache: 'no-store' }
+  )
 
-  const { data: quote } = await supabase
-    .from('quotes')
-    .select('*, clients(*), quote_line_items(*), users(*)')
-    .eq('public_token', params.token)
-    .single()
+  if (!res.ok) notFound()
 
-  if (!quote) notFound()
+  const quote = await res.json()
 
   const client    = (quote as any).clients
   const sender    = (quote as any).users
