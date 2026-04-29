@@ -32,6 +32,8 @@ const PUBLIC_API_PATHS = [
   '/api/invoices/recurring',
   '/api/invoices/update-overdue',
   '/api/quotes/update-expired',
+  '/api/quotes/public',
+  '/api/quotes/respond',
   '/api/stripe/webhook',
   '/api/accountant/accept',
 ]
