@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   // Fetch invoice with client + sender details
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('*, clients(*), users(*), invoice_line_items(*)')
+    .select('*, clients(*), users(business_name, full_name, email, bank_account_name, bank_sort_code, bank_account_number, bank_reference_note), invoice_line_items(*)')
     .eq('id', invoiceId)
     .single()
 

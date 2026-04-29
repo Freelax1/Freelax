@@ -19,7 +19,7 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
       const supabase = createClient()
       const { data } = await supabase
         .from('invoices')
-        .select('*, clients(*), invoice_line_items(*), users(*)')
+        .select('*, clients(*), invoice_line_items(*), users(business_name, full_name, email, phone, logo_url, address_line1, address_line2, city, postcode, bank_account_name, bank_sort_code, bank_account_number, bank_reference_note)')
         .eq('public_token', params.token)
         .single()
       setInvoice(data)

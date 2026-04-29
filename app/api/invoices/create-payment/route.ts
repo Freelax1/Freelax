@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient()
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('*, users(*), clients(*)')
+    .select('*, users(business_name, full_name), clients(*)')
     .eq('public_token', token)
     .single()
 
