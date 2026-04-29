@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { canUseAI } from '@/lib/plan-limits'
+import { logAiCall } from '@/lib/api/ai-usage'
 import { calculateTax, getCurrentTaxYear, type StudentLoanPlan } from '@/lib/tax-calculations'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -173,6 +174,7 @@ Strict rules:
     })
 
     const narrative = response.content[0].type === 'text' ? response.content[0].text.trim() : ''
+    await logAiCall(user.id, 'sa-narrative')
     return NextResponse.json({ narrative })
   } catch (e) {
     console.error('SA narrative error:', e)

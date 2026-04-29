@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { canUseAI } from '@/lib/plan-limits'
+import { logAiCall } from '@/lib/api/ai-usage'
 import { getCurrentTaxYear } from '@/lib/tax-calculations'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -83,6 +84,7 @@ Write the paragraph now:`
       messages: [{ role: 'user', content: prompt }],
     })
     const insight = response.content[0].type === 'text' ? response.content[0].text.trim() : ''
+    await logAiCall(user.id, 'monthly-insight')
     return NextResponse.json({ insight })
   } catch (e) {
     console.error('Monthly insight error:', e)

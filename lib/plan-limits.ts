@@ -28,7 +28,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     invoicesPerMonth:    10,
     clientsTotal:        1,
     expensesPerMonth:    20,
-    aiCallsPerMonth:     0,   // AI blocked on free
+    aiCallsPerMonth:     10,
     canSendByEmail:      false,
     canUseStripe:        false,
     canUseRecurring:     false,
@@ -39,7 +39,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     invoicesPerMonth:    10,
     clientsTotal:        3,
     expensesPerMonth:    20,
-    aiCallsPerMonth:     10,
+    aiCallsPerMonth:     50,
     canSendByEmail:      false,
     canUseStripe:        false,
     canUseRecurring:     false,
@@ -50,7 +50,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     invoicesPerMonth:    -1,
     clientsTotal:        -1,
     expensesPerMonth:    -1,
-    aiCallsPerMonth:     100,
+    aiCallsPerMonth:     150,
     canSendByEmail:      true,
     canUseStripe:        true,
     canUseRecurring:     true,
@@ -61,7 +61,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     invoicesPerMonth:    -1,
     clientsTotal:        -1,
     expensesPerMonth:    -1,
-    aiCallsPerMonth:     500,
+    aiCallsPerMonth:     750,
     canSendByEmail:      true,
     canUseStripe:        true,
     canUseRecurring:     true,
@@ -162,45 +162,42 @@ export async function canCreateExpense(userId: string): Promise<{ allowed: boole
   return { allowed: true }
 }
 
-export async function canUseAI(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+export async function canUseAI(userId: string): Promise<{ allowed: boolean; reason?: string; remaining?: number; limit?: number }> {
   const plan = await getUserPlan(userId)
   const limits = getLimits(plan)
 
   if (limits.aiCallsPerMonth === 0) {
     return {
       allowed: false,
-      reason: 'AI features are not available on the free plan. Upgrade to Solo or Pro to access AI.',
+      reason: 'AI features are not available on your current plan.',
+      remaining: 0,
+      limit: 0,
     }
   }
 
-  if (limits.aiCallsPerMonth === -1) return { allowed: true }
+  if (limits.aiCallsPerMonth === -1) {
+    return { allowed: true } // unlimited (no current tier uses this, kept for future)
+  }
 
-  // For Pro/Solo — count AI calls this month
-  // We use a simple approximation: count invoice_activity entries with action='ai_%'
-  // or fall through and allow (full usage tracking requires a dedicated table)
-  // For now: Solo (10 calls) we enforce, Pro/Studio we allow freely
-  if (plan === 'solo') {
-    const supabase = createClient()
-    const monthStart = new Date()
-    monthStart.setDate(1)
-    monthStart.setHours(0, 0, 0, 0)
+  const { countAiCallsThisMonth } = await import('@/lib/api/ai-usage')
+  const used = await countAiCallsThisMonth(userId)
+  const remaining = Math.max(0, limits.aiCallsPerMonth - used)
 
-    const { count } = await supabase
-      .from('invoice_activity')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .like('action', 'ai_%')
-      .gte('created_at', monthStart.toISOString())
-
-    if ((count ?? 0) >= limits.aiCallsPerMonth) {
-      return {
-        allowed: false,
-        reason: `You've used all ${limits.aiCallsPerMonth} AI calls this month on the Solo plan. Upgrade to Pro for 100 calls per month.`,
-      }
+  if (used >= limits.aiCallsPerMonth) {
+    const upgradeMsg =
+      plan === 'free'   ? 'Upgrade to Solo for 50 AI calls per month.' :
+      plan === 'solo'   ? 'Upgrade to Pro for 150 AI calls per month.' :
+      plan === 'pro'    ? 'Upgrade to Studio for 750 AI calls per month.' :
+                          'Contact support if you need more.'
+    return {
+      allowed: false,
+      reason: `You've used all ${limits.aiCallsPerMonth} AI calls this month on the ${plan} plan. ${upgradeMsg}`,
+      remaining: 0,
+      limit: limits.aiCallsPerMonth,
     }
   }
 
-  return { allowed: true }
+  return { allowed: true, remaining, limit: limits.aiCallsPerMonth }
 }
 
 export async function canSendByEmail(userId: string): Promise<{ allowed: boolean; reason?: string }> {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { canUseAI } from '@/lib/plan-limits'
+import { logAiCall } from '@/lib/api/ai-usage'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -50,6 +51,7 @@ Return ONLY valid JSON:
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    await logAiCall(user.id, 'invoice-assist')
     const clean = text.replace(/```json|```/g, '').trim()
     const parsed = JSON.parse(clean)
     return NextResponse.json(parsed)

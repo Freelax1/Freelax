@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { canUseAI } from '@/lib/plan-limits'
+import { logAiCall } from '@/lib/api/ai-usage'
 import { calculateTax, getCurrentTaxYear } from '@/lib/tax-calculations'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -73,6 +74,7 @@ Never provide specific tax filing instructions.`
     })
 
     const answer = response.content[0].type === 'text' ? response.content[0].text : ''
+    await logAiCall(user.id, 'tax-qa')
     return NextResponse.json({ answer })
   } catch (e) {
     console.error('Tax Q&A error:', e)
