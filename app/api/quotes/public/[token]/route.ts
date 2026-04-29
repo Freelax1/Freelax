@@ -1,3 +1,6 @@
+// Public read-only quote fetch by token. The /q/[token] page queries Supabase
+// directly (server component); this route exists for any future non-server-component
+// consumer (mobile client, third-party integration, etc.).
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
