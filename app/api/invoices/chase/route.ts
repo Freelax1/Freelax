@@ -7,6 +7,15 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { logActivity } from '@/lib/api/invoice-activity'
 import { escapeHtml } from '@/lib/escape-html'
 
+const COOLDOWN_DAYS = 7
+const TIER_MIN_PRIOR_CHASES: Record<'friendly' | 'formal' | 'legal', number> = {
+  friendly: 0,
+  formal:   1,
+  legal:    2,
+}
+const VALID_TIERS = ['friendly', 'formal', 'legal'] as const
+type Tier = typeof VALID_TIERS[number]
+
 export async function POST(req: NextRequest) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -25,16 +34,56 @@ export async function POST(req: NextRequest) {
   if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
   if (invoice.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  // ── Tier + cooldown validation ────────────────────────────────────────
+  if (!VALID_TIERS.includes(tier as Tier)) {
+    return NextResponse.json({ error: 'Invalid tier value' }, { status: 400 })
+  }
+
+  const priorLog: any[] = invoice.chase_log ?? []
+  const priorCount = priorLog.length
+
+  // Tier progression
+  const minPrior = TIER_MIN_PRIOR_CHASES[tier as Tier]
+  if (priorCount < minPrior) {
+    const tierLabel =
+      tier === 'legal'  ? 'a Legal Notice' :
+      tier === 'formal' ? 'a Formal Payment Notice' :
+      'this chase'
+    const needed = minPrior - priorCount
+    return NextResponse.json(
+      {
+        error: `You need ${needed} more chase${needed === 1 ? '' : 's'} on this invoice before sending ${tierLabel}.`,
+      },
+      { status: 422 }
+    )
+  }
+
+  // Cooldown
+  if (priorCount > 0) {
+    const lastEntry = priorLog[priorLog.length - 1]
+    const lastDate  = new Date(lastEntry.chased_at).getTime()
+    const daysSince = Math.floor((Date.now() - lastDate) / 86400000)
+    if (daysSince < COOLDOWN_DAYS) {
+      const remaining = COOLDOWN_DAYS - daysSince
+      return NextResponse.json(
+        {
+          error: `You can chase this invoice again in ${remaining} day${remaining === 1 ? '' : 's'}. Minimum ${COOLDOWN_DAYS} days between chases.`,
+        },
+        { status: 429 }
+      )
+    }
+  }
+  // ──────────────────────────────────────────────────────────────────────
+
   const client  = invoice.clients  as any
   const sender  = invoice.users    as any
 
   // Append to chase_log
-  const existingLog: any[] = invoice.chase_log ?? []
   const newEntry = { chased_at: new Date().toISOString(), note: message ?? null, tier }
   await supabase
     .from('invoices')
     .update({
-      chase_log: [...existingLog, newEntry],
+      chase_log: [...priorLog, newEntry],
       updated_at: new Date().toISOString(),
     })
     .eq('id', invoiceId)

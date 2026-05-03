@@ -60,12 +60,24 @@ function ChaseModal({
   const overdueDays  = Math.max(0, Math.floor((Date.now() - new Date(invoice.due_date).getTime()) / 86400000))
   const chaseCount   = invoice.chase_log?.length ?? 0
 
+  const formalAllowed = chaseCount >= 1
+  const legalAllowed  = chaseCount >= 2
+  const lastChasedAt  = invoice.chase_log?.[chaseCount - 1]?.chased_at
+  const daysSinceLast = lastChasedAt
+    ? Math.floor((Date.now() - new Date(lastChasedAt).getTime()) / 86400000)
+    : null
+  const cooldownDaysRemaining = daysSinceLast !== null && daysSinceLast < 7
+    ? 7 - daysSinceLast
+    : 0
+  const onCooldown = cooldownDaysRemaining > 0
+
   const defaultTier: ChaseTier = chaseCount === 0 ? 'friendly' : chaseCount === 1 ? 'formal' : 'legal'
   const tierMessages = getTierMessages(invoice, businessName, dueDate, overdueDays)
 
   const [tier, setTier]       = useState<ChaseTier>(defaultTier)
   const [message, setMessage] = useState(tierMessages[defaultTier])
   const [sending, setSending] = useState(false)
+  const [error, setError]     = useState<string | null>(null)
 
   function handleTierChange(t: ChaseTier) {
     setTier(t)
@@ -74,6 +86,7 @@ function ChaseModal({
 
   async function handleSend() {
     setSending(true)
+    setError(null)
     const res = await fetch('/api/invoices/chase', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,7 +94,12 @@ function ChaseModal({
     })
     const data = await res.json()
     setSending(false)
-    if (res.ok) { onSent(data); onClose() }
+    if (res.ok) {
+      onSent(data)
+      onClose()
+    } else {
+      setError(data?.error || 'Could not send chase. Please try again.')
+    }
   }
 
   return (
@@ -117,19 +135,38 @@ function ChaseModal({
               {(Object.keys(TIER_META) as ChaseTier[]).map(t => {
                 const meta = TIER_META[t]
                 const isActive = tier === t
+                const locked =
+                  (t === 'formal' && !formalAllowed) ||
+                  (t === 'legal'  && !legalAllowed)
+                const lockReason = locked
+                  ? t === 'formal'
+                    ? 'Send a friendly chase first'
+                    : 'Needs 2 prior chases'
+                  : ''
                 return (
                   <button
                     key={t}
-                    onClick={() => handleTierChange(t)}
+                    onClick={() => { if (!locked) handleTierChange(t) }}
+                    disabled={locked}
+                    title={lockReason || undefined}
                     style={{
-                      flex: 1, padding: '8px 4px', borderRadius: 8, cursor: 'pointer',
+                      flex: 1, padding: '8px 4px', borderRadius: 8,
+                      cursor: locked ? 'not-allowed' : 'pointer',
                       border: `1.5px solid ${isActive ? meta.badgeColor : '#E2E8F0'}`,
                       background: isActive ? meta.badgeBg : '#fff',
+                      opacity: locked ? 0.45 : 1,
                       transition: 'all 0.15s',
                     }}
                   >
-                    <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? meta.badgeColor : '#AAA', marginBottom: 2 }}>{meta.badge}</p>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: isActive ? meta.badgeColor : '#666' }}>{meta.label}</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? meta.badgeColor : '#AAA', marginBottom: 2 }}>
+                      {meta.badge}{locked ? ' 🔒' : ''}
+                    </p>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: isActive ? meta.badgeColor : '#666' }}>
+                      {meta.label}
+                    </p>
+                    {locked && (
+                      <p style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>{lockReason}</p>
+                    )}
                   </button>
                 )
               })}
@@ -186,6 +223,18 @@ function ChaseModal({
               No email address on file for this client. Chase will be logged but no email will be sent.
             </div>
           )}
+
+          {onCooldown && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-800">
+              You can chase this invoice again in <strong>{cooldownDaysRemaining} day{cooldownDaysRemaining === 1 ? '' : 's'}</strong>. To prevent spam, Freelax enforces a 7-day gap between chases.
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-700">
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -198,15 +247,21 @@ function ChaseModal({
           </button>
           <button
             onClick={handleSend}
-            disabled={sending || !message.trim()}
+            disabled={sending || !message.trim() || onCooldown}
             style={{
               background: tier === 'legal' ? '#C0392B' : tier === 'formal' ? '#9A7B0A' : '#111',
-              opacity: (sending || !message.trim()) ? 0.5 : 1,
+              opacity: (sending || !message.trim() || onCooldown) ? 0.5 : 1,
             }}
             className="flex items-center gap-2 px-5 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
           >
             <Bell className="w-3.5 h-3.5" />
-            {sending ? 'Sending...' : client?.email ? `Send ${TIER_META[tier].label}` : 'Log chase'}
+            {sending
+              ? 'Sending...'
+              : onCooldown
+                ? `Wait ${cooldownDaysRemaining}d`
+                : client?.email
+                  ? `Send ${TIER_META[tier].label}`
+                  : 'Log chase'}
           </button>
         </div>
       </div>
