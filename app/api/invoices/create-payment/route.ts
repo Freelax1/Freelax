@@ -5,7 +5,16 @@ import { createServiceClient } from '@/lib/supabase/server'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
 export async function POST(req: NextRequest) {
-  const { token } = await req.json()
+  const contentType = req.headers.get('content-type') ?? ''
+  let token: string | undefined
+  if (contentType.includes('application/json')) {
+    const body = await req.json()
+    token = body.token
+  } else {
+    const form = await req.formData()
+    token = form.get('token')?.toString()
+  }
+  if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 })
 
   // Use service role to fetch invoice without auth (public endpoint)
   const supabase = createServiceClient()
@@ -42,7 +51,10 @@ export async function POST(req: NextRequest) {
       metadata: { invoice_id: invoice.id, token },
     })
 
-    return NextResponse.json({ url: session.url })
+    if (contentType.includes('application/json')) {
+      return NextResponse.json({ url: session.url })
+    }
+    return NextResponse.redirect(session.url!, { status: 303 })
   } catch (e) {
     console.error('Stripe payment error:', e)
     return NextResponse.json({ error: 'Failed to create payment session' }, { status: 500 })

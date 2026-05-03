@@ -1,63 +1,30 @@
-﻿'use client'
+import { notFound } from 'next/navigation'
+import { createServiceClient } from '@/lib/supabase/server'
+import { formatCurrency } from '@/lib/tax-calculations'
+import { CreditCard, CheckCircle } from 'lucide-react'
+
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { formatCurrency } from '@/lib/tax-calculations'
-import { useSearchParams } from 'next/navigation'
-import { CreditCard, CheckCircle, Loader2 } from 'lucide-react'
+export default async function PublicInvoicePage({
+  params,
+  searchParams,
+}: {
+  params: { token: string }
+  searchParams: { paid?: string }
+}) {
+  const supabase = createServiceClient()
+  const { data: invoice } = await supabase
+    .from('invoices')
+    .select('*, clients(*), invoice_line_items(*), users(business_name, full_name, email, phone, logo_url, address_line1, address_line2, city, postcode, bank_account_name, bank_sort_code, bank_account_number, bank_reference_note)')
+    .eq('public_token', params.token)
+    .single()
 
-export default function PublicInvoicePage({ params }: { params: { token: string } }) {
-  const [invoice, setInvoice] = useState<any>(null)
-  const [loading, setLoading]   = useState(true)
-  const [paying, setPaying]     = useState(false)
-  const searchParams = useSearchParams()
-  const justPaid = searchParams.get('paid') === 'true'
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('invoices')
-        .select('*, clients(*), invoice_line_items(*), users(business_name, full_name, email, phone, logo_url, address_line1, address_line2, city, postcode, bank_account_name, bank_sort_code, bank_account_number, bank_reference_note)')
-        .eq('public_token', params.token)
-        .single()
-      setInvoice(data)
-      setLoading(false)
-    }
-    load()
-  }, [params.token])
-
-  async function handlePay() {
-    setPaying(true)
-    try {
-      const res  = await fetch('/api/invoices/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: params.token }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch (e) { console.error(e) }
-    setPaying(false)
-  }
-
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC' }}>
-      <Loader2 style={{ width: 24, height: 24, color: '#94A3B8', animation: 'spin 1s linear infinite' }} />
-    </div>
-  )
-
-  if (!invoice) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC' }}>
-      <p style={{ color: '#64748B', fontSize: 14 }}>Invoice not found.</p>
-    </div>
-  )
+  if (!invoice) notFound()
 
   const sender    = invoice.users
   const client    = invoice.clients
   const lineItems = invoice.invoice_line_items ?? []
-  const isPaid    = invoice.status === 'paid' || justPaid
+  const isPaid    = invoice.status === 'paid' || searchParams.paid === 'true'
   const isOverdue = invoice.status === 'overdue'
 
   const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
@@ -65,7 +32,6 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f4ef', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg) } }
         @media (max-width: 640px) {
           .pub-header { flex-direction: column !important; gap: 12px !important; }
           .pub-bill-row { flex-direction: column !important; gap: 16px !important; }
@@ -82,7 +48,7 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
         {isPaid && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 18px', marginBottom: 20 }}>
             <CheckCircle style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>Payment received â€” thank you!</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>Payment received – thank you!</span>
           </div>
         )}
         {isOverdue && !isPaid && (
@@ -206,32 +172,31 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
             {/* Pay Now CTA */}
             {!isPaid && (
               <div style={{ marginTop: 32 }}>
-                <button
-                  onClick={handlePay}
-                  disabled={paying}
-                  style={{
-                    width: '100%', padding: '15px 24px',
-                    background: paying ? '#475569' : '#0f172a', color: '#fff',
-                    border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600,
-                    cursor: paying ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    transition: 'background 0.15s', letterSpacing: '-0.01em',
-                  }}
-                >
-                  {paying
-                    ? <><Loader2 style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} /> Redirecting to paymentâ€¦</>
-                    : <><CreditCard style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely</>
-                  }
-                </button>
+                <form method="POST" action="/api/invoices/create-payment">
+                  <input type="hidden" name="token" value={params.token} />
+                  <button
+                    type="submit"
+                    style={{
+                      width: '100%', padding: '15px 24px',
+                      background: '#0f172a', color: '#fff',
+                      border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      transition: 'background 0.15s', letterSpacing: '-0.01em',
+                    }}
+                  >
+                    <CreditCard style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely
+                  </button>
+                </form>
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#cbd5e1', marginTop: 10 }}>
-                  Secured by Stripe Â· Your card details are never stored
+                  Secured by Stripe · Your card details are never stored
                 </p>
               </div>
             )}
 
             {/* Doc footer */}
             <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 10, color: '#e2e8f0' }}>{invoice.invoice_number} Â· {sender?.business_name || sender?.full_name || ''}</span>
+              <span style={{ fontSize: 10, color: '#e2e8f0' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
               <span style={{ fontSize: 10, color: '#e2e8f0' }}>Powered by Freelax</span>
             </div>
           </div>
