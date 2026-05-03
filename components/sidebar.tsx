@@ -446,6 +446,42 @@ function NotificationPanel({
   )
 }
 
+async function fetchNavData(): Promise<NavData> {
+  const supabase = createClient()
+  const [
+    { data: invoices },
+    { data: quotes },
+    { data: clients },
+    { data: projects },
+    { data: expenses },
+  ] = await Promise.all([
+    supabase.from('invoices')
+      .select('id, invoice_number, status, total, due_date, clients(name)')
+      .order('created_at', { ascending: false }).limit(50),
+    supabase.from('quotes')
+      .select('id, quote_number, status, total, expiry_date, clients(name)')
+      .order('created_at', { ascending: false }).limit(20),
+    supabase.from('clients')
+      .select('id, name, contact_name, email, status')
+      .order('created_at', { ascending: false }).limit(4),
+    supabase.from('projects')
+      .select('id, title, ir35_status, status, clients(name)')
+      .order('created_at', { ascending: false }).limit(4),
+    supabase.from('expenses')
+      .select('id, merchant, category, amount, date')
+      .order('date', { ascending: false }).limit(4),
+  ])
+  const ir35 = (projects ?? []).filter((p: NavProject) => p.status === 'active').slice(0, 4)
+  return {
+    invoices: invoices ?? [],
+    quotes:   quotes   ?? [],
+    clients:  clients  ?? [],
+    projects: projects ?? [],
+    expenses: expenses ?? [],
+    ir35,
+  }
+}
+
 // ── Main component ─────────────────────────────────────────────────────
 export default function Sidebar() {
   const pathname = usePathname()
@@ -465,63 +501,15 @@ export default function Sidebar() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) setUserEmail(user.email)
-      const [
-        { data: invoices },
-        { data: quotes },
-        { data: clients },
-        { data: projects },
-        { data: expenses },
-      ] = await Promise.all([
-        supabase.from('invoices')
-          .select('id, invoice_number, status, total, due_date, clients(name)')
-          .order('created_at', { ascending: false }).limit(50),
-        supabase.from('quotes')
-          .select('id, quote_number, status, total, expiry_date, clients(name)')
-          .order('created_at', { ascending: false }).limit(20),
-        supabase.from('clients')
-          .select('id, name, contact_name, email, status')
-          .order('created_at', { ascending: false }).limit(4),
-        supabase.from('projects')
-          .select('id, title, ir35_status, status, clients(name)')
-          .order('created_at', { ascending: false }).limit(4),
-        supabase.from('expenses')
-          .select('id, merchant, category, amount, date')
-          .order('date', { ascending: false }).limit(4),
-      ])
-
-      const ir35 = (projects ?? []).filter((p: NavProject) => p.status === 'active').slice(0, 4)
-
-      setNavData({
-        invoices: invoices ?? [],
-        quotes:   quotes   ?? [],
-        clients:  clients  ?? [],
-        projects: projects ?? [],
-        expenses: expenses ?? [],
-        ir35,
-      })
+      setNavData(await fetchNavData())
     }
     load()
-  }, []) // load once on mount — re-fetch on focus / fd:data-invalidate
+  }, [])
 
   // Re-fetch on window focus and custom invalidate events
   useEffect(() => {
-    const supabase = createClient()
     async function refresh() {
-      const [
-        { data: invoices },
-        { data: quotes },
-        { data: clients },
-        { data: projects },
-        { data: expenses },
-      ] = await Promise.all([
-        supabase.from('invoices').select('id, invoice_number, status, total, due_date, clients(name)').order('created_at', { ascending: false }).limit(50),
-        supabase.from('quotes').select('id, quote_number, status, total, expiry_date, clients(name)').order('created_at', { ascending: false }).limit(20),
-        supabase.from('clients').select('id, name, contact_name, email, status').order('created_at', { ascending: false }).limit(4),
-        supabase.from('projects').select('id, title, ir35_status, status, clients(name)').order('created_at', { ascending: false }).limit(4),
-        supabase.from('expenses').select('id, merchant, category, amount, date').order('date', { ascending: false }).limit(4),
-      ])
-      const ir35 = (projects ?? []).filter((p: NavProject) => p.status === 'active').slice(0, 4)
-      setNavData({ invoices: invoices ?? [], quotes: quotes ?? [], clients: clients ?? [], projects: projects ?? [], expenses: expenses ?? [], ir35 })
+      setNavData(await fetchNavData())
     }
     window.addEventListener('focus', refresh)
     window.addEventListener('fd:data-invalidate', refresh as EventListener)
