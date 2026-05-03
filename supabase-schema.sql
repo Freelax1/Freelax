@@ -24,6 +24,44 @@ CREATE TABLE IF NOT EXISTS users (
   stripe_subscription_id TEXT,
   subscription_plan TEXT DEFAULT 'free',
   subscription_status TEXT DEFAULT 'active',
+
+  -- Banking
+  bank_account_name TEXT,
+  bank_sort_code TEXT,
+  bank_account_number TEXT,
+  bank_reference_note TEXT,
+
+  -- Invoice defaults
+  invoice_prefix TEXT,
+  invoice_default_notes TEXT,
+  invoice_email_subject TEXT,
+  invoice_email_body TEXT,
+  target_take_home DECIMAL(10,2),
+
+  -- Quote defaults
+  quote_prefix TEXT,
+  quote_validity_days INTEGER,
+  quote_default_notes TEXT,
+  quote_email_subject TEXT,
+  quote_email_body TEXT,
+
+  -- Chase email templates
+  chase_email_subject_1 TEXT,
+  chase_email_body_1 TEXT,
+  chase_email_subject_2 TEXT,
+  chase_email_body_2 TEXT,
+  chase_email_subject_3 TEXT,
+  chase_email_body_3 TEXT,
+
+  -- Tax profile
+  student_loan_plan TEXT,
+  pension_contributions DECIMAL(10,2),
+  salary_drawn DECIMAL(10,2),
+  dividends_drawn DECIMAL(10,2),
+  other_income DECIMAL(10,2),
+  investment_dividends DECIMAL(10,2),
+  monthly_expenses_estimate DECIMAL(10,2),
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -81,6 +119,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   payment_terms TEXT DEFAULT 'Payment due within 30 days',
   stripe_payment_link TEXT,
   sent_at TIMESTAMPTZ,
+  chase_log JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -292,21 +331,6 @@ ALTER TABLE invoice_activity ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users view own invoice activity" ON invoice_activity FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users insert own invoice activity" ON invoice_activity FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- quote_activity
-CREATE TABLE IF NOT EXISTS quote_activity (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  quote_id    UUID NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  action      TEXT NOT NULL,
-  metadata    JSONB,
-  created_at  TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_quote_activity_quote ON quote_activity(quote_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_quote_activity_user  ON quote_activity(user_id);
-ALTER TABLE quote_activity ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users view own quote activity"   ON quote_activity FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users insert own quote activity" ON quote_activity FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 -- quotes
 CREATE TABLE IF NOT EXISTS quotes (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -334,7 +358,6 @@ CREATE INDEX IF NOT EXISTS idx_quotes_status ON quotes(status);
 CREATE INDEX IF NOT EXISTS idx_quotes_public_token ON quotes(public_token);
 ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users manage own quotes" ON quotes FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Public can view quotes by token" ON quotes FOR SELECT USING (auth.role() = 'anon' AND public_token IS NOT NULL);
 
 -- quote_line_items
 CREATE TABLE IF NOT EXISTS quote_line_items (
@@ -352,8 +375,36 @@ ALTER TABLE quote_line_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users manage own quote line items" ON quote_line_items FOR ALL
   USING (EXISTS (SELECT 1 FROM quotes WHERE quotes.id = quote_line_items.quote_id AND quotes.user_id = auth.uid()));
 
+-- quote_activity
+CREATE TABLE IF NOT EXISTS quote_activity (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  quote_id    UUID NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  action      TEXT NOT NULL,
+  metadata    JSONB,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_quote_activity_quote ON quote_activity(quote_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_quote_activity_user  ON quote_activity(user_id);
+ALTER TABLE quote_activity ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users view own quote activity"   ON quote_activity FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users insert own quote activity" ON quote_activity FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 -- RLS on tax_pot_entries and invoice_templates
 ALTER TABLE tax_pot_entries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users manage own tax pot entries" ON tax_pot_entries FOR ALL USING (auth.uid() = user_id);
 ALTER TABLE invoice_templates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users manage own invoice templates" ON invoice_templates FOR ALL USING (auth.uid() = user_id);
+
+-- ai_calls: tracks successful Anthropic API calls for per-tier quota enforcement
+CREATE TABLE IF NOT EXISTS ai_calls (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  route       TEXT NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_ai_calls_user_month ON ai_calls (user_id, created_at DESC);
+ALTER TABLE ai_calls ENABLE ROW LEVEL SECURITY;
+-- Users can read their own call history. Inserts go through service-role only.
+CREATE POLICY "Users view own ai calls" ON ai_calls
+  FOR SELECT USING (auth.uid() = user_id);

@@ -55,6 +55,32 @@ export interface User {
   bank_account_number: string | null
   bank_reference_note: string | null
 
+  // Invoice defaults
+  invoice_prefix: string | null
+  invoice_default_notes: string | null
+  invoice_email_subject: string | null
+  invoice_email_body: string | null
+  target_take_home: number | null
+
+  // Quote defaults
+  quote_prefix: string | null
+  quote_validity_days: number | null
+  quote_default_notes: string | null
+  quote_email_subject: string | null
+  quote_email_body: string | null
+
+  // Chase email templates
+  chase_email_subject_1: string | null
+  chase_email_body_1: string | null
+  chase_email_subject_2: string | null
+  chase_email_body_2: string | null
+  chase_email_subject_3: string | null
+  chase_email_body_3: string | null
+
+  // Additional income (Ltd company / tax calc inputs)
+  other_income: number | null
+  investment_dividends: number | null
+
   // Stripe / subscription
   stripe_customer_id: string | null
   stripe_subscription_id: string | null
