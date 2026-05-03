@@ -497,10 +497,7 @@ export default function TaxPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => {
-                      setNarrative(null)
-                      try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}`) } catch {}
-                    }}
+                    onClick={() => setNarrative(null)}
                     title="Dismiss"
                     className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                   >
