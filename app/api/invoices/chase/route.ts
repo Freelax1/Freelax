@@ -58,35 +58,34 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Cooldown
-  if (priorCount > 0) {
-    const lastEntry = priorLog[priorLog.length - 1]
-    const lastDate  = new Date(lastEntry.chased_at).getTime()
-    const daysSince = Math.floor((Date.now() - lastDate) / 86400000)
-    if (daysSince < COOLDOWN_DAYS) {
-      const remaining = COOLDOWN_DAYS - daysSince
-      return NextResponse.json(
-        {
-          error: `You can chase this invoice again in ${remaining} day${remaining === 1 ? '' : 's'}. Minimum ${COOLDOWN_DAYS} days between chases.`,
-        },
-        { status: 429 }
-      )
-    }
-  }
   // ──────────────────────────────────────────────────────────────────────
+  // Cooldown is enforced atomically in apply_invoice_chase (see below).
 
   const client  = invoice.clients  as any
   const sender  = invoice.users    as any
 
-  // Append to chase_log
+  // Atomic update: apply_invoice_chase checks the cooldown inside the UPDATE
+  // WHERE clause so the check and the write are one statement. If a concurrent
+  // request already chased within the last 7 days, no rows are updated and the
+  // function returns null → 429.
   const newEntry = { chased_at: new Date().toISOString(), note: message ?? null, tier }
-  await supabase
-    .from('invoices')
-    .update({
-      chase_log: [...priorLog, newEntry],
-      updated_at: new Date().toISOString(),
+  const { data: updatedId, error: chaseErr } = await supabase
+    .rpc('apply_invoice_chase', {
+      p_invoice_id: invoiceId,
+      p_user_id:    user.id,
+      p_entry:      newEntry,
     })
-    .eq('id', invoiceId)
+
+  if (chaseErr) {
+    console.error('apply_invoice_chase RPC error:', chaseErr.message)
+    return NextResponse.json({ error: 'Failed to record chase' }, { status: 500 })
+  }
+  if (!updatedId) {
+    return NextResponse.json(
+      { error: `You can chase this invoice again in up to ${COOLDOWN_DAYS} days. Minimum ${COOLDOWN_DAYS} days between chases.` },
+      { status: 429 }
+    )
+  }
 
   // Try email via Resend
   let emailSent = false

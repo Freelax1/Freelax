@@ -88,6 +88,12 @@ export function getLimits(plan: Plan): PlanLimits {
 
 // ── Specific limit checkers ───────────────────────────────────────────────────
 
+// NOTE — TOCTOU: these preflight functions are advisory UI hints called before
+// client-side Supabase inserts. True atomic enforcement is provided by the
+// BEFORE INSERT triggers (trg_invoices_monthly_limit, trg_clients_total_limit,
+// trg_expenses_monthly_limit) in migration 20260503_atomic_quota_and_chase.sql.
+// Apply that migration in the Supabase SQL editor to activate DB-level guards.
+
 export async function canCreateInvoice(userId: string): Promise<{ allowed: boolean; reason?: string }> {
   const plan = await getUserPlan(userId)
   const limits = getLimits(plan)
