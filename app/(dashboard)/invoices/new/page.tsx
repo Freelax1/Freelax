@@ -43,6 +43,7 @@ export default function NewInvoicePage() {
   const [saving, setSaving]     = useState(false)
   const [aiInput, setAiInput]   = useState('')
   const [aiLoading, setAiLoading] = useState(false)
+  const [aiCooldown, setAiCooldown] = useState(false)
   const [showAI, setShowAI]     = useState(false)
   const [lineItemsFromAI, setLineItemsFromAI] = useState(false)
 
@@ -217,6 +218,8 @@ export default function NewInvoicePage() {
       setAiInput('')
     } catch (e) { console.error(e) }
     setAiLoading(false)
+    setAiCooldown(true)
+    setTimeout(() => setAiCooldown(false), 15000)
   }
 
   async function handleSave(sendAfter = false) {
@@ -303,7 +306,7 @@ export default function NewInvoicePage() {
             <button onClick={() => setShowAI(false)} className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700">Cancel</button>
             <button
               onClick={handleAIAssist}
-              disabled={!aiInput.trim() || aiLoading}
+              disabled={!aiInput.trim() || aiLoading || aiCooldown}
               className="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
             >
               {aiLoading ? 'Generating...' : 'Generate line items'}

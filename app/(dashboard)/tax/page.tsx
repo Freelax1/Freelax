@@ -16,7 +16,7 @@ import AIFlag from '@/components/ai-flag'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
-import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap } from 'lucide-react'
+import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap, RotateCcw } from 'lucide-react'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
 import type {
@@ -308,6 +308,13 @@ export default function TaxPage() {
   const [exportLoading, setExportLoading]   = useState(false)
 
   useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}`)
+      if (cached) setNarrative(cached)
+    } catch {}
+  }, [taxYearStart])
+
+  useEffect(() => {
     async function load() {
       const user   = await fetchCurrentUser()
       const userId = user?.id ?? ''
@@ -371,13 +378,21 @@ export default function TaxPage() {
     load()
   }, [])
 
-  async function generateNarrative() {
+  async function generateNarrative(force = false) {
+    if (!force) {
+      try {
+        const cached = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}`)
+        if (cached) { setNarrative(cached); return }
+      } catch {}
+    }
     setNarrativeLoading(true)
     setNarrative(null)
     try {
       const res = await fetch('/api/ai/sa-narrative', { method: 'POST' })
       const json = await res.json()
-      setNarrative(json.narrative ?? json.error ?? 'Could not generate summary.')
+      const text = json.narrative ?? json.error ?? 'Could not generate summary.'
+      setNarrative(text)
+      try { sessionStorage.setItem(`fd_sa_narrative_${taxYearStart}`, text) } catch {}
     } catch { setNarrative('Failed to connect. Please try again.') }
     setNarrativeLoading(false)
   }
@@ -452,7 +467,7 @@ export default function TaxPage() {
               {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
             </button>
 
-            <button onClick={generateNarrative} disabled={narrativeLoading || loading}
+            <button onClick={() => generateNarrative()} disabled={narrativeLoading || loading}
               className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
               {narrativeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               SA Summary
@@ -471,13 +486,27 @@ export default function TaxPage() {
             <div className="ml-auto flex items-center gap-2">
               {narrative && !narrativeLoading && <AIFlag />}
               {!narrativeLoading && (
-                <button
-                  onClick={() => setNarrative(null)}
-                  title="Dismiss"
-                  className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <>
+                  {narrative && (
+                    <button
+                      onClick={() => generateNarrative(true)}
+                      title="Refresh"
+                      className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setNarrative(null)
+                      try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}`) } catch {}
+                    }}
+                    title="Dismiss"
+                    className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </>
               )}
             </div>
           </div>

@@ -14,6 +14,7 @@ export default function TaxQAChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [cooldown, setCooldown] = useState(false)
 
   async function handleSend() {
     const q = input.trim()
@@ -33,6 +34,8 @@ export default function TaxQAChat() {
       setMessages(prev => [...prev, { role: 'assistant', text: 'Something went wrong. Please try again.' }])
     }
     setLoading(false)
+    setCooldown(true)
+    setTimeout(() => setCooldown(false), 15000)
   }
 
   function handleReset() {
@@ -127,7 +130,7 @@ export default function TaxQAChat() {
               />
               <button
                 onClick={handleSend}
-                disabled={!input.trim() || loading}
+                disabled={!input.trim() || loading || cooldown}
                 className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 transition-colors"
               >
                 <Send className="w-4 h-4" />

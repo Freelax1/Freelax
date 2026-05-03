@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Loader2, X } from 'lucide-react'
+import { Sparkles, Loader2, X, RotateCcw } from 'lucide-react'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface IR35ExplainButtonProps {
@@ -50,7 +50,15 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
   const [error, setError] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
 
-  async function handleExplain() {
+  const cacheKey = `fd_ir35_${projectId}_${calculatedStatus}`
+
+  async function handleExplain(force = false) {
+    if (!force) {
+      try {
+        const cached = sessionStorage.getItem(cacheKey)
+        if (cached) { setResult(JSON.parse(cached)); setOpen(true); return }
+      } catch {}
+    }
     setLoading(true)
     setError(null)
     try {
@@ -63,6 +71,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
       if (data.error) { setError(data.error); setLoading(false); return }
       setResult(data)
       setOpen(true)
+      try { sessionStorage.setItem(cacheKey, JSON.stringify(data)) } catch {}
     } catch {
       setError('Failed to get AI explanation. Please try again.')
     }
@@ -72,7 +81,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
   return (
     <>
       <button
-        onClick={handleExplain}
+        onClick={() => handleExplain()}
         disabled={loading || !answers?.length}
         className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 disabled:opacity-40 transition-colors"
       >
@@ -97,9 +106,14 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 <Sparkles className="w-4 h-4 text-slate-500" />
                 <span className="font-semibold text-slate-900 text-sm">IR35 AI Analysis</span>
               </div>
-              <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                <X className="w-4 h-4 text-slate-500" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                  <RotateCcw className="w-4 h-4 text-slate-500" />
+                </button>
+                <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                  <X className="w-4 h-4 text-slate-500" />
+                </button>
+              </div>
             </div>
 
             <div className="p-5 space-y-5">

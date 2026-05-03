@@ -40,6 +40,7 @@ export default function NewExpensePage() {
   const [receiptFile, setReceiptFile]       = useState<File | null>(null)
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null)
   const [scanning, setScanning]             = useState(false)
+  const [scanCooldown, setScanCooldown]     = useState(false)
   const [scanConfidence, setScanConfidence] = useState<string | null>(null)
   const [errors, setErrors]                 = useState<Record<string, string>>({})
   const [saving, setSaving]                 = useState(false)
@@ -81,6 +82,8 @@ export default function NewExpensePage() {
       if (data.confidence)    setScanConfidence(data.confidence)
     } catch {}
     setScanning(false)
+    setScanCooldown(true)
+    setTimeout(() => setScanCooldown(false), 15000)
   }
 
   function validate() {
@@ -166,7 +169,7 @@ export default function NewExpensePage() {
               {receiptFile ? 'Change image' : 'Upload receipt'}
             </button>
             {receiptFile && (
-              <button type="button" onClick={handleScanReceipt} disabled={scanning}
+              <button type="button" onClick={handleScanReceipt} disabled={scanning || scanCooldown}
                 className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
                 {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ScanLine className="w-3.5 h-3.5" />}
                 {scanning ? 'Reading receipt...' : 'Scan with AI'}

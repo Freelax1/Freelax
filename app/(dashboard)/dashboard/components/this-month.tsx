@@ -33,20 +33,24 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
 
   useEffect(() => {
     try {
-      // If the user dismissed this exact insight, keep it hidden
-      const dismissed = localStorage.getItem(cacheKey + '_dismissed')
+      const dismissed = sessionStorage.getItem(cacheKey + '_dismissed')
       if (dismissed === '1') { setInsightVisible(false); return }
-      const cached = localStorage.getItem(cacheKey)
+      const cached = sessionStorage.getItem(cacheKey)
       if (cached) { setInsight(cached); setInsightVisible(true) }
     } catch {}
   }, [cacheKey])
 
-  async function generateInsight() {
-    setInsightLoading(true)
+  async function generateInsight(force = false) {
     setInsightError(false)
     setInsightVisible(true)
-    // User clicked Refresh/AI insight — clear any previous dismissal for this data snapshot
-    try { localStorage.removeItem(cacheKey + '_dismissed') } catch {}
+    try { sessionStorage.removeItem(cacheKey + '_dismissed') } catch {}
+    if (!force) {
+      try {
+        const cached = sessionStorage.getItem(cacheKey)
+        if (cached) { setInsight(cached); return }
+      } catch {}
+    }
+    setInsightLoading(true)
     try {
       const res  = await fetch('/api/ai/monthly-insight', {
         method: 'POST',
@@ -56,7 +60,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
       const data = await res.json()
       if (data.insight) {
         setInsight(data.insight)
-        try { localStorage.setItem(cacheKey, data.insight) } catch {}
+        try { sessionStorage.setItem(cacheKey, data.insight) } catch {}
       } else {
         setInsightError(true)
       }
@@ -68,9 +72,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
 
   function dismissInsight() {
     setInsightVisible(false)
-    // Remember the dismissal so the panel stays closed after refresh until the underlying
-    // data changes (at which point cacheKey changes and this flag is no longer read)
-    try { localStorage.setItem(cacheKey + '_dismissed', '1') } catch {}
+    try { sessionStorage.setItem(cacheKey + '_dismissed', '1') } catch {}
   }
 
   let sentence: string
@@ -115,7 +117,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
         </p>
         {!isNewUser && monthlyAvg > 0 && (
           <button
-            onClick={generateInsight}
+            onClick={() => generateInsight(!!showInsightPanel)}
             disabled={insightLoading}
             style={{
               display: 'flex', alignItems: 'center', gap: 5,
