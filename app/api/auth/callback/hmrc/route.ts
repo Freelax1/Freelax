@@ -7,12 +7,18 @@ import { createClient } from '@/lib/supabase/server'
 import { exchangeCodeForTokens } from '@/lib/hmrc/client'
 
 export async function GET(req: NextRequest) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (!appUrl) {
+    console.error('HMRC callback: NEXT_PUBLIC_APP_URL is not set')
+    return new Response('Server misconfiguration', { status: 500 })
+  }
+
   const { searchParams } = new URL(req.url)
   const code  = searchParams.get('code')
   const state = searchParams.get('state')
   const error = searchParams.get('error')
 
-  const settingsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/settings?tab=HMRC`
+  const settingsUrl = `${appUrl}/settings?tab=HMRC`
 
   // Handle HMRC returning an error (e.g. user denied permission)
   if (error) {
@@ -49,7 +55,7 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     // Session expired during the HMRC flow — redirect to login
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?redirectTo=/settings?tab=HMRC`)
+    return NextResponse.redirect(`${appUrl}/auth/login?redirectTo=/settings?tab=HMRC`)
   }
 
   // Exchange the authorization code for tokens

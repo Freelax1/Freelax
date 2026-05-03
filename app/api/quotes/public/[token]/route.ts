@@ -20,7 +20,6 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
       error: error ? { message: error.message, code: error.code, details: error.details, hint: error.hint } : null,
       supabaseUrlPresent: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
       serviceKeyPresent: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
     })
     return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
   }

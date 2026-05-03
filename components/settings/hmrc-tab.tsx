@@ -23,22 +23,24 @@ export default function HmrcTab() {
   }, [searchParams])
 
   useEffect(() => {
+    let isMounted = true
     async function checkConnection() {
       try {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) { setLoading(false); return }
+        if (!user) { if (isMounted) setLoading(false); return }
         const { data } = await supabase
           .from('oauth_connections')
           .select('id')
           .eq('provider', 'hmrc')
           .eq('user_id', user.id)
           .maybeSingle()
-        setConnected(!!data)
+        if (isMounted) setConnected(!!data)
       } catch {}
-      setLoading(false)
+      if (isMounted) setLoading(false)
     }
     checkConnection()
+    return () => { isMounted = false }
   }, [])
 
   async function handleDisconnect() {

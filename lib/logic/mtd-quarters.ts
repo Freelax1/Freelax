@@ -148,5 +148,8 @@ export function daysUntilCurrentDeadline(today: Date = new Date()): number | nul
   const quarter = getQuarterForDate(today)
   if (!quarter) return null
   const msPerDay = 86_400_000
-  return Math.ceil((quarter.deadline.getTime() - today.getTime()) / msPerDay)
+  // Math.max(…, 0) prevents a negative result if called with a date that somehow
+  // falls past the deadline (shouldn't happen in normal use since getQuarterForDate
+  // only returns a quarter whose periodEnd ≥ today, but defensive here).
+  return Math.max(Math.ceil((quarter.deadline.getTime() - today.getTime()) / msPerDay), 0)
 }

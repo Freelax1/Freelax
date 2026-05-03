@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { TABS, SettingsTab } from './settings/shared'
+import type { User } from '@/types/database'
 
 import ProfileTab          from './settings/profile-tab'
 import BusinessTab         from './settings/business-tab'
@@ -19,7 +20,7 @@ import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 
 interface Props {
-  profile: any
+  profile: User
   email: string
 }
 

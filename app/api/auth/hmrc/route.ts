@@ -4,7 +4,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { HMRC_URLS, HMRC_SCOPES, HMRC_REDIRECT_URI } from '@/lib/hmrc/client'
+import { HMRC_URLS, HMRC_SCOPES, getHmrcRedirectUri } from '@/lib/hmrc/client'
 import { createHash, randomBytes } from 'crypto'
 
 // ── GET — initiate OAuth ───────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ export async function GET() {
     client_id:             process.env.HMRC_CLIENT_ID,
     scope:                 HMRC_SCOPES,
     state,
-    redirect_uri:          HMRC_REDIRECT_URI,
+    redirect_uri:          getHmrcRedirectUri(),
     code_challenge:        codeChallenge,
     code_challenge_method: 'S256',
   })
@@ -49,7 +49,7 @@ export async function GET() {
   const response = NextResponse.redirect(authorizeUrl)
   response.cookies.set('hmrc_oauth_state', cookieValue, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
+    secure:   process.env.NODE_ENV === 'production' || !!process.env.VERCEL,
     sameSite: 'lax',
     maxAge:   600, // 10 minutes — enough time to complete the HMRC auth flow
     path:     '/api/auth/callback/hmrc',
