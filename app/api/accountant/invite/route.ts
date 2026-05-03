@@ -17,6 +17,19 @@ export async function POST(req: NextRequest) {
   const { email } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
 
+  // Prevent duplicate pending invites to the same email
+  const { data: existing } = await supabase
+    .from('accountant_invites')
+    .select('id')
+    .eq('owner_id', user.id)
+    .eq('email', email)
+    .is('revoked_at', null)
+    .is('accepted_at', null)
+    .maybeSingle()
+  if (existing) {
+    return NextResponse.json({ error: 'A pending invite already exists for this email' }, { status: 409 })
+  }
+
   const { data: invite, error } = await supabase
     .from('accountant_invites')
     .insert({ owner_id: user.id, email })

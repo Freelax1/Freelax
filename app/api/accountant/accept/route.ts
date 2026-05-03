@@ -19,8 +19,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    ownerId: invite.owner_id,
     ownerName: (invite as any).users?.business_name || (invite as any).users?.full_name,
-    viewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/accountant/view/${invite.owner_id}`,
+    viewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/accountant/view?token=${invite.token}`,
   })
 }

@@ -373,17 +373,40 @@ export async function GET() {
   zip.file(xlsxName, xlsxBuffer as any)
 
   // Receipts folder
+  const RECEIPT_TIMEOUT_MS = 8_000
+  const RECEIPT_MAX_BYTES  = 10 * 1024 * 1024  // 10 MB per file
+
+  async function fetchReceiptSafe(url: string): Promise<ArrayBuffer | null> {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(RECEIPT_TIMEOUT_MS) })
+      if (!res.ok || !res.body) return null
+      const reader = res.body.getReader()
+      const chunks: Uint8Array[] = []
+      let total = 0
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        total += value.byteLength
+        if (total > RECEIPT_MAX_BYTES) { await reader.cancel(); return null }
+        chunks.push(value)
+      }
+      const out = new Uint8Array(total)
+      let offset = 0
+      for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.byteLength }
+      return out.buffer
+    } catch {
+      return null  // timeout, network error, or size exceeded — skip gracefully
+    }
+  }
+
   const receiptsFolder = zip.folder('receipts')!
   const receiptExps = exp.filter(e => e.receipt_url)
   await Promise.all(receiptExps.map(async (e, idx) => {
-    try {
-      const res = await fetch(e.receipt_url)
-      if (!res.ok) return
-      const buf = await res.arrayBuffer()
-      const ext = e.receipt_url.split('.').pop()?.split('?')[0] ?? 'jpg'
-      const filename = `${e.date}_${(e.merchant ?? 'receipt').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${idx + 1}.${ext}`
-      receiptsFolder.file(filename, buf)
-    } catch { /* skip failed receipts */ }
+    const buf = await fetchReceiptSafe(e.receipt_url)
+    if (!buf) return
+    const ext = e.receipt_url.split('.').pop()?.split('?')[0] ?? 'jpg'
+    const filename = `${e.date}_${(e.merchant ?? 'receipt').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${idx + 1}.${ext}`
+    receiptsFolder.file(filename, buf)
   }))
 
   const zipBuffer = await zip.generateAsync({ type: 'arraybuffer' })

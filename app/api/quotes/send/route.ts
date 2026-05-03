@@ -9,8 +9,20 @@ import { generateQuotePdfBuffer } from '@/lib/pdf/generate-invoice-pdf'
 import { logQuoteActivity } from '@/lib/api/quote-activity'
 import { escapeHtml } from '@/lib/escape-html'
 
+// Plain-text substitution — used for the email subject line.
 function applyTemplate(template: string, vars: Record<string, string>): string {
   return Object.entries(vars).reduce((t, [k, v]) => t.replaceAll(`{{${k}}}`, v), template)
+}
+
+// HTML-safe substitution — escapes each variable value before inserting into
+// the template so a client name like "<script>..." can't inject markup.
+// The template itself is the authenticated user's own saved text, so its
+// structure is trusted; only the substituted values are escaped.
+function applyTemplateHtml(template: string, vars: Record<string, string>): string {
+  const safeVars = Object.fromEntries(
+    Object.entries(vars).map(([k, v]) => [k, escapeHtml(v)])
+  )
+  return applyTemplate(template, safeVars)
 }
 
 export async function POST(req: NextRequest) {
@@ -75,8 +87,8 @@ export async function POST(req: NextRequest) {
       const subjectTemplate = sender?.quote_email_subject || 'Quote {{quote_number}} from {{business_name}}'
       const bodyTemplate    = sender?.quote_email_body    || `Hi {{client_name}},\n\nPlease find your quote {{quote_number}} for {{total}}, valid until {{expiry_date}}.\n\nView your quote here: {{quote_link}}\n\nTo accept, please reply to this email or contact us directly.\n\nKind regards,\n{{business_name}}`
 
-      const subject = applyTemplate(subjectTemplate, vars)
-      const bodyText = applyTemplate(bodyTemplate, vars)
+      const subject  = applyTemplate(subjectTemplate, vars)
+      const bodyText = applyTemplateHtml(bodyTemplate, vars)
 
       // Build summary table for inline display
       const expiryFmt = new Date(quote.expiry_date).toLocaleDateString('en-GB')
@@ -92,7 +104,7 @@ export async function POST(req: NextRequest) {
           ${sender?.logo_url ? `<img src="${escapeHtml(sender.logo_url)}" alt="${escapeHtml(businessName)}" style="height:40px;object-fit:contain;margin-bottom:20px;display:block;" />` : ''}
           <h2 style="font-size:20px;font-weight:700;margin-bottom:4px;">Quote ${escapeHtml(quote.quote_number)}</h2>
           <p style="color:#64748b;font-size:13px;margin-bottom:20px;">${escapeHtml(businessName)}</p>
-          <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:#334155;margin-bottom:8px;">${escapeHtml(bodyText).replace(/\n/g, '<br/>')}</div>
+          <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:#334155;margin-bottom:8px;">${bodyText.replace(/\n/g, '<br/>')}</div>
           ${summaryTable}
           <div style="margin:28px 0;">
             <a href="${escapeHtml(portalLink)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">
