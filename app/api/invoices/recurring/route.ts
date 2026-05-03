@@ -35,20 +35,16 @@ export async function GET(req: Request) {
 
   let created = 0
   for (const tmpl of templates) {
-    // Get max invoice number for user
-    const { data: maxRow } = await supabase
-      .from('invoices')
-      .select('invoice_number')
-      .eq('user_id', tmpl.user_id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    // Atomically claim the next invoice number for this user.
+    // next_invoice_number() uses SELECT … FOR UPDATE so concurrent cron
+    // executions for the same user serialise rather than racing.
+    const { data: invoiceNumber, error: numErr } = await supabase
+      .rpc('next_invoice_number', { p_user_id: tmpl.user_id })
+    if (numErr || !invoiceNumber) {
+      console.error('recurring: failed to generate invoice number', numErr)
+      continue
+    }
 
-    const maxNum = maxRow?.invoice_number
-      ? parseInt(maxRow.invoice_number.replace(/\D/g, ''), 10)
-      : 0
-
-    const invoiceNumber = `INV-${String(maxNum + 1).padStart(4, '0')}`
     const dueDate = new Date(tmpl.next_run_date)
     dueDate.setDate(dueDate.getDate() + 30)
 
