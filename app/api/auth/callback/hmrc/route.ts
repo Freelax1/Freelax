@@ -42,7 +42,8 @@ export async function GET(req: NextRequest) {
     const parsed = JSON.parse(cookieRaw)
     storedState  = parsed.state
     codeVerifier = parsed.codeVerifier
-  } catch {
+  } catch (err) {
+    console.error('HMRC OAuth: failed to parse state cookie:', err instanceof Error ? err.message : 'unknown')
     return NextResponse.redirect(`${settingsUrl}&hmrc_error=invalid_state`)
   }
 

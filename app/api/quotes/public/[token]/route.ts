@@ -24,5 +24,10 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
     return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
   }
 
+  const isTerminalStatus = quote.status === 'accepted' || quote.status === 'declined'
+  if (!isTerminalStatus && quote.expiry_date && new Date(quote.expiry_date) < new Date()) {
+    return NextResponse.json({ error: 'Quote has expired' }, { status: 410 })
+  }
+
   return NextResponse.json(quote)
 }

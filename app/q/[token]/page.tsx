@@ -22,6 +22,24 @@ export default async function PublicQuotePage({ params }: { params: { token: str
   const accepted  = quote.status === 'accepted'
   const declined  = quote.status === 'declined'
 
+  // Don't expose pricing/line items for expired quotes that haven't reached a terminal state
+  if (expired && !accepted && !declined) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f5f4ef', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: 440, margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '40px 32px' }}>
+            <p style={{ fontSize: 28, marginBottom: 16 }}>⏱</p>
+            <h1 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>This quote has expired</h1>
+            <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+              {quote.quote_number} expired on {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
+              Please contact {sender?.business_name || sender?.full_name || 'the sender'} for an updated quote.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#f5f4ef', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <style>{`

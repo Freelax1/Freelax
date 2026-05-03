@@ -14,13 +14,15 @@ export async function POST(req: NextRequest) {
 
   const resolvedDate = paidDate ?? new Date().toISOString().slice(0, 10)
 
-  await supabase.from('invoices').update({
+  const { data: updated } = await supabase.from('invoices').update({
     status: 'paid',
     paid_date: resolvedDate,
     updated_at: new Date().toISOString(),
-  }).eq('id', invoiceId)
+  }).eq('id', invoiceId).neq('status', 'paid').select('id')
 
-  await logActivity(supabase, invoiceId, user.id, 'paid', { paidDate: resolvedDate })
+  if (updated && updated.length > 0) {
+    await logActivity(supabase, invoiceId, user.id, 'paid', { paidDate: resolvedDate })
+  }
 
   return NextResponse.json({ success: true })
 }

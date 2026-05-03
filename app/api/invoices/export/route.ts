@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentTaxYear } from '@/lib/tax-calculations'
 
+function safeCsvCell(raw: unknown): string {
+  const cell = String(raw)
+  const escaped = cell.replace(/"/g, '""')
+  // Prefix formula-injection characters so spreadsheet apps treat the cell as text
+  return /^[=+@-]/.test(escaped) ? `\t${escaped}` : escaped
+}
+
 export async function GET(req: NextRequest) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -33,7 +40,7 @@ export async function GET(req: NextRequest) {
       ]),
     ]
 
-    const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csv = rows.map(r => r.map(cell => `"${safeCsvCell(cell)}"`).join(',')).join('\n')
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
@@ -64,7 +71,7 @@ export async function GET(req: NextRequest) {
       ]),
     ]
 
-    const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csv = rows.map(r => r.map(cell => `"${safeCsvCell(cell)}"`).join(',')).join('\n')
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
@@ -114,7 +121,7 @@ export async function GET(req: NextRequest) {
     ...[...incomeRows, ...expenseRows].sort((a, b) => String(b[0]).localeCompare(String(a[0]))),
   ]
 
-  const csv = allRows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+  const csv = allRows.map(r => r.map(cell => `"${safeCsvCell(cell)}"`).join(',')).join('\n')
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv',

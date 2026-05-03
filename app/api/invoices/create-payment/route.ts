@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       }],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/inv/${token}?paid=true`,
       cancel_url:  `${process.env.NEXT_PUBLIC_APP_URL}/inv/${token}`,
-      metadata: { invoice_id: invoice.id, token },
+      metadata: { invoice_id: invoice.id, user_id: invoice.user_id, token },
     })
 
     if (contentType.includes('application/json')) {
