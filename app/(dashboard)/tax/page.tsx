@@ -310,6 +310,8 @@ export default function TaxPage() {
 
   useEffect(() => {
     try {
+      const dismissed = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}_dismissed`)
+      if (dismissed) return
       const cached = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}`)
       if (cached) setNarrative(cached)
     } catch {}
@@ -469,7 +471,7 @@ export default function TaxPage() {
               {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
             </button>
 
-            <button onClick={() => generateNarrative()} disabled={narrativeLoading || loading}
+            <button onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }} disabled={narrativeLoading || loading}
               className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
               {narrativeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               SA Summary
@@ -499,7 +501,7 @@ export default function TaxPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => setNarrative(null)}
+                    onClick={() => { setNarrative(null); try { sessionStorage.setItem(`fd_sa_narrative_${taxYearStart}_dismissed`, '1') } catch {} }}
                     title="Dismiss"
                     className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                   >
