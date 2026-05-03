@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS clients (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   contact_name TEXT,
   email TEXT,
@@ -87,6 +88,7 @@ CREATE TABLE IF NOT EXISTS clients (
 CREATE TABLE IF NOT EXISTS projects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
   description TEXT,
@@ -105,6 +107,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS invoices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
   invoice_number TEXT NOT NULL,
@@ -138,6 +141,7 @@ CREATE TABLE IF NOT EXISTS invoice_line_items (
 CREATE TABLE IF NOT EXISTS expenses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   date DATE NOT NULL,
   merchant TEXT NOT NULL,
   description TEXT,
@@ -247,6 +251,7 @@ CREATE INDEX IF NOT EXISTS idx_invoice_line_items_invoice_id ON invoice_line_ite
 CREATE TABLE IF NOT EXISTS tax_pot_entries (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  business_id     UUID REFERENCES businesses(id) ON DELETE SET NULL,
   amount          NUMERIC(10,2) NOT NULL,
   note            TEXT,
   date            DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -280,6 +285,7 @@ CREATE INDEX IF NOT EXISTS idx_invoices_public_token ON invoices(public_token);
 CREATE TABLE IF NOT EXISTS mileage_entries (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  business_id    UUID REFERENCES businesses(id) ON DELETE SET NULL,
   date           DATE NOT NULL DEFAULT CURRENT_DATE,
   description    TEXT NOT NULL,
   from_location  TEXT,
@@ -408,3 +414,73 @@ ALTER TABLE ai_calls ENABLE ROW LEVEL SECURITY;
 -- Users can read their own call history. Inserts go through service-role only.
 CREATE POLICY "Users view own ai calls" ON ai_calls
   FOR SELECT USING (auth.uid() = user_id);
+
+-- ============================================================
+-- MTD Phase 1: Foundation Schema (added May 2026)
+-- ============================================================
+
+-- businesses: separates business identity from user identity;
+-- enables multi-business support for MTD multi-source income
+CREATE TABLE IF NOT EXISTS businesses (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  business_name   TEXT,
+  business_type   TEXT DEFAULT 'sole_trader',
+  utr_number      TEXT,
+  vat_number      TEXT,
+  vat_registered  BOOLEAN DEFAULT false,
+  is_primary      BOOLEAN NOT NULL DEFAULT true,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_businesses_user_id ON businesses(user_id);
+ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own businesses"
+  ON businesses FOR ALL USING (auth.uid() = user_id);
+
+-- oauth_connections: stores HMRC OAuth tokens per user
+CREATE TABLE IF NOT EXISTS oauth_connections (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider        TEXT NOT NULL DEFAULT 'hmrc',
+  access_token    TEXT,
+  refresh_token   TEXT,
+  token_expiry    TIMESTAMPTZ,
+  hmrc_account_id TEXT,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_oauth_connections_user_id ON oauth_connections(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_connections_user_provider
+  ON oauth_connections(user_id, provider);
+ALTER TABLE oauth_connections ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own oauth connections"
+  ON oauth_connections FOR ALL USING (auth.uid() = user_id);
+
+-- submission_periods: tracks each MTD quarterly submission per business
+CREATE TABLE IF NOT EXISTS submission_periods (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id         UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  period_start        DATE NOT NULL,
+  period_end          DATE NOT NULL,
+  period_type         TEXT NOT NULL CHECK (period_type IN ('itsa_quarterly', 'vat_return', 'itsa_final')),
+  status              TEXT NOT NULL DEFAULT 'not_started'
+                      CHECK (status IN ('not_started', 'draft', 'submitted', 'accepted', 'amendment_required')),
+  hmrc_submission_id  TEXT,
+  submitted_at        TIMESTAMPTZ,
+  income_total        NUMERIC(10,2),
+  expenses_total      NUMERIC(10,2),
+  profit_total        NUMERIC(10,2),
+  created_at          TIMESTAMPTZ DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_submission_periods_business
+  ON submission_periods(business_id, period_start);
+ALTER TABLE submission_periods ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own submission periods"
+  ON submission_periods FOR ALL
+  USING (EXISTS (
+    SELECT 1 FROM businesses
+    WHERE businesses.id = submission_periods.business_id
+    AND businesses.user_id = auth.uid()
+  ));

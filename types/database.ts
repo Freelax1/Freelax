@@ -94,6 +94,7 @@ export interface User {
 export interface Client {
   id: string
   user_id: string
+  business_id: string | null
   name: string
   contact_name: string | null
   email: string | null
@@ -112,6 +113,7 @@ export interface Client {
 export interface Project {
   id: string
   user_id: string
+  business_id: string | null
   client_id: string | null
   title: string
   description: string | null
@@ -134,6 +136,7 @@ export interface Project {
 export interface Invoice {
   id: string
   user_id: string
+  business_id: string | null
   client_id: string | null
   project_id: string | null
   invoice_number: string
@@ -183,6 +186,7 @@ export interface InvoiceLineItem {
 export interface Expense {
   id: string
   user_id: string
+  business_id: string | null
   date: string
   merchant: string
   description: string | null
@@ -390,6 +394,7 @@ export interface QuoteActivity {
 export interface TaxPotEntry {
   id: string
   user_id: string
+  business_id: string | null
   amount: number
   note: string | null
   date: string
@@ -400,6 +405,7 @@ export interface TaxPotEntry {
 export interface MileageEntry {
   id: string
   user_id: string
+  business_id: string | null
   date: string
   description: string
   from_location: string | null
@@ -430,6 +436,49 @@ export interface InvoiceTemplate {
   payment_terms: string
   notes: string | null
   active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// ── MTD: businesses, OAuth connections, submission periods ────────────────────
+
+export interface Business {
+  id: string
+  user_id: string
+  business_name: string | null
+  business_type: BusinessType
+  utr_number: string | null
+  vat_number: string | null
+  vat_registered: boolean
+  is_primary: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface OAuthConnection {
+  id: string
+  user_id: string
+  provider: string
+  access_token: string | null
+  refresh_token: string | null
+  token_expiry: string | null
+  hmrc_account_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SubmissionPeriod {
+  id: string
+  business_id: string
+  period_start: string
+  period_end: string
+  period_type: 'itsa_quarterly' | 'vat_return' | 'itsa_final'
+  status: 'not_started' | 'draft' | 'submitted' | 'accepted' | 'amendment_required'
+  hmrc_submission_id: string | null
+  submitted_at: string | null
+  income_total: number | null
+  expenses_total: number | null
+  profit_total: number | null
   created_at: string
   updated_at: string
 }
