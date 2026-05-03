@@ -15,6 +15,7 @@ import BankingTab          from './settings/banking-tab'
 import NotificationsTab    from './settings/notifications-tab'
 import BillingTab          from './settings/billing-tab'
 import AccountantTab       from './settings/accountant-tab'
+import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 
 interface Props {
@@ -109,6 +110,7 @@ export default function SettingsForm({ profile, email }: Props) {
         {tab === 'Notifications'       && <NotificationsTab />}
         {tab === 'Billing'             && <BillingTab         profile={profile} />}
         {tab === 'Accountant Access'   && <AccountantTab />}
+        {tab === 'HMRC'               && <HmrcTab />}
         {tab === 'Danger Zone'         && <DangerZoneTab />}
       </div>
     </div>

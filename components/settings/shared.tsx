@@ -16,6 +16,7 @@ export const TABS = [
   'Notifications',
   'Billing',
   'Accountant Access',
+  'HMRC',
   'Danger Zone',
 ] as const
 

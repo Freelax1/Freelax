@@ -162,7 +162,7 @@ describe('filterReviewRequiredExpenses', () => {
   it('returns only review_required expenses', () => {
     const expenses = [
       makeExpense({ id: '1', category: 'other' }),
-      makeExpense({ id: '2', category: 'unicorn' }),
+      makeExpense({ id: '2', category: 'unicorn' as 'other' }),
       makeExpense({ id: '3', category: 'software' }),
     ]
     const result = filterReviewRequiredExpenses(expenses)

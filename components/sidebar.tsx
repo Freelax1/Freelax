@@ -50,6 +50,7 @@ const SETTINGS_TABS = [
   { label: 'Banking',              sub: 'Sort code, account number',         href: '/settings?tab=Banking' },
   { label: 'Billing',              sub: 'Plan and subscription',             href: '/settings?tab=Billing' },
   { label: 'Accountant Access',    sub: 'Invite your accountant',            href: '/settings?tab=Accountant+Access' },
+  { label: 'HMRC',                 sub: 'Connect your HMRC account',         href: '/settings?tab=HMRC' },
   { label: 'Danger Zone',          sub: 'Delete account',                    href: '/settings?tab=Danger+Zone' },
 ]
 
