@@ -17,6 +17,7 @@ import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
 import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap, RotateCcw } from 'lucide-react'
+import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
 import type {
@@ -397,6 +398,7 @@ export default function TaxPage() {
     setNarrativeLoading(false)
   }
 
+  const mtdQuarters = getCurrentYearQuartersWithStatus()
   const exportCSV = (type: string) => { window.location.href = `/api/invoices/export?type=${type}` }
   const endYear = new Date(end).getFullYear()
 
@@ -906,6 +908,69 @@ export default function TaxPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Making Tax Digital — quarterly obligations */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-start justify-between mb-1">
+              <h2 className="font-semibold text-slate-900">Making Tax Digital — {label}</h2>
+              <Link
+                href="/settings?tab=HMRC"
+                className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 shrink-0 ml-4 mt-0.5"
+              >
+                Connect HMRC <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+            <p className="text-xs text-slate-400 mb-5">
+              ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
+            </p>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {mtdQuarters.map(q => {
+                const isCurrent = q.status === 'current'
+                const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+                const { badgeBg, badgeText, cardBorder } =
+                  q.status === 'current'  ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-700',  cardBorder: 'border-amber-200' } :
+                  q.status === 'upcoming' ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-700',  cardBorder: 'border-amber-100' } :
+                  q.status === 'overdue'  ? { badgeBg: 'bg-red-50',    badgeText: 'text-red-600',    cardBorder: 'border-red-200'   } :
+                                            { badgeBg: 'bg-slate-50',  badgeText: 'text-slate-500',  cardBorder: 'border-slate-100' }
+
+                const statusLabel =
+                  q.status === 'current'  ? 'Open now' :
+                  q.status === 'upcoming' ? 'Submit soon' :
+                  q.status === 'overdue'  ? 'Overdue' :
+                                            'Not started'
+
+                return (
+                  <div
+                    key={q.quarter}
+                    className={`rounded-lg border p-4 ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
+                  >
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-sm font-semibold text-slate-800">Q{q.quarter}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeBg} ${badgeText}`}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1.5">
+                      Deadline: {fmt(q.deadline)}
+                    </p>
+                    <p className="text-xs text-slate-300 mt-2 font-medium">Not Started</p>
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className="text-xs text-slate-300 mt-4">
+              Connect your HMRC account in{' '}
+              <Link href="/settings?tab=HMRC" className="underline hover:text-slate-400">Settings → HMRC</Link>
+              {' '}to enable submissions.
+            </p>
           </div>
 
           {/* VAT — only shown for VAT registered users */}
