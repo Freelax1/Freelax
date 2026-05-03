@@ -1,12 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2 } from 'lucide-react'
 
 export default function HmrcTab() {
-  const [connected, setConnected]   = useState(false)
-  const [loading, setLoading]       = useState(true)
+  const searchParams                        = useSearchParams()
+  const [connected, setConnected]           = useState(false)
+  const [loading, setLoading]               = useState(true)
+  const [disconnecting, setDisconnecting]   = useState(false)
+  const [message, setMessage]               = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // Show success/error from OAuth callback redirect
+  useEffect(() => {
+    if (searchParams.get('hmrc_connected') === 'true') {
+      setMessage({ type: 'success', text: 'HMRC account connected successfully.' })
+    } else if (searchParams.get('hmrc_error')) {
+      const err = searchParams.get('hmrc_error')
+      setMessage({ type: 'error', text: `Connection failed: ${err?.replace(/_/g, ' ')}. Please try again.` })
+    }
+  }, [searchParams])
 
   useEffect(() => {
     async function checkConnection() {
@@ -27,6 +41,22 @@ export default function HmrcTab() {
     checkConnection()
   }, [])
 
+  async function handleDisconnect() {
+    setDisconnecting(true)
+    try {
+      const res = await fetch('/api/auth/hmrc', { method: 'DELETE' })
+      if (res.ok) {
+        setConnected(false)
+        setMessage({ type: 'success', text: 'HMRC account disconnected.' })
+      } else {
+        setMessage({ type: 'error', text: 'Could not disconnect. Please try again.' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Could not disconnect. Please try again.' })
+    }
+    setDisconnecting(false)
+  }
+
   return (
     <div className="space-y-5">
 
@@ -38,6 +68,17 @@ export default function HmrcTab() {
             Connect your HMRC account to submit Making Tax Digital (MTD) returns directly from Freelax.
           </p>
         </div>
+
+        {/* Callback message banner */}
+        {message && (
+          <div className={`text-sm px-4 py-3 rounded-lg border ${
+            message.type === 'success'
+              ? 'bg-green-50 border-green-200 text-green-700'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}>
+            {message.text}
+          </div>
+        )}
 
         {/* Connection status */}
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
@@ -60,21 +101,19 @@ export default function HmrcTab() {
 
           {connected ? (
             <button
-              disabled
-              className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed"
+              onClick={handleDisconnect}
+              disabled={disconnecting}
+              className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
             >
-              Disconnect
+              {disconnecting ? 'Disconnecting…' : 'Disconnect'}
             </button>
           ) : (
-            <div className="text-right">
-              <button
-                disabled
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium opacity-40 cursor-not-allowed"
-              >
-                Connect to HMRC
-              </button>
-              <p className="text-xs text-slate-400 mt-1">Coming soon</p>
-            </div>
+            <a
+              href="/api/auth/hmrc"
+              className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+            >
+              Connect to HMRC
+            </a>
           )}
         </div>
       </div>

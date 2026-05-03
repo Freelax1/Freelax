@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -110,7 +110,7 @@ export default function SettingsForm({ profile, email }: Props) {
         {tab === 'Notifications'       && <NotificationsTab />}
         {tab === 'Billing'             && <BillingTab         profile={profile} />}
         {tab === 'Accountant Access'   && <AccountantTab />}
-        {tab === 'HMRC'               && <HmrcTab />}
+        {tab === 'HMRC'               && <Suspense fallback={null}><HmrcTab /></Suspense>}
         {tab === 'Danger Zone'         && <DangerZoneTab />}
       </div>
     </div>
