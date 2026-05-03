@@ -12,10 +12,13 @@ export default function HmrcTab() {
     async function checkConnection() {
       try {
         const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { setLoading(false); return }
         const { data } = await supabase
           .from('oauth_connections')
           .select('id')
           .eq('provider', 'hmrc')
+          .eq('user_id', user.id)
           .maybeSingle()
         setConnected(!!data)
       } catch {}
@@ -78,10 +81,10 @@ export default function HmrcTab() {
 
       {/* What is MTD explainer */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-        <h3 className="font-semibold text-slate-900 text-sm">What is Making Tax Digital?</h3>
+        <h3 className="font-semibold text-slate-900">What is Making Tax Digital?</h3>
         <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
           <p>
-            Making Tax Digital (MTD) is HMRC's programme to move UK tax records and submissions entirely online. From April 2026, sole traders and landlords earning over £50,000 are legally required to submit quarterly income and expense updates to HMRC using approved software.
+            Making Tax Digital (MTD) is HMRC's programme to move UK tax records and submissions entirely online. Since April 2026, sole traders and landlords earning over £50,000 are legally required to submit quarterly income and expense updates to HMRC using approved software.
           </p>
           <p>
             Connecting your HMRC account will allow Freelax to submit your quarterly MTD updates and VAT returns directly to HMRC — without you needing to log in to the HMRC portal separately.
@@ -125,7 +128,7 @@ export default function HmrcTab() {
             'Send you deadline reminders 7 days and 1 day before each quarter closes',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-              <span className="text-slate-300 mt-0.5 shrink-0">•</span>
+              <span className="text-slate-400 mt-0.5 shrink-0">•</span>
               {item}
             </li>
           ))}
