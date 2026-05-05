@@ -1,0 +1,26 @@
+<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Expenses empty state illustration">
+  <rect width="200" height="160" fill="#ffffff"/>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M66 28h68v100l-8-5-8 5-8-5-8 5-8-5-8 5-8-5-8 5V28Z"
+      fill="#f5f5f0"
+      stroke="#1e3d2f"
+      stroke-width="2"
+    />
+
+    <path d="M80 54h40" stroke="#dfe8df" stroke-width="4"/>
+    <path d="M80 72h28" stroke="#dfe8df" stroke-width="4"/>
+    <path d="M80 90h38" stroke="#dfe8df" stroke-width="4"/>
+
+    <path
+      d="M142 42l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5 2.5-5Z"
+      fill="#3d9e4f"
+      stroke="none"
+      opacity="0.85"
+    />
+
+    <circle cx="54" cy="58" r="3" fill="#dfe8df"/>
+    <circle cx="146" cy="48" r="2.5" fill="#dfe8df"/>
+  </g>
+</svg>

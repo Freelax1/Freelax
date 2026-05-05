@@ -1,0 +1,45 @@
+<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dashboard empty state illustration">
+  <rect width="200" height="160" fill="#ffffff"/>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- Card container -->
+    <rect x="44" y="36" width="112" height="88" rx="12"
+      fill="#f5f5f0"
+      stroke="#1e3d2f"
+      stroke-width="2"
+    />
+
+    <!-- Baseline -->
+    <path d="M60 104H140"
+      stroke="#dfe8df"
+      stroke-width="2"
+    />
+
+    <!-- Bars -->
+    <rect x="66" y="88" width="10" height="16" fill="#dfe8df"/>
+    <rect x="86" y="78" width="10" height="26" fill="#dfe8df"/>
+    <rect x="106" y="68" width="10" height="36" fill="#dfe8df"/>
+
+    <!-- Trend line -->
+    <path d="M66 82L90 70L112 58L132 48"
+      stroke="#3d9e4f"
+      stroke-width="2"
+      opacity="0.6"
+    />
+
+    <!-- Proper arrow head (aligned to line direction) -->
+    <path d="M132 48L128 50M132 48L130 44"
+      stroke="#3d9e4f"
+      stroke-width="2"
+      opacity="0.6"
+    />
+
+    <!-- Subtle spark -->
+    <path d="M58 52l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4Z"
+      fill="#3d9e4f"
+      opacity="0.5"
+    />
+
+  </g>
+</svg>
