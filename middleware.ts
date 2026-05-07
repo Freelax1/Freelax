@@ -91,6 +91,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // Onboarding gate — runs for logged-in users on protected page routes only.
+  // This queries the DB on every protected request; caching the result in a
+  // short-lived cookie is a future optimisation once the pattern is stable.
+  const isApiRoute = pathname.startsWith('/api/')
+  const isOnboardingRoute = pathname.startsWith('/onboarding')
+
+  if (user && isProtected && !isOnboardingRoute && !isApiRoute) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('full_name, business_type, business_name')
+      .eq('id', user.id)
+      .single()
+
+    const onboardingComplete =
+      !!profile?.full_name && !!profile?.business_type && !!profile?.business_name
+
+    if (!onboardingComplete) {
+      return NextResponse.redirect(new URL('/onboarding', request.url))
+    }
+  }
+
   return response
 }
 
