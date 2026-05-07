@@ -9,6 +9,12 @@ interface Props {
   saving: boolean
 }
 
+const businessTypeLabels: Record<string, string> = {
+  sole_trader: 'Sole Trader',
+  limited_company: 'Limited Company',
+  partnership: 'Partnership',
+}
+
 export default function BusinessTab({ profile, save, saving }: Props) {
   const [bf, setBf] = useState({
     business_name: profile?.business_name ?? '',
@@ -27,7 +33,7 @@ export default function BusinessTab({ profile, save, saving }: Props) {
       </Field>
       <Field label="Business type">
         <p className={inputClass + ' bg-slate-50 text-slate-700 cursor-default'}>
-          {{ sole_trader: 'Sole Trader', limited_company: 'Limited Company', partnership: 'Partnership' }[bf.business_type] ?? bf.business_type}
+          {businessTypeLabels[bf.business_type] ?? bf.business_type}
         </p>
         <p className="text-xs text-slate-500 mt-1">
           To change your business type, contact support@freelax.co.uk.{' '}
