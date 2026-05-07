@@ -112,24 +112,18 @@ export default function ResetPasswordPage() {
         return
       }
 
-      // Implicit flow (#access_token=...) is parsed automatically by the client;
-      // also covers a refresh after a successful exchange.
+      // Implicit flow: if access_token is in the hash, onAuthStateChange fires
+      // PASSWORD_RECOVERY/SIGNED_IN automatically — nothing to do here.
+      const hash = new URLSearchParams(window.location.hash.slice(1))
+      if (hash.get('access_token')) return
+
+      // No code, no hash token — check for an existing session (page refresh after PKCE exchange).
       const { data } = await supabase.auth.getSession()
       if (cancelled) return
-      if (data.session) {
-        setReady(true)
-        return
-      }
+      if (data.session) { setReady(true); return }
 
-      // No code, no session — give the implicit-flow listener a brief grace
-      // period before declaring the link invalid.
-      setTimeout(() => {
-        if (cancelled) return
-        setReady(current => {
-          if (!current) setLinkInvalid(true)
-          return current
-        })
-      }, 1500)
+      // Nothing valid found — link is definitively invalid.
+      setLinkInvalid(true)
     })()
 
     return () => {
