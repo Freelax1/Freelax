@@ -26,11 +26,18 @@ export default function BusinessTab({ profile, save, saving }: Props) {
         <input className={inputClass} value={bf.business_name} onChange={e => setBf(p => ({ ...p, business_name: e.target.value }))} />
       </Field>
       <Field label="Business type">
-        <select className={inputClass} value={bf.business_type} onChange={e => setBf(p => ({ ...p, business_type: e.target.value }))}>
-          <option value="sole_trader">Sole Trader</option>
-          <option value="limited_company">Limited Company</option>
-          <option value="partnership">Partnership</option>
-        </select>
+        <p className={inputClass + ' bg-slate-50 text-slate-700 cursor-default'}>
+          {{ sole_trader: 'Sole Trader', limited_company: 'Limited Company', partnership: 'Partnership' }[bf.business_type] ?? bf.business_type}
+        </p>
+        <p className="text-xs text-slate-500 mt-1">
+          To change your business type, contact support@freelax.co.uk.{' '}
+          <a
+            href={`mailto:support@freelax.co.uk?subject=Business%20type%20change%20request&body=Hi%2C%20I%20would%20like%20to%20change%20my%20business%20type%20from%20${encodeURIComponent(bf.business_type)}%20to%20%5Bblank%5D.%20My%20account%20email%20is%20${encodeURIComponent(profile?.email ?? '')}.`}
+            className="text-indigo-600 hover:underline"
+          >
+            Request business type change
+          </a>
+        </p>
       </Field>
       <Toggle checked={bf.vat_registered} onChange={v => setBf(p => ({ ...p, vat_registered: v }))} label="VAT registered" />
       {bf.vat_registered && (
