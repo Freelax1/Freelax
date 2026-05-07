@@ -100,12 +100,12 @@ export async function middleware(request: NextRequest) {
   if (user && isProtected && !isOnboardingRoute && !isApiRoute) {
     const { data: profile } = await supabase
       .from('users')
-      .select('full_name, business_type, business_name')
+      .select('full_name, business_type')
       .eq('id', user.id)
       .single()
 
     const onboardingComplete =
-      !!profile?.full_name && !!profile?.business_type && !!profile?.business_name
+      !!profile?.full_name && !!profile?.business_type
 
     if (!onboardingComplete) {
       return NextResponse.redirect(new URL('/onboarding', request.url))
