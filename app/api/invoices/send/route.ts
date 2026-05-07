@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       const pdfBuffer = await generateInvoicePdfBuffer(invoice)
 
       await resend.emails.send({
-        from:     `Freelax <onboarding@resend.dev>`,
+        from:     `Freelax <noreply@freelax.co.uk>`,
         reply_to: sender?.email || undefined,
         to: client.email,
         subject: `Invoice ${invoice.invoice_number} from ${businessName}`,

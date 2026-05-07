@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       ).catch(() => null)
 
       await resend.emails.send({
-        from:    'Freelax <onboarding@resend.dev>',
+        from:    'Freelax <noreply@freelax.co.uk>',
         reply_to: sender?.email || undefined,
         to:      client.email,
         subject,
