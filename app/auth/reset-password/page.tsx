@@ -10,9 +10,9 @@ const INPUT_STYLE: React.CSSProperties = {
   padding: '11px 14px',
   fontSize: 16,
   lineHeight: 1.4,
-  color: '#0F172A',
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
+  color: '#FFFFFF',
+  background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(255,255,255,0.15)',
   borderRadius: 8,
   outline: 'none',
   fontFamily: 'inherit',
@@ -24,7 +24,7 @@ const LABEL_STYLE: React.CSSProperties = {
   display: 'block',
   fontSize: 12,
   fontWeight: 500,
-  color: '#64748B',
+  color: 'rgba(255,255,255,0.6)',
   marginBottom: 6,
 }
 
@@ -65,7 +65,7 @@ function PasswordStrength({ password }: { password: string }) {
           />
         ))}
       </div>
-      <span style={{ fontSize: 11, color: met ? '#1D6B35' : '#F59E0B', fontWeight: 500, whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 11, color: met ? '#4ADE80' : '#F59E0B', fontWeight: 500, whiteSpace: 'nowrap' }}>
         {!met ? 'Too short' : len >= 12 ? 'Strong' : 'Good'}
       </span>
     </div>
@@ -161,11 +161,11 @@ export default function ResetPasswordPage() {
   }
 
   function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#1D6B35'
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,107,53,0.12)'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.08)'
   }
   function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = '#E2E8F0'
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
     e.currentTarget.style.boxShadow = 'none'
   }
 
@@ -176,20 +176,20 @@ export default function ResetPasswordPage() {
         <div style={{
           width: 48, height: 48,
           borderRadius: '50%',
-          background: '#EAFAF0',
+          background: 'rgba(255,255,255,0.12)',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 16,
         }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D6B35" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
           Password updated
         </h2>
-        <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, margin: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
           Redirecting you to sign in…
         </p>
         <Link
@@ -198,7 +198,7 @@ export default function ResetPasswordPage() {
             display: 'inline-block',
             marginTop: 24,
             fontSize: 13,
-            color: '#1D6B35',
+            color: '#FFFFFF',
             fontWeight: 600,
             textDecoration: 'none',
           }}
@@ -215,22 +215,22 @@ export default function ResetPasswordPage() {
         <div style={{
           width: 48, height: 48,
           borderRadius: '50%',
-          background: '#FEF2F2',
+          background: 'rgba(255,255,255,0.12)',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 16,
         }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0392B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
           Link invalid or expired
         </h2>
-        <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, margin: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
           Reset links expire after a short window. Request a new one to continue.
         </p>
         <Link
@@ -239,7 +239,7 @@ export default function ResetPasswordPage() {
             display: 'inline-block',
             marginTop: 24,
             fontSize: 13,
-            color: '#1D6B35',
+            color: '#FFFFFF',
             fontWeight: 600,
             textDecoration: 'none',
           }}
@@ -254,10 +254,16 @@ export default function ResetPasswordPage() {
     <>
       <style>{`@keyframes fd-spin { to { transform: rotate(360deg) } }`}</style>
 
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', marginBottom: 8 }}>
+      <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
+        <span style={{ color: '#FFFFFF' }}>Free</span>
+        <span style={{ color: 'rgba(255,255,255,0.7)' }}>lax</span>
+        <span style={{ color: '#1D6B35' }}>.</span>
+      </div>
+
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 8 }}>
         Set a new password
       </h2>
-      <p style={{ fontSize: 13, color: '#64748B', marginTop: 0, marginBottom: 24, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 0, marginBottom: 24, lineHeight: 1.5 }}>
         Choose a strong password — at least 8 characters.
       </p>
 
@@ -294,7 +300,7 @@ export default function ResetPasswordPage() {
         </div>
 
         {error && (
-          <p style={{ fontSize: 13, color: '#C0392B', marginTop: -4 }}>{error}</p>
+          <p style={{ fontSize: 13, color: '#F87171', marginTop: -4 }}>{error}</p>
         )}
 
         <button
@@ -326,8 +332,8 @@ export default function ResetPasswordPage() {
         </button>
       </form>
 
-      <p style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 22, marginBottom: 0 }}>
-        <Link href="/auth/login" style={{ color: '#1D6B35', fontWeight: 600, textDecoration: 'none' }}>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginTop: 22, marginBottom: 0 }}>
+        <Link href="/auth/login" style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none' }}>
           Back to sign in
         </Link>
       </p>

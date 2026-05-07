@@ -196,7 +196,7 @@ function RightPanel() {
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isSplitPanel = pathname === '/auth/login' || pathname === '/auth/signup' || pathname === '/auth/forgot-password'
+  const isSplitPanel = pathname === '/auth/login' || pathname === '/auth/signup' || pathname === '/auth/forgot-password' || pathname === '/auth/reset-password'
 
   if (!isSplitPanel) {
     return (
