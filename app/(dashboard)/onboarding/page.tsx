@@ -63,7 +63,7 @@ export default function OnboardingPage() {
       updated_at:                new Date().toISOString(),
     }).eq('id', user.id)
 
-    if (err) { setError(err.message); setSaving(false); return }
+    if (err) { console.error('Onboarding update failed:', err); setError(err.message); setSaving(false); return }
     router.push('/dashboard')
     router.refresh()
   }
