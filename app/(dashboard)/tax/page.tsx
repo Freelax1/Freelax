@@ -24,8 +24,6 @@ import type {
   TaxPotEntry, Invoice, Expense, MileageEntry,
   BusinessType, StudentLoanPlan, TaxDetail,
 } from '@/types/database'
-import { getLimits } from '@/lib/plan-limits'
-import type { Plan } from '@/lib/plan-limits'
 
 type PaidInvoiceRow = {
   id: string
@@ -332,8 +330,7 @@ export default function TaxPage() {
           .select('subscription_plan')
           .eq('id', userId)
           .single()
-        const plan = (planProfile?.subscription_plan ?? 'free') as Plan
-        setCanExport(getLimits(plan).canExport)
+        setCanExport(['solo', 'pro', 'studio'].includes(planProfile?.subscription_plan ?? 'free'))
       }
 
       const [paidInvoices, expenses, profile] = await Promise.all([
