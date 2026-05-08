@@ -17,8 +17,6 @@ import { Paperclip, Trash2, Car, MoreVertical, Pencil, CheckSquare, Square, Lock
 import type { Expense } from '@/types/database'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { getLimits } from '@/lib/plan-limits'
-import type { Plan } from '@/lib/plan-limits'
 
 type Tab = 'expenses' | 'mileage'
 
@@ -150,8 +148,7 @@ export default function ExpensesPage() {
         .select('subscription_plan')
         .eq('id', user.id)
         .single()
-      const plan = (planProfile?.subscription_plan ?? 'free') as Plan
-      setCanUseMileage(getLimits(plan).canUseMileage)
+      setCanUseMileage(['solo', 'pro', 'studio'].includes(planProfile?.subscription_plan ?? 'free'))
     }
     const [exp, mil] = await Promise.all([
       fetchExpenses(start, end),
