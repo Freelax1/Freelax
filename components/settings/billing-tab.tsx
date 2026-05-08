@@ -1,18 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface Props {
   profile: any
 }
 
 export default function BillingTab({ profile }: Props) {
-  const [yearly, setYearly] = useState(false)
-  const [loading, setLoading] = useState<string | null>(null)
-  const [showUpgradeMsg, setShowUpgradeMsg] = useState<string | null>(null)
+  const [yearly, setYearly]     = useState(false)
+  const [loading, setLoading]   = useState<string | null>(null)
+  const [upgraded, setUpgraded] = useState(false)
+  const searchParams = useSearchParams()
 
-  const currentPlan = profile?.subscription_plan ?? 'free'
+  const currentPlan   = profile?.subscription_plan   ?? 'free'
   const currentStatus = profile?.subscription_status ?? 'active'
+
+  useEffect(() => {
+    if (searchParams.get('upgraded') === 'true') setUpgraded(true)
+  }, [searchParams])
 
   const plans = [
     {
@@ -30,8 +36,12 @@ export default function BillingTab({ profile }: Props) {
         'Full UK tax engine',
         'Basic P&L summary',
         '50 AI calls / month',
+        'Email invoice sending',
+        'Stripe payment links',
+        'Mileage tracking',
+        'CSV & PDF exports',
       ],
-      missing: ['Email invoice sending', 'Stripe payment links', 'Recurring invoices'],
+      missing: ['Recurring invoices', 'IR35 assessment', 'Accountant access'],
     },
     {
       id: 'pro',
@@ -42,28 +52,74 @@ export default function BillingTab({ profile }: Props) {
       badge: 'Most popular',
       description: 'For active freelancers — the main tier',
       features: [
-        'Unlimited invoices',
-        'Unlimited clients',
-        'Unlimited expenses',
-        'Send invoices by email',
-        'Stripe payment links',
+        'Everything in Solo',
         'Recurring invoices',
-        'All 6 AI features',
+        'IR35 assessment',
         '150 AI calls / month',
         'Accountant access',
         'VAT tracker',
+        'Priority support',
       ],
       missing: [],
     },
   ]
 
-  function handleUpgrade(planId: string) {
-    setShowUpgradeMsg(planId)
-    setTimeout(() => setShowUpgradeMsg(null), 6000)
+  async function handleUpgrade(planId: string) {
+    setLoading(planId)
+    try {
+      const res  = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planId, billing: yearly ? 'annual' : 'monthly' }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error ?? 'Something went wrong. Please try again.')
+        setLoading(null)
+      }
+    } catch {
+      alert('Something went wrong. Please try again.')
+      setLoading(null)
+    }
+  }
+
+  async function handleManage() {
+    setLoading('portal')
+    try {
+      const res  = await fetch('/api/stripe/portal', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error ?? 'Something went wrong. Please try again.')
+        setLoading(null)
+      }
+    } catch {
+      alert('Something went wrong. Please try again.')
+      setLoading(null)
+    }
   }
 
   return (
     <div className="space-y-6">
+
+      {/* Upgrade success banner */}
+      {upgraded && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-5 py-4">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="flex-shrink-0">
+            <path d="M3.5 9l4 4 7-7" stroke="#16A34A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <p className="text-sm font-medium text-green-800">You're all set — your plan has been upgraded successfully.</p>
+          <button onClick={() => setUpgraded(false)} className="ml-auto text-green-500 hover:text-green-700">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Current plan banner */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="font-semibold text-slate-900 mb-4">Billing</h2>
@@ -82,20 +138,20 @@ export default function BillingTab({ profile }: Props) {
             </span>
           </div>
           {currentPlan !== 'free' && (
-            <p className="text-sm text-slate-500">
-              To manage your subscription email{' '}
-              <a href="mailto:support@freelax.co.uk" className="font-medium text-slate-700 underline underline-offset-2">
-                support@freelax.co.uk
-              </a>
-            </p>
+            <button
+              onClick={handleManage}
+              disabled={loading === 'portal'}
+              className="text-sm font-medium text-slate-700 underline underline-offset-2 hover:text-slate-900 disabled:opacity-50"
+            >
+              {loading === 'portal' ? 'Opening…' : 'Manage subscription →'}
+            </button>
           )}
         </div>
       </div>
 
-      {/* Plan cards — always shown, current plan highlighted */}
+      {/* Plan cards */}
       {!['pro', 'studio'].includes(currentPlan) ? (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          {/* Heading + yearly toggle */}
           <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
             <div>
               <h3 className="font-semibold text-slate-900">
@@ -120,13 +176,13 @@ export default function BillingTab({ profile }: Props) {
             </div>
           </div>
 
-          {/* Plan cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {plans.map(plan => {
               const planOrder = ['free', 'solo', 'pro']
               const isCurrent = plan.id === currentPlan
-              const isBelow = planOrder.indexOf(plan.id) < planOrder.indexOf(currentPlan)
-              const isDark = plan.id === 'pro' && !isCurrent && !isBelow
+              const isBelow   = planOrder.indexOf(plan.id) < planOrder.indexOf(currentPlan)
+              const isDark    = plan.id === 'pro' && !isCurrent && !isBelow
+              const isLoading = loading === plan.id
 
               return (
                 <div
@@ -141,13 +197,11 @@ export default function BillingTab({ profile }: Props) {
                       : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
                 >
-                  {/* Current plan badge */}
                   {isCurrent && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                       Current plan
                     </div>
                   )}
-                  {/* Most popular badge */}
                   {plan.badge && !isCurrent && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                       {plan.badge}
@@ -193,7 +247,6 @@ export default function BillingTab({ profile }: Props) {
                     ))}
                   </ul>
 
-                  {/* CTA */}
                   {isCurrent ? (
                     <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center bg-green-100 text-green-700 border border-green-200">
                       ✓ Your current plan
@@ -203,27 +256,17 @@ export default function BillingTab({ profile }: Props) {
                       Lower plan
                     </div>
                   ) : (
-                    showUpgradeMsg === plan.id ? (
-                      <div className={`w-full py-2.5 px-3 rounded-lg text-xs text-center leading-relaxed ${
-                        isDark ? 'bg-white/10 text-slate-300' : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        Contact{' '}
-                        <a href="mailto:support@freelax.co.uk" className={`font-semibold underline underline-offset-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                          support@freelax.co.uk
-                        </a>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade(plan.id)}
-                        className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                          isDark
-                            ? 'bg-white text-slate-900 hover:bg-slate-100'
-                            : 'bg-slate-900 text-white hover:bg-slate-800'
-                        }`}
-                      >
-                        Upgrade to {plan.name}
-                      </button>
-                    )
+                    <button
+                      onClick={() => handleUpgrade(plan.id)}
+                      disabled={!!loading}
+                      className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 ${
+                        isDark
+                          ? 'bg-white text-slate-900 hover:bg-slate-100'
+                          : 'bg-slate-900 text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {isLoading ? 'Redirecting to Stripe…' : `Upgrade to ${plan.name}`}
+                    </button>
                   )}
                 </div>
               )
@@ -247,9 +290,7 @@ export default function BillingTab({ profile }: Props) {
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-slate-900">
-                {currentPlan === 'pro' ? 'You are on the Pro plan' : 'You are on our top plan'}
-              </p>
+              <p className="font-semibold text-slate-900">You're on the Pro plan</p>
               <p className="text-sm text-slate-500 mt-0.5">You have access to everything Freelax offers.</p>
             </div>
           </div>
