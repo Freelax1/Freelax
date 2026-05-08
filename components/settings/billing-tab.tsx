@@ -24,9 +24,9 @@ export default function BillingTab({ profile }: Props) {
       badge: null,
       description: 'For freelancers just starting out',
       features: [
-        '10 invoices / month',
-        '3 active clients',
-        '20 expenses / month',
+        'Unlimited invoices',
+        '5 active clients',
+        'Unlimited expenses',
         'Full UK tax engine',
         'Basic P&L summary',
         '50 AI calls / month',
@@ -121,7 +121,7 @@ export default function BillingTab({ profile }: Props) {
           </div>
 
           {/* Plan cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {plans.map(plan => {
               const planOrder = ['free', 'solo', 'pro']
               const isCurrent = plan.id === currentPlan

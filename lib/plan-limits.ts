@@ -233,7 +233,7 @@ export async function canSendByEmail(userId: string): Promise<{ allowed: boolean
   if (!limits.canSendByEmail) {
     return {
       allowed: false,
-      reason: `Sending invoices by email requires the Pro plan or above. Upgrade to unlock email sending.`,
+      reason: `Sending invoices by email requires the Solo plan or above. Upgrade to unlock email sending.`,
     }
   }
   return { allowed: true }
