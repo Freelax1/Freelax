@@ -117,15 +117,20 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
  * Make an authenticated GET request to the HMRC API.
  * Throws on non-OK responses so callers don't silently process error bodies.
  *
- * TODO: Add fraud prevention headers before production launch.
- * HMRC requires these by law for VAT API and soon all APIs.
+ * Pass fraud prevention headers built via buildFraudPreventionHeaders().
+ * HMRC requires these by law for VAT API and all MTD APIs.
  * See: https://developer.service.hmrc.gov.uk/guides/fraud-prevention
  */
-export async function hmrcGet(path: string, accessToken: string): Promise<Response> {
+export async function hmrcGet(
+  path: string,
+  accessToken: string,
+  fraudHeaders: Record<string, string> = {},
+): Promise<Response> {
   const res = await fetch(`${HMRC_URLS.api}${path}`, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/vnd.hmrc.1.0+json',
+      ...fraudHeaders,
     },
   })
   if (!res.ok) {
@@ -138,14 +143,22 @@ export async function hmrcGet(path: string, accessToken: string): Promise<Respon
 /**
  * Make an authenticated POST request to the HMRC API.
  * Throws on non-OK responses so callers don't silently process error bodies.
+ *
+ * Pass fraud prevention headers built via buildFraudPreventionHeaders().
  */
-export async function hmrcPost(path: string, accessToken: string, body: unknown): Promise<Response> {
+export async function hmrcPost(
+  path: string,
+  accessToken: string,
+  body: unknown,
+  fraudHeaders: Record<string, string> = {},
+): Promise<Response> {
   const res = await fetch(`${HMRC_URLS.api}${path}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/vnd.hmrc.1.0+json',
       'Content-Type': 'application/json',
+      ...fraudHeaders,
     },
     body: JSON.stringify(body),
   })
