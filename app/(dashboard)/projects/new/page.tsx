@@ -22,6 +22,9 @@ export default function NewProjectPage() {
   const [clients, setClients] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showNewClient, setShowNewClient] = useState(false)
+  const [newClientName, setNewClientName] = useState('')
+  const [creatingClient, setCreatingClient] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -43,6 +46,28 @@ export default function NewProjectPage() {
 
   function set(field: string, value: string) {
     setForm(p => ({ ...p, [field]: value }))
+  }
+
+  async function handleCreateClient() {
+    if (!newClientName.trim()) return
+    setCreatingClient(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: client } = await supabase
+        .from('clients')
+        .insert({ name: newClientName.trim(), user_id: user.id, status: 'active' })
+        .select('id, name')
+        .single()
+      if (client) {
+        setClients(prev => [...prev, client].sort((a, b) => a.name.localeCompare(b.name)))
+        set('client_id', client.id)
+      }
+      setShowNewClient(false)
+      setNewClientName('')
+    } catch (e) { console.error(e) }
+    setCreatingClient(false)
   }
 
   const allAnswered = IR35_QUESTIONS.every(q => ir35Answers[q.number] !== undefined)
@@ -113,9 +138,44 @@ export default function NewProjectPage() {
           <Field label="Client">
             <Select
               value={form.client_id}
-              onChange={e => set('client_id', e.target.value)}
-              options={[{ value: '', label: 'No client' }, ...clients.map(c => ({ value: c.id, label: c.name }))]}
+              onChange={e => {
+                if (e.target.value === '__new__') { setShowNewClient(true) }
+                else { set('client_id', e.target.value); setShowNewClient(false) }
+              }}
+              options={[
+                { value: '', label: 'No client' },
+                ...clients.map(c => ({ value: c.id, label: c.name })),
+                { value: '__new__', label: '+ Create new client' },
+              ]}
             />
+            {showNewClient && (
+              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
+                <p className="text-xs font-semibold text-slate-700">New client</p>
+                <input
+                  value={newClientName}
+                  onChange={e => setNewClientName(e.target.value)}
+                  placeholder="Client name *"
+                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                />
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCreateClient}
+                    disabled={!newClientName.trim() || creatingClient}
+                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    {creatingClient ? 'Saving...' : 'Create client'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowNewClient(false); setNewClientName('') }}
+                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </Field>
 
           <Field label="Description">
