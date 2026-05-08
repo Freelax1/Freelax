@@ -213,7 +213,7 @@ export async function canUseAI(userId: string): Promise<{ allowed: boolean; reas
     const upgradeMsg =
       plan === 'free'   ? 'Upgrade to Solo for 50 AI calls per month.' :
       plan === 'solo'   ? 'Upgrade to Pro for 150 AI calls per month.' :
-      plan === 'pro'    ? 'Upgrade to Studio for 750 AI calls per month.' :
+      plan === 'pro'    ? 'Contact support@freelax.co.uk to discuss higher usage.' :
                           'Contact support if you need more.'
     return {
       allowed: false,

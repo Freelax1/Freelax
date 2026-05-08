@@ -109,7 +109,11 @@ export default function SettingsForm({ profile, email }: Props) {
         {tab === 'Quote Defaults'      && <QuoteDefaultsTab   profile={profile} save={save} saving={saving} />}
         {tab === 'Banking'             && <BankingTab         profile={profile} save={save} saving={saving} />}
         {tab === 'Notifications'       && <NotificationsTab />}
-        {tab === 'Billing'             && <BillingTab         profile={profile} />}
+        {tab === 'Billing'             && (
+          <Suspense fallback={<div />}>
+            <BillingTab profile={profile} />
+          </Suspense>
+        )}
         {tab === 'Accountant Access'   && <AccountantTab />}
         {tab === 'HMRC'               && <Suspense fallback={null}><HmrcTab /></Suspense>}
         {tab === 'Danger Zone'         && <DangerZoneTab />}
