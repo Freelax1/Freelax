@@ -11,7 +11,7 @@ import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fi
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Lock, ArrowRight } from 'lucide-react'
 import type { Client, IR35Answer } from '@/types/database'
 
 export default function NewProjectPage() {
@@ -25,6 +25,7 @@ export default function NewProjectPage() {
   const [showNewClient, setShowNewClient] = useState(false)
   const [newClientName, setNewClientName] = useState('')
   const [creatingClient, setCreatingClient] = useState(false)
+  const [canUseIR35, setCanUseIR35] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -40,8 +41,22 @@ export default function NewProjectPage() {
   const [ir35Answers, setIr35Answers] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.from('clients').select('id, name').order('name').then(({ data }) => setClients(data ?? []))
+    ;(async () => {
+      const supabase = createClient()
+      const [{ data: clientsData }, { data: { user } }] = await Promise.all([
+        supabase.from('clients').select('id, name').order('name'),
+        supabase.auth.getUser(),
+      ])
+      setClients(clientsData ?? [])
+      if (user) {
+        const { data: planProfile } = await supabase
+          .from('users')
+          .select('subscription_plan')
+          .eq('id', user.id)
+          .single()
+        setCanUseIR35(['pro', 'studio'].includes(planProfile?.subscription_plan ?? 'free'))
+      }
+    })()
   }, [])
 
   function set(field: string, value: string) {
@@ -222,44 +237,56 @@ export default function NewProjectPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-semibold text-slate-800">IR35 questionnaire</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Answer all 8 questions to get a calculated status</p>
+              {canUseIR35 && <p className="text-xs text-slate-400 mt-0.5">Answer all 8 questions to get a calculated status</p>}
             </div>
-            {allAnswered && <Badge status={ir35Status} />}
+            {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
           </div>
 
-          <div className="space-y-3">
-            {IR35_QUESTIONS.map(q => (
-              <div key={q.number} className="bg-slate-50 rounded-lg p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {q.importance}
-                      </span>
-                      <span className="text-xs text-slate-500">{q.label}</span>
+          {canUseIR35 ? (
+            <div className="space-y-3">
+              {IR35_QUESTIONS.map(q => (
+                <div key={q.number} className="bg-slate-50 rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {q.importance}
+                        </span>
+                        <span className="text-xs text-slate-500">{q.label}</span>
+                      </div>
+                      <p className="text-sm text-slate-700">{q.text}</p>
                     </div>
-                    <p className="text-sm text-slate-700">{q.text}</p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    {[true, false].map(val => (
-                      <button
-                        key={String(val)}
-                        type="button"
-                        onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          ir35Answers[q.number] === val
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        {val ? 'Yes' : 'No'}
-                      </button>
-                    ))}
+                    <div className="flex gap-2 shrink-0">
+                      {[true, false].map(val => (
+                        <button
+                          key={String(val)}
+                          type="button"
+                          onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            ir35Answers[q.number] === val
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {val ? 'Yes' : 'No'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                <Lock className="w-5 h-5 text-slate-400" />
               </div>
-            ))}
-          </div>
+              <p className="text-sm font-medium text-slate-700 mb-1">IR35 assessment is available on the Pro plan</p>
+              <Link href="/settings?tab=billing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">
+                Upgrade to Pro <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3">
