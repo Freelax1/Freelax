@@ -538,13 +538,14 @@ export default function Sidebar() {
 
   // Derive checklist progress from already-fetched navData
   const checklistSteps = [
+    true, // profile — always complete (onboarding gate ensures this before dashboard access)
     navData.clients.length > 0,
     navData.invoices.length > 0,
     navData.expenses.length > 0,
     navData.projects.length > 0,
   ]
   const completedSteps = checklistSteps.filter(Boolean).length
-  const totalSteps = 4
+  const totalSteps = 5
   const checklistDone = completedSteps >= totalSteps
 
   function handleMouseEnter(href: string) {

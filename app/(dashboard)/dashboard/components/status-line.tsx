@@ -13,7 +13,7 @@ type State = 'onboarding' | 'clear' | 'nudge' | 'watch' | 'attention' | 'behind'
 
 function getStatus(p: Props): { text: string; state: State } {
   if (p.isNewUser)
-    return { text: "Welcome. Let's get your first invoice sent — it only takes a minute.", state: 'onboarding' }
+    return { text: "Welcome. Let's get you set up.", state: 'onboarding' }
   if (p.hasOverdue && p.actionCount >= 3)
     return { text: "A few things are piling up. Let's clear them.", state: 'attention' }
   if (p.actionCount >= 2)
