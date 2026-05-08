@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchCurrentUser } from '@/lib/api/users'
+import { fetchCurrentUser, fetchUserDefaults } from '@/lib/api/users'
 import { fetchClientsForDropdown, createClientRecord } from '@/lib/api/clients'
 import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/quotes'
@@ -55,7 +55,27 @@ export default function NewQuotePage() {
   const [newProjectTitle, setNewProjectTitle] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
 
+  const [quotePrefix, setQuotePrefix] = useState('QUO')
+  const [defaultsLoaded, setDefaultsLoaded] = useState(false)
+
   useEffect(() => { fetchClientsForDropdown().then(setClients) }, [])
+
+  useEffect(() => {
+    fetchCurrentUser().then(user => {
+      if (!user) return
+      fetchUserDefaults(user.id).then(defaults => {
+        if (!defaults) return
+        if (defaults.quote_prefix) setQuotePrefix(defaults.quote_prefix)
+        if (defaults.quote_default_notes && !defaultsLoaded) setNotes(defaults.quote_default_notes)
+        if (defaults.quote_validity_days && !defaultsLoaded) {
+          const d = new Date()
+          d.setDate(d.getDate() + defaults.quote_validity_days)
+          setExpiryDate(d.toISOString().slice(0, 10))
+        }
+        setDefaultsLoaded(true)
+      })
+    })
+  }, [])
 
   useEffect(() => {
     if (!clientId) { setProjects([]); return }
@@ -130,7 +150,7 @@ export default function NewQuotePage() {
       if (!user) return
 
       const count       = await fetchQuoteCount(user.id)
-      const quoteNumber = generateQuoteNumber(count)
+      const quoteNumber = generateQuoteNumber(count, quotePrefix || 'QUO')
 
       const quote = await createQuote({
         user_id:      user.id,

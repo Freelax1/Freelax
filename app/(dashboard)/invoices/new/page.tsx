@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchCurrentUser } from '@/lib/api/users'
+import { fetchCurrentUser, fetchUserDefaults } from '@/lib/api/users'
 import { fetchClientsForDropdown, createClientRecord } from '@/lib/api/clients'
 import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createInvoice, updateInvoice, createInvoiceLineItems, deleteInvoiceLineItems, fetchMaxInvoiceNumber } from '@/lib/api/invoices'
@@ -65,8 +65,25 @@ export default function NewInvoicePage() {
   const [newProjectTitle, setNewProjectTitle] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
 
+  const [invoicePrefix, setInvoicePrefix] = useState('INV')
+  const [defaultsLoaded, setDefaultsLoaded] = useState(false)
+
   useEffect(() => {
     fetchClientsForDropdown().then(setClients)
+  }, [])
+
+  useEffect(() => {
+    fetchCurrentUser().then(user => {
+      if (!user) return
+      fetchUserDefaults(user.id).then(defaults => {
+        if (!defaults) return
+        if (defaults.invoice_prefix) setInvoicePrefix(defaults.invoice_prefix)
+        if (defaults.invoice_default_notes && !defaultsLoaded) {
+          setNotes(defaults.invoice_default_notes)
+        }
+        setDefaultsLoaded(true)
+      })
+    })
   }, [])
 
   useEffect(() => {
@@ -110,7 +127,7 @@ export default function NewInvoicePage() {
       })))
     } else {
       const maxNumber     = await fetchMaxInvoiceNumber(user.id)
-      const invoiceNumber = generateInvoiceNumber(maxNumber)
+      const invoiceNumber = generateInvoiceNumber(maxNumber, invoicePrefix || 'INV')
       const invoice = await createInvoice({
         user_id: user.id, client_id: clientId || null, project_id: projectId || null,
         invoice_number: invoiceNumber, status: 'draft',
@@ -239,7 +256,7 @@ export default function NewInvoicePage() {
       await deleteInvoiceLineItems(invoiceId)
     } else {
       const maxNumber     = await fetchMaxInvoiceNumber(user.id)
-      const invoiceNumber = generateInvoiceNumber(maxNumber)
+      const invoiceNumber = generateInvoiceNumber(maxNumber, invoicePrefix || 'INV')
       const invoice = await createInvoice({
         user_id: user.id, client_id: clientId || null, project_id: projectId || null,
         invoice_number: invoiceNumber, status: sendAfter ? 'sent' : 'draft',

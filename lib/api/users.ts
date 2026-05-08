@@ -28,3 +28,13 @@ export async function updateUserProfile(userId: string, payload: Record<string, 
     .eq('id', userId)
   if (error) throw error
 }
+
+export async function fetchUserDefaults(userId: string) {
+  const supabase = createClient()
+  const { data } = await supabase
+    .from('users')
+    .select('invoice_prefix, invoice_default_notes, invoice_email_subject, invoice_email_body, quote_prefix, quote_validity_days, quote_default_notes, quote_email_subject, quote_email_body')
+    .eq('id', userId)
+    .single()
+  return data
+}

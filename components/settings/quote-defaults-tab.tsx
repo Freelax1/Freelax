@@ -11,9 +11,10 @@ interface Props {
 
 export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
   const [qd, setQd] = useState({
+    quote_prefix:         profile?.quote_prefix         ?? '',
     quote_validity_days:  profile?.quote_validity_days  ?? 30,
     quote_default_notes:  profile?.quote_default_notes  ?? '',
-    quote_email_subject:  profile?.quote_email_subject  ?? 'Quote {{quote_number}} from {{business_name}}',
+    quote_email_subject:  profile?.quote_email_subject  ?? '',
     quote_email_body:     profile?.quote_email_body     ?? '',
   })
 
@@ -34,6 +35,15 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
             onChange={e => setQd(p => ({ ...p, quote_validity_days: parseInt(e.target.value) || 30 }))}
           />
         </Field>
+        <Field label="Quote prefix" hint="Prefix used for quote numbers. Default is QUO (e.g. QUO-0001).">
+          <input
+            className={inputClass}
+            value={qd.quote_prefix}
+            onChange={e => setQd(p => ({ ...p, quote_prefix: e.target.value }))}
+            placeholder="QUO"
+            maxLength={10}
+          />
+        </Field>
         <Field label="Default notes" hint="Appears at the bottom of every quote. Can be overridden per quote.">
           <textarea
             rows={3}
@@ -44,6 +54,7 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
           />
         </Field>
         <button className={btnClass} disabled={saving} onClick={() => save({
+          quote_prefix: qd.quote_prefix,
           quote_validity_days: qd.quote_validity_days,
           quote_default_notes: qd.quote_default_notes,
         })}>
@@ -60,6 +71,14 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
             The quote number, amount, expiry date and a link to view the quote are added automatically.
           </p>
         </div>
+        <Field label="Email subject">
+          <input
+            className={inputClass}
+            value={qd.quote_email_subject}
+            onChange={e => setQd(p => ({ ...p, quote_email_subject: e.target.value }))}
+            placeholder="Quote {{quote_number}} from {{business_name}}"
+          />
+        </Field>
         <Field label="Personal message">
           <textarea
             rows={5}
@@ -70,6 +89,7 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
           />
         </Field>
         <button className={btnClass} disabled={saving} onClick={() => save({
+          quote_email_subject: qd.quote_email_subject,
           quote_email_body: qd.quote_email_body,
         })}>
           {saving ? 'Saving...' : 'Save message'}
