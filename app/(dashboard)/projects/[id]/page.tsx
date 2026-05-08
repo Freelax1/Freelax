@@ -15,8 +15,6 @@ import Link from 'next/link'
 import { ArrowLeft, Lock, ArrowRight } from 'lucide-react'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
-import { getLimits } from '@/lib/plan-limits'
-import type { Plan } from '@/lib/plan-limits'
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const [project, setProject]   = useState<any>(null)
@@ -44,8 +42,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         .select('subscription_plan')
         .eq('id', user.id)
         .single()
-      const plan = (profile?.subscription_plan ?? 'free') as Plan
-      setCanUseIR35(getLimits(plan).canUseIR35)
+      setCanUseIR35(['pro', 'studio'].includes(profile?.subscription_plan ?? 'free'))
     }
 
     setLoading(false)
