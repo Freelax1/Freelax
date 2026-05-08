@@ -13,8 +13,12 @@ import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
 import MileageForm from '@/components/mileage-form'
-import { Paperclip, Trash2, Car, MoreVertical, Pencil, CheckSquare, Square } from 'lucide-react'
+import { Paperclip, Trash2, Car, MoreVertical, Pencil, CheckSquare, Square, Lock, ArrowRight } from 'lucide-react'
 import type { Expense } from '@/types/database'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { getLimits } from '@/lib/plan-limits'
+import type { Plan } from '@/lib/plan-limits'
 
 type Tab = 'expenses' | 'mileage'
 
@@ -129,6 +133,7 @@ export default function ExpensesPage() {
   const [selected, setSelected]     = useState<Set<string>>(new Set())
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [canUseMileage, setCanUseMileage] = useState(false)
 
   const { start, end, label } = getCurrentTaxYear()
   const taxYearStart = start.getFullYear()
@@ -138,6 +143,16 @@ export default function ExpensesPage() {
     const profile = user ? await fetchUserProfile(user.id) : null
     if (user) setUserId(user.id)
     setVatRegistered(!!profile?.vat_registered)
+    if (user) {
+      const supabase = createClient()
+      const { data: planProfile } = await supabase
+        .from('users')
+        .select('subscription_plan')
+        .eq('id', user.id)
+        .single()
+      const plan = (planProfile?.subscription_plan ?? 'free') as Plan
+      setCanUseMileage(getLimits(plan).canUseMileage)
+    }
     const [exp, mil] = await Promise.all([
       fetchExpenses(start, end),
       user ? fetchMileageEntries(user.id, taxYearStart) : Promise.resolve([]),
@@ -212,9 +227,11 @@ export default function ExpensesPage() {
           : `${mileage.length} journeys · ${totalMiles.toLocaleString('en-GB')} mi`
         }
         action={
-          <button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
-            {tab === 'expenses' ? 'Add expense' : 'Log journey'}
-          </button>
+          {!(tab === 'mileage' && !canUseMileage) && (
+            <button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
+              {tab === 'expenses' ? 'Add expense' : 'Log journey'}
+            </button>
+          )}
         }
       />
 
@@ -393,7 +410,7 @@ export default function ExpensesPage() {
         </div>
 
       {/* Mileage tab */}
-      {tab === 'mileage' && !loading && (
+      {tab === 'mileage' && canUseMileage && !loading && (
         <>
           <div className="grid grid-cols-3 gap-4 mb-4">
             {[
@@ -417,7 +434,7 @@ export default function ExpensesPage() {
         </>
       )}
 
-      {tab === 'mileage' && (
+      {tab === 'mileage' && canUseMileage && (
         !loading && !mileage.length ? (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
             <Car className="w-10 h-10 text-slate-200 mx-auto mb-3" />
@@ -502,6 +519,23 @@ export default function ExpensesPage() {
             </div>
           </>
         )
+      )}
+
+      {tab === 'mileage' && !canUseMileage && !loading && (
+        <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
+          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+            <Lock className="w-5 h-5 text-slate-400" />
+          </div>
+          <p className="text-sm font-medium text-slate-700 mb-1">
+            Mileage tracking is available on the Solo plan and above
+          </p>
+          <Link
+            href="/settings?tab=billing"
+            className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800"
+          >
+            Upgrade to Solo <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       )}
 
       {deleteTarget && <DeleteModal onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}

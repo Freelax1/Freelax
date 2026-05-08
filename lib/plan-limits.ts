@@ -12,38 +12,50 @@ import { createClient } from '@/lib/supabase/server'
 export type Plan = 'free' | 'solo' | 'pro' | 'studio'
 
 export interface PlanLimits {
-  invoicesPerMonth:  number   // -1 = unlimited
-  clientsTotal:      number   // -1 = unlimited
-  expensesPerMonth:  number   // -1 = unlimited
-  aiCallsPerMonth:   number   // -1 = unlimited
-  canSendByEmail:    boolean
-  canUseStripe:      boolean
-  canUseRecurring:   boolean
+  invoicesPerMonth:    number   // -1 = unlimited
+  clientsTotal:        number   // -1 = unlimited
+  expensesPerMonth:    number   // -1 = unlimited
+  aiCallsPerMonth:     number   // -1 = unlimited
+  canSendByEmail:      boolean
+  canUseStripe:        boolean
+  canUseRecurring:     boolean
   canInviteAccountant: boolean
-  seats:             number
+  canUseIR35:          boolean
+  canUseMileage:       boolean
+  canExport:           boolean
+  quotesPerMonth:      number   // -1 = unlimited
+  seats:               number
 }
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   free: {
-    invoicesPerMonth:    10,
+    invoicesPerMonth:    3,
     clientsTotal:        1,
-    expensesPerMonth:    20,
-    aiCallsPerMonth:     10,
+    expensesPerMonth:    10,
+    aiCallsPerMonth:     5,
     canSendByEmail:      false,
     canUseStripe:        false,
     canUseRecurring:     false,
     canInviteAccountant: false,
+    canUseIR35:          false,
+    canUseMileage:       false,
+    canExport:           false,
+    quotesPerMonth:      1,
     seats:               1,
   },
   solo: {
-    invoicesPerMonth:    10,
-    clientsTotal:        3,
-    expensesPerMonth:    20,
+    invoicesPerMonth:    -1,
+    clientsTotal:        5,
+    expensesPerMonth:    -1,
     aiCallsPerMonth:     50,
-    canSendByEmail:      false,
-    canUseStripe:        false,
+    canSendByEmail:      true,
+    canUseStripe:        true,
     canUseRecurring:     false,
     canInviteAccountant: false,
+    canUseIR35:          false,
+    canUseMileage:       true,
+    canExport:           true,
+    quotesPerMonth:      -1,
     seats:               1,
   },
   pro: {
@@ -55,6 +67,10 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     canUseStripe:        true,
     canUseRecurring:     true,
     canInviteAccountant: true,
+    canUseIR35:          true,
+    canUseMileage:       true,
+    canExport:           true,
+    quotesPerMonth:      -1,
     seats:               1,
   },
   studio: {
@@ -66,7 +82,11 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     canUseStripe:        true,
     canUseRecurring:     true,
     canInviteAccountant: true,
-    seats:               3,
+    canUseIR35:          true,
+    canUseMileage:       true,
+    canExport:           true,
+    quotesPerMonth:      -1,
+    seats:               1,
   },
 }
 

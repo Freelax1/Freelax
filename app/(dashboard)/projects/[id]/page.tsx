@@ -12,8 +12,11 @@ import IR35Questionnaire from '@/components/ir35-questionnaire'
 import ProjectForm from '@/components/project-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Lock, ArrowRight } from 'lucide-react'
 import type { IR35Answer, IR35Status } from '@/types/database'
+import { createClient } from '@/lib/supabase/client'
+import { getLimits } from '@/lib/plan-limits'
+import type { Plan } from '@/lib/plan-limits'
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const [project, setProject]   = useState<any>(null)
@@ -21,6 +24,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
   const [loading, setLoading]   = useState(true)
   const [editOpen, setEditOpen] = useState(false)
   const [ir35Status, setIr35Status] = useState<IR35Status>('needs_review')
+  const [canUseIR35, setCanUseIR35] = useState(false)
 
   async function load() {
     const [proj, inv] = await Promise.all([
@@ -31,6 +35,19 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
     setProject(proj)
     setIr35Status(proj.ir35_status ?? 'needs_review')
     setInvoices(inv)
+
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('subscription_plan')
+        .eq('id', user.id)
+        .single()
+      const plan = (profile?.subscription_plan ?? 'free') as Plan
+      setCanUseIR35(getLimits(plan).canUseIR35)
+    }
+
     setLoading(false)
   }
 
@@ -112,14 +129,31 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">IR35 Assessment</h2>
-          <Badge status={ir35Status} />
+          {canUseIR35 && <Badge status={ir35Status} />}
         </div>
-        <IR35Questionnaire
-          projectId={project.id}
-          initialAnswers={project.ir35_answers ?? []}
-          initialStatus={project.ir35_status}
-          onSave={handleIR35Save}
-        />
+        {canUseIR35 ? (
+          <IR35Questionnaire
+            projectId={project.id}
+            initialAnswers={project.ir35_answers ?? []}
+            initialStatus={project.ir35_status}
+            onSave={handleIR35Save}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+              <Lock className="w-5 h-5 text-slate-400" />
+            </div>
+            <p className="text-sm font-medium text-slate-700 mb-1">
+              IR35 assessment is available on the Pro plan
+            </p>
+            <Link
+              href="/settings?tab=billing"
+              className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800"
+            >
+              Upgrade to Pro <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-6">

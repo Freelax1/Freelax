@@ -16,7 +16,7 @@ import AIFlag from '@/components/ai-flag'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
-import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap, RotateCcw } from 'lucide-react'
+import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap, RotateCcw, Lock } from 'lucide-react'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
@@ -24,6 +24,8 @@ import type {
   TaxPotEntry, Invoice, Expense, MileageEntry,
   BusinessType, StudentLoanPlan, TaxDetail,
 } from '@/types/database'
+import { getLimits } from '@/lib/plan-limits'
+import type { Plan } from '@/lib/plan-limits'
 
 type PaidInvoiceRow = {
   id: string
@@ -307,6 +309,7 @@ export default function TaxPage() {
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
   const [exportLoading, setExportLoading]   = useState(false)
+  const [canExport, setCanExport]           = useState(false)
 
   useEffect(() => {
     try {
@@ -321,6 +324,17 @@ export default function TaxPage() {
     async function load() {
       const user   = await fetchCurrentUser()
       const userId = user?.id ?? ''
+
+      if (user) {
+        const supabase = createClient()
+        const { data: planProfile } = await supabase
+          .from('users')
+          .select('subscription_plan')
+          .eq('id', userId)
+          .single()
+        const plan = (planProfile?.subscription_plan ?? 'free') as Plan
+        setCanExport(getLimits(plan).canExport)
+      }
 
       const [paidInvoices, expenses, profile] = await Promise.all([
         fetchPaidInvoicesByUser(userId, start, end),
@@ -462,14 +476,25 @@ export default function TaxPage() {
         subtitle={`Tax year ${label} · 6 Apr – 5 Apr`}
         action={
           <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={downloadSAPack}
-              disabled={exportLoading || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
-            >
-              <Download className="w-3.5 h-3.5" />
-              {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
-            </button>
+            {canExport ? (
+              <button
+                onClick={downloadSAPack}
+                disabled={exportLoading || loading}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+              >
+                <Download className="w-3.5 h-3.5" />
+                {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
+              </button>
+            ) : (
+              <Link
+                href="/settings?tab=billing"
+                title="Export is available on the Solo plan and above. Upgrade to unlock."
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-medium hover:bg-slate-200"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Download {label} SA pack
+              </Link>
+            )}
 
             <button onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }} disabled={narrativeLoading || loading}
               className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
@@ -1000,9 +1025,19 @@ export default function TaxPage() {
                   {pageData.paidInvoices?.length ?? 0} invoices · {formatCurrency(pageData.totalIncomeExVat)} ex-VAT
                 </p>
               </div>
-              <button onClick={() => exportCSV('income')} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">
-                <Download className="w-3 h-3" /> CSV
-              </button>
+              {canExport ? (
+                <button onClick={() => exportCSV('income')} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">
+                  <Download className="w-3 h-3" /> CSV
+                </button>
+              ) : (
+                <Link
+                  href="/settings?tab=billing"
+                  title="Export is available on the Solo plan and above. Upgrade to unlock."
+                  className="flex items-center gap-1.5 text-xs text-slate-300 border border-slate-100 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
+                >
+                  <Lock className="w-3 h-3" /> CSV
+                </Link>
+              )}
             </div>
             {pageData.paidInvoices?.length ? (
               <table className="w-full text-sm">

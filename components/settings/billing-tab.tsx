@@ -56,28 +56,6 @@ export default function BillingTab({ profile }: Props) {
       ],
       missing: [],
     },
-    {
-      id: 'studio',
-      name: 'Studio',
-      monthly: 39,
-      yearly: 329,
-      yearlySaving: 139,
-      badge: null,
-      description: 'For agencies and established freelancers',
-      features: [
-        'Everything in Pro',
-        '3 user seats',
-        'Client portal',
-        'White-labelled experience',
-        '750 AI calls / month',
-        'Advanced financial reports',
-        'IR35 audit trail PDF',
-        'Bulk expense import',
-        'Mileage tracker',
-        'Onboarding call',
-      ],
-      missing: [],
-    },
   ]
 
   function handleUpgrade(planId: string) {
@@ -116,7 +94,7 @@ export default function BillingTab({ profile }: Props) {
       </div>
 
       {/* Plan cards — always shown, current plan highlighted */}
-      {currentPlan !== 'studio' ? (
+      {!['pro', 'studio'].includes(currentPlan) ? (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           {/* Heading + yearly toggle */}
           <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
@@ -146,7 +124,7 @@ export default function BillingTab({ profile }: Props) {
           {/* Plan cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {plans.map(plan => {
-              const planOrder = ['free', 'solo', 'pro', 'studio']
+              const planOrder = ['free', 'solo', 'pro']
               const isCurrent = plan.id === currentPlan
               const isBelow = planOrder.indexOf(plan.id) < planOrder.indexOf(currentPlan)
               const isDark = plan.id === 'pro' && !isCurrent && !isBelow
@@ -270,8 +248,10 @@ export default function BillingTab({ profile }: Props) {
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-slate-900">You are on the Studio plan</p>
-              <p className="text-sm text-slate-500 mt-0.5">This is our highest tier — you have access to everything Freelax offers.</p>
+              <p className="font-semibold text-slate-900">
+                {currentPlan === 'pro' ? 'You are on the Pro plan' : 'You are on our top plan'}
+              </p>
+              <p className="text-sm text-slate-500 mt-0.5">You have access to everything Freelax offers.</p>
             </div>
           </div>
         </div>
