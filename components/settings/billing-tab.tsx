@@ -28,7 +28,6 @@ export default function BillingTab({ profile }: Props) {
         '3 active clients',
         '20 expenses / month',
         'Full UK tax engine',
-        'IR35 assessment',
         'Basic P&L summary',
         '50 AI calls / month',
       ],
