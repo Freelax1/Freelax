@@ -23,7 +23,27 @@
       "Bash(]\\\\page.tsx'\\) -replace 'Powered by freedesk', 'Powered by Freelax' | Set-Content 'app\\\\inv\\\\`[token)",
       "Bash(powershell -Command \"\\(Get-Content 'app\\\\inv\\\\`[token`]\\\\page.tsx'\\) -replace 'Powered by freedesk', 'Powered by Freelax' | Set-Content 'app\\\\inv\\\\`[token`]\\\\page.tsx' -Encoding utf8\")",
       "PowerShell($f = Get-Item -LiteralPath 'C:\\\\Freedesk\\\\app\\\\inv\\\\[token]\\\\page.tsx'; Write-Host \"Attributes: $\\($f.Attributes\\)\"; Write-Host \"IsReadOnly: $\\($f.IsReadOnly\\)\")",
-      "PowerShell(Set-ItemProperty *)"
+      "PowerShell(Set-ItemProperty *)",
+      "Bash(git revert *)",
+      "Bash(curl -s http://localhost:3000/auth/login)",
+      "Bash(curl -s http://localhost:3000/auth/forgot-password)",
+      "Bash(npx kill-port *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(xargs ls *)",
+      "Bash(xargs grep *)",
+      "Bash(xargs cat *)",
+      "Bash(xargs basename *)",
+      "Bash(vercel ls *)",
+      "Bash(vercel logs *)",
+      "Bash(git pull *)",
+      "Bash(node *)",
+      "Bash(git restore *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git config *)",
+      "Bash(Find \"C:\\\\Freelax\" -type f -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(Find \"C:\\\\Freelax\\\\app\\\\api\" -type f -name \"*.ts\")",
+      "Bash(git rm *)"
     ]
   }
 }

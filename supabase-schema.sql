@@ -1,5 +1,5 @@
 -- ============================================
--- Freedesk — Supabase Schema
+-- Freelax — Supabase Schema
 -- Run this in your Supabase SQL editor
 -- ============================================
 
@@ -65,6 +65,25 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- businesses: separates business identity from user identity;
+-- enables multi-business support for MTD multi-source income
+CREATE TABLE IF NOT EXISTS businesses (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  business_name   TEXT,
+  business_type   TEXT DEFAULT 'sole_trader',
+  utr_number      TEXT,
+  vat_number      TEXT,
+  vat_registered  BOOLEAN DEFAULT false,
+  is_primary      BOOLEAN NOT NULL DEFAULT true,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_businesses_user_id ON businesses(user_id);
+ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own businesses"
+  ON businesses FOR ALL USING (auth.uid() = user_id);
 
 CREATE TABLE IF NOT EXISTS clients (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -418,25 +437,6 @@ CREATE POLICY "Users view own ai calls" ON ai_calls
 -- ============================================================
 -- MTD Phase 1: Foundation Schema (added May 2026)
 -- ============================================================
-
--- businesses: separates business identity from user identity;
--- enables multi-business support for MTD multi-source income
-CREATE TABLE IF NOT EXISTS businesses (
-  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  business_name   TEXT,
-  business_type   TEXT DEFAULT 'sole_trader',
-  utr_number      TEXT,
-  vat_number      TEXT,
-  vat_registered  BOOLEAN DEFAULT false,
-  is_primary      BOOLEAN NOT NULL DEFAULT true,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_businesses_user_id ON businesses(user_id);
-ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users manage own businesses"
-  ON businesses FOR ALL USING (auth.uid() = user_id);
 
 -- oauth_connections: stores HMRC OAuth tokens per user
 CREATE TABLE IF NOT EXISTS oauth_connections (

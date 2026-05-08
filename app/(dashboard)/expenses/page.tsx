@@ -227,11 +227,11 @@ export default function ExpensesPage() {
           : `${mileage.length} journeys · ${totalMiles.toLocaleString('en-GB')} mi`
         }
         action={
-          {!(tab === 'mileage' && !canUseMileage) && (
+          !(tab === 'mileage' && !canUseMileage) && (
             <button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
               {tab === 'expenses' ? 'Add expense' : 'Log journey'}
             </button>
-          )}
+          )
         }
       />
 
