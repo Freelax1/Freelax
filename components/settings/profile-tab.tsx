@@ -55,7 +55,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
 
           {/* Preview */}
           <div
-            className="relative flex-shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden group cursor-pointer hover:border-slate-300 hover:bg-slate-100 transition-all"
+            className="relative flex-shrink-0 w-16 h-16 rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden group cursor-pointer hover:border-slate-300 hover:bg-slate-100 transition-all"
             onClick={() => !logoUploading && fileRef.current?.click()}
           >
             {logoUrl ? (
@@ -67,7 +67,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
               </>
             ) : (
               <div className="flex flex-col items-center gap-1.5">
-                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
                   {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
                 </div>
                 <span className="text-xs text-slate-400">Logo</span>

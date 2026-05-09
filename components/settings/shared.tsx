@@ -4,7 +4,7 @@ import React from 'react'
 
 export const inputClass = 'w-full px-3 py-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 bg-white transition-colors'
 export const labelClass = 'block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5'
-export const btnClass   = 'inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors'
+export const btnClass   = 'inline-flex items-center px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors w-auto'
 
 export const TABS = [
   'Profile',

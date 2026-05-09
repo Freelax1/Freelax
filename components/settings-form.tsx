@@ -75,7 +75,7 @@ export default function SettingsForm({ profile, email }: Props) {
 
         {/* Identity block */}
         <div className="flex items-center gap-3 px-3 py-3 mb-4 border-b border-slate-100">
-          <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: '#1D6B35' }}>
             {initials}
           </div>
           <div className="min-w-0">
