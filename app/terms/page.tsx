@@ -79,6 +79,7 @@ export default function TermsPage() {
             <li>Attempt to reverse-engineer or circumvent the platform</li>
             <li>Upload malicious code or content</li>
             <li>Use the service for any unlawful purpose</li>
+            <li>Use the service to facilitate tax evasion, money laundering, or any activity that is illegal under UK tax law</li>
           </ul>
           <p style={{ margin: '12px 0 0' }}>
             We reserve the right to remove content or suspend accounts that breach these conditions.
@@ -120,6 +121,15 @@ export default function TermsPage() {
         <Section id="liability" title="9. Limitation of liability">
           <p style={{ margin: 0 }}>
             To the maximum extent permitted by UK law, Freelax by Britnova&rsquo;s total liability for any claim arising out of or relating to this service is limited to <strong>the amount you paid us in the 12 months preceding the claim</strong>. We are not liable for indirect, incidental, or consequential losses, including lost profits or data.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            We do not guarantee uninterrupted or error-free access to the service. We will use reasonable endeavours to maintain availability but accept no liability for downtime caused by third-party infrastructure providers or circumstances outside our control.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            Free tier accounts are subject to usage limits as described on our pricing page. We reserve the right to modify free tier limits with 30 days notice.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            Certain features may be released in beta or preview status. Beta features are provided as-is without warranty and may be withdrawn or changed at any time.
           </p>
         </Section>
 

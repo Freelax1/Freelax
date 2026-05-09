@@ -69,6 +69,7 @@ export default function PrivacyPage() {
             <li><strong>Usage data</strong> — pages visited, features used, browser and device type</li>
             <li><strong>Communication records</strong> — if you contact our support team</li>
             <li><strong>Tax identifiers</strong> — UTR and NINO, collected when you connect your HMRC account via Making Tax Digital</li>
+            <li><strong>HMRC connection data</strong> — encrypted OAuth tokens when you connect your HMRC account via Making Tax Digital. We do not store your Government Gateway username or password.</li>
           </ul>
         </Section>
 
@@ -105,7 +106,7 @@ export default function PrivacyPage() {
 
         <Section id="retention" title="6. Data retention">
           <p style={{ margin: 0 }}>
-            We retain your account data for as long as your account is active. If you delete your account, we will erase your personal data within <strong>30 days</strong>, except where we are required to retain it for legal or regulatory purposes.
+            We retain your account data for as long as your account is active. If you delete your account, we will erase your personal data within <strong>30 days</strong>, except where we are required to retain it for legal or regulatory purposes. Certain financial records may be retained for up to 6 years where required by UK law, including the Companies Act 2006, even after account deletion.
           </p>
         </Section>
 
