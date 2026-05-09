@@ -10,33 +10,10 @@ const taglines = [
   "Your business finances. Finally clear.",
 ]
 
-const testimonials = [
-  {
-    quote: "Before Freelax, I had no idea what I owed. Now I know my exact tax bill every month.",
-    name: "Sarah Jenkins",
-    role: "Freelance UX Designer · London",
-    initials: "SJ",
-  },
-  {
-    quote: "As a contractor moving between IR35 statuses, Freelax is the first tool that actually keeps up.",
-    name: "Marcus Chen",
-    role: "IT Contractor · Manchester",
-    initials: "MC",
-  },
-  {
-    quote: "Running my consultancy used to mean weekends with spreadsheets. Now it takes 10 minutes a week.",
-    name: "Priya Shah",
-    role: "Marketing Consultant · Bristol",
-    initials: "PS",
-  },
-]
 
 function RightPanel() {
   const [taglineIdx, setTaglineIdx] = useState(0)
   const [taglineVisible, setTaglineVisible] = useState(true)
-  const [testimonialIdx, setTestimonialIdx] = useState(0)
-  const [testimonialVisible, setTestimonialVisible] = useState(true)
-
   useEffect(() => {
     const interval = setInterval(() => {
       setTaglineVisible(false)
@@ -45,17 +22,6 @@ function RightPanel() {
         setTaglineVisible(true)
       }, 400)
     }, 3000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTestimonialVisible(false)
-      setTimeout(() => {
-        setTestimonialIdx(i => (i + 1) % testimonials.length)
-        setTestimonialVisible(true)
-      }, 400)
-    }, 5000)
     return () => clearInterval(interval)
   }, [])
 
@@ -142,33 +108,23 @@ function RightPanel() {
             background: '#fff',
             borderRadius: 12,
             border: '0.5px solid #E2E8F0',
-            padding: '12px 14px',
+            padding: '14px 16px',
             marginBottom: 14,
-            minHeight: 110,
           }}>
-            <div style={{ opacity: testimonialVisible ? 1 : 0, transition: 'opacity 400ms ease' }}>
-              <p style={{
-                fontSize: 11,
-                color: '#0F172A',
-                lineHeight: 1.6,
-                fontStyle: 'italic',
-                marginBottom: 12,
-              }}>
-                "{testimonials[testimonialIdx].quote}"
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: '#1D6B35',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0,
-                }}>{testimonials[testimonialIdx].initials}</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A' }}>{testimonials[testimonialIdx].name}</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8' }}>{testimonials[testimonialIdx].role}</div>
-                </div>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
+              Built for UK freelancers
+            </p>
+            {[
+              { icon: '⚡', text: 'Real-time tax bill — updated every time you log income or expenses' },
+              { icon: '🧾', text: 'Send professional invoices in under 60 seconds' },
+              { icon: '📊', text: "Safe to Spend — know exactly what's yours after tax each month" },
+              { icon: '🔒', text: 'Bank-grade encryption · UK GDPR compliant · Never sold' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
+                <span style={{ fontSize: 13, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                <p style={{ fontSize: 11, color: '#334155', lineHeight: 1.5 }}>{text}</p>
               </div>
-            </div>
+            ))}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
