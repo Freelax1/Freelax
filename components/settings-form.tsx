@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { TABS, SettingsTab } from './settings/shared'
+import { TABS, TAB_GROUPS, SettingsTab } from './settings/shared'
 import { toast } from '@/lib/toast'
 import type { User } from '@/types/database'
 
@@ -59,36 +59,32 @@ export default function SettingsForm({ profile, email }: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
       {/* Sidebar nav */}
-      <div className="w-full lg:w-44 shrink-0">
-        <nav className="flex flex-row flex-wrap lg:flex-col gap-1 lg:gap-0 lg:space-y-0.5">
-          {TABS.map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                tab === t
-                  ? 'bg-slate-100 text-slate-900'
-                  : t === 'Danger Zone'
-                  ? 'text-red-600 hover:bg-red-50'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              {t}
-            </button>
+      <nav className="w-48 flex-shrink-0">
+        <div className="space-y-5">
+          {TAB_GROUPS.map(group => (
+            <div key={group.label}>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-3 mb-1.5">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.tabs.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      tab === t
+                        ? 'bg-slate-900 text-white font-medium'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    } ${t === 'Danger Zone' ? tab !== t ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'bg-red-600 text-white' : ''}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
-        </nav>
-        <button
-          onClick={async () => {
-            const supabase = createClient()
-            await supabase.auth.signOut()
-            router.push('/auth/login')
-            router.refresh()
-          }}
-          className="lg:hidden mt-3 w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-        >
-          Sign out
-        </button>
-      </div>
+        </div>
+      </nav>
 
       {/* Content */}
       <div className="flex-1 max-w-xl space-y-4">

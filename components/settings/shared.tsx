@@ -22,6 +22,29 @@ export const TABS = [
 
 export type SettingsTab = typeof TABS[number]
 
+export const TAB_GROUPS: { label: string; tabs: SettingsTab[] }[] = [
+  {
+    label: 'Account',
+    tabs:  ['Profile', 'Business details', 'Notifications'],
+  },
+  {
+    label: 'Invoicing',
+    tabs:  ['Invoice Defaults', 'Quote Defaults', 'Banking'],
+  },
+  {
+    label: 'Tax & Compliance',
+    tabs:  ['Personal tax inputs', 'HMRC'],
+  },
+  {
+    label: 'Plan',
+    tabs:  ['Billing', 'Accountant Access'],
+  },
+  {
+    label: 'Advanced',
+    tabs:  ['Danger Zone'],
+  },
+]
+
 export function Field({
   label,
   hint,
