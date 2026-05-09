@@ -629,7 +629,7 @@ export default function Sidebar() {
           {/* Search trigger */}
           <button
             onClick={() => setCmdOpen(true)}
-            title="Search (⌘K)"
+            title="Search"
             style={{
               display:        'flex',
               alignItems:     'center',
@@ -667,7 +667,7 @@ export default function Sidebar() {
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.12)',
               lineHeight: 1.5,
-            }} className="hidden lg:inline">⌘K</kbd>
+            }} className="hidden lg:inline">{typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}</kbd>
           </button>
 
           {/* Notification bell */}
