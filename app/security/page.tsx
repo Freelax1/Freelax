@@ -9,7 +9,7 @@ export const metadata = {
   description: 'How Freelax by Britnova protects your financial data — encryption, compliance, infrastructure, and incident response.',
 }
 
-const UPDATED = '22 April 2026'
+const UPDATED = '9 May 2026'
 
 const TOC = [
   { id: 'encryption',     label: 'Data encryption' },
@@ -93,7 +93,7 @@ export default function SecurityPage() {
       <TrustBadge Icon={Lock}       title="AES-256 at rest"      sub="All data encrypted with industry-standard keys" />
       <TrustBadge Icon={ShieldCheck} title="TLS 1.2+ in transit" sub="Every request secured end-to-end" />
       <TrustBadge Icon={FileCheck2} title="SOC 2 Type II"         sub="Infrastructure via Supabase, independently audited" />
-      <TrustBadge Icon={Globe2}     title="UK & EEA only"         sub="Data stored in European data centres" />
+      <TrustBadge Icon={Globe2}     title="UK only"                sub="Data stored in United Kingdom data centres" />
     </div>
   )
 
@@ -146,7 +146,7 @@ export default function SecurityPage() {
 
         <Section id="location" Icon={Globe2} title="Data location">
           <p style={{ margin: 0 }}>
-            Your data is stored in data centres within the <strong>European Economic Area</strong>. Freelax by Britnova does not transfer personal data outside the UK or EEA without appropriate safeguards — such as Standard Contractual Clauses and adequacy decisions — where such transfers are strictly necessary.
+            Your data is stored in data centres within the <strong>United Kingdom</strong>. Freelax by Britnova does not transfer personal data outside the UK without appropriate safeguards — such as Standard Contractual Clauses and adequacy decisions — where such transfers are strictly necessary.
           </p>
         </Section>
 
@@ -175,7 +175,7 @@ export default function SecurityPage() {
         <Section id="contact" Icon={Mail} title="Contact">
           <p style={{ margin: 0 }}>
             Questions about security, compliance, or data protection? Email{' '}
-            <a href="mailto:security@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>security@freelax.co.uk</a>. We aim to respond within two business days.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We aim to respond within two business days.
           </p>
         </Section>
       </div>

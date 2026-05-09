@@ -5,7 +5,7 @@ export const metadata = {
   description: 'Terms that govern your use of Freelax by Britnova — a financial management tool for UK freelancers.',
 }
 
-const UPDATED = '22 April 2026'
+const UPDATED = '9 May 2026'
 
 const TOC = [
   { id: 'about',              label: '1. About Freelax by Britnova' },
