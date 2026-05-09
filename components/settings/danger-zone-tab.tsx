@@ -36,7 +36,7 @@ export default function DangerZoneTab() {
     <div className="space-y-4">
 
       {/* Data export — not dangerous, shown separately */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-slate-900 mb-1">Export your data</h2>
@@ -109,7 +109,7 @@ export default function DangerZoneTab() {
       </div>
 
       {/* Danger zone */}
-      <div className="bg-white rounded-xl border border-red-200 p-6">
+      <div className="pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <p className="text-sm font-medium text-red-700">Delete account</p>

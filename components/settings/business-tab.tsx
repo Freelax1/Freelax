@@ -26,7 +26,7 @@ export default function BusinessTab({ profile, save, saving }: Props) {
   })
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+    <div className="space-y-5">
       <Field label="Business name">
         <input className={inputClass} value={bf.business_name} onChange={e => setBf(p => ({ ...p, business_name: e.target.value }))} />
       </Field>

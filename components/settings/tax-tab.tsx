@@ -23,7 +23,7 @@ export default function TaxTab({ profile, save, saving }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <div className="space-y-5">
         <div>
           <h2 className="font-semibold text-slate-900">Tax profile</h2>
           <p className="text-sm text-slate-500 mt-1">

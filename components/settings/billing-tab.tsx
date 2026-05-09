@@ -121,7 +121,7 @@ export default function BillingTab({ profile }: Props) {
       )}
 
       {/* Current plan banner */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div className="flex items-center justify-between flex-wrap gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
           <div>
             <p className="text-sm text-slate-500 mb-0.5">Current plan</p>
@@ -150,7 +150,7 @@ export default function BillingTab({ profile }: Props) {
 
       {/* Plan cards */}
       {!['pro', 'studio'].includes(currentPlan) ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="pb-6 border-b border-slate-100 last:border-0 last:pb-0">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
             <div>
               <h3 className="font-semibold text-slate-900">
@@ -281,7 +281,7 @@ export default function BillingTab({ profile }: Props) {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="pb-6 border-b border-slate-100 last:border-0 last:pb-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">

@@ -23,7 +23,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
       <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
         These details appear on your invoice PDFs only. Freelax does not process payments or access your bank account.
       </p>
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5">
         <div className="flex items-center gap-2 mb-1">
           <Building2 className="w-4 h-4 text-slate-400" />
           <h2 className="font-semibold text-slate-900">Bank details</h2>

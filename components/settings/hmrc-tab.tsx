@@ -63,7 +63,7 @@ export default function HmrcTab() {
     <div className="space-y-5">
 
       {/* Header card */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <p className="text-sm text-slate-500">
             Connect your HMRC account to submit Making Tax Digital (MTD) returns directly from Freelax.
@@ -120,7 +120,7 @@ export default function HmrcTab() {
       </div>
 
       {/* What is MTD explainer */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <h3 className="font-semibold text-slate-900">What is Making Tax Digital?</h3>
         <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
           <p>

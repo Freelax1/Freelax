@@ -20,6 +20,13 @@ import AccountantTab       from './settings/accountant-tab'
 import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 
+const PLAN_LABELS: Record<string, { label: string; color: string }> = {
+  free:   { label: 'Free',   color: 'bg-slate-100 text-slate-500' },
+  solo:   { label: 'Solo',   color: 'bg-blue-50 text-blue-600' },
+  pro:    { label: 'Pro',    color: 'bg-green-50 text-green-700' },
+  studio: { label: 'Studio', color: 'bg-purple-50 text-purple-700' },
+}
+
 interface Props {
   profile: User
   email: string
@@ -39,6 +46,11 @@ export default function SettingsForm({ profile, email }: Props) {
 
   const [saving, setSaving] = useState(false)
 
+  const displayName = profile?.full_name || email.split('@')[0] || 'You'
+  const initials    = displayName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+  const plan        = (profile?.subscription_plan as string) ?? 'free'
+  const planMeta    = PLAN_LABELS[plan] ?? PLAN_LABELS.free
+
   async function save(data: Record<string, any>) {
     setSaving(true)
     try {
@@ -48,6 +60,7 @@ export default function SettingsForm({ profile, email }: Props) {
       const { error } = await supabase.from('users').update(data).eq('id', user.id)
       if (error) throw error
       toast('Settings saved')
+      router.refresh()
     } catch {
       toast('Failed to save. Please try again.', 'error')
     } finally {
@@ -58,7 +71,21 @@ export default function SettingsForm({ profile, email }: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
       {/* Sidebar nav */}
-      <nav className="w-full lg:w-48 flex-shrink-0">
+      <nav className="w-full lg:w-52 flex-shrink-0">
+
+        {/* Identity block */}
+        <div className="flex items-center gap-3 px-3 py-3 mb-4 border-b border-slate-100">
+          <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            {initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900 truncate">{displayName}</p>
+            <span className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded mt-0.5 ${planMeta.color}`}>
+              {planMeta.label}
+            </span>
+          </div>
+        </div>
+
         <div className="space-y-5">
           {TAB_GROUPS.map(group => (
             <div key={group.label}>
@@ -70,11 +97,16 @@ export default function SettingsForm({ profile, email }: Props) {
                   <button
                     key={t}
                     onClick={() => setTab(t)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                    style={tab === t && t !== 'Danger Zone' ? { borderLeft: '2px solid #1D6B35' } : { borderLeft: '2px solid transparent' }}
+                    className={`w-full text-left px-3 py-2 text-sm transition-all ${
                       tab === t
-                        ? 'bg-slate-100 text-slate-900 font-semibold'
-                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
-                    } ${t === 'Danger Zone' ? tab !== t ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'bg-red-50 text-red-700 font-semibold' : ''}`}
+                        ? t === 'Danger Zone'
+                          ? 'text-red-600 font-medium bg-red-50 rounded-lg'
+                          : 'text-slate-900 font-medium bg-slate-50 rounded-r-lg'
+                        : t === 'Danger Zone'
+                        ? 'text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg'
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg'
+                    }`}
                   >
                     {t}
                   </button>
@@ -83,6 +115,7 @@ export default function SettingsForm({ profile, email }: Props) {
             </div>
           ))}
         </div>
+
         <button
           onClick={async () => {
             const supabase = createClient()
@@ -97,10 +130,10 @@ export default function SettingsForm({ profile, email }: Props) {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-4">
+      <div className="flex-1 min-w-0 max-w-[580px] space-y-4">
         {/* Tab header */}
         <div className="mb-2">
-          <h1 className="text-lg font-bold text-slate-900">{tab}</h1>
+          <h1 className="text-base font-bold text-slate-900">{tab}</h1>
           <p className="text-sm text-slate-500 mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
         </div>
 

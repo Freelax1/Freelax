@@ -22,7 +22,7 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
     <div className="space-y-4">
 
       {/* Quote defaults */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <p className="text-sm text-slate-500">Pre-filled on every new quote you create.</p>
         </div>
@@ -62,7 +62,7 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Email message */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <h2 className="font-semibold text-slate-900">Quote email message</h2>
           <p className="text-sm text-slate-500 mt-1">

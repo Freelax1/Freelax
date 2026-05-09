@@ -31,7 +31,7 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
     <div className="space-y-4">
 
       {/* Address */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <h2 className="font-semibold text-slate-900">Invoice address</h2>
           <p className="text-sm text-slate-500 mt-1">This address appears on all invoices sent to clients.</p>
@@ -56,7 +56,7 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Numbering + default notes */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <h2 className="font-semibold text-slate-900">Invoice numbering</h2>
           <p className="text-sm text-slate-500 mt-1">Pre-filled on every new invoice you create.</p>
@@ -85,7 +85,7 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Email template */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
         <div>
           <h2 className="font-semibold text-slate-900">Invoice email message</h2>
           <p className="text-sm text-slate-500 mt-1">
