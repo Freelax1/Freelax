@@ -17,7 +17,7 @@ import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
 import Link from 'next/link'
-import { Zap, ArrowRight, Plus, HelpCircle, FileText } from 'lucide-react'
+import { Zap, ArrowRight, Plus, HelpCircle } from 'lucide-react'
 
 // ── Local types ────────────────────────────────────────────────────────
 type ComingItem = {
@@ -139,7 +139,7 @@ export default function DashboardPage() {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
-if (e.key === 'n' || e.key === 'N') { window.location.href = '/invoices/new'; return }
+      if (e.key === 'n' || e.key === 'N') { window.location.href = '/invoices/new'; return }
       if (e.key === 't' || e.key === 'T') { window.location.href = '/tax'; return }
       if (e.key === 'e' || e.key === 'E') { window.location.href = '/expenses'; return }
     }
