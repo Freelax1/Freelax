@@ -11,6 +11,7 @@ import {
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import AiLauncher  from './components/ai-launcher'
 import StatusLine  from './components/status-line'
 import ThreePots   from './components/three-pots'
 import ThisMonth   from './components/this-month'
@@ -388,6 +389,8 @@ export default function DashboardPage() {
               hasProfile={data.hasProfileComplete}
             />
           )}
+
+          <AiLauncher />
 
           {/* A. The Line */}
           <div>
