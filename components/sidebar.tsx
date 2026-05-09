@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { Menu, X, ChevronRight, Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import CommandMenu from '@/components/command-menu'
 
 // ── types ──────────────────────────────────────────────────────────────
 interface DropdownItem {
@@ -495,6 +496,7 @@ export default function Sidebar() {
   const [notifOpen, setNotifOpen] = useState(false)
   const [notifSeen, setNotifSeen] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)
+  const [cmdOpen, setCmdOpen] = useState(false)
 
   // Load dropdown data once on mount
   useEffect(() => {
@@ -529,6 +531,17 @@ export default function Sidebar() {
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCmdOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   const { visible: notifications, dismiss: dismissNotif, suppress: suppressNotif } = useNotifications(
@@ -613,6 +626,50 @@ export default function Sidebar() {
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-3 h-12">
+          {/* Search trigger */}
+          <button
+            onClick={() => setCmdOpen(true)}
+            title="Search (⌘K)"
+            style={{
+              display:        'flex',
+              alignItems:     'center',
+              gap:            6,
+              padding:        '5px 10px',
+              borderRadius:   7,
+              border:         '1px solid rgba(255,255,255,0.1)',
+              background:     'rgba(255,255,255,0.06)',
+              color:          'rgba(255,255,255,0.5)',
+              cursor:         'pointer',
+              fontSize:       12,
+              fontFamily:     "'Plus Jakarta Sans', sans-serif",
+              transition:     'all 150ms',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.8)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M8.5 8.5l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            <span className="hidden lg:inline">Search</span>
+            <kbd style={{
+              fontSize: 10,
+              padding: '1px 5px',
+              borderRadius: 4,
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              lineHeight: 1.5,
+            }} className="hidden lg:inline">⌘K</kbd>
+          </button>
+
           {/* Notification bell */}
           <div ref={notifRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <button
@@ -734,6 +791,8 @@ export default function Sidebar() {
           </button>
         </div>
       </header>
+
+      <CommandMenu open={cmdOpen} onClose={() => setCmdOpen(false)} />
 
       {/* Mobile menu */}
       {mobileOpen && (

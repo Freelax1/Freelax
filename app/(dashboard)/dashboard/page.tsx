@@ -16,7 +16,6 @@ import ThreePots   from './components/three-pots'
 import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
-import CommandMenu from './components/command-menu'
 import Link from 'next/link'
 import { Zap, ArrowRight, Plus, HelpCircle, FileText } from 'lucide-react'
 
@@ -132,7 +131,6 @@ function ShortcutHint() {
 export default function DashboardPage() {
   const [data, setData]           = useState<DashboardData | null>(null)
   const [loading, setLoading]     = useState(true)
-  const [cmdOpen, setCmdOpen]     = useState(false)
   const [syncedAt, setSyncedAt]   = useState<Date | null>(null)
   const { start, end, label }     = getCurrentTaxYear()
 
@@ -141,8 +139,7 @@ export default function DashboardPage() {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(true); return }
-      if (e.key === 'n' || e.key === 'N') { window.location.href = '/invoices/new'; return }
+if (e.key === 'n' || e.key === 'N') { window.location.href = '/invoices/new'; return }
       if (e.key === 't' || e.key === 'T') { window.location.href = '/tax'; return }
       if (e.key === 'e' || e.key === 'E') { window.location.href = '/expenses'; return }
     }
@@ -346,7 +343,6 @@ export default function DashboardPage() {
   return (
     <>
       <LoadingBar active={loading} />
-      <CommandMenu open={cmdOpen} onClose={() => setCmdOpen(false)} />
       <ShortcutHint />
 
       {/* Header row — New invoice button sits here, no overlap */}
