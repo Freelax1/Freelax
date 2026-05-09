@@ -4,6 +4,7 @@ import Sidebar from '@/components/sidebar'
 import TaxQAChat from '@/components/tax-qa-chat'
 import { PWAInstallBanner } from '@/components/pwa-install-banner'
 import CookieNotice from '@/components/cookie-notice'
+import Toaster from '@/components/toaster'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -24,6 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <TaxQAChat />
       <PWAInstallBanner />
       <CookieNotice />
+      <Toaster />
     </div>
   )
 }

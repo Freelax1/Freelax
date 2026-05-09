@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { TABS, SettingsTab } from './settings/shared'
+import { toast } from '@/lib/toast'
 import type { User } from '@/types/database'
 
 import ProfileTab          from './settings/profile-tab'
@@ -37,22 +38,22 @@ export default function SettingsForm({ profile, email }: Props) {
   })
 
   const [saving, setSaving] = useState(false)
-  const [saved,  setSaved]  = useState(false)
   const [error,  setError]  = useState<string | null>(null)
 
   async function save(data: Record<string, any>) {
     setSaving(true)
-    setError(null)
-    const supabase = createClient()
-    const { error: err } = await supabase
-      .from('users')
-      .update({ ...data, updated_at: new Date().toISOString() })
-      .eq('id', profile.id)
-    setSaving(false)
-    if (err) { setError(err.message); return }
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-    router.refresh()
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+      const { error } = await supabase.from('users').update(data).eq('id', user.id)
+      if (error) throw error
+      toast('Settings saved')
+    } catch {
+      toast('Failed to save. Please try again.', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -91,11 +92,6 @@ export default function SettingsForm({ profile, email }: Props) {
 
       {/* Content */}
       <div className="flex-1 max-w-xl space-y-4">
-        {saved && (
-          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-2.5 rounded-lg">
-            ✓ Saved successfully
-          </div>
-        )}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-lg">
             Error: {error}
