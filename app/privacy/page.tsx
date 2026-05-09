@@ -6,7 +6,7 @@ export const metadata = {
   description: 'How Freelax by Britnova collects, uses, and protects your personal data under UK GDPR.',
 }
 
-const UPDATED = '22 April 2026'
+const UPDATED = '9 May 2026'
 
 const TOC = [
   { id: 'who-we-are',         label: '1. Who we are' },
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
 
         <Section id="who-we-are" title="1. Who we are">
           <p style={{ margin: 0 }}>
-            Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. You can reach us at{' '}
+            Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. Our registered address is 89 Brassett Point, London, E15 3LB. We are registered with the Information Commissioner&rsquo;s Office (ICO) — registration number pending. You can reach us at{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
@@ -67,6 +67,7 @@ export default function PrivacyPage() {
             <li><strong>Financial data</strong> — invoices, expenses, income figures you enter</li>
             <li><strong>Usage data</strong> — pages visited, features used, browser and device type</li>
             <li><strong>Communication records</strong> — if you contact our support team</li>
+            <li><strong>Tax identifiers</strong> — UTR and NINO, collected when you connect your HMRC account via Making Tax Digital</li>
           </ul>
         </Section>
 
@@ -90,7 +91,7 @@ export default function PrivacyPage() {
 
         <Section id="storage-security" title="5. Storage and security">
           <p style={{ margin: 0 }}>
-            Your data is stored on servers within the European Economic Area via Supabase. All data is encrypted at rest and in transit using industry-standard encryption. We implement access controls, audit logging, and regular security reviews. For more detail see our{' '}
+            Your data is stored on servers located in the United Kingdom via Supabase. All data is encrypted at rest and in transit using industry-standard encryption. We implement access controls, audit logging, and regular security reviews. For more detail see our{' '}
             <Link href="/security" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Security page</Link>.
           </p>
         </Section>
@@ -111,6 +112,7 @@ export default function PrivacyPage() {
             <li><strong>Stripe</strong> — payment processing</li>
             <li><strong>Resend</strong> — transactional email delivery</li>
             <li><strong>Anthropic</strong> — AI features (tax Q&amp;A, expense scanning, IR35 assessments)</li>
+            <li><strong>HMRC</strong> — when you connect your HMRC account via Making Tax Digital, we store encrypted OAuth tokens to submit tax data on your behalf. We do not store your Government Gateway credentials.</li>
           </ul>
           <p style={{ margin: '12px 0 0' }}>
             Each processor is contractually bound to process your data only as instructed and in accordance with UK GDPR.
