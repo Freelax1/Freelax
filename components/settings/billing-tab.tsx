@@ -122,7 +122,6 @@ export default function BillingTab({ profile }: Props) {
 
       {/* Current plan banner */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Billing</h2>
         <div className="flex items-center justify-between flex-wrap gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
           <div>
             <p className="text-sm text-slate-500 mb-0.5">Current plan</p>

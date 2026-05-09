@@ -24,8 +24,7 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
       {/* Quote defaults */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
         <div>
-          <h2 className="font-semibold text-slate-900">Quote defaults</h2>
-          <p className="text-sm text-slate-500 mt-1">Pre-filled on every new quote you create.</p>
+          <p className="text-sm text-slate-500">Pre-filled on every new quote you create.</p>
         </div>
         <Field label="Default validity period (days)" hint="How many days a quote stays open. 30 days is standard.">
           <input

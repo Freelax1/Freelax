@@ -110,7 +110,6 @@ export default function DangerZoneTab() {
 
       {/* Danger zone */}
       <div className="bg-white rounded-xl border border-red-200 p-6">
-        <h2 className="font-semibold text-red-700 mb-4">Danger Zone</h2>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <p className="text-sm font-medium text-red-700">Delete account</p>

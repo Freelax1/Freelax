@@ -43,7 +43,6 @@ export default function AccountantTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-semibold text-slate-900 mb-1">Accountant access</h2>
         <p className="text-sm text-slate-500 mb-4">
           Invite your accountant to view your Freelax data in read-only mode. They can see invoices, expenses, and tax summaries but cannot make any changes.
         </p>

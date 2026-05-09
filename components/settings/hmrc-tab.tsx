@@ -65,8 +65,7 @@ export default function HmrcTab() {
       {/* Header card */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
         <div>
-          <h2 className="font-semibold text-slate-900">HMRC Connection</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500">
             Connect your HMRC account to submit Making Tax Digital (MTD) returns directly from Freelax.
           </p>
         </div>

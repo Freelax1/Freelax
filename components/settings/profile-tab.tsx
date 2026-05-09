@@ -47,8 +47,6 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
-      <h2 className="font-semibold text-slate-900">Profile</h2>
-
       {/* Logo upload */}
       <div>
         <label className={labelClass}>Business logo</label>
