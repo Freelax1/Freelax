@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/sidebar'
 import TaxQAChat from '@/components/tax-qa-chat'
 import { PWAInstallBanner } from '@/components/pwa-install-banner'
+import CookieNotice from '@/components/cookie-notice'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -22,6 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </main>
       <TaxQAChat />
       <PWAInstallBanner />
+      <CookieNotice />
     </div>
   )
 }

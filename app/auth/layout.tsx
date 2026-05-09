@@ -278,6 +278,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               {' · '}
               <Link href="/terms" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms</Link>
             </p>
+            <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '6px 0 0', lineHeight: 1.5 }}>
+              We use strictly necessary cookies to keep you signed in. No tracking or advertising cookies.{' '}
+              <Link href="/privacy#cookies" style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>Learn more</Link>
+            </p>
           </div>
         </div>
 
