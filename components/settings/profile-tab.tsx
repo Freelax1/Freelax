@@ -61,7 +61,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
             {logoUrl ? (
               <>
                 <img src={logoUrl} alt="Business logo" className="w-full h-full object-contain p-2" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
                   <span className="text-white text-xs font-medium">Change</span>
                 </div>
               </>
@@ -71,7 +71,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
               </div>
             )}
             {logoUploading && (
-              <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl">
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
                 <svg className="animate-spin w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2"/>
                   <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>

@@ -71,7 +71,7 @@ export default function SettingsForm({ profile, email }: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Sidebar nav */}
-      <nav className="w-full lg:w-52 flex-shrink-0 lg:bg-[#F0F0EB] lg:rounded-xl lg:p-4 lg:-m-4">
+      <nav className="w-full lg:w-52 flex-shrink-0 lg:bg-[#F0F0EB] lg:rounded-xl lg:p-4">
 
         {/* Identity block */}
         <div className="flex items-center gap-3 px-3 py-3 mb-4 border-b border-slate-100">
