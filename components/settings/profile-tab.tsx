@@ -52,23 +52,41 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
       {/* Logo upload */}
       <div>
         <label className={labelClass}>Business logo</label>
-        <div className="flex items-center gap-4">
-          {logoUrl ? (
-            <div className="relative w-16 h-16 rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
-              <button
-                onClick={removeLogo}
-                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow flex items-center justify-center border border-slate-200 hover:bg-red-50 hover:border-red-200"
-              >
-                <X className="w-3 h-3 text-slate-500" />
-              </button>
-            </div>
-          ) : (
-            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50">
-              <Upload className="w-5 h-5 text-slate-300" />
-            </div>
-          )}
-          <div>
+        <p className="text-xs text-slate-400 mb-3">Appears on all invoices and quotes sent to clients.</p>
+        <div className="flex items-start gap-5">
+
+          {/* Preview */}
+          <div
+            className="relative flex-shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden group cursor-pointer hover:border-slate-300 hover:bg-slate-100 transition-all"
+            onClick={() => !logoUploading && fileRef.current?.click()}
+          >
+            {logoUrl ? (
+              <>
+                <img src={logoUrl} alt="Business logo" className="w-full h-full object-contain p-2" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                  <span className="text-white text-xs font-medium">Change</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm">
+                  {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
+                </div>
+                <span className="text-xs text-slate-400">Logo</span>
+              </div>
+            )}
+            {logoUploading && (
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl">
+                <svg className="animate-spin w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2"/>
+                  <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="pt-1 space-y-2">
             <input
               ref={fileRef}
               type="file"
@@ -79,12 +97,27 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={logoUploading}
-              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 transition-all font-medium"
             >
-              {logoUploading ? 'Uploading…' : logoUrl ? 'Change logo' : 'Upload logo'}
+              <Upload className="w-3.5 h-3.5" />
+              {logoUploading ? 'Uploading…' : logoUrl ? 'Replace logo' : 'Upload logo'}
             </button>
-            <p className="text-xs text-slate-400 mt-1">PNG, JPG or SVG · max 2 MB</p>
-            {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
+            {logoUrl && (
+              <button
+                onClick={removeLogo}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"
+              >
+                <X className="w-3.5 h-3.5" />
+                Remove
+              </button>
+            )}
+            <p className="text-xs text-slate-400 leading-relaxed">
+              PNG, JPG or SVG · max 2 MB<br/>
+              Recommended: 400×400px, transparent background
+            </p>
+            {logoError && (
+              <p className="text-xs text-red-500">{logoError}</p>
+            )}
           </div>
         </div>
       </div>

@@ -45,6 +45,20 @@ export const TAB_GROUPS: { label: string; tabs: SettingsTab[] }[] = [
   },
 ]
 
+export const TAB_DESCRIPTIONS: Record<SettingsTab, string> = {
+  'Profile':             'Your name and contact details — shown on invoices and quotes',
+  'Business details':    'Business name and type — used in all tax calculations',
+  'Notifications':       'Email alerts for invoice activity and payment reminders',
+  'Invoice Defaults':    'Prefix, default notes and email templates for new invoices',
+  'Quote Defaults':      'Prefix, validity period and email templates for new quotes',
+  'Banking':             'Bank details printed on invoices so clients can pay you',
+  'Personal tax inputs': 'Tax code, student loan and pension — affects your tax estimate',
+  'HMRC':                'Connect your HMRC account for Making Tax Digital submissions',
+  'Billing':             'Your current plan, usage and subscription management',
+  'Accountant Access':   'Invite your accountant to view your Freelax data read-only',
+  'Danger Zone':         'Export all your data or permanently delete your account',
+}
+
 export function Field({
   label,
   hint,

@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { TABS, TAB_GROUPS, SettingsTab } from './settings/shared'
+import { TABS, TAB_GROUPS, TAB_DESCRIPTIONS, SettingsTab } from './settings/shared'
 import { toast } from '@/lib/toast'
 import type { User } from '@/types/database'
 
@@ -72,9 +72,9 @@ export default function SettingsForm({ profile, email }: Props) {
                     onClick={() => setTab(t)}
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                       tab === t
-                        ? 'bg-slate-900 text-white font-medium'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    } ${t === 'Danger Zone' ? tab !== t ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'bg-red-600 text-white' : ''}`}
+                        ? 'bg-slate-100 text-slate-900 font-semibold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                    } ${t === 'Danger Zone' ? tab !== t ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'bg-red-50 text-red-700 font-semibold' : ''}`}
                   >
                     {t}
                   </button>
@@ -97,7 +97,13 @@ export default function SettingsForm({ profile, email }: Props) {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 max-w-xl space-y-4">
+      <div className="flex-1 min-w-0 space-y-4">
+        {/* Tab header */}
+        <div className="mb-2">
+          <h1 className="text-lg font-bold text-slate-900">{tab}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
+        </div>
+
         {tab === 'Profile'             && <ProfileTab         profile={profile} email={email} save={save} saving={saving} />}
         {tab === 'Business details'    && <BusinessTab        profile={profile} save={save} saving={saving} />}
         {tab === 'Personal tax inputs' && <TaxTab             profile={profile} save={save} saving={saving} />}

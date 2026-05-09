@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { MessageCircle, X, Send, Loader2, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 
@@ -10,11 +11,14 @@ interface Message {
 }
 
 export default function TaxQAChat() {
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [cooldown, setCooldown] = useState(false)
+
+  if (pathname?.startsWith('/settings')) return null
 
   async function handleSend() {
     const q = input.trim()
