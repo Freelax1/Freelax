@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { toast } from '@/lib/toast'
 
 export function useUndoDelete<T extends { id: string }>(
@@ -47,6 +47,11 @@ export function useUndoDelete<T extends { id: string }>(
 
     timers.current.set(item.id, timer)
   }, [onDelete, getLabel, onRemoved])
+
+  useEffect(() => {
+    const t = timers.current
+    return () => { t.forEach(clearTimeout) }
+  }, [])
 
   return { pendingIds, scheduleDelete }
 }
