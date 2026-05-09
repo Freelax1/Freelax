@@ -1,28 +1,127 @@
 'use client'
 
+import { useState } from 'react'
+
+type ExportState = 'idle' | 'loading' | 'success' | 'error'
+
 export default function DangerZoneTab() {
+  const [exportState, setExportState] = useState<ExportState>('idle')
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  async function handleExport() {
+    setExportState('loading')
+    setExportError(null)
+    try {
+      const res = await fetch('/api/export/all')
+      if (!res.ok) throw new Error('Export failed')
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      const date = new Date().toISOString().slice(0, 10)
+      a.href     = url
+      a.download = `freelax-data-export-${date}.zip`
+      a.click()
+      URL.revokeObjectURL(url)
+      setExportState('success')
+      setTimeout(() => setExportState('idle'), 4000)
+    } catch {
+      setExportError('Export failed. Please try again or contact support@freelax.co.uk.')
+      setExportState('error')
+    }
+  }
+
   return (
-    <div className="bg-white rounded-xl border border-red-200 p-6 space-y-4">
-      <h2 className="font-semibold text-red-700">Danger Zone</h2>
-      <div className="py-3 border-b border-slate-100 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-700">Export all data</p>
-          <p className="text-xs text-slate-400">Download a full export of your account data as CSV</p>
+    <div className="space-y-4">
+
+      {/* Data export — not dangerous, shown separately */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <h2 className="font-semibold text-slate-900 mb-1">Export your data</h2>
+            <p className="text-sm text-slate-500 mb-4">
+              Download a complete copy of everything Freelax holds about you —
+              your legal right under UK GDPR. Opens in Excel or Google Sheets.
+            </p>
+
+            {/* What's included */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {[
+                'Invoices', 'Line items', 'Quotes',
+                'Expenses', 'Clients', 'Projects',
+                'Mileage', 'Profile',
+              ].map(label => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1 text-xs font-medium bg-slate-50 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#1D6B35" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {label}
+                </span>
+              ))}
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Delivered as a ZIP file containing one CSV per data type, plus a README.
+              All records, all time — not just the current tax year.
+            </p>
+          </div>
         </div>
-        <a
-          href="/api/invoices/export?type=full"
-          className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
-        >
-          Export
-        </a>
-      </div>
-      <div className="py-3 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-red-700">Delete account</p>
-          <p className="text-xs text-slate-400">Permanently delete your account and all data</p>
+
+        {exportError && (
+          <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            {exportError}
+          </p>
+        )}
+
+        <div className="mt-4">
+          <button
+            onClick={handleExport}
+            disabled={exportState === 'loading'}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              exportState === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+                : exportState === 'loading'
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                : 'bg-slate-900 text-white hover:bg-slate-800 border border-transparent'
+            }`}
+          >
+            {exportState === 'loading' && (
+              <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2"/>
+                <path d="M7 2a5 5 0 0 1 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            )}
+            {exportState === 'success' && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7l3.5 3.5 6.5-6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            {exportState === 'loading'  && 'Preparing export…'}
+            {exportState === 'success'  && 'Download started'}
+            {exportState === 'idle'     && 'Download export'}
+            {exportState === 'error'    && 'Try again'}
+          </button>
         </div>
-        <button className="px-4 py-2 border border-red-200 rounded-lg text-sm text-red-600 hover:bg-red-50">Delete</button>
       </div>
+
+      {/* Danger zone */}
+      <div className="bg-white rounded-xl border border-red-200 p-6">
+        <h2 className="font-semibold text-red-700 mb-4">Danger Zone</h2>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <p className="text-sm font-medium text-red-700">Delete account</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Permanently delete your account and all associated data. This cannot be undone.
+            </p>
+          </div>
+          <button className="px-4 py-2 border border-red-200 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
+            Delete account
+          </button>
+        </div>
+      </div>
+
     </div>
   )
 }
