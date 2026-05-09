@@ -20,8 +20,10 @@ export default function DangerZoneTab() {
       const date = new Date().toISOString().slice(0, 10)
       a.href     = url
       a.download = `freelax-data-export-${date}.zip`
+      document.body.appendChild(a)
       a.click()
-      URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 10_000)
       setExportState('success')
       setTimeout(() => setExportState('idle'), 4000)
     } catch {

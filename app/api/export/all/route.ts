@@ -22,6 +22,8 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
+  try {
+
   // Fetch all data in parallel — RLS ensures each query returns only the user's own data
   const [
     { data: invoices },
@@ -265,4 +267,8 @@ export async function GET() {
       'Content-Disposition': `attachment; filename="freelax-data-export-${date}.zip"`,
     },
   })
+  } catch (err) {
+    console.error('[export/all]', err)
+    return NextResponse.json({ error: 'Export failed' }, { status: 500 })
+  }
 }
