@@ -139,7 +139,7 @@ export default function PrivacyPage() {
             <li>Port your data to another provider</li>
           </ul>
           <p style={{ margin: '12px 0 0' }}>
-            To exercise any of these rights, email{' '}
+            You can download a complete copy of your data at any time from <strong>Settings → Export your data</strong>. To exercise any other rights, email{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days. Where we rely on your consent to process data, you may withdraw it at any time by contacting{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a> — withdrawal does not affect the lawfulness of processing carried out before withdrawal.
           </p>
