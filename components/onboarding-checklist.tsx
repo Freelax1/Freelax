@@ -50,8 +50,8 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
       cta: 'Add expense',
     },
     {
-      label: 'Create a project (optional)',
-      desc: 'Track contracts and get an IR35 status on each engagement.',
+      label: 'Create a project',
+      desc: 'Track contracts, log day rates, and manage each client engagement in one place.',
       href: '/projects/new',
       done: hasProjects,
       cta: 'Create project',
