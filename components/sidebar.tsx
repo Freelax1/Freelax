@@ -70,15 +70,6 @@ function statusColor(s: string): string {
   return map[s] ?? '#666'
 }
 
-function statusBg(s: string): string {
-  const map: Record<string, string> = {
-    paid: '#EAFAF0', sent: '#EBF4FD', draft: '#F0F0F0', overdue: '#FDECEA', accepted: '#EAFAF0', declined: '#FDECEA', expired: '#F0F0F0',
-    active: '#EAFAF0', paused: '#FEF9E7', archived: '#F0F0F0',
-    outside_ir35: '#EAFAF0', inside_ir35: '#FDECEA', needs_review: '#FEF9E7',
-    completed: '#F0F0F0', on_hold: '#FEF9E7', cancelled: '#FDECEA',
-  }
-  return map[s] ?? '#F0F0F0'
-}
 
 function humanStatus(s: string) {
   const map: Record<string, string> = {

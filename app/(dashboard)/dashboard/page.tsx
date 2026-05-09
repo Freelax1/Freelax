@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { calculateTax, getCurrentTaxYear, formatCurrency, type StudentLoanPlan } from '@/lib/tax-calculations'
+import { calculateTax, getCurrentTaxYear, type StudentLoanPlan } from '@/lib/tax-calculations'
 import { fetchDashboardData } from '@/lib/api/dashboard'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import { fetchTaxPotTotal } from '@/lib/api/tax-pot'
 import {
   calcMonthlyChart, calcUnpaidTotal, hasOverdue,
-  calcTaxDeadline, calcActionItems, calcRunway,
+  calcTaxDeadline, calcActionItems,
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
