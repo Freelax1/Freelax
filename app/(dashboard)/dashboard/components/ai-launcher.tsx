@@ -58,7 +58,7 @@ export default function AiLauncher() {
   if (!visible) return null
 
   return (
-    <div className="bg-white rounded-xl border border-purple-100 overflow-hidden mb-6">
+    <div className="bg-white rounded-xl border border-purple-100 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-purple-50 bg-gradient-to-r from-purple-50 to-white">
         <div className="flex items-center gap-2">
@@ -76,12 +76,12 @@ export default function AiLauncher() {
       </div>
 
       {/* Feature tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-slate-100">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-100">
         {FEATURES.map(f => (
           <button
             key={f.id}
             onClick={() => router.push(f.href)}
-            className="text-left p-4 hover:bg-slate-50 transition-colors group"
+            className="bg-white text-left p-4 hover:bg-slate-50 transition-colors group"
           >
             <span className="text-xl mb-2 block">{f.icon}</span>
             <p className="text-xs font-semibold text-slate-800 mb-0.5 group-hover:text-purple-700 transition-colors">
