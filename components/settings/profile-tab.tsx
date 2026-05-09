@@ -66,11 +66,8 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
-                  {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
-                </div>
-                <span className="text-xs text-slate-400">Logo</span>
+              <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+                {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
               </div>
             )}
             {logoUploading && (
