@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { _registerToastListener, type ToastItem } from '@/lib/toast'
 
-const AUTO_DISMISS_MS = 4000
+const AUTO_DISMISS_MS = 5000
 
 export default function Toaster() {
   const [toasts, setToasts] = useState<ToastItem[]>([])
@@ -23,15 +23,15 @@ export default function Toaster() {
   return (
     <div
       style={{
-        position:   'fixed',
-        top:        72,
-        right:      20,
-        zIndex:     9999,
-        display:    'flex',
+        position:      'fixed',
+        top:           72,
+        right:         20,
+        zIndex:        9999,
+        display:       'flex',
         flexDirection: 'column',
-        gap:        8,
-        maxWidth:   360,
-        width:      'calc(100vw - 40px)',
+        gap:           8,
+        maxWidth:      360,
+        width:         'calc(100vw - 40px)',
         pointerEvents: 'none',
       }}
     >
@@ -59,9 +59,9 @@ export default function Toaster() {
               color:      '#991B1B',
               border:     '1px solid #FECACA',
             } : {
-              background: '#FFFBEB',
-              color:      '#92400E',
-              border:     '1px solid #FDE68A',
+              background: '#F8FAFC',
+              color:      '#475569',
+              border:     '1px solid #E2E8F0',
             }),
           }}
         >
@@ -84,6 +84,26 @@ export default function Toaster() {
           )}
 
           <span style={{ flex: 1 }}>{t.message}</span>
+
+          {t.action && (
+            <button
+              onClick={t.action.onClick}
+              style={{
+                flexShrink:    0,
+                padding:       '3px 9px',
+                borderRadius:  6,
+                fontSize:      12,
+                fontWeight:    600,
+                cursor:        'pointer',
+                background:    'rgba(0,0,0,0.08)',
+                border:        '1px solid rgba(0,0,0,0.10)',
+                color:         'inherit',
+                fontFamily:    'inherit',
+              }}
+            >
+              {t.action.label}
+            </button>
+          )}
         </div>
       ))}
 

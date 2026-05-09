@@ -10,6 +10,7 @@ import Badge from '@/components/badge'
 import Link from 'next/link'
 import { MoreVertical, Eye, Pencil, Trash2, Mail } from 'lucide-react'
 import type { Invoice } from '@/types/database'
+import { useUndoDelete } from '@/hooks/use-undo-delete'
 
 // ── Delete modal ──────────────────────────────────────────────────────
 function DeleteModal({ invoiceNumber, count, paidCount, onConfirm, onCancel, loading }: {
@@ -226,7 +227,6 @@ export default function InvoicesPage() {
   const [msg, setMsg]                   = useState<string | null>(null)
   const [query, setQuery]               = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null)
   const [deleting, setDeleting]         = useState(false)
   const [selected, setSelected]         = useState<Set<string>>(new Set())
   const [bulkMarking, setBulkMarking]   = useState(false)
@@ -240,13 +240,11 @@ export default function InvoicesPage() {
   async function load() { setInvoices(await fetchInvoices()); setLoading(false) }
   useEffect(() => { load() }, [])
 
-  async function handleDelete() {
-    if (!deleteTarget) return
-    setDeleting(true)
-    try { await deleteInvoice(deleteTarget.id); setDeleteTarget(null); load() }
-    catch (e) { console.error(e) }
-    finally { setDeleting(false) }
-  }
+  const { pendingIds: deletePending, scheduleDelete } = useUndoDelete(
+    async (inv: any) => deleteInvoice(inv.id),
+    (inv: any) => String(inv.invoice_number),
+    load,
+  )
 
   async function handleBulkDelete() {
     setBulkDeleting(true)
@@ -342,7 +340,7 @@ export default function InvoicesPage() {
       new Date(i.issue_date).toLocaleDateString('en-GB').includes(q)
     )
     const matchesStatus = statusFilter === 'all' || i.status === statusFilter
-    return matchesQuery && matchesStatus
+    return matchesQuery && matchesStatus && !deletePending.has(i.id)
   })
 
   function toggleInvSort(field: InvSortField) {
@@ -533,7 +531,7 @@ export default function InvoicesPage() {
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(inv.total)}</td>
                     <td className="px-4 py-3"><Badge status={inv.status} /></td>
                     <td className="px-4 py-3 text-right">
-                      <KebabMenu invoice={inv} onDelete={setDeleteTarget}
+                      <KebabMenu invoice={inv} onDelete={scheduleDelete}
                         onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
                         onSendByEmail={handleSendByEmail} />
                     </td>
@@ -583,7 +581,7 @@ export default function InvoicesPage() {
                     Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
                     {pastDue && ` · ${days}d late`}
                   </span>
-                  <KebabMenu invoice={inv} onDelete={setDeleteTarget}
+                  <KebabMenu invoice={inv} onDelete={scheduleDelete}
                     onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
                     onSendByEmail={handleSendByEmail} />
                 </div>
@@ -592,7 +590,6 @@ export default function InvoicesPage() {
           })}
         </div>
 
-      {deleteTarget && <DeleteModal invoiceNumber={deleteTarget.invoice_number} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}
       {bulkDeleteOpen && <DeleteModal invoiceNumber="" count={selected.size} paidCount={paidSelectedCount} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkDeleting} />}
       {statusTarget && <StatusModal count={1} newStatus={statusTarget.status} onConfirm={handleStatusChange} onCancel={() => setStatusTarget(null)} loading={statusUpdating} />}
     </div>

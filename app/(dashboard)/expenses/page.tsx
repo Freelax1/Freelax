@@ -15,6 +15,7 @@ import ExpenseForm from '@/components/expense-form'
 import MileageForm from '@/components/mileage-form'
 import { Paperclip, Trash2, Car, MoreVertical, Pencil, CheckSquare, Square, Lock, ArrowRight } from 'lucide-react'
 import type { Expense } from '@/types/database'
+import { useUndoDelete } from '@/hooks/use-undo-delete'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -122,7 +123,6 @@ export default function ExpensesPage() {
   const [loading, setLoading]       = useState(true)
   const [slideOpen, setSlideOpen]   = useState(false)
   const [editExpense, setEditExpense] = useState<Partial<Expense> | undefined>()
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: 'expense' | 'mileage' } | null>(null)
   const [deleting, setDeleting]     = useState(false)
   const [userId, setUserId]         = useState('')
   const [vatRegistered, setVatRegistered] = useState(false)
@@ -168,15 +168,16 @@ export default function ExpensesPage() {
     setCategoryFilter('all')
   }, [tab])
 
-  async function handleDelete() {
-    if (!deleteTarget) return
-    setDeleting(true)
-    try {
-      if (deleteTarget.type === 'expense') await deleteExpense(deleteTarget.id)
-      else await deleteMileageEntry(deleteTarget.id)
-      setDeleteTarget(null); load()
-    } finally { setDeleting(false) }
-  }
+  const { pendingIds: expenseDeletePending, scheduleDelete: scheduleExpenseDelete } = useUndoDelete(
+    async (exp: Expense) => deleteExpense(exp.id),
+    (exp: Expense) => exp.merchant,
+    load,
+  )
+  const { pendingIds: mileageDeletePending, scheduleDelete: scheduleMileageDelete } = useUndoDelete(
+    async (entry: any) => deleteMileageEntry(entry.id),
+    (entry: any) => String(entry.description ?? 'Journey'),
+    load,
+  )
 
   async function handleBulkDelete() {
     setBulkDeleting(true)
@@ -196,6 +197,7 @@ export default function ExpensesPage() {
   const receiptsUploaded   = calcReceiptsUploaded(expenses)
   const totalMiles         = mileage.reduce((s, e) => s + Number(e.miles), 0)
   const totalMileageRelief = calcMileageRelief(totalMiles)
+  const visibleMileage     = mileage.filter(e => !mileageDeletePending.has(e.id))
 
   // Unique categories for filter
   const categories = ['all', ...Array.from(new Set(expenses.map(e => e.category))).sort()]
@@ -208,7 +210,7 @@ export default function ExpensesPage() {
       CATEGORY_LABELS[e.category]?.toLowerCase().includes(q)
     )
     const matchesCategory = categoryFilter === 'all' || e.category === categoryFilter
-    return matchesQuery && matchesCategory
+    return matchesQuery && matchesCategory && !expenseDeletePending.has(e.id)
   })
 
   const allSelected = filtered.length > 0 && selected.size === filtered.length
@@ -355,7 +357,7 @@ export default function ExpensesPage() {
                       <td className="px-4 py-3 text-right">
                         <KebabMenu
                           onEdit={() => { setEditExpense(exp); setSlideOpen(true) }}
-                          onDelete={() => setDeleteTarget({ id: exp.id, type: 'expense' })}
+                          onDelete={() => scheduleExpenseDelete(exp)}
                         />
                       </td>
                     </tr>
@@ -398,7 +400,7 @@ export default function ExpensesPage() {
                   <span className="text-xs text-slate-400">{new Date(exp.date).toLocaleDateString('en-GB')}</span>
                   <div className="flex items-center gap-2">
                     {exp.receipt_url && <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-blue-500"><Paperclip className="w-3.5 h-3.5" /></a>}
-                    <KebabMenu onEdit={() => { setEditExpense(exp); setSlideOpen(true) }} onDelete={() => setDeleteTarget({ id: exp.id, type: 'expense' })} />
+                    <KebabMenu onEdit={() => { setEditExpense(exp); setSlideOpen(true) }} onDelete={() => scheduleExpenseDelete(exp)} />
                   </div>
                 </div>
               </div>
@@ -451,8 +453,8 @@ export default function ExpensesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {mileage.map((e, idx) => {
-                    const milesBefore = mileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
+                  {visibleMileage.map((e, idx) => {
+                    const milesBefore = visibleMileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
                     const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
                     const relief = Number(e.miles) * rate
                     return (
@@ -465,7 +467,7 @@ export default function ExpensesPage() {
                         <td className="px-4 py-3 text-right font-medium">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
                         <td className="px-4 py-3 text-right text-green-700 font-medium">£{relief.toFixed(2)}</td>
                         <td className="px-4 py-3 text-right">
-                          <button onClick={() => setDeleteTarget({ id: e.id, type: 'mileage' })}
+                          <button onClick={() => scheduleMileageDelete(e)}
                             className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -486,8 +488,8 @@ export default function ExpensesPage() {
             </div>
 
             <div className="md:hidden space-y-2">
-              {mileage.map((e, idx) => {
-                const milesBefore = mileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
+              {visibleMileage.map((e, idx) => {
+                const milesBefore = visibleMileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
                 const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
                 const relief = Number(e.miles) * rate
                 const hasRoute = e.from_location || e.to_location
@@ -505,7 +507,7 @@ export default function ExpensesPage() {
                     )}
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-400">{new Date(e.date).toLocaleDateString('en-GB')}</span>
-                      <button onClick={() => setDeleteTarget({ id: e.id, type: 'mileage' })}
+                      <button onClick={() => scheduleMileageDelete(e)}
                         className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -535,7 +537,6 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      {deleteTarget && <DeleteModal onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}
       {bulkDeleteOpen && <DeleteModal count={selected.size} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkDeleting} />}
 
       <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)}

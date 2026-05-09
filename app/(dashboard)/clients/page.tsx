@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Client } from '@/types/database'
+import { useUndoDelete } from '@/hooks/use-undo-delete'
 
 interface ClientWithStats extends Client { outstanding: number }
 
@@ -203,7 +204,6 @@ export default function ClientsPage() {
   const [editClient, setEditClient]       = useState<Partial<Client> | undefined>()
   const [query, setQuery]                 = useState('')
   const [statusFilter, setStatusFilter]   = useState<string>('all')
-  const [deleteTarget, setDeleteTarget]   = useState<ClientWithStats | null>(null)
   const [deleting, setDeleting]           = useState(false)
   const [selected, setSelected]           = useState<Set<string>>(new Set())
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
@@ -217,17 +217,14 @@ export default function ClientsPage() {
   }
   useEffect(() => { load() }, [])
 
-  async function handleDelete() {
-    if (!deleteTarget) return
-    setDeleting(true)
-    try {
+  const { pendingIds: deletePending, scheduleDelete } = useUndoDelete(
+    async (client: ClientWithStats) => {
       const supabase = createClient()
-      await supabase.from('clients').delete().eq('id', deleteTarget.id)
-      setDeleteTarget(null)
-      load()
-    } catch (e) { console.error(e) }
-    finally { setDeleting(false) }
-  }
+      await supabase.from('clients').delete().eq('id', client.id)
+    },
+    (client: ClientWithStats) => client.name,
+    load,
+  )
 
   async function handleBulkDelete() {
     setBulkUpdating(true)
@@ -291,7 +288,7 @@ export default function ClientsPage() {
       (c.contact_name ?? '').toLowerCase().includes(q)
     )
     const matchesStatus = statusFilter === 'all' || c.status === statusFilter
-    return matchesQuery && matchesStatus
+    return matchesQuery && matchesStatus && !deletePending.has(c.id)
   })
 
   const allSelected = filtered.length > 0 && selected.size === filtered.length
@@ -432,7 +429,7 @@ export default function ClientsPage() {
                     </td>
                     <td className="px-4 py-3"><Badge status={c.status} /></td>
                     <td className="px-4 py-3 text-right">
-                      <KebabMenu client={c} onEdit={openEdit} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
+                      <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />
                     </td>
                   </tr>
                 )
@@ -472,7 +469,7 @@ export default function ClientsPage() {
                     : <span className="text-slate-300 text-sm flex-shrink-0">—</span>}
                 </div>
                 <div className="flex justify-end pl-7">
-                  <KebabMenu client={c} onEdit={openEdit} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
+                  <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />
                 </div>
               </div>
             )
@@ -482,16 +479,6 @@ export default function ClientsPage() {
       <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)} title="Edit client">
         <ClientForm client={editClient} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
-
-      {/* Single delete modal */}
-      {deleteTarget && (
-        <DeleteModal
-          clientName={deleteTarget.name}
-          onConfirm={handleDelete}
-          onCancel={() => setDeleteTarget(null)}
-          loading={deleting}
-        />
-      )}
 
       {/* Bulk delete modal */}
       {bulkDeleteOpen && (
