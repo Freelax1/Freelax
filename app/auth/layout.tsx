@@ -10,7 +10,6 @@ const taglines = [
   "Your business finances. Finally clear.",
 ]
 
-
 function RightPanel() {
   const [taglineIdx, setTaglineIdx] = useState(0)
   const [taglineVisible, setTaglineVisible] = useState(true)

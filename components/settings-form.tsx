@@ -38,7 +38,6 @@ export default function SettingsForm({ profile, email }: Props) {
   })
 
   const [saving, setSaving] = useState(false)
-  const [error,  setError]  = useState<string | null>(null)
 
   async function save(data: Record<string, any>) {
     setSaving(true)
@@ -59,7 +58,7 @@ export default function SettingsForm({ profile, email }: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
       {/* Sidebar nav */}
-      <nav className="w-48 flex-shrink-0">
+      <nav className="w-full lg:w-48 flex-shrink-0">
         <div className="space-y-5">
           {TAB_GROUPS.map(group => (
             <div key={group.label}>
@@ -84,16 +83,21 @@ export default function SettingsForm({ profile, email }: Props) {
             </div>
           ))}
         </div>
+        <button
+          onClick={async () => {
+            const supabase = createClient()
+            await supabase.auth.signOut()
+            router.push('/auth/login')
+            router.refresh()
+          }}
+          className="lg:hidden mt-4 w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+        >
+          Sign out
+        </button>
       </nav>
 
       {/* Content */}
       <div className="flex-1 max-w-xl space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-lg">
-            Error: {error}
-          </div>
-        )}
-
         {tab === 'Profile'             && <ProfileTab         profile={profile} email={email} save={save} saving={saving} />}
         {tab === 'Business details'    && <BusinessTab        profile={profile} save={save} saving={saving} />}
         {tab === 'Personal tax inputs' && <TaxTab             profile={profile} save={save} saving={saving} />}
