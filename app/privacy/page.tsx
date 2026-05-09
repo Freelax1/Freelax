@@ -13,6 +13,7 @@ const TOC = [
   { id: 'what-we-collect',    label: '2. What data we collect' },
   { id: 'how-we-use',         label: '3. How we use your data' },
   { id: 'legal-basis',        label: '4. Legal basis' },
+  { id: 'automated-decisions', label: '4a. Automated decision making' },
   { id: 'storage-security',   label: '5. Storage & security' },
   { id: 'retention',          label: '6. Data retention' },
   { id: 'sharing',            label: '7. Sharing your data' },
@@ -83,10 +84,16 @@ export default function PrivacyPage() {
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
             <li><strong>Contractual necessity</strong> — to provide the service you signed up for</li>
-            <li><strong>Legitimate interests</strong> — to improve the service and prevent fraud</li>
+            <li><strong>Legitimate interests</strong> — to improve the service, prevent fraud, and ensure network and information security</li>
             <li><strong>Legal obligation</strong> — to comply with UK law where applicable</li>
             <li><strong>Consent</strong> — for non-essential communications, where we ask for your permission</li>
           </ul>
+        </Section>
+
+        <Section id="automated-decisions" title="4a. Automated decision making">
+          <p style={{ margin: 0 }}>
+            We use automated processing to generate tax estimates and IR35 assessments. These outputs are indicative only and do not constitute legally binding decisions. You should always verify figures with a qualified accountant before filing a tax return.
+          </p>
         </Section>
 
         <Section id="storage-security" title="5. Storage and security">
@@ -111,7 +118,7 @@ export default function PrivacyPage() {
             <li><strong>Vercel</strong> — application hosting</li>
             <li><strong>Stripe</strong> — payment processing</li>
             <li><strong>Resend</strong> — transactional email delivery</li>
-            <li><strong>Anthropic</strong> — AI features (tax Q&amp;A, expense scanning, IR35 assessments)</li>
+            <li><strong>Anthropic</strong> — AI features (tax Q&amp;A, expense scanning, IR35 assessments). Anthropic is based in the United States. Data transferred to Anthropic is protected under the UK-US data bridge adequacy framework.</li>
             <li><strong>HMRC</strong> — when you connect your HMRC account via Making Tax Digital, we store encrypted OAuth tokens to submit tax data on your behalf. We do not store your Government Gateway credentials.</li>
           </ul>
           <p style={{ margin: '12px 0 0' }}>
@@ -132,7 +139,8 @@ export default function PrivacyPage() {
           </ul>
           <p style={{ margin: '12px 0 0' }}>
             To exercise any of these rights, email{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days.
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days. Where we rely on your consent to process data, you may withdraw it at any time by contacting{' '}
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a> — withdrawal does not affect the lawfulness of processing carried out before withdrawal.
           </p>
         </Section>
 
@@ -150,7 +158,7 @@ export default function PrivacyPage() {
 
         <Section id="changes" title="11. Changes to this policy">
           <p style={{ margin: 0 }}>
-            We may update this policy to reflect changes in our practices or applicable law. We will notify you of material changes by email. Continued use of the service after notification constitutes acceptance.
+            We may update this policy to reflect changes in our practices or applicable law. We will notify you of material changes by email. Continued use of the service after notification constitutes acceptance. In the event of a data breach affecting your personal data, we will notify you and the ICO without undue delay and within 72 hours as required by UK GDPR.
           </p>
         </Section>
 

@@ -131,7 +131,7 @@ export default function SecurityPage() {
             Every row of your data is protected by database-level <strong>Row Level Security (RLS)</strong>. Another user cannot read, modify, or even detect your records — the database physically refuses to return them.
           </p>
           <p style={{ margin: 0 }}>
-            Internal access is limited to engineering staff on a strict need-to-know basis. All administrative actions are logged, reviewed, and require multi-factor authentication.
+            Internal access is limited to engineering staff on a strict need-to-know basis. Access to user data is restricted to authorised personnel only, on a strict need-to-know basis. All administrative actions are logged, reviewed, and require multi-factor authentication.
           </p>
         </Section>
 
@@ -168,7 +168,7 @@ export default function SecurityPage() {
 
         <Section id="incidents" Icon={UserCheck} title="Incident response">
           <p style={{ margin: 0 }}>
-            In the unlikely event of a security incident affecting your personal data, we will notify you and the <strong>Information Commissioner&rsquo;s Office (ICO)</strong> without undue delay and within <strong>72 hours</strong>, as required by UK GDPR. Our engineering team monitors infrastructure 24/7 and follows a documented incident-response playbook.
+            In the unlikely event of a security incident affecting your personal data, we will notify you and the <strong>Information Commissioner&rsquo;s Office (ICO)</strong> without undue delay and within <strong>72 hours</strong>, as required by UK GDPR. Our infrastructure providers monitor uptime and security events continuously. We follow a documented incident-response playbook and will notify affected users and the ICO within 72 hours of becoming aware of a breach.
           </p>
         </Section>
 
@@ -176,6 +176,10 @@ export default function SecurityPage() {
           <p style={{ margin: 0 }}>
             Questions about security, compliance, or data protection? Email{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We aim to respond within two business days.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            If you discover a security vulnerability in Freelax, please report it responsibly to{' '}
+            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will acknowledge receipt within two business days and work to resolve confirmed issues promptly. We ask that you do not publicly disclose vulnerabilities until we have had a reasonable opportunity to address them.
           </p>
         </Section>
       </div>

@@ -17,6 +17,7 @@ const TOC = [
   { id: 'tax',                label: '7. Tax calculations' },
   { id: 'ip',                 label: '8. Intellectual property' },
   { id: 'liability',          label: '9. Limitation of liability' },
+  { id: 'force-majeure',      label: '9a. Force majeure' },
   { id: 'changes',            label: '10. Changes to terms' },
   { id: 'governing-law',      label: '11. Governing law' },
   { id: 'contact',            label: '12. Contact' },
@@ -88,6 +89,12 @@ export default function TermsPage() {
           <p style={{ margin: 0 }}>
             Freelax by Britnova offers a free tier and paid subscription plans. Paid plans are billed monthly or annually via <strong>Stripe</strong>. You may cancel your subscription at any time; cancellation takes effect at the end of your current billing period. We do not offer refunds for partial periods except where required by UK consumer law.
           </p>
+          <p style={{ margin: '12px 0 0' }}>
+            By activating your subscription and accessing the service immediately, you acknowledge that you waive your 14-day cooling-off right under the Consumer Contracts Regulations 2013, as the digital service will have been fully provided upon activation.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            We will give you at least 30 days notice of any price changes by email. Continued use of the service after the notice period constitutes acceptance of the new pricing.
+          </p>
         </Section>
 
         <Section id="privacy" title="6. Data and privacy">
@@ -116,6 +123,12 @@ export default function TermsPage() {
           </p>
         </Section>
 
+        <Section id="force-majeure" title="9a. Force majeure">
+          <p style={{ margin: 0 }}>
+            We are not liable for any failure or delay in providing the service caused by circumstances beyond our reasonable control, including but not limited to third-party infrastructure outages, internet disruptions, acts of God, or government action. We will take reasonable steps to minimise the impact of any such event and resume normal service as soon as reasonably practicable.
+          </p>
+        </Section>
+
         <Section id="changes" title="10. Changes to these terms">
           <p style={{ margin: 0 }}>
             We may update these terms from time to time. We will notify you of material changes by email or by displaying a notice in the app. Continued use of the service after notification constitutes acceptance of the updated terms.
@@ -124,7 +137,10 @@ export default function TermsPage() {
 
         <Section id="governing-law" title="11. Governing law">
           <p style={{ margin: 0 }}>
-            These terms are governed by the laws of <strong>England and Wales</strong>. Any disputes will be subject to the exclusive jurisdiction of the courts of England and Wales.
+            These terms are governed by the laws of <strong>England and Wales</strong>. Any disputes will be subject to the exclusive jurisdiction of the courts of England and Wales. Nothing in these terms affects your statutory rights as a consumer under UK law.
+          </p>
+          <p style={{ margin: '12px 0 0' }}>
+            These terms constitute the entire agreement between you and Britnova Limited and supersede any prior agreements or representations relating to the subject matter herein.
           </p>
         </Section>
 
