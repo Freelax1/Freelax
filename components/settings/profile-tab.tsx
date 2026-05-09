@@ -66,7 +66,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
                 </div>
               </>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-[#1D6B35] flex items-center justify-center text-white font-bold text-xs">
                 {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -127,9 +127,11 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
       <Field label="Phone">
         <input className={inputClass} value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />
       </Field>
-      <button className={btnClass} disabled={saving} onClick={() => save(pf)}>
-        {saving ? 'Saving...' : 'Save profile'}
-      </button>
+      <div className="flex">
+        <button className={btnClass} disabled={saving} onClick={() => save(pf)}>
+          {saving ? 'Saving...' : 'Save profile'}
+        </button>
+      </div>
     </div>
   )
 }
