@@ -51,22 +51,22 @@ export async function GET() {
       .order('date', { ascending: false }),
     supabase
       .from('clients')
-      .select('name, contact_name, email, phone, address_line1, city, postcode, vat_number, payment_terms')
+      .select('name, contact_name, email, phone, address_line1, address_line2, city, postcode, country, notes')
       .eq('user_id', user.id)
       .order('name'),
     supabase
       .from('projects')
-      .select('title, status, ir35_status, day_rate, start_date, end_date, description, clients(name)')
+      .select('title, status, ir35_status, rate_type, rate_amount, start_date, end_date, description, clients(name)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
       .from('mileage_entries')
-      .select('date, description, miles, rate_pence, purpose')
+      .select('date, description, from_location, to_location, miles, purpose, tax_year_start')
       .eq('user_id', user.id)
       .order('date', { ascending: false }),
     supabase
       .from('users')
-      .select('full_name, email, business_name, business_type, utr, vat_number, address_line1, address_line2, city, postcode, phone, created_at')
+      .select('full_name, email, business_name, business_type, utr_number, vat_number, vat_registered, address_line1, address_line2, city, postcode, phone, created_at')
       .eq('id', user.id)
       .single(),
   ])
@@ -161,29 +161,31 @@ export async function GET() {
 
   // ── clients.csv ───────────────────────────────────────────────────────────
   zip.file('clients.csv', buildCsv(
-    ['Name', 'Contact Name', 'Email', 'Phone', 'Address', 'City', 'Postcode', 'VAT Number', 'Payment Terms (days)'],
+    ['Name', 'Contact Name', 'Email', 'Phone', 'Address Line 1', 'Address Line 2', 'City', 'Postcode', 'Country', 'Notes'],
     (clients ?? []).map((c: any) => [
       c.name,
       c.contact_name   ?? '',
       c.email          ?? '',
       c.phone          ?? '',
       c.address_line1  ?? '',
+      c.address_line2  ?? '',
       c.city           ?? '',
       c.postcode       ?? '',
-      c.vat_number     ?? '',
-      c.payment_terms  ?? 30,
+      c.country        ?? 'United Kingdom',
+      c.notes          ?? '',
     ])
   ))
 
   // ── projects.csv ──────────────────────────────────────────────────────────
   zip.file('projects.csv', buildCsv(
-    ['Title', 'Client', 'Status', 'IR35 Status', 'Day Rate (£)', 'Start Date', 'End Date', 'Description'],
+    ['Title', 'Client', 'Status', 'IR35 Status', 'Rate Type', 'Rate Amount (£)', 'Start Date', 'End Date', 'Description'],
     (projects ?? []).map((p: any) => [
       p.title,
       (p.clients as any)?.name ?? '',
       p.status      ?? '',
       p.ir35_status ?? '',
-      p.day_rate    ? Number(p.day_rate).toFixed(2) : '',
+      p.rate_type   ?? '',
+      p.rate_amount ? Number(p.rate_amount).toFixed(2) : '',
       p.start_date  ?? '',
       p.end_date    ?? '',
       p.description ?? '',
@@ -192,14 +194,17 @@ export async function GET() {
 
   // ── mileage.csv ───────────────────────────────────────────────────────────
   zip.file('mileage.csv', buildCsv(
-    ['Date', 'Description', 'Miles', 'Rate (p/mile)', 'Amount (£)', 'Purpose'],
+    ['Date', 'Description', 'From', 'To', 'Miles', 'HMRC Rate (p/mile)', 'Amount (£)', 'Purpose', 'Tax Year Start'],
     (mileage ?? []).map((m: any) => [
       m.date,
-      m.description ?? '',
+      m.description    ?? '',
+      m.from_location  ?? '',
+      m.to_location    ?? '',
       m.miles,
-      m.rate_pence  ?? 45,
-      ((Number(m.miles) * Number(m.rate_pence ?? 45)) / 100).toFixed(2),
-      m.purpose     ?? '',
+      45,
+      ((Number(m.miles) * 45) / 100).toFixed(2),
+      m.purpose        ?? '',
+      m.tax_year_start ?? '',
     ])
   ))
 
@@ -212,8 +217,9 @@ export async function GET() {
       ['Email',          pr?.email          ?? ''],
       ['Business Name',  pr?.business_name  ?? ''],
       ['Business Type',  pr?.business_type  ?? ''],
-      ['UTR',            pr?.utr            ?? ''],
-      ['VAT Number',     pr?.vat_number     ?? ''],
+      ['UTR',            pr?.utr_number      ?? ''],
+      ['VAT Registered', pr?.vat_registered  ? 'Yes' : 'No'],
+      ['VAT Number',     pr?.vat_number      ?? ''],
       ['Address Line 1', pr?.address_line1  ?? ''],
       ['Address Line 2', pr?.address_line2  ?? ''],
       ['City',           pr?.city           ?? ''],
