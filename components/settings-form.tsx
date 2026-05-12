@@ -21,7 +21,7 @@ import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  free:   { label: 'Free',   color: 'bg-slate-100 text-slate-500' },
+  free:   { label: 'Free',   color: 'bg-slate-100 text-slate-700' },
   solo:   { label: 'Solo',   color: 'bg-blue-50 text-blue-600' },
   pro:    { label: 'Pro',    color: 'bg-green-50 text-green-700' },
   studio: { label: 'Studio', color: 'bg-purple-50 text-purple-700' },
@@ -104,7 +104,7 @@ export default function SettingsForm({ profile, email }: Props) {
                           ? 'text-red-600 font-medium bg-red-50 rounded-lg'
                           : 'text-slate-900 font-medium bg-slate-50 rounded-r-lg'
                         : t === 'Danger Zone'
-                        ? 'text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg'
+                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg'
                         : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg'
                     }`}
                   >

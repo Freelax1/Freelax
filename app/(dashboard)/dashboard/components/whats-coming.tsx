@@ -88,7 +88,7 @@ export default function WhatsComing({ items }: Props) {
                   overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                   {item.label}
                 </p>
-                <p style={{ fontSize: 10, color: isLate ? '#C0392B' : isUrgent ? '#9A7B0A' : '#94A3B8', marginTop: 3, fontWeight: isLate || isUrgent ? 500 : 400 }}>
+                <p style={{ fontSize: 10, color: isLate ? '#C0392B' : isUrgent ? '#6B5410' : '#475569', marginTop: 3, fontWeight: isLate || isUrgent ? 500 : 400 }}>
                   {relativeLabel(days)}
                 </p>
               </Link>

@@ -146,7 +146,7 @@ export default function HmrcTab() {
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
                   row.status === 'live'     ? 'bg-green-100 text-green-700' :
                   row.status === 'upcoming' ? 'bg-amber-100 text-amber-800' :
-                                              'bg-slate-100 text-slate-500'
+                                              'bg-slate-100 text-slate-700'
                 }`}>
                   {row.date}
                 </span>

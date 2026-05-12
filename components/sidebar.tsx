@@ -792,7 +792,7 @@ export default function Sidebar() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div style={{
+          <nav aria-label="Site menu" style={{
             background: '#111', position: 'absolute', top: 0, left: 0, bottom: 0,
             width: 240, display: 'flex', flexDirection: 'column',
           }}>
@@ -804,7 +804,7 @@ export default function Sidebar() {
             </div>
             {/* Scrollable body — nav + footer scroll together so Sign out is always reachable */}
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <nav className="py-3 px-3 space-y-0.5" style={{ flexShrink: 0 }}>
+              <div className="py-3 px-3 space-y-0.5" style={{ flexShrink: 0 }}>
                 {NAV.map(({ href, label }) => {
                   const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
                   return (
@@ -819,7 +819,7 @@ export default function Sidebar() {
                     </Link>
                   )
                 })}
-              </nav>
+              </div>
               {/* mt-auto keeps footer pinned to the bottom of the scrollable area;
                   safe-area-inset-bottom stops iOS chrome from covering Sign out */}
               <div className="mt-auto px-5 border-t border-white/10 space-y-3"
@@ -843,7 +843,7 @@ export default function Sidebar() {
                 </button>
               </div>
             </div>
-          </div>
+          </nav>
         </div>
       )}
     </>

@@ -464,7 +464,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
             )}
             {canMarkPaid && invoice.status !== 'paid' && (
               <button onClick={handleMarkPaid} disabled={marking}
-                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50">
+                className="flex items-center gap-1.5 px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-semibold hover:bg-green-800 disabled:opacity-50">
                 <CheckCircle className="w-4 h-4" />
                 {marking ? 'Saving...' : 'Mark as paid'}
               </button>
@@ -574,11 +574,11 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
               {invoice.paid_date && (
                 <div>
                   <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Paid on</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
               )}
               <div style={{ marginTop: 4 }}>
-                {invoice.status === 'paid' && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Paid</span>}
+                {invoice.status === 'paid' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Paid</span>}
                 {invoice.status === 'overdue' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Overdue</span>}
                 {invoice.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
               </div>

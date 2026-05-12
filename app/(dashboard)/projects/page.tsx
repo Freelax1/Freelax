@@ -299,7 +299,7 @@ export default function ProjectsPage() {
                 }}>
                 <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : color, marginBottom: 6 }}>{label}</p>
                 <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : color, letterSpacing: '-0.02em', marginBottom: 2 }}>{count}</p>
-                {value && <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.6)' : color, opacity: isActive ? 1 : 0.8 }}>{value}</p>}
+                {value && <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.85)' : color }}>{value}</p>}
               </button>
             )
           })}
@@ -307,7 +307,7 @@ export default function ProjectsPage() {
           <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 12, padding: '16px 20px' }}>
             <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#595959', marginBottom: 6 }}>Total rate value</p>
             <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
-            {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#666', opacity: 0.8 }}>{formatCurrency(totalValue)}</p>}
+            {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{formatCurrency(totalValue)}</p>}
           </div>
         </div>
       )}

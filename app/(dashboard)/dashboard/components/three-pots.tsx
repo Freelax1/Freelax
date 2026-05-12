@@ -78,7 +78,7 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
           borderRadius: '50%',
           border: `1.5px solid ${open ? '#1D6B35' : 'rgba(0,0,0,0.12)'}`,
           background: open ? '#F0FDF4' : 'transparent',
-          color: open ? '#1D6B35' : '#94A3B8',
+          color: open ? '#1D6B35' : '#475569',
           fontSize: 10, fontWeight: 700,
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -205,7 +205,7 @@ export default function ThreePots({
                 of {formatCurrency(taxTarget)} needed by {taxDeadline.label}
               </p>
               <ProgressBar pct={taxPct} color={barColor} />
-              <p style={{ fontSize: 11, marginTop: 8, color: onTrack ? '#1D6B35' : '#9A7B0A', fontWeight: 500 }}>
+              <p style={{ fontSize: 11, marginTop: 8, color: onTrack ? '#1D6B35' : '#6B5410', fontWeight: 500 }}>
                 {onTrack ? '✓ On track for January' : `Save ${formatCurrency(weeklySaveNeeded)}/week to stay on track`}
               </p>
             </>

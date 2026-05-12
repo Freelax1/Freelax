@@ -150,7 +150,7 @@ function NextSteps({ actions }: { actions: TaxAction[] }) {
 
   const bg     = allGreen ? '#F0FDF4'  : hasRed ? '#FEF2F2'  : '#FFFDF5'
   const border = allGreen ? 'rgba(29,107,53,0.20)'  : hasRed ? 'rgba(192,57,43,0.25)'  : 'rgba(245,226,155,0.6)'
-  const accent = allGreen ? '#1D6B35'  : hasRed ? '#C0392B'  : '#9A7B0A'
+  const accent = allGreen ? '#1D6B35'  : hasRed ? '#C0392B'  : '#6B5410'
   const label  = allGreen ? 'On track' : hasRed ? 'Act soon' : 'What to do next'
 
   const dotColor = (p: TaxAction['priority']) =>

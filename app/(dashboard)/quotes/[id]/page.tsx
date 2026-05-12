@@ -281,7 +281,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
             )}
             {canAccept && (
               <button onClick={() => handleStatusChange('accepted')}
-                className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
+                className="flex items-center gap-1.5 px-3 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">
                 <CheckCircle className="w-3.5 h-3.5" /> Mark accepted
               </button>
             )}
@@ -363,7 +363,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
             <p className="text-xs text-green-600 mt-0.5">Ready to convert into a draft invoice with one click.</p>
           </div>
           <button onClick={handleConvertToInvoice} disabled={converting}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 shrink-0">
+            className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 disabled:opacity-50 shrink-0">
             <FileText className="w-4 h-4" />
             {converting ? 'Creating invoice...' : 'Create invoice from quote'}
           </button>
@@ -420,7 +420,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
                 <p style={{ fontSize: 13, fontWeight: 600, color: expired ? '#dc2626' : '#0f172a' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
               <div style={{ marginTop: 4 }}>
-                {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
+                {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
                 {quote.status === 'declined' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Declined</span>}
                 {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
                 {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}

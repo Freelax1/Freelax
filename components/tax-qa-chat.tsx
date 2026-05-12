@@ -64,7 +64,8 @@ export default function TaxQAChat() {
 
       {/* Chat panel */}
       {open && (
-        <div
+        <aside
+          aria-label="Tax Q&A chat"
           className="fixed bottom-20 right-6 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden"
           style={{ width: '360px', maxWidth: '360px', maxHeight: '480px' }}
         >
@@ -72,7 +73,7 @@ export default function TaxQAChat() {
           <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
             <div>
               <p className="text-sm font-semibold">Tax Q&A</p>
-              <p className="text-xs text-blue-100">Ask anything about your taxes</p>
+              <p className="text-xs text-white/90">Ask anything about your taxes</p>
             </div>
             <div className="flex items-center gap-1">
               <button onClick={handleReset} aria-label="New question" title="New question" className="p-1 hover:bg-blue-700 rounded-lg">
@@ -130,6 +131,7 @@ export default function TaxQAChat() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
                 placeholder="Ask a tax question..."
+                aria-label="Tax question"
                 className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -146,7 +148,7 @@ export default function TaxQAChat() {
               <Link href="/terms" className="underline hover:text-slate-500">Learn more</Link>
             </p>
           </div>
-        </div>
+        </aside>
       )}
     </>
   )

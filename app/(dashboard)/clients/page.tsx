@@ -328,7 +328,7 @@ export default function ClientsPage() {
                 <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : labelColor, marginBottom: 6 }}>{label}</p>
                 <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : valueColor, letterSpacing: '-0.02em', marginBottom: 2 }}>{count}</p>
                 {outstanding > 0 && (
-                  <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.6)' : valueColor, opacity: isActive ? 1 : 0.8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>
                     {formatCurrency(outstanding)} outstanding
                   </p>
                 )}
@@ -344,7 +344,7 @@ export default function ClientsPage() {
             <p style={{ fontSize: 20, fontWeight: 800, color: totalOutstanding > 0 ? '#C0392B' : '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>
               {totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—'}
             </p>
-            <p style={{ fontSize: 11, fontWeight: 500, color: '#666', opacity: 0.8 }}>{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
+            <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
           </div>
         </div>
       )}

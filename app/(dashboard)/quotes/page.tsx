@@ -361,7 +361,7 @@ export default function QuotesPage() {
                 }}>
                 <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : labelColor, marginBottom: 6 }}>{label}</p>
                 <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : valueColor, letterSpacing: '-0.02em', marginBottom: 2 }}>{stats[key]}</p>
-                <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.6)' : valueColor, opacity: isActive ? 1 : 0.8 }}>{formatCurrency(totals[key])}</p>
+                <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>{formatCurrency(totals[key])}</p>
               </button>
             )
           })}

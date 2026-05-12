@@ -81,7 +81,7 @@ export default async function LegalLayout({
       </header>
 
       {/* Page container — grid with sticky TOC */}
-      <div style={{
+      <main style={{
         maxWidth: 1200, margin: '0 auto',
         padding: '56px 24px 96px',
       }}>
@@ -171,12 +171,17 @@ export default async function LegalLayout({
             </aside>
           )}
 
-          <main style={{ maxWidth: 720, minWidth: 0 }}>
+          <div style={{ maxWidth: 720, minWidth: 0 }}>
             {children}
-          </main>
+          </div>
         </div>
+      </main>
 
-        {/* Footer row */}
+      {/* Footer row */}
+      <footer style={{
+        maxWidth: 1200, margin: '0 auto',
+        padding: '0 24px 96px',
+      }}>
         <div style={{
           marginTop: 80, paddingTop: 28,
           borderTop: '1px solid rgba(0,0,0,0.06)',
@@ -194,7 +199,7 @@ export default async function LegalLayout({
             <a href="mailto:support@freelax.co.uk" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Contact</a>
           </div>
         </div>
-      </div>
+      </footer>
 
       {/* Inline styles for hover/mobile */}
       <style>{`

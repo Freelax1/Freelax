@@ -175,7 +175,7 @@ export default function RecurringInvoicesPage() {
                   <td className="px-4 py-3 text-slate-500">{new Date(t.next_run_date).toLocaleDateString('en-GB')}</td>
                   <td className="px-4 py-3 font-medium">{formatCurrency(total(t.line_items ?? []))}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${t.active ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${t.active ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
                       {t.active ? 'Active' : 'Paused'}
                     </span>
                   </td>

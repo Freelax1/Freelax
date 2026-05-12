@@ -69,11 +69,11 @@ export function Field({
   children: React.ReactNode
 }) {
   return (
-    <div>
-      <label className={labelClass}>{label}</label>
+    <label className="block">
+      <span className={labelClass}>{label}</span>
       {children}
-      {hint && <p className="text-xs text-slate-600 mt-1">{hint}</p>}
-    </div>
+      {hint && <span className="text-xs text-slate-600 mt-1 block">{hint}</span>}
+    </label>
   )
 }
 
