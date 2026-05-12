@@ -212,7 +212,7 @@ function SignupForm() {
             </Link>
             {' '}and{' '}
             <Link
-              href="/privacy"
+              href="/terms"
               target="_blank"
               style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none' }}
             >

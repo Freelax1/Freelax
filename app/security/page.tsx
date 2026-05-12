@@ -168,7 +168,7 @@ export default function SecurityPage() {
 
         <Section id="incidents" Icon={UserCheck} title="Incident response">
           <p style={{ margin: 0 }}>
-            In the unlikely event of a security incident affecting your personal data, we will notify you and the <strong>Information Commissioner&rsquo;s Office (ICO)</strong> without undue delay and within <strong>72 hours</strong>, as required by UK GDPR. Our infrastructure providers monitor uptime and security events continuously. We follow a documented incident-response playbook and will notify affected users and the ICO within 72 hours of becoming aware of a breach.
+            In the unlikely event of a security incident affecting your personal data, we will notify you and the <strong>Information Commissioner&rsquo;s Office (ICO)</strong> without undue delay and within <strong>72 hours</strong>, as required by UK GDPR. Our infrastructure providers monitor uptime and security events continuously. We follow a documented incident-response playbook and will notify affected users, the ICO, and <strong>HMRC</strong> within 72 hours of becoming aware of a breach.
           </p>
         </Section>
 
