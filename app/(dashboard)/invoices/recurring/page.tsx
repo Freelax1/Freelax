@@ -155,7 +155,7 @@ export default function RecurringInvoicesPage() {
       {!loading && !templates.length ? (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
           <p className="text-slate-500 text-sm mb-2">No recurring templates yet</p>
-          <p className="text-slate-400 text-xs">Create a template and invoices will be generated automatically.</p>
+          <p className="text-slate-600 text-xs">Create a template and invoices will be generated automatically.</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -182,11 +182,11 @@ export default function RecurringInvoicesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
                       <button onClick={() => toggleActive(t.id, t.active)}
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700" title={t.active ? 'Pause' : 'Resume'}>
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-700" title={t.active ? 'Pause' : 'Resume'}>
                         {t.active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                       </button>
                       <button onClick={() => deleteTemplate(t.id)}
-                        className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-600">
+                        className="p-1.5 rounded hover:bg-red-50 text-slate-600 hover:text-red-600">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -198,7 +198,7 @@ export default function RecurringInvoicesPage() {
         </div>
       )}
 
-      <p className="text-xs text-slate-400 mt-4">
+      <p className="text-xs text-slate-600 mt-4">
         Invoices are auto-created on the scheduled date. A Vercel cron job or Supabase scheduled function is required to trigger generation — see <code>/api/invoices/recurring</code>.
       </p>
     </div>

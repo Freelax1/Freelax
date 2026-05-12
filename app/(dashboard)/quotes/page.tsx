@@ -101,7 +101,8 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        aria-label="Quote actions"
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
@@ -113,17 +114,17 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
         }}>
           <Link href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
+            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
           </Link>
           {isDraft && (
             <Link href={`/quotes/${quote.id}/edit`} onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-              <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+              <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
             </Link>
           )}
           {/* Status options */}
           <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {statusOptions.map(s => (
               <button key={s.key} onClick={() => { setOpen(false); onStatusChange(quote, s.key) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
@@ -190,7 +191,7 @@ function BulkBar({ count, selectedStatuses, onDelete, onStatusChange, onClear }:
       >
         <Trash2 style={{ width: 12, height: 12 }} /> Delete
       </button>
-      <button onClick={onClear} style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
+      <button onClick={onClear} style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.7)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
     </div>
   )
 }
@@ -341,7 +342,7 @@ export default function QuotesPage() {
       {!loading && quotes.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
           {([
-            { key: 'draft',    label: 'Draft',    bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#999',    valueColor: '#111'    },
+            { key: 'draft',    label: 'Draft',    bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111'    },
             { key: 'sent',     label: 'Sent',     bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#1A5E8A', valueColor: '#1A5E8A' },
             { key: 'accepted', label: 'Accepted', bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
             { key: 'expired',  label: 'Expired',  bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#C0392B', valueColor: '#C0392B' },
@@ -408,7 +409,7 @@ export default function QuotesPage() {
                 <tr>
                   <th className="px-4 py-3 w-10">
                     <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(q => q.id)))}
-                      className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                      className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                       {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                     </button>
                   </th>
@@ -447,7 +448,7 @@ export default function QuotesPage() {
                   return (
                     <tr key={q.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
                       <td className="px-4 py-3">
-                        <button onClick={() => toggleSelect(q.id)} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                        <button onClick={() => toggleSelect(q.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                           {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                         </button>
                       </td>
@@ -491,8 +492,8 @@ export default function QuotesPage() {
               <div key={q.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(q.id)} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-400" />}
+                    <button onClick={() => toggleSelect(q.id)} aria-label={isSelected ? 'Deselect quote' : 'Select quote'} className="flex items-center flex-shrink-0">
+                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
                     <Link href={`/quotes/${q.id}`} className="font-medium text-blue-600 hover:underline truncate">{q.quote_number}</Link>
                   </div>
@@ -503,7 +504,7 @@ export default function QuotesPage() {
                   <div className="flex-shrink-0"><Badge status={q.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className={`text-xs ${expired ? 'text-red-600 font-medium' : !expired && days <= 3 && days >= 0 && q.status === 'sent' ? 'text-amber-600 font-medium' : 'text-slate-400'}`}>
+                  <span className={`text-xs ${expired ? 'text-red-600 font-medium' : !expired && days <= 3 && days >= 0 && q.status === 'sent' ? 'text-amber-600 font-medium' : 'text-slate-600'}`}>
                     Valid until {new Date(q.expiry_date).toLocaleDateString('en-GB')}
                     {expired && ' · expired'}
                     {!expired && days <= 3 && days >= 0 && q.status === 'sent' && ` · ${days}d left`}

@@ -40,7 +40,7 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
           padding: 0,
           marginLeft: 4,
           cursor: 'pointer',
-          color: '#94A3B8',
+          color: '#475569',
           display: 'inline-flex',
           alignItems: 'center',
           transition: 'color 150ms',

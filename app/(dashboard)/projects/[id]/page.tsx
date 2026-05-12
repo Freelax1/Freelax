@@ -95,13 +95,13 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         <div className="grid grid-cols-2 gap-4 text-sm">
           {project.description && (
             <div className="col-span-2">
-              <p className="text-xs text-slate-400 uppercase font-medium mb-0.5">Description</p>
+              <p className="text-xs text-slate-600 uppercase font-medium mb-0.5">Description</p>
               <p className="text-slate-700">{project.description}</p>
             </div>
           )}
           {project.rate_type && (
             <div>
-              <p className="text-xs text-slate-400 uppercase font-medium mb-0.5">Rate</p>
+              <p className="text-xs text-slate-600 uppercase font-medium mb-0.5">Rate</p>
               <p className="text-slate-700 font-medium">
                 {formatCurrency(project.rate_amount ?? 0)}{' '}
                 {project.rate_type === 'day_rate' ? '/day' : project.rate_type === 'hourly' ? '/hour' : 'fixed'}
@@ -110,13 +110,13 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           )}
           {project.start_date && (
             <div>
-              <p className="text-xs text-slate-400 uppercase font-medium mb-0.5">Start date</p>
+              <p className="text-xs text-slate-600 uppercase font-medium mb-0.5">Start date</p>
               <p className="text-slate-700">{new Date(project.start_date).toLocaleDateString('en-GB')}</p>
             </div>
           )}
           {project.end_date && (
             <div>
-              <p className="text-xs text-slate-400 uppercase font-medium mb-0.5">End date</p>
+              <p className="text-xs text-slate-600 uppercase font-medium mb-0.5">End date</p>
               <p className="text-slate-700">{new Date(project.end_date).toLocaleDateString('en-GB')}</p>
             </div>
           )}
@@ -138,7 +138,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         ) : (
           <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-              <Lock className="w-5 h-5 text-slate-400" />
+              <Lock className="w-5 h-5 text-slate-600" />
             </div>
             <p className="text-sm font-medium text-slate-700 mb-1">
               IR35 assessment is available on the Pro plan
@@ -179,7 +179,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               ))}
             </tbody>
           </table>
-        ) : <p className="text-sm text-slate-400">No invoices for this project.</p>}
+        ) : <p className="text-sm text-slate-600">No invoices for this project.</p>}
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit project"

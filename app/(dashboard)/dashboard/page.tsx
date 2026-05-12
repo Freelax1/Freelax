@@ -107,8 +107,9 @@ function ShortcutHint() {
     <div className="fd-shortcut-hint" style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 100 }}>
       <button onClick={() => setOpen(o => !o)}
         style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        title="Keyboard shortcuts">
-        <HelpCircle style={{ width: 13, height: 13, color: '#94A3B8' }} strokeWidth={1.75} />
+        title="Keyboard shortcuts"
+        aria-label="Keyboard shortcuts">
+        <HelpCircle style={{ width: 13, height: 13, color: '#475569' }} strokeWidth={1.75} />
       </button>
       {open && (
         <div style={{ position: 'absolute', bottom: 36, right: 0, background: '#1A1A1A', borderRadius: 10, padding: '10px 14px', minWidth: 200, boxShadow: '0 8px 32px rgba(0,0,0,0.25)' }}>
@@ -415,8 +416,8 @@ export default function DashboardPage() {
               padding: '18px 22px',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-                <Zap style={{ width: 12, height: 12, color: '#9A7B0A' }} strokeWidth={2} />
-                <p style={{ fontSize: 11, fontWeight: 500, color: '#9A7B0A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                <Zap style={{ width: 12, height: 12, color: '#6B5410' }} strokeWidth={2} />
+                <p style={{ fontSize: 11, fontWeight: 500, color: '#6B5410', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   Do this now
                 </p>
               </div>
@@ -427,7 +428,7 @@ export default function DashboardPage() {
                     <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: action.priority === 'red' ? '#C0392B' : '#9A7B0A' }} />
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B' }}>{action.title}</p>
-                      {action.sub && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{action.sub}</p>}
+                      {action.sub && <p style={{ fontSize: 11, color: '#475569', marginTop: 1 }}>{action.sub}</p>}
                     </div>
                     <ArrowRight style={{ width: 12, height: 12, color: '#CBD5E1', flexShrink: 0 }} strokeWidth={1.75} />
                   </Link>
@@ -488,7 +489,7 @@ export default function DashboardPage() {
           )}
 
           {/* "Synced" footer */}
-          <p style={{ fontSize: 11.5, color: '#94A3B8', textAlign: 'center', paddingTop: 8 }}>
+          <p style={{ fontSize: 11.5, color: '#475569', textAlign: 'center', paddingTop: 8 }}>
             {syncedLabel()} · Built in the UK · <Link href="/security" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Your data is encrypted</Link>
           </p>
 

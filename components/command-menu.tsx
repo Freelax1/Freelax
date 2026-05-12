@@ -88,7 +88,7 @@ export default function CommandMenu({ open, onClose }: Props) {
         {/* Results */}
         <div style={{ maxHeight: 340, overflowY: 'auto', padding: '6px 0' }}>
           {filtered.length === 0 && (
-            <p style={{ padding: '14px 16px', fontSize: 13, color: '#94A3B8' }}>No results for "{query}"</p>
+            <p style={{ padding: '14px 16px', fontSize: 13, color: '#475569' }}>No results for "{query}"</p>
           )}
           {filtered.map((cmd, i) => {
             const Icon = cmd.icon
@@ -107,7 +107,7 @@ export default function CommandMenu({ open, onClose }: Props) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B' }}>{cmd.label}</p>
-                  <p style={{ fontSize: 11, color: '#94A3B8' }}>{cmd.sub}</p>
+                  <p style={{ fontSize: 11, color: '#475569' }}>{cmd.sub}</p>
                 </div>
                 {cmd.shortcut && (
                   <kbd style={{ fontSize: 10, color: '#CBD5E1', background: 'rgba(0,0,0,0.04)', borderRadius: 4, padding: '2px 6px', flexShrink: 0 }}>{cmd.shortcut}</kbd>

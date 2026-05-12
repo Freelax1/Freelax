@@ -53,29 +53,29 @@ export default function MileageForm({ userId, taxYearStart, onSuccess }: Props) 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={labelClass}>Date <span className="text-red-400">*</span></label>
-          <input type="date" className={inputClass} value={form.date}
+          <input aria-label="Date" type="date" className={inputClass} value={form.date}
             onChange={e => setForm(p => ({ ...p, date: e.target.value }))} />
         </div>
         <div>
           <label className={labelClass}>Miles <span className="text-red-400">*</span></label>
-          <input type="number" step="0.1" min="0.1" className={inputClass} placeholder="e.g. 24.5"
+          <input aria-label="Miles" type="number" step="0.1" min="0.1" className={inputClass} placeholder="e.g. 24.5"
             value={form.miles} onChange={e => setForm(p => ({ ...p, miles: e.target.value }))} />
         </div>
       </div>
       <div>
         <label className={labelClass}>Purpose / description <span className="text-red-400">*</span></label>
-        <input className={inputClass} placeholder="e.g. Client meeting — Acme Ltd"
+        <input aria-label="Purpose / description" className={inputClass} placeholder="e.g. Client meeting — Acme Ltd"
           value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={labelClass}>From</label>
-          <input className={inputClass} placeholder="Home office"
+          <input aria-label="From location" className={inputClass} placeholder="Home office"
             value={form.from_location} onChange={e => setForm(p => ({ ...p, from_location: e.target.value }))} />
         </div>
         <div>
           <label className={labelClass}>To</label>
-          <input className={inputClass} placeholder="Client site"
+          <input aria-label="To location" className={inputClass} placeholder="Client site"
             value={form.to_location} onChange={e => setForm(p => ({ ...p, to_location: e.target.value }))} />
         </div>
       </div>

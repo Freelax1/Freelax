@@ -63,7 +63,8 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        aria-label="Expense actions"
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
@@ -75,7 +76,7 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
         }}>
           <button onClick={() => { setOpen(false); onEdit() }}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-            <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
           </button>
           <div style={{ borderTop: '1px solid #F1F5F9' }}>
             <button onClick={() => { setOpen(false); onDelete() }}
@@ -107,7 +108,7 @@ function BulkBar({ count, onDelete, onClear }: {
       >
         <Trash2 style={{ width: 12, height: 12 }} /> Delete
       </button>
-      <button onClick={onClear} style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
+      <button onClick={onClear} style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.7)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
     </div>
   )
 }
@@ -257,9 +258,9 @@ export default function ExpensesPage() {
               { label: 'Receipts uploaded', value: `${receiptsUploaded}/${expenses.length}`, sub: receiptsUploaded === expenses.length ? '✓ All uploaded' : `${expenses.length - receiptsUploaded} missing` },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-5">
-                <p style={{ fontSize: 10, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
                 <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{s.value}</p>
-                <p style={{ fontSize: 11, fontWeight: 500, color: '#94A3B8' }}>{s.sub}</p>
+                <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{s.sub}</p>
               </div>
             ))}
           </div>
@@ -315,7 +316,7 @@ export default function ExpensesPage() {
                 <tr>
                   <th className="px-4 py-3 w-10">
                     <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(e => e.id)))}
-                      className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                      className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                       {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                     </button>
                   </th>
@@ -332,7 +333,7 @@ export default function ExpensesPage() {
                   return (
                     <tr key={exp.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
                       <td className="px-4 py-3">
-                        <button onClick={() => toggleSelect(exp.id)} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                        <button onClick={() => toggleSelect(exp.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                           {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                         </button>
                       </td>
@@ -382,8 +383,8 @@ export default function ExpensesPage() {
               <div key={exp.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(exp.id)} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-400" />}
+                    <button onClick={() => toggleSelect(exp.id)} aria-label={isSelected ? 'Deselect expense' : 'Select expense'} className="flex items-center flex-shrink-0">
+                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
                     <span className="font-medium text-slate-800 truncate">{exp.merchant}</span>
                   </div>
@@ -397,7 +398,7 @@ export default function ExpensesPage() {
                   {exp.vat_reclaimable && <span className="text-green-700 font-medium text-xs">VAT {formatCurrency(exp.vat_amount ?? 0)}</span>}
                 </div>
                 <div className="flex items-center justify-between pl-7">
-                  <span className="text-xs text-slate-400">{new Date(exp.date).toLocaleDateString('en-GB')}</span>
+                  <span className="text-xs text-slate-600">{new Date(exp.date).toLocaleDateString('en-GB')}</span>
                   <div className="flex items-center gap-2">
                     {exp.receipt_url && <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-blue-500"><Paperclip className="w-3.5 h-3.5" /></a>}
                     <KebabMenu onEdit={() => { setEditExpense(exp); setSlideOpen(true) }} onDelete={() => scheduleExpenseDelete(exp)} />
@@ -418,7 +419,7 @@ export default function ExpensesPage() {
               { label: 'Current rate', value: `${(calcMileageRate(totalMiles) * 100).toFixed(0)}p/mile` },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-5">
-                <p style={{ fontSize: 10, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
                 <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>{s.value}</p>
               </div>
             ))}
@@ -427,7 +428,7 @@ export default function ExpensesPage() {
             HMRC approved mileage: <strong className="text-slate-700">{(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile</strong> first {HMRC_THRESHOLD.toLocaleString()} miles,
             then <strong className="text-slate-700">{(HMRC_RATE_AFTER * 100).toFixed(0)}p/mile</strong>.
             {totalMiles > 8000 && totalMiles < HMRC_THRESHOLD && (
-              <span className="ml-2 text-amber-700 font-medium">{(HMRC_THRESHOLD - totalMiles).toLocaleString()} miles from the rate change.</span>
+              <span className="ml-2 text-amber-800 font-medium">{(HMRC_THRESHOLD - totalMiles).toLocaleString()} miles from the rate change.</span>
             )}
           </div>
         </>
@@ -438,7 +439,7 @@ export default function ExpensesPage() {
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
             <Car className="w-10 h-10 text-slate-200 mx-auto mb-3" />
             <p className="text-slate-500 text-sm font-medium mb-1">No journeys logged yet</p>
-            <p className="text-slate-400 text-xs">Business mileage at {(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile is tax-deductible.</p>
+            <p className="text-slate-600 text-xs">Business mileage at {(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile is tax-deductible.</p>
             <button onClick={openAdd} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Log journey</button>
           </div>
         ) : (
@@ -461,14 +462,14 @@ export default function ExpensesPage() {
                       <tr key={e.id} className="hover:bg-slate-50">
                         <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{new Date(e.date).toLocaleDateString('en-GB')}</td>
                         <td className="px-4 py-3 font-medium text-slate-800">{e.description}</td>
-                        <td className="px-4 py-3 text-slate-400 text-xs">
+                        <td className="px-4 py-3 text-slate-600 text-xs">
                           {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location || '—'}
                         </td>
                         <td className="px-4 py-3 text-right font-medium">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
                         <td className="px-4 py-3 text-right text-green-700 font-medium">£{relief.toFixed(2)}</td>
                         <td className="px-4 py-3 text-right">
                           <button onClick={() => scheduleMileageDelete(e)}
-                            className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
+                            className="p-1.5 rounded hover:bg-red-50 text-slate-500 hover:text-red-500">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
@@ -501,14 +502,14 @@ export default function ExpensesPage() {
                     </div>
                     <p className="text-green-700 font-medium text-sm mb-2">{formatCurrency(relief)} tax relief</p>
                     {hasRoute && (
-                      <p className="text-xs text-slate-400 mb-2">
+                      <p className="text-xs text-slate-600 mb-2">
                         {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location}
                       </p>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400">{new Date(e.date).toLocaleDateString('en-GB')}</span>
+                      <span className="text-xs text-slate-600">{new Date(e.date).toLocaleDateString('en-GB')}</span>
                       <button onClick={() => scheduleMileageDelete(e)}
-                        className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
+                        className="p-1.5 rounded hover:bg-red-50 text-slate-500 hover:text-red-500">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -523,7 +524,7 @@ export default function ExpensesPage() {
       {tab === 'mileage' && !canUseMileage && !loading && (
         <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-            <Lock className="w-5 h-5 text-slate-400" />
+            <Lock className="w-5 h-5 text-slate-600" />
           </div>
           <p className="text-sm font-medium text-slate-700 mb-1">
             Mileage tracking is available on the Solo plan and above

@@ -202,6 +202,7 @@ export default function NewQuotePage() {
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Client</label>
             <select
+              aria-label="Client"
               value={clientId}
               onChange={e => {
                 if (e.target.value === '__new__') { setShowNewClient(true) }
@@ -217,18 +218,21 @@ export default function NewQuotePage() {
               <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
                 <p className="text-xs font-semibold text-slate-700 mb-1">New client</p>
                 <input
+                  aria-label="New client name"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Company / client name *"
                   className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
                 />
                 <input
+                  aria-label="New client contact name"
                   value={newClientContact}
                   onChange={e => setNewClientContact(e.target.value)}
                   placeholder="Contact name"
                   className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
                 />
                 <input
+                  aria-label="New client email"
                   value={newClientEmail}
                   onChange={e => setNewClientEmail(e.target.value)}
                   placeholder="Email"
@@ -258,6 +262,7 @@ export default function NewQuotePage() {
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
             <select
+              aria-label="Project"
               value={projectId}
               onChange={e => {
                 if (e.target.value === '__new_project__') { setShowNewProject(true) }
@@ -273,6 +278,7 @@ export default function NewQuotePage() {
               <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
                 <p className="text-xs font-semibold text-slate-700 mb-1">New project</p>
                 <input
+                  aria-label="New project name"
                   value={newProjectTitle}
                   onChange={e => setNewProjectTitle(e.target.value)}
                   placeholder="Project name *"
@@ -306,11 +312,11 @@ export default function NewQuotePage() {
           )}
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Issue date</label>
-            <input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Valid until</label>
-            <input type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            <input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
           </div>
         </div>
       </div>
@@ -333,11 +339,11 @@ export default function NewQuotePage() {
             <tbody>
               {lineItems.map((item, i) => (
                 <tr key={i}>
-                  <td className="py-1 pr-2"><input value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
-                  <td className="py-1 pr-2"><input type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
-                  <td className="py-1 pr-2"><input type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
                   <td className="py-1 pr-2">
-                    <select value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900">
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
@@ -346,7 +352,7 @@ export default function NewQuotePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-red-500">
+                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-slate-500 hover:text-red-500">
                         <X className="w-4 h-4" />
                       </button>
                     )}
@@ -369,7 +375,7 @@ export default function NewQuotePage() {
       {/* Notes */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none" />
+        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none" />
       </div>
 
       <div className="flex justify-end gap-3">

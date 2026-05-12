@@ -16,7 +16,7 @@ interface Props {
 }
 
 const LABEL_STYLE: React.CSSProperties = {
-  fontSize: 11, fontWeight: 500, color: '#94A3B8',
+  fontSize: 11, fontWeight: 500, color: '#475569',
   textTransform: 'uppercase', letterSpacing: '0.12em',
   marginBottom: 12,
 }
@@ -27,7 +27,7 @@ const HERO_STYLE: React.CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
 }
 const SUB_STYLE: React.CSSProperties = {
-  fontSize: 12, color: '#94A3B8', marginTop: 8, lineHeight: 1.5,
+  fontSize: 12, color: '#475569', marginTop: 8, lineHeight: 1.5,
 }
 const CARD: React.CSSProperties = {
   borderRadius: 14, padding: '32px 32px 28px',
@@ -119,7 +119,7 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
             borderRadius: 2,
           }} />
 
-          <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
             How this is calculated
           </p>
 
@@ -151,7 +151,7 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: row.color, flexShrink: 0, marginTop: 5 }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 12, fontWeight: 500, color: '#fff' }}>{row.label}</p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2, lineHeight: 1.4 }}>{row.note}</p>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2, lineHeight: 1.4 }}>{row.note}</p>
               </div>
             </div>
           ))}

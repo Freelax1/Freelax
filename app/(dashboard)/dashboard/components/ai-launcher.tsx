@@ -68,8 +68,9 @@ export default function AiLauncher() {
         </div>
         <button
           onClick={dismiss}
-          className="text-slate-300 hover:text-slate-500 transition-colors p-1 rounded"
+          className="text-slate-500 hover:text-slate-500 transition-colors p-1 rounded"
           title="Dismiss"
+          aria-label="Dismiss AI features panel"
         >
           <X className="w-4 h-4" />
         </button>
@@ -87,7 +88,7 @@ export default function AiLauncher() {
             <p className="text-xs font-semibold text-slate-800 mb-0.5 group-hover:text-purple-700 transition-colors">
               {f.title}
             </p>
-            <p className="text-xs text-slate-400 leading-relaxed mb-2">{f.desc}</p>
+            <p className="text-xs text-slate-600 leading-relaxed mb-2">{f.desc}</p>
             <span className="text-xs font-medium text-purple-600 group-hover:text-purple-700">
               {f.cta} →
             </span>

@@ -72,7 +72,7 @@ export default function TaxQAChat() {
           <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
             <div>
               <p className="text-sm font-semibold">Tax Q&A</p>
-              <p className="text-xs text-blue-200">Ask anything about your taxes</p>
+              <p className="text-xs text-blue-100">Ask anything about your taxes</p>
             </div>
             <div className="flex items-center gap-1">
               <button onClick={handleReset} aria-label="New question" title="New question" className="p-1 hover:bg-blue-700 rounded-lg">
@@ -116,7 +116,7 @@ export default function TaxQAChat() {
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-slate-100 px-3 py-2 rounded-2xl rounded-bl-sm">
-                  <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                  <Loader2 className="w-4 h-4 text-slate-600 animate-spin" />
                 </div>
               </div>
             )}
@@ -135,12 +135,13 @@ export default function TaxQAChat() {
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || loading || cooldown}
+                aria-label="Send question"
                 className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 transition-colors"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
-            <p className="mt-1.5 text-center whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 11, color: '#94A3B8' }}>
+            <p className="mt-1.5 text-center whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 11, color: '#475569' }}>
               AI estimates only · not professional advice ·{' '}
               <Link href="/terms" className="underline hover:text-slate-500">Learn more</Link>
             </p>

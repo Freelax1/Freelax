@@ -181,7 +181,7 @@ export default function InvoiceEditPage({ params }: { params: { id: string } }) 
                   <td className="py-1 text-right font-medium">{formatCurrency(Number(item.quantity) * Number(item.unit_price))}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_,idx) => idx !== i))} className="text-slate-300 hover:text-red-500">
+                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_,idx) => idx !== i))} className="text-slate-500 hover:text-red-500">
                         <X className="w-4 h-4" />
                       </button>
                     )}

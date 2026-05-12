@@ -292,12 +292,12 @@ export default function NewInvoicePage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">New Invoice</h1>
           {lastSavedAt && (
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               {autoSaving ? 'Saving...' : `Draft saved ${lastSavedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
             </p>
           )}
           {!lastSavedAt && clientId && (
-            <p className="text-xs text-slate-400 mt-1">Auto-saves every 10s once a client is selected</p>
+            <p className="text-xs text-slate-600 mt-1">Auto-saves every 10s once a client is selected</p>
           )}
         </div>
         <button
@@ -341,6 +341,7 @@ export default function NewInvoicePage() {
             <label className="block text-xs font-medium text-slate-500 mb-1">Client</label>
             <div className="relative">
               <select
+                aria-label="Client"
                 value={clientId}
                 onChange={e => {
                   if (e.target.value === '__new__') { setShowNewClient(true) }
@@ -352,24 +353,27 @@ export default function NewInvoicePage() {
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 <option value="__new__">+ Create new client</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none" />
             </div>
             {showNewClient && (
               <div className="mt-2 border border-blue-200 rounded-lg p-3 bg-blue-50 space-y-2">
                 <p className="text-xs font-semibold text-blue-700 mb-1">New client</p>
                 <input
+                  aria-label="New client name"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Company / client name *"
                   className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                 />
                 <input
+                  aria-label="New client contact name"
                   value={newClientContact}
                   onChange={e => setNewClientContact(e.target.value)}
                   placeholder="Contact name"
                   className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                 />
                 <input
+                  aria-label="New client email"
                   value={newClientEmail}
                   onChange={e => setNewClientEmail(e.target.value)}
                   placeholder="Email"
@@ -398,6 +402,7 @@ export default function NewInvoicePage() {
             <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
             <div className="relative">
               <select
+                aria-label="Project"
                 value={projectId}
                 onChange={e => {
                   if (e.target.value === '__new_project__') { setShowNewProject(true) }
@@ -409,12 +414,13 @@ export default function NewInvoicePage() {
                 {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                 {clientId && <option value="__new_project__">+ Add project</option>}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none" />
             </div>
             {showNewProject && (
               <div className="mt-2 border border-blue-200 rounded-lg p-3 bg-blue-50 space-y-2">
                 <p className="text-xs font-semibold text-blue-700 mb-1">New project</p>
                 <input
+                  aria-label="New project name"
                   value={newProjectTitle}
                   onChange={e => setNewProjectTitle(e.target.value)}
                   placeholder="Project name *"
@@ -445,15 +451,15 @@ export default function NewInvoicePage() {
           )}
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Issue date</label>
-            <input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Due date</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input aria-label="Due date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div className="col-span-2">
             <label className="block text-xs font-medium text-slate-500 mb-1">Payment terms</label>
-            <input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input aria-label="Payment terms" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
       </div>
@@ -480,16 +486,16 @@ export default function NewInvoicePage() {
               {lineItems.map((item, i) => (
                 <tr key={i}>
                   <td className="py-1 pr-2">
-                    <input value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   </td>
                   <td className="py-1 pr-2">
-                    <input type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   </td>
                   <td className="py-1 pr-2">
-                    <input type="number" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <input aria-label="Line item unit price" type="number" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   </td>
                   <td className="py-1 pr-2">
-                    <select value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
@@ -498,7 +504,7 @@ export default function NewInvoicePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button onClick={() => removeLine(i)} className="text-slate-300 hover:text-red-500 transition-colors">
+                      <button onClick={() => removeLine(i)} className="text-slate-500 hover:text-red-500 transition-colors">
                         <X className="w-4 h-4" />
                       </button>
                     )}
@@ -523,7 +529,7 @@ export default function NewInvoicePage() {
       {/* Notes */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
       </div>
 
       {/* Actions */}

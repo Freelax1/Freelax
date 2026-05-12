@@ -48,7 +48,7 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   const cfg: Record<string, { label: string; color: string }> = {
     active:    { label: 'Active',    color: '#1D6B35' },
     completed: { label: 'Completed', color: '#1A5E8A' },
-    on_hold:   { label: 'On Hold',   color: '#9A7B0A' },
+    on_hold:   { label: 'On Hold',   color: '#6B5410' },
     cancelled: { label: 'Cancelled', color: '#C0392B' },
   }
   const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
@@ -101,7 +101,8 @@ function KebabMenu({ project, onDelete, onStatusChange }: {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        aria-label="Project actions"
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
@@ -113,15 +114,15 @@ function KebabMenu({ project, onDelete, onStatusChange }: {
         }}>
           <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
+            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
           </Link>
           <Link href={`/projects/${project.id}/edit`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
           </Link>
           {/* Status options */}
           <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {otherStatuses.map(s => (
               <button key={s.key} onClick={() => { setOpen(false); onStatusChange(project, s.key) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
@@ -282,7 +283,7 @@ export default function ProjectsPage() {
           {[
             { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#1D6B35', bg: '#F0FDF4', activeBg: '#1D6B35', border: 'rgba(29,107,53,0.15)' },
             { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#1A5E8A', bg: '#EBF4FD', activeBg: '#1A5E8A', border: 'rgba(26,94,138,0.15)' },
-            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#9A7B0A', bg: '#FEFCE8', activeBg: '#9A7B0A', border: 'rgba(154,123,10,0.15)' },
+            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#6B5410', bg: '#FEFCE8', activeBg: '#9A7B0A', border: 'rgba(154,123,10,0.15)' },
           ].map(({ key, label, count, value, color, bg, activeBg, border }) => {
             const isActive = statusFilter === key
             return (
@@ -304,7 +305,7 @@ export default function ProjectsPage() {
           })}
           {/* Total rate value — non-clickable */}
           <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 12, padding: '16px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999', marginBottom: 6 }}>Total rate value</p>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#595959', marginBottom: 6 }}>Total rate value</p>
             <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
             {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#666', opacity: 0.8 }}>{formatCurrency(totalValue)}</p>}
           </div>
@@ -357,7 +358,7 @@ export default function ProjectsPage() {
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3 w-10">
-                    <button onClick={toggleAll} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                    <button onClick={toggleAll} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                       {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                     </button>
                   </th>
@@ -376,7 +377,7 @@ export default function ProjectsPage() {
                   return (
                     <tr key={p.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
                       <td className="px-4 py-3">
-                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                           {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                         </button>
                       </td>
@@ -418,8 +419,8 @@ export default function ProjectsPage() {
               <div key={p.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(p.id)} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-400" />}
+                    <button onClick={() => toggleSelect(p.id)} aria-label={isSelected ? 'Deselect project' : 'Select project'} className="flex items-center flex-shrink-0">
+                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
                     <Link href={`/projects/${p.id}`} className="font-medium text-slate-900 hover:text-blue-600 truncate">{p.title}</Link>
                   </div>
@@ -430,7 +431,7 @@ export default function ProjectsPage() {
                   <div className="flex-shrink-0"><Badge status={p.ir35_status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className="text-xs text-slate-400">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
+                  <span className="text-xs text-slate-600">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
                   <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
                 </div>
               </div>

@@ -6,10 +6,10 @@ export default function RunwayCard({ months, label }: Props) {
     <div className="flex flex-col items-center gap-1.5">
       <p className="text-4xl font-extrabold tracking-tight leading-none text-slate-900">
         {months !== null ? months : '—'}
-        {months !== null && <span className="text-xl font-bold text-slate-400 ml-1">mo</span>}
+        {months !== null && <span className="text-xl font-bold text-slate-600 ml-1">mo</span>}
       </p>
       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color }}>{label}</p>
-      <p className="text-[10px] text-slate-400 text-center leading-snug">
+      <p className="text-[10px] text-slate-600 text-center leading-snug">
         Cash + unpaid invoices ÷ avg expenses
       </p>
     </div>

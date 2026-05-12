@@ -49,19 +49,19 @@ function activityConfig(entry: QuoteActivity): {
       }
     case 'expired':
       return {
-        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-400',
+        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-600',
         label: 'Expired',
         sub:   'Quote passed its validity date',
       }
     case 'status_changed':
       return {
-        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-400',
+        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-600',
         label: `Status changed to ${m.to ? (m.to as string).charAt(0).toUpperCase() + (m.to as string).slice(1) : m.to}`,
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
     default:
       return {
-        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-400',
+        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-600',
         label: entry.action,
       }
   }
@@ -308,6 +308,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
               <ExternalLink className="w-3.5 h-3.5" /> PDF
             </a>
             <button onClick={() => setShowDelete(true)}
+              aria-label="Delete quote"
               className="flex items-center gap-1.5 px-3 py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50">
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -325,7 +326,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-amber-900 mb-0.5">Upgrade required</p>
-                <p className="text-sm text-amber-700">{msg.text}</p>
+                <p className="text-sm text-amber-800">{msg.text}</p>
               </div>
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
@@ -346,7 +347,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="opacity-50 hover:opacity-100 transition-opacity">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -390,8 +391,8 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
                 ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 8, display: 'block' }} />
                 : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{sender.email}</p>}
-              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+              {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
             </div>
             <div style={{ textAlign: 'right' }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Quote</p>
@@ -407,7 +408,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
               <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Prepared for</p>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
               {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
-              {client?.email && <p style={{ fontSize: 12, color: '#94a3b8' }}>{client.email}</p>}
+              {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
             </div>
             <div className="q-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
@@ -421,8 +422,8 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
               <div style={{ marginTop: 4 }}>
                 {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
                 {quote.status === 'declined' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Declined</span>}
-                {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
-                {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
+                {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
+                {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -433,20 +434,20 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
           <table className="w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
               <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((item: QuoteLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
                   <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.vat_rate}%</td>
                   <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
@@ -462,7 +463,7 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
                   ? <>Valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.</>
                   : 'No expiry date set.'}
               </p>
-              {quote.notes && <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 8 }}>{quote.notes}</p>}
+              {quote.notes && <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 8 }}>{quote.notes}</p>}
             </div>
             <div className="q-totals" style={{ width: 220, flexShrink: 0 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
@@ -479,8 +480,8 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
 
           {/* Doc footer */}
           <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>Powered by Freelax</span>
+            <span style={{ fontSize: 10, color: '#475569' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
+            <span style={{ fontSize: 10, color: '#475569' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>
@@ -488,10 +489,10 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
       {/* Activity log */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-slate-400" />
+          <Clock className="w-4 h-4 text-slate-600" />
           <h2 className="text-sm font-semibold text-slate-800">Activity</h2>
           {activity.length > 0 && (
-            <span className="ml-auto text-xs text-slate-400">
+            <span className="ml-auto text-xs text-slate-600">
               {activity.length} event{activity.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -499,8 +500,8 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
         {activity.length === 0 ? (
           <div className="px-5 py-8 text-center">
             <Clock className="w-6 h-6 text-slate-200 mx-auto mb-2" />
-            <p className="text-sm text-slate-400">No activity recorded yet.</p>
-            <p className="text-xs text-slate-300 mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
+            <p className="text-sm text-slate-600">No activity recorded yet.</p>
+            <p className="text-xs text-slate-500 mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-50">
@@ -513,9 +514,9 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-700 font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-slate-400 mt-0.5">{cfg.sub}</p>}
+                    {cfg.sub && <p className="text-xs text-slate-600 mt-0.5">{cfg.sub}</p>}
                   </div>
-                  <p className="text-xs text-slate-400 shrink-0 pt-0.5">
+                  <p className="text-xs text-slate-600 shrink-0 pt-0.5">
                     {new Date(entry.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'short', year: 'numeric',
                     })}

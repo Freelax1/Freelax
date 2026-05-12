@@ -17,7 +17,7 @@ interface Props {
 export default function NotTaxAdviceDisclaimer({ variant = 'inline' }: Props) {
   if (variant === 'footer') {
     return (
-      <p className="text-xs text-slate-400 text-center mt-8 max-w-2xl mx-auto leading-relaxed">
+      <p className="text-xs text-slate-600 text-center mt-8 max-w-2xl mx-auto leading-relaxed">
         {DISCLAIMER_FOOTER_TEXT}{' '}
         <Link href="/terms" className="underline hover:text-slate-600">Learn more</Link>.
       </p>

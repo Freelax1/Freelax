@@ -122,7 +122,7 @@ function ChaseModal({
               {overdueDays > 0 && <span className="text-red-500 ml-1">· {overdueDays}d overdue</span>}
             </p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100">
+          <button onClick={onClose} aria-label="Close" className="p-1 rounded-lg hover:bg-slate-100">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
@@ -165,7 +165,7 @@ function ChaseModal({
                       {meta.label}
                     </p>
                     {locked && (
-                      <p style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>{lockReason}</p>
+                      <p style={{ fontSize: 9, color: '#475569', marginTop: 2 }}>{lockReason}</p>
                     )}
                   </button>
                 )
@@ -180,16 +180,16 @@ function ChaseModal({
 
           {/* To field */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-slate-400 w-8">To</span>
+            <span className="text-slate-600 w-8">To</span>
             <span className="font-medium text-slate-700">
               {client?.contact_name || client?.name}
-              {client?.email && <span className="text-slate-400 font-normal ml-1">&lt;{client.email}&gt;</span>}
+              {client?.email && <span className="text-slate-600 font-normal ml-1">&lt;{client.email}&gt;</span>}
             </span>
           </div>
 
           {/* Subject preview */}
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-slate-400 w-8 pt-0.5">Re</span>
+            <span className="text-slate-600 w-8 pt-0.5">Re</span>
             <span className="text-slate-500 text-xs bg-slate-50 px-2 py-1 rounded">
               {tier === 'legal' ? 'Notice of Intended Legal Proceedings' : tier === 'formal' ? 'Formal Payment Notice' : 'Payment Reminder'}: Invoice {invoice.invoice_number} — {formatCurrency(invoice.total)}
             </span>
@@ -199,12 +199,13 @@ function ChaseModal({
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5">Message</label>
             <textarea
+              aria-label="Message"
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={7}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none leading-relaxed"
             />
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Bank details and invoice summary will be appended automatically.
             </p>
           </div>
@@ -219,7 +220,7 @@ function ChaseModal({
           )}
 
           {!client?.email && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-700">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-800">
               No email address on file for this client. Chase will be logged but no email will be sent.
             </div>
           )}
@@ -299,7 +300,7 @@ function activityConfig(entry: InvoiceActivity): {
     }
     case 'status_changed':
       return {
-        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-400',
+        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-600',
         label: `Status changed to ${m.to ? (m.to as string).charAt(0).toUpperCase() + (m.to as string).slice(1) : m.to}`,
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
@@ -310,7 +311,7 @@ function activityConfig(entry: InvoiceActivity): {
       }
     default:
       return {
-        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-400',
+        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-600',
         label: entry.action,
       }
   }
@@ -488,7 +489,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-amber-900 mb-0.5">Upgrade required</p>
-                <p className="text-sm text-amber-700">{msg.text}</p>
+                <p className="text-sm text-amber-800">{msg.text}</p>
               </div>
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
@@ -510,7 +511,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="opacity-50 hover:opacity-100 transition-opacity">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </button>
             </div>
@@ -539,9 +540,9 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
                 ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 10, display: 'block' }} />
                 : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{sender.email}</p>}
-              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
-              {sender?.vat_number && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
+              {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+              {sender?.vat_number && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
             </div>
             <div style={{ textAlign: 'right' }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Invoice</p>
@@ -558,8 +559,8 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
               <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
               {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
               {client?.email && <p style={{ fontSize: 12, color: '#64748b' }}>{client.email}</p>}
-              {client?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{client.address_line1}</p>}
-              {client?.city && <p style={{ fontSize: 12, color: '#94a3b8' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
+              {client?.address_line1 && <p style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{client.address_line1}</p>}
+              {client?.city && <p style={{ fontSize: 12, color: '#475569' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
             </div>
             <div className="inv-bill-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
@@ -579,7 +580,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
               <div style={{ marginTop: 4 }}>
                 {invoice.status === 'paid' && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Paid</span>}
                 {invoice.status === 'overdue' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Overdue</span>}
-                {invoice.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
+                {invoice.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -590,20 +591,20 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
           <table className="inv-table w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
               <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((item: InvoiceLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
                   <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.vat_rate}%</td>
                   <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
@@ -630,12 +631,12 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
                     </div>
                   ))}
                 </div>
-                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12 }}>{invoice.payment_terms}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#475569', marginTop: 12 }}>{invoice.payment_terms}</p>}
               </div>
             ) : (
               <div>
-                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#94a3b8' }}>{invoice.payment_terms}</p>}
-                {invoice.notes && <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>{invoice.notes}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#475569' }}>{invoice.payment_terms}</p>}
+                {invoice.notes && <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 4 }}>{invoice.notes}</p>}
               </div>
             )}
 
@@ -655,13 +656,13 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
 
           {/* Notes if bank details shown */}
           {hasBankDetails && invoice.notes && (
-            <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 20 }}>{invoice.notes}</p>
+            <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 20 }}>{invoice.notes}</p>
           )}
 
           {/* Doc footer */}
           <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>Powered by Freelax</span>
+            <span style={{ fontSize: 10, color: '#475569' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
+            <span style={{ fontSize: 10, color: '#475569' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>
@@ -669,10 +670,10 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
       {/* Activity log */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-slate-400" />
+          <Clock className="w-4 h-4 text-slate-600" />
           <h2 className="text-sm font-semibold text-slate-800">Activity</h2>
           {activity.length > 0 && (
-            <span className="ml-auto text-xs text-slate-400">
+            <span className="ml-auto text-xs text-slate-600">
               {activity.length} event{activity.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -680,8 +681,8 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
         {activity.length === 0 ? (
           <div className="px-5 py-8 text-center">
             <Clock className="w-6 h-6 text-slate-200 mx-auto mb-2" />
-            <p className="text-sm text-slate-400">No activity recorded yet.</p>
-            <p className="text-xs text-slate-300 mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
+            <p className="text-sm text-slate-600">No activity recorded yet.</p>
+            <p className="text-xs text-slate-500 mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-50">
@@ -694,9 +695,9 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-700 font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-slate-400 mt-0.5">{cfg.sub}</p>}
+                    {cfg.sub && <p className="text-xs text-slate-600 mt-0.5">{cfg.sub}</p>}
                   </div>
-                  <p className="text-xs text-slate-400 shrink-0 pt-0.5">
+                  <p className="text-xs text-slate-600 shrink-0 pt-0.5">
                     {new Date(entry.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'short', year: 'numeric',
                     })}

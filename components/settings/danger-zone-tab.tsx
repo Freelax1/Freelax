@@ -64,7 +64,7 @@ export default function DangerZoneTab() {
               ))}
             </div>
 
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Delivered as a ZIP file containing one CSV per data type, plus a README.
               All records, all time — not just the current tax year.
             </p>
@@ -85,7 +85,7 @@ export default function DangerZoneTab() {
               exportState === 'success'
                 ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
                 : exportState === 'loading'
-                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                ? 'bg-slate-100 text-slate-600 border border-slate-200 cursor-not-allowed'
                 : 'bg-slate-900 text-white hover:bg-slate-800 border border-transparent'
             }`}
           >
@@ -113,7 +113,7 @@ export default function DangerZoneTab() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <p className="text-sm font-medium text-red-700">Delete account</p>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Permanently delete your account and all associated data. This cannot be undone.
             </p>
           </div>

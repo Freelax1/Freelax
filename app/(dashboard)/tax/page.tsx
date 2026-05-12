@@ -59,7 +59,7 @@ function Row({ label, value, bold, red, green, indent, hint }: {
     <div className={`flex justify-between items-start py-2 border-b border-slate-50 last:border-0 ${indent ? 'pl-4' : ''}`}>
       <div>
         <span className={`text-sm ${bold ? 'font-semibold text-slate-800' : 'text-slate-500'}`}>{label}</span>
-        {hint && <p className="text-xs text-slate-400 mt-0.5">{hint}</p>}
+        {hint && <p className="text-xs text-slate-600 mt-0.5">{hint}</p>}
       </div>
       <span className={`text-sm ml-4 shrink-0 ${bold ? 'font-semibold' : 'font-medium'} ${red ? 'text-red-600' : green ? 'text-green-700' : bold ? 'text-slate-900' : 'text-slate-700'}`}>
         {value}
@@ -99,7 +99,7 @@ function StatCard({
       display: 'flex', flexDirection: 'column',
     }}>
       <p style={{
-        fontSize: 11, fontWeight: 500, color: '#94A3B8',
+        fontSize: 11, fontWeight: 500, color: '#475569',
         textTransform: 'uppercase', letterSpacing: '0.12em',
         margin: '0 0 12px',
       }}>
@@ -126,7 +126,7 @@ function StatCard({
         </div>
       )}
       {sub && (
-        <p style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.5, margin: '8px 0 0' }}>
+        <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, margin: '8px 0 0' }}>
           {sub}
         </p>
       )}
@@ -178,7 +178,7 @@ function NextSteps({ actions }: { actions: TaxAction[] }) {
             <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: dotColor(a.priority) }} />
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B', margin: 0 }}>{a.title}</p>
-              <p style={{ fontSize: 11, color: '#94A3B8', margin: '1px 0 0' }}>{a.sub}</p>
+              <p style={{ fontSize: 11, color: '#475569', margin: '1px 0 0' }}>{a.sub}</p>
             </div>
             <ArrowRight style={{ width: 12, height: 12, color: '#CBD5E1', flexShrink: 0 }} strokeWidth={1.75} />
           </Link>
@@ -230,14 +230,14 @@ function TaxPotCard({
         </div>
       )}
       {entries.map((e: TaxPotEntry) => (
-        <div key={e.id} className="flex justify-between items-center text-xs text-slate-400 mb-1 group">
+        <div key={e.id} className="flex justify-between items-center text-xs text-slate-600 mb-1 group">
           <span>{e.note || 'Contribution'} · {new Date(e.date).toLocaleDateString('en-GB')}</span>
           <div className="flex items-center gap-2">
             <span>+{formatCurrency(e.amount)}</span>
             <button
               onClick={() => onDelete(e.id)}
               title="Remove this entry"
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-red-50 hover:text-red-500 text-slate-300"
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-red-50 hover:text-red-500 text-slate-500"
             >
               <X className="w-3 h-3" />
             </button>
@@ -245,7 +245,7 @@ function TaxPotCard({
         </div>
       ))}
       {totalTarget > totalSaved && (
-        <p className="text-xs text-amber-700 mt-1">
+        <p className="text-xs text-amber-800 mt-1">
           {formatCurrency(totalTarget - totalSaved)} still to set aside
         </p>
       )}
@@ -486,7 +486,7 @@ export default function TaxPage() {
               <Link
                 href="/settings?tab=billing"
                 title="Export is available on the Solo plan and above. Upgrade to unlock."
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-medium hover:bg-slate-200"
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-200"
               >
                 <Lock className="w-3.5 h-3.5" />
                 Download {label} SA pack
@@ -507,8 +507,8 @@ export default function TaxPage() {
       {(narrative || narrativeLoading) && (
         <div className="bg-slate-900 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-medium text-slate-300">Self Assessment Summary</span>
+            <Sparkles className="w-4 h-4 text-slate-600" />
+            <span className="text-sm font-medium text-slate-500">Self Assessment Summary</span>
             <div className="ml-auto flex items-center gap-2">
               {narrative && !narrativeLoading && <AIFlag />}
               {!narrativeLoading && (
@@ -559,7 +559,7 @@ export default function TaxPage() {
                           )}
                           <p style={{
                             fontSize: 10, fontWeight: 600,
-                            color: 'rgba(255,255,255,0.4)',
+                            color: 'rgba(255,255,255,0.7)',
                             textTransform: 'uppercase', letterSpacing: '0.1em',
                             marginBottom: 6,
                           }}>
@@ -723,7 +723,7 @@ export default function TaxPage() {
                     value={
                       <>
                         {daysToDue}
-                        <span style={{ fontSize: '0.5em', fontWeight: 500, color: '#94A3B8', marginLeft: 6 }}>
+                        <span style={{ fontSize: '0.5em', fontWeight: 500, color: '#475569', marginLeft: 6 }}>
                           days
                         </span>
                       </>
@@ -774,7 +774,7 @@ export default function TaxPage() {
                     {t.otherIncome > 0 && (
                       <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-slate-600 mt-1">
                       <a href="/settings?tab=Personal+tax+inputs" className="text-slate-500 hover:underline">Edit in Settings →</a>
                     </p>
                     <Row label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
@@ -817,12 +817,12 @@ export default function TaxPage() {
                   {/* Payments on account */}
                   {t.paymentsOnAccount > 0 && (
                     <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-amber-50">
-                      <div className="py-2 text-xs text-amber-700 leading-relaxed">
+                      <div className="py-2 text-xs text-amber-800 leading-relaxed">
                         Your tax bill exceeds £1,000 so HMRC requires advance payments. Many freelancers are caught off guard by these.
                       </div>
                       <Row label={`31 Jan ${endYear + 1} (balancing + 1st POA)`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
                       <Row label={`31 Jul ${endYear + 1} (2nd POA)`}              value={formatCurrency(t.julyPayment)} red />
-                      <p className="text-xs text-slate-400 py-2 leading-relaxed">
+                      <p className="text-xs text-slate-600 py-2 leading-relaxed">
                         Each payment on account = 50% of this year's bill, credited against next year's liability.
                       </p>
                     </Card>
@@ -882,7 +882,7 @@ export default function TaxPage() {
 
                   {t.paymentsOnAccount > 0 && (
                     <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-amber-50">
-                      <div className="py-2 text-xs text-amber-700">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
+                      <div className="py-2 text-xs text-amber-800">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
                       <Row label={`31 Jan ${endYear + 1}`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
                       <Row label={`31 Jul ${endYear + 1}`} value={formatCurrency(t.julyPayment)} red />
                     </Card>
@@ -902,13 +902,13 @@ export default function TaxPage() {
                   <Card title="Optimisation note">
                     <div className="py-3 text-xs text-slate-500 space-y-1.5 leading-relaxed">
                       <p>The most tax-efficient structure for a Ltd director is typically:</p>
-                      <ul className="list-disc list-inside space-y-1 text-slate-400 ml-1">
+                      <ul className="list-disc list-inside space-y-1 text-slate-600 ml-1">
                         <li>Salary at the Personal Allowance (£12,570)</li>
                         <li>Remaining income as dividends (10.75% basic rate)</li>
                         <li>Surplus retained in the company (19–25% corp tax)</li>
                         <li>Pension via the company — no NI, and CT-deductible</li>
                       </ul>
-                      <p className="text-slate-400 mt-2">Talk to an accountant to optimise your structure.</p>
+                      <p className="text-slate-600 mt-2">Talk to an accountant to optimise your structure.</p>
                     </div>
                   </Card>
                 </div>
@@ -927,7 +927,7 @@ export default function TaxPage() {
                 { label: 'Payments on account',      date: `31 July ${endYear + 1}` },
               ].map(d => (
                 <div key={d.label}>
-                  <p className="text-xs text-slate-400">{d.label}</p>
+                  <p className="text-xs text-slate-600">{d.label}</p>
                   <p className="text-sm font-medium text-slate-800 mt-0.5">{d.date}</p>
                 </div>
               ))}
@@ -940,12 +940,12 @@ export default function TaxPage() {
               <h2 className="font-semibold text-slate-900">Making Tax Digital — {label}</h2>
               <Link
                 href="/settings?tab=HMRC"
-                className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 shrink-0 ml-4 mt-0.5"
+                className="text-xs text-slate-600 hover:text-slate-600 flex items-center gap-1 shrink-0 ml-4 mt-0.5"
               >
                 Connect HMRC <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <p className="text-xs text-slate-400 mb-5">
+            <p className="text-xs text-slate-600 mb-5">
               ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
             </p>
 
@@ -956,8 +956,8 @@ export default function TaxPage() {
                 const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
                 const { badgeBg, badgeText, cardBorder } =
-                  q.status === 'current'  ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-700',  cardBorder: 'border-amber-200' } :
-                  q.status === 'upcoming' ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-700',  cardBorder: 'border-amber-100' } :
+                  q.status === 'current'  ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-800',  cardBorder: 'border-amber-200' } :
+                  q.status === 'upcoming' ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-800',  cardBorder: 'border-amber-100' } :
                   q.status === 'overdue'  ? { badgeBg: 'bg-red-50',    badgeText: 'text-red-600',    cardBorder: 'border-red-200'   } :
                                             { badgeBg: 'bg-slate-50',  badgeText: 'text-slate-500',  cardBorder: 'border-slate-100' }
 
@@ -981,18 +981,18 @@ export default function TaxPage() {
                     <p className="text-xs text-slate-500 leading-relaxed">
                       {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1.5">
+                    <p className="text-xs text-slate-600 mt-1.5">
                       Deadline: {fmt(q.deadline)}
                     </p>
-                    <p className="text-xs text-slate-300 mt-2 font-medium">Not Started</p>
+                    <p className="text-xs text-slate-500 mt-2 font-medium">Not Started</p>
                   </div>
                 )
               })}
             </div>
 
-            <p className="text-xs text-slate-300 mt-4">
+            <p className="text-xs text-slate-500 mt-4">
               Connect your HMRC account in{' '}
-              <Link href="/settings?tab=HMRC" className="underline hover:text-slate-400">Settings → HMRC</Link>
+              <Link href="/settings?tab=HMRC" className="underline hover:text-slate-600">Settings → HMRC</Link>
               {' '}to enable submissions.
             </p>
           </div>
@@ -1030,7 +1030,7 @@ export default function TaxPage() {
                 <Link
                   href="/settings?tab=billing"
                   title="Export is available on the Solo plan and above. Upgrade to unlock."
-                  className="flex items-center gap-1.5 text-xs text-slate-300 border border-slate-100 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
+                  className="flex items-center gap-1.5 text-xs text-slate-500 border border-slate-100 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
                 >
                   <Lock className="w-3 h-3" /> CSV
                 </Link>
@@ -1059,11 +1059,11 @@ export default function TaxPage() {
                 </tbody>
               </table>
             ) : (
-              <p className="px-6 py-8 text-sm text-slate-400 text-center">No paid invoices in this tax year.</p>
+              <p className="px-6 py-8 text-sm text-slate-600 text-center">No paid invoices in this tax year.</p>
             )}
           </div>
 
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             Estimates only — based on information you have entered. Confirm all figures with a qualified UK accountant before filing your Self Assessment return.
           </p>
         </>

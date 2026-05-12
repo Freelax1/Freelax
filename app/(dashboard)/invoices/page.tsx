@@ -32,7 +32,7 @@ function DeleteModal({ invoiceNumber, count, paidCount, onConfirm, onCancel, loa
         {paidCount && paidCount > 0 ? (
           <div className="mt-3 mb-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
             <p className="text-sm text-amber-800 font-medium">⚠ {paidCount} paid invoice{paidCount !== 1 ? 's' : ''} selected</p>
-            <p className="text-xs text-amber-700 mt-0.5">Deleting paid invoices will permanently remove them from your income totals on the dashboard and tax pages.</p>
+            <p className="text-xs text-amber-800 mt-0.5">Deleting paid invoices will permanently remove them from your income totals on the dashboard and tax pages.</p>
           </div>
         ) : null}
         <p className="text-sm text-slate-500 mt-3 mb-5">This action cannot be undone.</p>
@@ -67,7 +67,7 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
         </h2>
         <p className="text-sm text-slate-500 mb-5">
           {count} invoice{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
-          {newStatus === 'paid' && <span className="block mt-1 text-amber-700 text-xs">Paid date will be set to today for any unpaid invoices.</span>}
+          {newStatus === 'paid' && <span className="block mt-1 text-amber-800 text-xs">Paid date will be set to today for any unpaid invoices.</span>}
         </p>
         <div className="flex gap-3">
           <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
@@ -117,7 +117,8 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        aria-label="Invoice actions"
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
@@ -129,18 +130,18 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
         }}>
           <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
+            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
           </Link>
           {isDraft && (
             <Link href={`/invoices/${invoice.id}/edit`} onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-              <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+              <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
             </Link>
           )}
           {/* Status options */}
           {statusOptions.length > 0 && (
             <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 8px' }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
+              <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
               {statusOptions.map(s => (
                 <button key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}
                   className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left rounded-md"
@@ -157,7 +158,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
             <div style={{ borderTop: '1px solid #F1F5F9' }}>
               <button onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-                <Mail className="w-3.5 h-3.5 text-slate-400" /> Send by email
+                <Mail className="w-3.5 h-3.5 text-slate-600" /> Send by email
               </button>
             </div>
           )}
@@ -204,7 +205,7 @@ function BulkBar({ count, unpaidCount, onMarkPaid, onDelete, onClear, marking, d
         <Trash2 style={{ width: 12, height: 12 }} /> Delete
       </button>
       <button onClick={onClear} style={{
-        marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.4)',
+        marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.7)',
         background: 'none', border: 'none', cursor: 'pointer',
       }}>Clear</button>
     </div>
@@ -410,7 +411,7 @@ export default function InvoicesPage() {
       {!loading && invoices.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
           {([
-            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#999',    valueColor: '#111' },
+            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111' },
             { key: 'sent',    label: 'Sent',    bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#1A5E8A', valueColor: '#1A5E8A' },
             { key: 'overdue', label: 'Overdue', bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#C0392B', valueColor: '#C0392B' },
             { key: 'paid',    label: 'Paid',    bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
@@ -478,6 +479,7 @@ export default function InvoicesPage() {
               <tr>
                 <th className="px-4 py-3 w-8">
                   <input type="checkbox"
+                    aria-label="Select all invoices"
                     checked={filtered.length > 0 && selected.size === filtered.length}
                     onChange={toggleSelectAll}
                     className="rounded border-slate-300 cursor-pointer"
@@ -517,7 +519,7 @@ export default function InvoicesPage() {
                 return (
                   <tr key={inv.id} className={`hover:bg-slate-50 ${pastDue ? 'bg-red-50/30' : ''} ${selected.has(inv.id) ? 'bg-blue-50/50' : ''}`}>
                     <td className="px-4 py-3">
-                      <input type="checkbox" checked={selected.has(inv.id)} onChange={() => toggleSelect(inv.id)} className="rounded border-slate-300 cursor-pointer" />
+                      <input type="checkbox" aria-label={`Select invoice ${inv.invoice_number}`} checked={selected.has(inv.id)} onChange={() => toggleSelect(inv.id)} className="rounded border-slate-300 cursor-pointer" />
                     </td>
                     <td className="px-4 py-3 font-medium">
                       <Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline">{inv.invoice_number}</Link>
@@ -564,7 +566,7 @@ export default function InvoicesPage() {
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(inv.id)}
+                    <input type="checkbox" aria-label={`Select invoice ${inv.invoice_number}`} checked={isSelected} onChange={() => toggleSelect(inv.id)}
                       onClick={e => e.stopPropagation()} className="rounded border-slate-300 cursor-pointer flex-shrink-0" />
                     <Link href={`/invoices/${inv.id}`} className="font-medium text-blue-600 hover:underline truncate">
                       {inv.invoice_number}
@@ -577,7 +579,7 @@ export default function InvoicesPage() {
                   <div className="flex-shrink-0"><Badge status={inv.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className={`text-xs ${pastDue ? 'text-red-600 font-medium' : 'text-slate-400'}`}>
+                  <span className={`text-xs ${pastDue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
                     Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
                     {pastDue && ` · ${days}d late`}
                   </span>

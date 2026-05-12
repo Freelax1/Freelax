@@ -76,6 +76,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
             <h2 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: 0 }}>{title}</h2>
             <button
               onClick={onClose}
+              aria-label="Close"
               style={{
                 padding: 6, borderRadius: 8, border: 'none',
                 background: '#F1F5F9', cursor: 'pointer', color: '#64748B',

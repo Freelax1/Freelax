@@ -15,7 +15,7 @@ export default function NotificationsTab() {
         <div key={n.label} className="flex items-start justify-between py-3 border-b border-slate-50 last:border-0">
           <div>
             <p className="text-sm font-medium text-slate-700">{n.label}</p>
-            <p className="text-xs text-slate-400">{n.desc}</p>
+            <p className="text-xs text-slate-600">{n.desc}</p>
           </div>
           <Toggle checked={false} onChange={() => {}} />
         </div>

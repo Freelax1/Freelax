@@ -114,7 +114,7 @@ export default async function LegalLayout({
             </p>
           )}
           <p style={{
-            fontSize: 13, color: '#94A3B8',
+            fontSize: 13, color: '#475569',
             marginTop: 16, marginBottom: 0, letterSpacing: '0.01em',
           }}>
             Last updated {updated}
@@ -138,7 +138,7 @@ export default async function LegalLayout({
               fontSize: 13,
             }}>
               <p style={{
-                fontSize: 10, fontWeight: 700, color: '#94A3B8',
+                fontSize: 10, fontWeight: 700, color: '#475569',
                 textTransform: 'uppercase', letterSpacing: '0.12em',
                 margin: '0 0 12px',
               }}>
@@ -184,7 +184,7 @@ export default async function LegalLayout({
           alignItems: 'center', justifyContent: 'space-between',
           gap: 16,
         }}>
-          <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
+          <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>
             Built in the UK · Your data is encrypted and never sold.
           </p>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>

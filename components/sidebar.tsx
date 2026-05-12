@@ -384,7 +384,7 @@ function NotificationPanel({
       {/* Header */}
       <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid #252525', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <p style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Notifications</p>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+        <button onClick={onClose} aria-label="Close notifications" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
           <X style={{ width: 13, height: 13, color: '#555' }} />
         </button>
       </div>
@@ -426,6 +426,7 @@ function NotificationPanel({
                 <button
                   onClick={() => onDismiss(n.id)}
                   title="Dismiss for today"
+                  aria-label="Dismiss notification for today"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
                 >
                   <X style={{ width: 13, height: 13, color: '#555' }} />
@@ -621,6 +622,7 @@ export default function Sidebar() {
           <button
             onClick={() => setCmdOpen(true)}
             title="Search"
+            aria-label="Search"
             style={{
               display:        'flex',
               alignItems:     'center',
@@ -778,7 +780,7 @@ export default function Sidebar() {
           }}>
             {userEmail ? userEmail[0].toUpperCase() : '?'}
           </div>
-          <button className="lg:hidden" onClick={() => setMobileOpen(true)}>
+          <button className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <Menu style={{ width: 20, height: 20, color: '#fff' }} />
           </button>
         </div>
@@ -796,7 +798,7 @@ export default function Sidebar() {
           }}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ flexShrink: 0 }}>
               <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>Freelax</span>
-              <button onClick={() => setMobileOpen(false)}>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
                 <X style={{ width: 20, height: 20, color: '#fff' }} />
               </button>
             </div>

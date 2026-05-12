@@ -36,7 +36,7 @@ export default function WhatsComing({ items }: Props) {
     border: '1px solid rgba(0,0,0,0.06)', padding: '24px 28px',
   }
   const LABEL: React.CSSProperties = {
-    fontSize: 11, fontWeight: 500, color: '#94A3B8',
+    fontSize: 11, fontWeight: 500, color: '#475569',
     textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 20,
   }
 

@@ -207,7 +207,7 @@ export default function BillingTab({ profile }: Props) {
                     </div>
                   )}
 
-                  <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${isDark ? 'text-slate-400' : isCurrent ? 'text-green-600' : 'text-slate-400'}`}>
+                  <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${isDark ? 'text-slate-600' : isCurrent ? 'text-green-600' : 'text-slate-600'}`}>
                     {plan.name}
                   </p>
 
@@ -215,7 +215,7 @@ export default function BillingTab({ profile }: Props) {
                     <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       £{yearly ? Math.round(plan.yearly / 12) : plan.monthly}
                     </span>
-                    <span className={`text-sm ml-1 ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>/mo</span>
+                    <span className={`text-sm ml-1 ${isDark ? 'text-slate-600' : 'text-slate-600'}`}>/mo</span>
                   </div>
                   {yearly && (
                     <p className={`text-xs mb-3 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
@@ -223,7 +223,7 @@ export default function BillingTab({ profile }: Props) {
                     </p>
                   )}
 
-                  <p className={`text-xs mb-4 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <p className={`text-xs mb-4 leading-relaxed ${isDark ? 'text-slate-600' : 'text-slate-500'}`}>
                     {plan.description}
                   </p>
 
@@ -233,15 +233,15 @@ export default function BillingTab({ profile }: Props) {
                         <svg className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isDark ? 'text-green-400' : 'text-green-600'}`} viewBox="0 0 14 14" fill="none">
                           <path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>{f}</span>
+                        <span className={isDark ? 'text-slate-500' : 'text-slate-600'}>{f}</span>
                       </li>
                     ))}
                     {plan.missing.map(f => (
                       <li key={f} className="flex items-start gap-2 text-xs">
-                        <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-slate-300" viewBox="0 0 14 14" fill="none">
+                        <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-slate-500" viewBox="0 0 14 14" fill="none">
                           <path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
-                        <span className="text-slate-300">{f}</span>
+                        <span className="text-slate-500">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -251,7 +251,7 @@ export default function BillingTab({ profile }: Props) {
                       ✓ Your current plan
                     </div>
                   ) : isBelow ? (
-                    <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center bg-slate-100 text-slate-400">
+                    <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center bg-slate-100 text-slate-600">
                       Lower plan
                     </div>
                   ) : (
@@ -272,7 +272,7 @@ export default function BillingTab({ profile }: Props) {
             })}
           </div>
 
-          <div className="flex items-center justify-center gap-2 mt-5 text-xs text-slate-400">
+          <div className="flex items-center justify-center gap-2 mt-5 text-xs text-slate-600">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <rect x="2" y="6" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
               <path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>

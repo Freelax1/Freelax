@@ -103,7 +103,8 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        aria-label="Client actions"
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
         <MoreVertical className="w-4 h-4" />
       </button>
       {open && (
@@ -115,15 +116,15 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
         }}>
           <Link href={`/clients/${client.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
+            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
           </Link>
           <button onClick={() => { setOpen(false); onEdit(client) }}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-            <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
           </button>
           {/* Status change options */}
           <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {otherStatuses.map(s => {
               const cfg = {
                 active:   { label: 'Active',   dot: '#1D6B35' },
@@ -296,8 +297,8 @@ export default function ClientsPage() {
 
   const CARDS = [
     { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding, bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
-    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding, bgColor: '#FEF9E7', hoverColor: '#FDF0C0', borderColor: '#F5E29B', labelColor: '#9A7B0A', valueColor: '#9A7B0A' },
-    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0,                 bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#999',    valueColor: '#111'    },
+    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding, bgColor: '#FEF9E7', hoverColor: '#FDF0C0', borderColor: '#F5E29B', labelColor: '#6B5410', valueColor: '#6B5410' },
+    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0,                 bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111'    },
   ] as const
 
   return (
@@ -339,7 +340,7 @@ export default function ClientsPage() {
             flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)',
             borderRadius: 12, padding: '16px 20px', textAlign: 'left' as const,
           }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999', marginBottom: 6 }}>Total outstanding</p>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#595959', marginBottom: 6 }}>Total outstanding</p>
             <p style={{ fontSize: 20, fontWeight: 800, color: totalOutstanding > 0 ? '#C0392B' : '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>
               {totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—'}
             </p>
@@ -390,7 +391,7 @@ export default function ClientsPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 w-10">
-                  <button onClick={toggleAll} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                  <button onClick={toggleAll} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                     {allSelected
                       ? <CheckSquare className="w-4 h-4 text-slate-900" />
                       : <Square className="w-4 h-4" />}
@@ -411,7 +412,7 @@ export default function ClientsPage() {
                 return (
                   <tr key={c.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
                     <td className="px-4 py-3">
-                      <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                      <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
                         {isSelected
                           ? <CheckSquare className="w-4 h-4 text-slate-900" />
                           : <Square className="w-4 h-4" />}
@@ -425,7 +426,7 @@ export default function ClientsPage() {
                     <td className="px-4 py-3">
                       {c.outstanding > 0
                         ? <span className="text-red-600 font-medium">{formatCurrency(c.outstanding)}</span>
-                        : <span className="text-slate-300">—</span>}
+                        : <span className="text-slate-500">—</span>}
                     </td>
                     <td className="px-4 py-3"><Badge status={c.status} /></td>
                     <td className="px-4 py-3 text-right">
@@ -435,7 +436,7 @@ export default function ClientsPage() {
                 )
               })}
               {!loading && filtered.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-sm">No clients match your search.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-600 text-sm">No clients match your search.</td></tr>
               )}
             </tbody>
           </table>
@@ -455,8 +456,8 @@ export default function ClientsPage() {
               <div key={c.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(c.id)} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-400" />}
+                    <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center flex-shrink-0">
+                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
                     <Link href={`/clients/${c.id}`} className="font-medium text-slate-900 hover:text-blue-600 truncate">{c.name}</Link>
                   </div>
@@ -466,7 +467,7 @@ export default function ClientsPage() {
                   <span className="text-sm text-slate-500 truncate">{c.email ?? c.contact_name ?? '—'}</span>
                   {c.outstanding > 0
                     ? <span className="text-red-600 font-medium text-sm flex-shrink-0">{formatCurrency(c.outstanding)}</span>
-                    : <span className="text-slate-300 text-sm flex-shrink-0">—</span>}
+                    : <span className="text-slate-500 text-sm flex-shrink-0">—</span>}
                 </div>
                 <div className="flex justify-end pl-7">
                   <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />

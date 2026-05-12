@@ -44,10 +44,10 @@ export default function CashflowRow({
 
       {/* Tax pot */}
       <Link href="/tax" className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-slate-300 transition-colors block">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] mb-2">Tax pot</p>
+        <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-[0.12em] mb-2">Tax pot</p>
         <div className="flex items-baseline gap-2">
           <p className="text-4xl font-extrabold tracking-tight leading-none text-slate-900">{formatCurrency(taxPotSaved)}</p>
-          <p className="text-sm text-slate-400">/ {formatCurrency(taxTotal)}</p>
+          <p className="text-sm text-slate-600">/ {formatCurrency(taxTotal)}</p>
         </div>
         <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all"
@@ -62,7 +62,7 @@ export default function CashflowRow({
 
       {/* Runway */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col justify-center">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] mb-4">Runway</p>
+        <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-[0.12em] mb-4">Runway</p>
         <RunwayCard months={runway.months} label={runway.label} />
       </div>
 

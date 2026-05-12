@@ -160,8 +160,8 @@ export default function ProjectForm({ project, defaultClientId, onSuccess }: Pro
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{q.importance}</span>
-                    <span className="text-xs text-slate-400">{q.label}</span>
+                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{q.importance}</span>
+                    <span className="text-xs text-slate-600">{q.label}</span>
                   </div>
                   <p className="text-xs text-slate-600">{q.text}</p>
                 </div>

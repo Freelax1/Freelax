@@ -112,7 +112,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
     }}>
       {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <p style={{ fontSize: 11, fontWeight: 500, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        <p style={{ fontSize: 11, fontWeight: 500, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           This month
         </p>
         {!isNewUser && monthlyAvg > 0 && (
@@ -157,7 +157,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
             </div>
             <button
               onClick={dismissInsight}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#94A3B8', display: 'flex', alignItems: 'center' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#475569', display: 'flex', alignItems: 'center' }}
               title="Dismiss"
             >
               <X style={{ width: 13, height: 13 }} />
@@ -226,7 +226,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
           {monthlyAvg > 0 && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 4, marginTop: 4 }}>
               <div style={{ width: 14, borderTop: '1px dashed #CBD5E1' }} />
-              <p style={{ fontSize: 11, color: '#94A3B8' }}>Typical month</p>
+              <p style={{ fontSize: 11, color: '#475569' }}>Typical month</p>
             </div>
           )}
         </div>

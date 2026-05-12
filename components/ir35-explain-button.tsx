@@ -119,13 +119,13 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
             <div className="p-5 space-y-5">
               {/* Verdict */}
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
+                <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Verdict</p>
                 <p className="text-sm text-slate-800 leading-relaxed">{result.verdict}</p>
               </div>
 
               {/* Risk level */}
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
+                <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Risk Level</p>
                 <RiskBar level={result.risk_level} />
                 <p className="text-sm text-slate-600 mt-2">{result.risk_level_explanation}</p>
               </div>
@@ -133,7 +133,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
               {/* Next steps */}
               {result.next_steps?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
+                  <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">Next Steps</p>
                   <ol className="space-y-2.5">
                     {result.next_steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3 text-sm text-slate-700">

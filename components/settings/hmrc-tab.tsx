@@ -87,8 +87,8 @@ export default function HmrcTab() {
             <p className="text-sm text-slate-500 mb-0.5">Connection status</p>
             {loading ? (
               <div className="flex items-center gap-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                <span className="text-sm text-slate-400">Checking…</span>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-600" />
+                <span className="text-sm text-slate-600">Checking…</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export default function HmrcTab() {
               <div className="shrink-0 pt-0.5">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
                   row.status === 'live'     ? 'bg-green-100 text-green-700' :
-                  row.status === 'upcoming' ? 'bg-amber-100 text-amber-700' :
+                  row.status === 'upcoming' ? 'bg-amber-100 text-amber-800' :
                                               'bg-slate-100 text-slate-500'
                 }`}>
                   {row.date}
@@ -168,7 +168,7 @@ export default function HmrcTab() {
             'Send you deadline reminders 7 days and 1 day before each quarter closes',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-              <span className="text-slate-400 mt-0.5 shrink-0">•</span>
+              <span className="text-slate-600 mt-0.5 shrink-0">•</span>
               {item}
             </li>
           ))}

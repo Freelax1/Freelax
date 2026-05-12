@@ -110,7 +110,7 @@ function RightPanel() {
             padding: '14px 16px',
             marginBottom: 14,
           }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
               Built for UK freelancers
             </p>
             {[

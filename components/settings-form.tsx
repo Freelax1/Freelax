@@ -89,7 +89,7 @@ export default function SettingsForm({ profile, email }: Props) {
         <div className="space-y-5">
           {TAB_GROUPS.map(group => (
             <div key={group.label}>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-3 mb-1.5">
+              <p className="text-xs font-semibold text-slate-600 uppercase tracking-widest px-3 mb-1.5">
                 {group.label}
               </p>
               <div className="space-y-0.5">

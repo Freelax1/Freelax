@@ -30,7 +30,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
           <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '40px 32px' }}>
             <p style={{ fontSize: 28, marginBottom: 16 }}>⏱</p>
             <h1 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>This quote has expired</h1>
-            <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>
               {quote.quote_number} expired on {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
               Please contact {sender?.business_name || sender?.full_name || 'the sender'} for an updated quote.
             </p>
@@ -85,8 +85,8 @@ export default async function PublicQuotePage({ params }: { params: { token: str
                   ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 8, display: 'block' }} />
                   : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em' }}>{sender?.business_name || sender?.full_name || ''}</p>
                 }
-                {sender?.email && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 3 }}>{sender.email}</p>}
-                {sender?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+                {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 3 }}>{sender.email}</p>}
+                {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
               </div>
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Quote</p>
@@ -102,7 +102,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
                 <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Prepared for</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name}</p>
                 {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
-                {client?.email && <p style={{ fontSize: 12, color: '#94a3b8' }}>{client.email}</p>}
+                {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
               </div>
               <div className="qpub-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div>
@@ -116,7 +116,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
                 <div style={{ marginTop: 4 }}>
                   {accepted && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
                   {declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Declined</span>}
-                  {expired && !accepted && !declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
+                  {expired && !accepted && !declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
                 </div>
               </div>
             </div>
@@ -127,19 +127,19 @@ export default async function PublicQuotePage({ params }: { params: { token: str
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
               <thead>
                 <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
                 </tr>
               </thead>
               <tbody>
                 {lineItems.map((item: any) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
                     <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
-                    <td className="qpub-hide" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.quantity}</td>
-                    <td className="qpub-hide" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                    <td className="qpub-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.quantity}</td>
+                    <td className="qpub-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
                     <td className="qpub-hide" style={{ padding: '12px 0', fontSize: 12, color: '#cbd5e1', textAlign: 'right' }}>{item.vat_rate}%</td>
                     <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                   </tr>
@@ -150,13 +150,13 @@ export default async function PublicQuotePage({ params }: { params: { token: str
             {/* Totals + notes */}
             <div className="qpub-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, marginBottom: 24 }}>
               <div>
-                {quote.notes && <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.6 }}>{quote.notes}</p>}
+                {quote.notes && <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', lineHeight: 1.6 }}>{quote.notes}</p>}
               </div>
               <div className="qpub-totals" style={{ width: 220, flexShrink: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
                   <span>Subtotal</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(quote.subtotal)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
                   <span>VAT</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(quote.vat_amount)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 15, fontWeight: 800, color: '#0f172a', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
@@ -169,7 +169,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
             {quote.status === 'sent' && !expired && (
               <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 24 }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>Ready to proceed?</p>
-                <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 16 }}>
+                <p style={{ fontSize: 12, color: '#475569', marginBottom: 16 }}>
                   This quote is valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
                 </p>
                 <div className="qpub-cta" style={{ display: 'flex', gap: 10 }}>
@@ -179,7 +179,7 @@ export default async function PublicQuotePage({ params }: { params: { token: str
                     </button>
                   </form>
                   <form method="POST" action={`/api/quotes/respond?token=${params.token}&action=decline`} style={{ flex: 1 }}>
-                    <button type="submit" style={{ width: '100%', padding: '13px 20px', background: '#fff', color: '#94a3b8', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                    <button type="submit" style={{ width: '100%', padding: '13px 20px', background: '#fff', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
                       Decline
                     </button>
                   </form>

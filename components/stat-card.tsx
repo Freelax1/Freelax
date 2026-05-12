@@ -25,7 +25,7 @@ export default function StatCard({ label, value, subtext, alert, className }: St
       {subtext && (
         <p className={cn(
           'text-xs mt-1',
-          alert ? 'text-red-500' : 'text-slate-400'
+          alert ? 'text-red-500' : 'text-slate-600'
         )}>
           {subtext}
         </p>

@@ -25,7 +25,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
       </p>
       <div className="space-y-5">
         <div className="flex items-center gap-2 mb-1">
-          <Building2 className="w-4 h-4 text-slate-400" />
+          <Building2 className="w-4 h-4 text-slate-600" />
           <h2 className="font-semibold text-slate-900">Bank details</h2>
         </div>
         <p className="text-sm text-slate-500">
@@ -82,7 +82,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
       {/* Preview */}
       {(bank.bank_sort_code || bank.bank_account_number) && (
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Invoice preview</p>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Invoice preview</p>
           <div className="space-y-1.5 text-sm">
             {[
               { label: 'Account name',   value: bank.bank_account_name || '—' },
@@ -91,7 +91,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
               { label: 'Reference',      value: bank.bank_reference_note || 'Invoice number' },
             ].map(r => (
               <div key={r.label} className="flex justify-between">
-                <span className="text-slate-400">{r.label}</span>
+                <span className="text-slate-600">{r.label}</span>
                 <span className="font-medium text-slate-800">{r.value}</span>
               </div>
             ))}

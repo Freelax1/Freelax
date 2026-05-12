@@ -3,7 +3,7 @@
 import React from 'react'
 
 export const inputClass = 'w-full px-3 py-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 bg-white transition-colors'
-export const labelClass = 'block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5'
+export const labelClass = 'block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5'
 export const btnClass   = 'inline-flex items-center px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors w-auto'
 
 export const TABS = [
@@ -72,7 +72,7 @@ export function Field({
     <div>
       <label className={labelClass}>{label}</label>
       {children}
-      {hint && <p className="text-xs text-slate-400 mt-1">{hint}</p>}
+      {hint && <p className="text-xs text-slate-600 mt-1">{hint}</p>}
     </div>
   )
 }

@@ -30,7 +30,7 @@ function AcceptInviteContent() {
     <div style={{ minHeight: '100vh', background: '#F6F6F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E8E8E8', padding: 40, maxWidth: 420, width: '100%', textAlign: 'center' }}>
         <p style={{ fontSize: 24, fontWeight: 800, color: '#111', marginBottom: 24 }}>Freelax</p>
-        {status === 'loading' && <Loader2 style={{ width: 32, height: 32, color: '#94A3B8', margin: '0 auto', animation: 'spin 1s linear infinite' }} />}
+        {status === 'loading' && <Loader2 style={{ width: 32, height: 32, color: '#475569', margin: '0 auto', animation: 'spin 1s linear infinite' }} />}
         {status === 'success' && (
           <>
             <CheckCircle style={{ width: 40, height: 40, color: '#1D6B35', margin: '0 auto 16px' }} />
@@ -58,7 +58,7 @@ export default function AcceptInvitePage() {
   return (
     <Suspense fallback={
       <div style={{ minHeight: '100vh', background: '#F6F6F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 style={{ width: 32, height: 32, color: '#94A3B8', animation: 'spin 1s linear infinite' }} />
+        <Loader2 style={{ width: 32, height: 32, color: '#475569', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     }>

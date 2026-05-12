@@ -92,7 +92,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>
                     {q.importance}
                   </span>
                   <span className="text-xs text-slate-500">{q.label}</span>
@@ -162,14 +162,14 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
 
           {/* Verdict */}
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Verdict</p>
             <p className="text-sm text-slate-800 leading-relaxed">{aiResult.verdict}</p>
           </div>
 
           {/* Risk level */}
           {aiResult.risk_level && (
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
+              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Risk Level</p>
               <IR35RiskBar level={aiResult.risk_level} />
               <p className="text-sm text-slate-600 mt-2">{aiResult.risk_level_explanation}</p>
             </div>
@@ -178,7 +178,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
           {/* Next steps */}
           {aiResult.next_steps?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
+              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">Next Steps</p>
               <ol className="space-y-2.5">
                 {aiResult.next_steps.map((step: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-slate-700">

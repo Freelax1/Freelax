@@ -50,7 +50,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
       {/* Logo upload */}
       <div>
         <label className={labelClass}>Business logo</label>
-        <p className="text-xs text-slate-400 mb-3">Appears on all invoices and quotes sent to clients.</p>
+        <p className="text-xs text-slate-600 mb-3">Appears on all invoices and quotes sent to clients.</p>
         <div className="flex items-start gap-5">
 
           {/* Preview */}
@@ -72,7 +72,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
             )}
             {logoUploading && (
               <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
-                <svg className="animate-spin w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none">
+                <svg className="animate-spin w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2"/>
                   <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
@@ -106,7 +106,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
                 Remove
               </button>
             )}
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               PNG, JPG or SVG · max 2 MB<br/>
               Recommended: 400×400px, transparent background
             </p>
@@ -121,8 +121,8 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
         <input className={inputClass} value={pf.full_name} onChange={e => setPf(p => ({ ...p, full_name: e.target.value }))} />
       </Field>
       <Field label="Email">
-        <input className={`${inputClass} bg-slate-50 text-slate-400`} value={email} readOnly />
-        <p className="text-xs text-slate-400 mt-1">Email cannot be changed here</p>
+        <input className={`${inputClass} bg-slate-50 text-slate-600`} value={email} readOnly />
+        <p className="text-xs text-slate-600 mt-1">Email cannot be changed here</p>
       </Field>
       <Field label="Phone">
         <input className={inputClass} value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />

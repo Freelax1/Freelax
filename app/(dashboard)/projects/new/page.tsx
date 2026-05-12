@@ -167,6 +167,7 @@ export default function NewProjectPage() {
               <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
                 <p className="text-xs font-semibold text-slate-700">New client</p>
                 <input
+                  aria-label="New client name"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Client name *"
@@ -237,7 +238,7 @@ export default function NewProjectPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-semibold text-slate-800">IR35 questionnaire</h2>
-              {canUseIR35 && <p className="text-xs text-slate-400 mt-0.5">Answer all 8 questions to get a calculated status</p>}
+              {canUseIR35 && <p className="text-xs text-slate-600 mt-0.5">Answer all 8 questions to get a calculated status</p>}
             </div>
             {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
           </div>
@@ -249,7 +250,7 @@ export default function NewProjectPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>
                           {q.importance}
                         </span>
                         <span className="text-xs text-slate-500">{q.label}</span>
@@ -279,7 +280,7 @@ export default function NewProjectPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
               <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-                <Lock className="w-5 h-5 text-slate-400" />
+                <Lock className="w-5 h-5 text-slate-600" />
               </div>
               <p className="text-sm font-medium text-slate-700 mb-1">IR35 assessment is available on the Pro plan</p>
               <Link href="/settings?tab=billing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">

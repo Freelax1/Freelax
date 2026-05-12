@@ -90,12 +90,12 @@ export default function OnboardingPage() {
                   ? 'bg-slate-900 text-white'
                   : step === s.id
                   ? 'bg-slate-900 text-white ring-4 ring-slate-200'
-                  : 'bg-slate-200 text-slate-400'
+                  : 'bg-slate-200 text-slate-600'
               }`}>
                 {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
               </div>
               <div className="ml-2 hidden sm:block">
-                <p className={`text-xs font-medium ${step >= s.id ? 'text-slate-800' : 'text-slate-400'}`}>{s.label}</p>
+                <p className={`text-xs font-medium ${step >= s.id ? 'text-slate-800' : 'text-slate-600'}`}>{s.label}</p>
               </div>
               {i < STEPS.length - 1 && (
                 <div className="flex-1 h-0.5 mx-3 bg-slate-200 rounded">
@@ -135,7 +135,7 @@ export default function OnboardingPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Phone number <span className="text-slate-400 font-normal">(optional)</span></label>
+                <label className={labelClass}>Phone number <span className="text-slate-600 font-normal">(optional)</span></label>
                 <input
                   className={inputClass}
                   placeholder="07700 000000"
@@ -154,7 +154,7 @@ export default function OnboardingPage() {
                 <p className="text-sm text-slate-500 mt-1">Used for tax calculations and invoices.</p>
               </div>
               <div>
-                <label className={labelClass}>Trading name <span className="text-slate-400 font-normal">(optional)</span></label>
+                <label className={labelClass}>Trading name <span className="text-slate-600 font-normal">(optional)</span></label>
                 <input
                   className={inputClass}
                   placeholder="Jane Smith Creative"
@@ -176,7 +176,7 @@ export default function OnboardingPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>UTR number <span className="text-slate-400 font-normal">(optional — for Self Assessment)</span></label>
+                <label className={labelClass}>UTR number <span className="text-slate-600 font-normal">(optional — for Self Assessment)</span></label>
                 <input
                   className={inputClass}
                   placeholder="1234567890"
@@ -227,7 +227,7 @@ export default function OnboardingPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Address line 2 <span className="text-slate-400 font-normal">(optional)</span></label>
+                <label className={labelClass}>Address line 2 <span className="text-slate-600 font-normal">(optional)</span></label>
                 <input
                   className={inputClass}
                   value={step3.address_line2}
@@ -277,7 +277,7 @@ export default function OnboardingPage() {
               {/* NEW: monthly expenses estimate — shown first, most immediately useful */}
 <div>
                 <label className={labelClass}>
-                  Typical monthly personal outgoings <span className="text-slate-400 font-normal">(£, optional but recommended)</span>
+                  Typical monthly personal outgoings <span className="text-slate-600 font-normal">(£, optional but recommended)</span>
                 </label>
                 <input
                   className={inputClass}
@@ -287,7 +287,7 @@ export default function OnboardingPage() {
                   value={step4.monthly_personal_outgoings}
                   onChange={e => setStep4(p => ({ ...p, monthly_personal_outgoings: e.target.value }))}
                 />
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-600 mt-1">
                   Rent or mortgage, food, bills, subscriptions — the fixed cost of your life each month. We use this to show what's genuinely safe to spend.
                 </p>
               </div>
@@ -308,7 +308,7 @@ export default function OnboardingPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Annual pension contributions <span className="text-slate-400 font-normal">(£, optional)</span></label>
+                <label className={labelClass}>Annual pension contributions <span className="text-slate-600 font-normal">(£, optional)</span></label>
                 <input
                   className={inputClass}
                   type="number"
@@ -321,7 +321,7 @@ export default function OnboardingPage() {
               {step2.business_type === 'limited_company' && (
                 <>
                   <div>
-                    <label className={labelClass}>Salary drawn from company <span className="text-slate-400 font-normal">(£ per year, optional)</span></label>
+                    <label className={labelClass}>Salary drawn from company <span className="text-slate-600 font-normal">(£ per year, optional)</span></label>
                     <input
                       className={inputClass}
                       type="number"
@@ -332,7 +332,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>Dividends drawn from company <span className="text-slate-400 font-normal">(£ per year, optional)</span></label>
+                    <label className={labelClass}>Dividends drawn from company <span className="text-slate-600 font-normal">(£ per year, optional)</span></label>
                     <input
                       className={inputClass}
                       type="number"
@@ -344,7 +344,7 @@ export default function OnboardingPage() {
                   </div>
                 </>
               )}
-              <p className="text-xs text-slate-400">These figures affect tax estimates only and are never shared.</p>
+              <p className="text-xs text-slate-600">These figures affect tax estimates only and are never shared.</p>
             </div>
           )}
 
@@ -397,7 +397,7 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-4">
+        <p className="text-center text-xs text-slate-600 mt-4">
           You can update all of this later in Settings
         </p>
       </div>

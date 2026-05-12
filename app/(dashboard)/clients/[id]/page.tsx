@@ -76,20 +76,20 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   const quotesPipeline = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
 
   const chevron = (open: boolean) => (
-    <ChevronDown className="w-4 h-4 text-slate-400" style={{ transform: `rotate(${open ? '0deg' : '180deg'})`, transition: 'transform 200ms', flexShrink: 0 }} />
+    <ChevronDown className="w-4 h-4 text-slate-600" style={{ transform: `rotate(${open ? '0deg' : '180deg'})`, transition: 'transform 200ms', flexShrink: 0 }} />
   )
 
   const sectionCount = (n: number) => (
-    <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 400, marginLeft: 6 }}>({n})</span>
+    <span style={{ fontSize: 13, color: '#475569', fontWeight: 400, marginLeft: 6 }}>({n})</span>
   )
 
   const projectTable = (
     <table className="w-full text-sm">
       <thead>
         <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'left' }}>Project</th>
-          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>IR35</th>
-          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>Status</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#475569', textAlign: 'left' }}>Project</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#475569', textAlign: 'right' }}>IR35</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#475569', textAlign: 'right' }}>Status</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-50">
@@ -177,7 +177,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
           </div>
         </div>
         {projectsOpen && (() => {
-          if (!projects.length) return <p className="text-sm text-slate-400">No projects.</p>
+          if (!projects.length) return <p className="text-sm text-slate-600">No projects.</p>
           if (projects.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{projectTable}</div>
           return projectTable
         })()}
@@ -222,7 +222,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
               </tbody>
             </table>
           )
-          if (!quotes.length) return <p className="text-sm text-slate-400">No quotes yet.</p>
+          if (!quotes.length) return <p className="text-sm text-slate-600">No quotes yet.</p>
           if (quotes.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{quoteTable}</div>
           return quoteTable
         })()}
@@ -264,7 +264,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
               </tbody>
             </table>
           )
-          if (!invoices.length) return <p className="text-sm text-slate-400">No invoices.</p>
+          if (!invoices.length) return <p className="text-sm text-slate-600">No invoices.</p>
           if (invoices.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{invoiceTable}</div>
           return invoiceTable
         })()}

@@ -74,7 +74,7 @@ export default function AccountantTab() {
               <div key={inv.id} className="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg border border-slate-200">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{inv.email}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-600 mt-0.5">
                     {inv.accepted_at
                       ? `Accepted ${new Date(inv.accepted_at).toLocaleDateString('en-GB')}`
                       : inv.revoked_at
