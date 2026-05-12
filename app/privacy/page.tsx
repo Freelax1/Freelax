@@ -53,7 +53,7 @@ export default function PrivacyPage() {
 
         <Section id="who-we-are" title="1. Who we are">
           <p style={{ margin: 0 }}>
-            Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. Our registered address is 89 Brassett Point, London, E15 3LB. We are registered with the Information Commissioner&rsquo;s Office (ICO) — registration number pending. You can reach us at{' '}
+            Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. Our registered address is 89 Brassett Point, London, E15 3LB. We are registered with the Information Commissioner&rsquo;s Office (ICO) — registration number ZC142915. You can reach us at{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
