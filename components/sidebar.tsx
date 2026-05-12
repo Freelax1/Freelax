@@ -672,6 +672,7 @@ export default function Sidebar() {
                 alignItems: 'center',
               }}
               title="Notifications"
+              aria-label="Notifications"
             >
               <Bell style={{ width: 16, height: 16, color: unreadCount > 0 ? '#fff' : 'rgba(255,255,255,0.5)' }} />
               {unreadCount > 0 && (
