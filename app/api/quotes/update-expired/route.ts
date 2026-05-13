@@ -1,4 +1,4 @@
-// app/api/quotes/update-expired/route.ts
+﻿// app/api/quotes/update-expired/route.ts
 // Marks sent quotes as expired when past their expiry date
 
 import { NextResponse } from 'next/server'
@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logQuoteActivity } from '@/lib/api/quote-activity'
 
 export async function POST() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

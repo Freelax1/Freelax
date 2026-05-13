@@ -5,12 +5,13 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { notFound } from 'next/navigation'
 
-export default async function PublicQuotePage({ params }: { params: { token: string } }) {
+export default async function PublicQuotePage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
   const supabase = createServiceClient()
   const { data: quote } = await supabase
     .from('quotes')
     .select('*, clients(*), quote_line_items(*), users(business_name, full_name, email, logo_url, address_line1, city)')
-    .eq('public_token', params.token)
+    .eq('public_token', token)
     .single()
 
   if (!quote) notFound()
@@ -173,12 +174,12 @@ export default async function PublicQuotePage({ params }: { params: { token: str
                   This quote is valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
                 </p>
                 <div className="qpub-cta" style={{ display: 'flex', gap: 10 }}>
-                  <form method="POST" action={`/api/quotes/respond?token=${params.token}&action=accept`} style={{ flex: 1 }}>
+                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} style={{ flex: 1 }}>
                     <button type="submit" style={{ width: '100%', padding: '13px 20px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
                       Accept quote →
                     </button>
                   </form>
-                  <form method="POST" action={`/api/quotes/respond?token=${params.token}&action=decline`} style={{ flex: 1 }}>
+                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} style={{ flex: 1 }}>
                     <button type="submit" style={{ width: '100%', padding: '13px 20px', background: '#fff', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
                       Decline
                     </button>

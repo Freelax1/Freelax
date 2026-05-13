@@ -1,10 +1,10 @@
-// app/api/quotes/pdf/route.ts
+﻿// app/api/quotes/pdf/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildQuoteHtml } from '@/lib/pdf/generate-invoice-pdf'
 
 export async function GET(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

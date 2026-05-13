@@ -3,6 +3,7 @@
 // app/(dashboard)/clients/[id]/page.tsx — v1.4
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchClientById, fetchClientProjects, fetchClientInvoices } from '@/lib/api/clients'
 import { createClient } from '@/lib/supabase/client'
@@ -32,7 +33,8 @@ function ProjectStatusBadge({ status }: { status: string }) {
   return <Badge status={status} />
 }
 
-export default function ClientDetailPage({ params }: { params: { id: string } }) {
+export default function ClientDetailPage() {
+  const params = useParams<{ id: string }>()
   const [client, setClient]     = useState<any>(null)
   const [projects, setProjects] = useState<any[]>([])
   const [invoices, setInvoices] = useState<any[]>([])

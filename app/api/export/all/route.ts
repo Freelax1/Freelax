@@ -1,4 +1,4 @@
-// GDPR data export — returns a ZIP containing one CSV per data type.
+﻿// GDPR data export — returns a ZIP containing one CSV per data type.
 // Covers all user data across all time (not just current tax year).
 
 import { NextResponse } from 'next/server'
@@ -18,7 +18,7 @@ function buildCsv(headers: string[], rows: unknown[][]): string {
 }
 
 export async function GET() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

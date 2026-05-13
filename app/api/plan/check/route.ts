@@ -1,4 +1,4 @@
-// app/api/plan/check/route.ts
+﻿// app/api/plan/check/route.ts
 // Checks if the current user can perform an action based on their plan.
 // Called from the frontend before creating invoices, clients, expenses, or using AI.
 //
@@ -25,7 +25,7 @@ import {
 type Resource = 'invoice' | 'client' | 'expense' | 'ai' | 'email' | 'recurring'
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
 // GET — returns the user's full plan summary (current usage + limits)
 export async function GET() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

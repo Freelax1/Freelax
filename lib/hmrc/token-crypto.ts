@@ -1,4 +1,4 @@
-// lib/hmrc/token-crypto.ts
+﻿// lib/hmrc/token-crypto.ts
 // AES-256-GCM encryption for HMRC OAuth tokens stored in oauth_connections.
 //
 // Tokens are sensitive credentials — storing them plaintext in the DB is a
@@ -92,7 +92,7 @@ export async function getDecryptedHmrcTokens(userId: string): Promise<{
   tokenExpiry:  string | null
   connectionId: string
 } | null> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('oauth_connections')
     .select('id, access_token, refresh_token, token_expiry')

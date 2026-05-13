@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 
 export const maxDuration = 30
 
@@ -17,7 +17,7 @@ const VALID_TIERS = ['friendly', 'formal', 'legal'] as const
 type Tier = typeof VALID_TIERS[number]
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

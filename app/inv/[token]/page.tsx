@@ -9,14 +9,16 @@ export default async function PublicInvoicePage({
   params,
   searchParams,
 }: {
-  params: { token: string }
-  searchParams: { paid?: string }
+  params: Promise<{ token: string }>
+  searchParams: Promise<{ paid?: string }>
 }) {
+  const { token } = await params
+  const searchParamsResolved = await searchParams
   const supabase = createServiceClient()
   const { data: invoice } = await supabase
     .from('invoices')
     .select('*, clients(*), invoice_line_items(*), users(business_name, full_name, email, phone, logo_url, address_line1, address_line2, city, postcode, bank_account_name, bank_sort_code, bank_account_number, bank_reference_note)')
-    .eq('public_token', params.token)
+    .eq('public_token', token)
     .single()
 
   if (!invoice) notFound()
@@ -24,7 +26,7 @@ export default async function PublicInvoicePage({
   const sender    = invoice.users
   const client    = invoice.clients
   const lineItems = invoice.invoice_line_items ?? []
-  const isPaid    = invoice.status === 'paid' || searchParams.paid === 'true'
+  const isPaid    = invoice.status === 'paid' || searchParamsResolved.paid === 'true'
   const isOverdue = invoice.status === 'overdue'
 
   const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
@@ -173,7 +175,7 @@ export default async function PublicInvoicePage({
             {!isPaid && (
               <div style={{ marginTop: 32 }}>
                 <form method="POST" action="/api/invoices/create-payment">
-                  <input type="hidden" name="token" value={params.token} />
+                  <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
                     style={{

@@ -1,4 +1,4 @@
-// app/api/quotes/update-status/route.ts
+﻿// app/api/quotes/update-status/route.ts
 // Updates a quote's status and records an activity entry.
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logQuoteActivity, type QuoteActivityAction } from '@/lib/api/quote-activity'
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

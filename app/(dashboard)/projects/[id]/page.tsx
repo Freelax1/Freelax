@@ -4,6 +4,7 @@
 // UI only. Data via lib/api/projects. IR35 save via lib/api/projects.
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchProjectById, fetchProjectInvoices, saveIR35Assessment, updateProject } from '@/lib/api/projects'
 import Badge from '@/components/badge'
@@ -16,7 +17,8 @@ import { ArrowLeft, Lock, ArrowRight } from 'lucide-react'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default function ProjectDetailPage() {
+  const params = useParams<{ id: string }>()
   const [project, setProject]   = useState<any>(null)
   const [invoices, setInvoices] = useState<any[]>([])
   const [loading, setLoading]   = useState(true)

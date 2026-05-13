@@ -1,4 +1,4 @@
-// app/api/auth/hmrc/route.ts
+﻿// app/api/auth/hmrc/route.ts
 // GET  — initiates HMRC OAuth flow (redirects user to HMRC authorization page)
 // DELETE — disconnects HMRC account (deletes tokens from oauth_connections)
 
@@ -10,7 +10,7 @@ import { createHash, randomBytes } from 'crypto'
 // ── GET — initiate OAuth ───────────────────────────────────────────────────────
 
 export async function GET() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
@@ -61,7 +61,7 @@ export async function GET() {
 // ── DELETE — disconnect HMRC account ──────────────────────────────────────────
 
 export async function DELETE() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })

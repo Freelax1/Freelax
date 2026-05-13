@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { fetchProjectById } from '@/lib/api/projects'
 import ProjectForm from '@/components/project-form'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
-export default function ProjectEditPage({ params }: { params: { id: string } }) {
+export default function ProjectEditPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [project, setProject] = useState<any>(null)
   const [loading, setLoading] = useState(true)

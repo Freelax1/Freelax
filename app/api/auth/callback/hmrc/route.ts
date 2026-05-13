@@ -1,4 +1,4 @@
-// app/api/auth/callback/hmrc/route.ts
+﻿// app/api/auth/callback/hmrc/route.ts
 // Handles the redirect back from HMRC after the user authorises the connection.
 // Validates state, exchanges authorization code for tokens, stores in oauth_connections.
 
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Get the logged-in Freelax user
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     // Session expired during the HMRC flow — redirect to login

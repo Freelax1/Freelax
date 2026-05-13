@@ -1,4 +1,4 @@
-// lib/plan-limits.ts
+﻿// lib/plan-limits.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Plan limits for each Freelax subscription tier.
 // To bypass all limits during development:
@@ -93,7 +93,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
 // ── Get the current user's plan limits ───────────────────────────────────────
 
 export async function getUserPlan(userId: string): Promise<Plan> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data } = await supabase
     .from('users')
     .select('subscription_plan')
@@ -120,7 +120,7 @@ export async function canCreateInvoice(userId: string): Promise<{ allowed: boole
 
   if (limits.invoicesPerMonth === -1) return { allowed: true }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)
@@ -146,7 +146,7 @@ export async function canCreateClient(userId: string): Promise<{ allowed: boolea
 
   if (limits.clientsTotal === -1) return { allowed: true }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { count } = await supabase
     .from('clients')
     .select('*', { count: 'exact', head: true })
@@ -168,7 +168,7 @@ export async function canCreateExpense(userId: string): Promise<{ allowed: boole
 
   if (limits.expensesPerMonth === -1) return { allowed: true }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)

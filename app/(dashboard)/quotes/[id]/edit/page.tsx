@@ -5,7 +5,7 @@
 // Calculations via lib/logic/quotes.
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchQuoteById, updateQuote, deleteQuoteLineItems, createQuoteLineItems } from '@/lib/api/quotes'
 import { fetchClientsForDropdown } from '@/lib/api/clients'
@@ -21,7 +21,8 @@ interface LineItem {
   vat_rate: number
 }
 
-export default function EditQuotePage({ params }: { params: { id: string } }) {
+export default function EditQuotePage() {
+  const params = useParams<{ id: string }>()
   const router  = useRouter()
 
   const [clients, setClients]   = useState<any[]>([])

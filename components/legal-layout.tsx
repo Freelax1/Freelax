@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
@@ -22,7 +22,7 @@ export default async function LegalLayout({
   // so we don't trigger a cookie write from a Server Component.
   let signedIn = false
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
     signedIn = !!session?.user
   } catch {

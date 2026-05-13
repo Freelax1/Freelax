@@ -1,4 +1,4 @@
-// app/api/quotes/send/route.ts — v2.0
+﻿// app/api/quotes/send/route.ts — v2.0
 // Sends a quote email using the user's saved template + client portal link
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -26,7 +26,7 @@ function applyTemplateHtml(template: string, vars: Record<string, string>): stri
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

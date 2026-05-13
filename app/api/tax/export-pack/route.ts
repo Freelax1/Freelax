@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentTaxYear } from '@/lib/tax-calculations'
 import { DISCLAIMER_FOOTER_TEXT } from '@/components/not-tax-advice'
@@ -56,7 +56,7 @@ function stripeRows(sheet: ExcelJS.Worksheet, firstDataRow: number, lastDataRow:
 
 // ── Main handler ──────────────────────────────────────────────────────
 export async function GET() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

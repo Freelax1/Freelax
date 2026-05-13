@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
 import Link from 'next/link'
@@ -318,7 +319,8 @@ function activityConfig(entry: InvoiceActivity): {
 }
 
 // ── Main page ──────────────────────────────────────────────────────────
-export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default function InvoiceDetailPage() {
+  const params = useParams<{ id: string }>()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [activity, setActivity] = useState<any[]>([])
   const [loading, setLoading]  = useState(true)

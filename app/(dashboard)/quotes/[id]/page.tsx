@@ -5,7 +5,7 @@
 //           Auto-expire check, Shareable client link
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchQuoteById, deleteQuote } from '@/lib/api/quotes'
 import { fetchCurrentUser } from '@/lib/api/users'
@@ -99,7 +99,8 @@ function DeleteModal({ onConfirm, onCancel, loading }: {
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
-export default function QuoteDetailPage({ params }: { params: { id: string } }) {
+export default function QuoteDetailPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [quote, setQuote]         = useState<Quote | null>(null)
   const [activity, setActivity]   = useState<QuoteActivity[]>([])

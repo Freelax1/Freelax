@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { Plus, X, ArrowLeft } from 'lucide-react'
@@ -15,7 +15,8 @@ interface LineItem {
   vat_rate: number
 }
 
-export default function InvoiceEditPage({ params }: { params: { id: string } }) {
+export default function InvoiceEditPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [invoice, setInvoice] = useState<any>(null)
   const [clients, setClients] = useState<any[]>([])
