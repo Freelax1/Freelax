@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   })
 
   const hmrcRes = await fetch(
-    'https://test-api.service.hmrc.gov.uk/test/fraud-prevention-headers/validate',
+    'https://test-api.service.hmrc.gov.uk/test/fraud-prevention-headers/self-employment-business-mtd/validate',
     {
       headers: {
         'Authorization': `Bearer ${tokens.accessToken}`,
