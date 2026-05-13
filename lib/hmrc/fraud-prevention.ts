@@ -162,8 +162,11 @@ export function buildFraudPreventionHeaders(
 
   const vendorIp = ctx.vendorIp ?? process.env.HMRC_VENDOR_IP
   if (vendorIp) {
-    headers['Gov-Vendor-Public-IP']  = vendorIp
-    headers['Gov-Vendor-Forwarded']  = `by=${vendorIp};for=${clientIp}`
+    // Gov-Vendor-Public-IP: plain IP(s), comma-separated
+    headers['Gov-Vendor-Public-IP'] = vendorIp
+    // Gov-Vendor-Forwarded: IPs must be wrapped in percent-encoded brackets %5B=%5D
+    // The 'for' value must exactly match Gov-Client-Public-IP
+    headers['Gov-Vendor-Forwarded'] = `by=%5B${vendorIp}%5D;for=%5B${clientIp}%5D`
   }
 
   const licenseId = process.env.HMRC_VENDOR_LICENSE_ID
