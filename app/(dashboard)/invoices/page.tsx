@@ -411,10 +411,10 @@ export default function InvoicesPage() {
       {!loading && invoices.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
           {([
-            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111' },
-            { key: 'sent',    label: 'Sent',    bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#1A5E8A', valueColor: '#1A5E8A' },
-            { key: 'overdue', label: 'Overdue', bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#C0392B', valueColor: '#C0392B' },
-            { key: 'paid',    label: 'Paid',    bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
+            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
+            { key: 'sent',    label: 'Sent',    bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#0E4566', valueColor: '#0E4566' },
+            { key: 'overdue', label: 'Overdue', bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#8B1E15', valueColor: '#8B1E15' },
+            { key: 'paid',    label: 'Paid',    bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
           ] as const).map(({ key, label, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
             const isActive = statusFilter === key
             return (
@@ -450,7 +450,7 @@ export default function InvoicesPage() {
             />
             {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
           </div>
-          <button className="md:hidden flex-shrink-0" onClick={cycleInvSort} style={{ padding: '9px 12px', border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 12, fontWeight: 500, color: '#555', background: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+          <button className="md:hidden flex-shrink-0" onClick={cycleInvSort} style={{ padding: '9px 12px', border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 12, fontWeight: 500, color: '#475569', background: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
             {mobileSortLabel}
           </button>
         </div>
@@ -568,18 +568,18 @@ export default function InvoicesPage() {
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <input type="checkbox" aria-label={`Select invoice ${inv.invoice_number}`} checked={isSelected} onChange={() => toggleSelect(inv.id)}
                       onClick={e => e.stopPropagation()} className="rounded border-slate-300 cursor-pointer flex-shrink-0" />
-                    <Link href={`/invoices/${inv.id}`} className="font-medium text-blue-600 hover:underline truncate">
+                    <Link href={`/invoices/${inv.id}`} className="font-medium text-blue-700 hover:underline truncate">
                       {inv.invoice_number}
                     </Link>
                   </div>
                   <span className="font-semibold text-slate-900 flex-shrink-0">{formatCurrency(inv.total)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-slate-600 truncate">{inv.clients?.name ?? '—'}</span>
+                  <span className="text-sm text-slate-700 truncate">{inv.clients?.name ?? '—'}</span>
                   <div className="flex-shrink-0"><Badge status={inv.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className={`text-xs ${pastDue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
+                  <span className={`text-xs ${pastDue ? 'text-red-700 font-medium' : 'text-slate-700'}`}>
                     Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
                     {pastDue && ` · ${days}d late`}
                   </span>

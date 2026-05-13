@@ -342,10 +342,10 @@ export default function QuotesPage() {
       {!loading && quotes.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
           {([
-            { key: 'draft',    label: 'Draft',    bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111'    },
-            { key: 'sent',     label: 'Sent',     bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#1A5E8A', valueColor: '#1A5E8A' },
-            { key: 'accepted', label: 'Accepted', bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
-            { key: 'expired',  label: 'Expired',  bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#C0392B', valueColor: '#C0392B' },
+            { key: 'draft',    label: 'Draft',    bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
+            { key: 'sent',     label: 'Sent',     bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#0E4566', valueColor: '#0E4566' },
+            { key: 'accepted', label: 'Accepted', bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
+            { key: 'expired',  label: 'Expired',  bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#8B1E15', valueColor: '#8B1E15' },
           ] as const).map(({ key, label, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
             const isActive = statusFilter === key
             return (
@@ -495,16 +495,16 @@ export default function QuotesPage() {
                     <button onClick={() => toggleSelect(q.id)} aria-label={isSelected ? 'Deselect quote' : 'Select quote'} className="flex items-center flex-shrink-0">
                       {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
-                    <Link href={`/quotes/${q.id}`} className="font-medium text-blue-600 hover:underline truncate">{q.quote_number}</Link>
+                    <Link href={`/quotes/${q.id}`} className="font-medium text-blue-700 hover:underline truncate">{q.quote_number}</Link>
                   </div>
                   <span className="font-semibold text-slate-900 flex-shrink-0">{formatCurrency(q.total)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-slate-600 truncate">{q.clients?.name ?? '—'}</span>
+                  <span className="text-sm text-slate-700 truncate">{q.clients?.name ?? '—'}</span>
                   <div className="flex-shrink-0"><Badge status={q.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className={`text-xs ${expired ? 'text-red-600 font-medium' : !expired && days <= 3 && days >= 0 && q.status === 'sent' ? 'text-amber-600 font-medium' : 'text-slate-600'}`}>
+                  <span className={`text-xs ${expired ? 'text-red-700 font-medium' : !expired && days <= 3 && days >= 0 && q.status === 'sent' ? 'text-amber-700 font-medium' : 'text-slate-700'}`}>
                     Valid until {new Date(q.expiry_date).toLocaleDateString('en-GB')}
                     {expired && ' · expired'}
                     {!expired && days <= 3 && days >= 0 && q.status === 'sent' && ` · ${days}d left`}

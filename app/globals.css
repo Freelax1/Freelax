@@ -70,20 +70,26 @@
 }
 
 /* ── Badge styles ──────────────────────────────────────────────────────── */
-.badge-draft         { background:#F0F0F0; color:#555; border:1px solid #E0E0E0; }
-.badge-sent          { background:#EBF4FD; color:#1A5E8A; border:1px solid #B8D9F0; }
-.badge-paid          { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
-.badge-overdue       { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
-.badge-cancelled     { background:#F0F0F0; color:#888; border:1px solid #DDD; }
-.badge-active        { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
-.badge-paused        { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
-.badge-archived      { background:#F0F0F0; color:#666; border:1px solid #DDD; }
-.badge-outside-ir35  { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
-.badge-inside-ir35   { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
-.badge-needs-review  { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
-.badge-accepted      { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
-.badge-declined      { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
-.badge-expired       { background:#F0F0F0; color:#888; border:1px solid #DDD; }
+.badge-draft         { background:#F0F0F0; color:#404040; border:1px solid #E0E0E0; }
+.badge-sent          { background:#EBF4FD; color:#0E4566; border:1px solid #B8D9F0; }
+.badge-paid          { background:#EAFAF0; color:#0F5A28; border:1px solid #B8DFC3; }
+.badge-overdue       { background:#FDECEA; color:#8B1E15; border:1px solid #F5C0BB; }
+.badge-cancelled     { background:#F0F0F0; color:#525252; border:1px solid #DDD; }
+.badge-active        { background:#EAFAF0; color:#0F5A28; border:1px solid #B8DFC3; }
+.badge-paused        { background:#FEF9E7; color:#5C480C; border:1px solid #F5E29B; }
+.badge-archived      { background:#F0F0F0; color:#404040; border:1px solid #DDD; }
+.badge-outside-ir35  { background:#EAFAF0; color:#0F5A28; border:1px solid #B8DFC3; }
+.badge-inside-ir35   { background:#FDECEA; color:#8B1E15; border:1px solid #F5C0BB; }
+.badge-needs-review  { background:#FEF9E7; color:#5C480C; border:1px solid #F5E29B; }
+.badge-accepted      { background:#EAFAF0; color:#0F5A28; border:1px solid #B8DFC3; }
+.badge-declined      { background:#FDECEA; color:#8B1E15; border:1px solid #F5C0BB; }
+.badge-expired       { background:#F0F0F0; color:#525252; border:1px solid #DDD; }
+
+/* ── Input placeholder contrast (WCAG AA) ─────────────────────────────── */
+input::placeholder, textarea::placeholder {
+  color: #475569;
+  opacity: 1;
+}
 
 /* ── Nav tab hover zoom ─────────────────────────────────────────────────── */
 /* In @layer components so Tailwind utilities (hidden, lg:flex) can override */

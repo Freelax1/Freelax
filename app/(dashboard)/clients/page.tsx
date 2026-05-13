@@ -56,7 +56,7 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
   const label = newStatus === 'active' ? 'Active' : newStatus === 'paused' ? 'Paused' : 'Archived'
-  const color = newStatus === 'active' ? '#1D6B35' : newStatus === 'paused' ? '#9A7B0A' : '#64748B'
+  const color = newStatus === 'active' ? '#0F5A28' : newStatus === 'paused' ? '#5C480C' : '#475569'
   const bg    = newStatus === 'active' ? '#F0FDF4' : newStatus === 'paused' ? '#FEFCE8' : '#F8FAFC'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -127,8 +127,8 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
             <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {otherStatuses.map(s => {
               const cfg = {
-                active:   { label: 'Active',   dot: '#1D6B35' },
-                paused:   { label: 'Paused',   dot: '#9A7B0A' },
+                active:   { label: 'Active',   dot: '#0F5A28' },
+                paused:   { label: 'Paused',   dot: '#5C480C' },
                 archived: { label: 'Archived', dot: '#94A3B8' },
               }[s] ?? { label: s, dot: '#94A3B8' }
               return (
@@ -296,9 +296,9 @@ export default function ClientsPage() {
   const someSelected = selected.size > 0
 
   const CARDS = [
-    { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding, bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
-    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding, bgColor: '#FEF9E7', hoverColor: '#FDF0C0', borderColor: '#F5E29B', labelColor: '#6B5410', valueColor: '#6B5410' },
-    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0,                 bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#595959',    valueColor: '#111'    },
+    { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding, bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
+    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding, bgColor: '#FEF9E7', hoverColor: '#FDF0C0', borderColor: '#F5E29B', labelColor: '#5C480C', valueColor: '#5C480C' },
+    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0,                 bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
   ] as const
 
   return (
@@ -340,8 +340,8 @@ export default function ClientsPage() {
             flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)',
             borderRadius: 12, padding: '16px 20px', textAlign: 'left' as const,
           }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#595959', marginBottom: 6 }}>Total outstanding</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: totalOutstanding > 0 ? '#C0392B' : '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#475569', marginBottom: 6 }}>Total outstanding</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: totalOutstanding > 0 ? '#8B1E15' : '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>
               {totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—'}
             </p>
             <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
@@ -459,15 +459,15 @@ export default function ClientsPage() {
                     <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center flex-shrink-0">
                       {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
                     </button>
-                    <Link href={`/clients/${c.id}`} className="font-medium text-slate-900 hover:text-blue-600 truncate">{c.name}</Link>
+                    <Link href={`/clients/${c.id}`} className="font-medium text-slate-900 hover:text-blue-700 truncate">{c.name}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={c.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-slate-500 truncate">{c.email ?? c.contact_name ?? '—'}</span>
+                  <span className="text-sm text-slate-600 truncate">{c.email ?? c.contact_name ?? '—'}</span>
                   {c.outstanding > 0
-                    ? <span className="text-red-600 font-medium text-sm flex-shrink-0">{formatCurrency(c.outstanding)}</span>
-                    : <span className="text-slate-500 text-sm flex-shrink-0">—</span>}
+                    ? <span className="text-red-700 font-medium text-sm flex-shrink-0">{formatCurrency(c.outstanding)}</span>
+                    : <span className="text-slate-600 text-sm flex-shrink-0">—</span>}
                 </div>
                 <div className="flex justify-end pl-7">
                   <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />

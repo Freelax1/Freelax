@@ -479,7 +479,7 @@ export default function NewInvoicePage() {
                 <th className="pb-2 font-medium w-24">Price (£)</th>
                 <th className="pb-2 font-medium w-16">VAT%</th>
                 <th className="pb-2 font-medium w-20 text-right">Total</th>
-                <th className="pb-2 w-8"></th>
+                <th className="pb-2 w-8"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody className="space-y-2">

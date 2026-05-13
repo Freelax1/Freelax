@@ -344,6 +344,7 @@ export default function DashboardPage() {
 
   return (
     <>
+      <h1 className="sr-only">Dashboard</h1>
       <LoadingBar active={loading} />
       <ShortcutHint />
 

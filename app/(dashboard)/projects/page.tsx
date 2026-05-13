@@ -46,12 +46,12 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
   const cfg: Record<string, { label: string; color: string }> = {
-    active:    { label: 'Active',    color: '#1D6B35' },
-    completed: { label: 'Completed', color: '#1A5E8A' },
-    on_hold:   { label: 'On Hold',   color: '#6B5410' },
-    cancelled: { label: 'Cancelled', color: '#C0392B' },
+    active:    { label: 'Active',    color: '#0F5A28' },
+    completed: { label: 'Completed', color: '#0E4566' },
+    on_hold:   { label: 'On Hold',   color: '#5C480C' },
+    cancelled: { label: 'Cancelled', color: '#8B1E15' },
   }
-  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
+  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#475569' }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
@@ -281,9 +281,9 @@ export default function ProjectsPage() {
       {!loading && projects.length > 0 && (
         <div className="fd-stat-grid" style={{ marginBottom: 24 }}>
           {[
-            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#1D6B35', bg: '#F0FDF4', activeBg: '#1D6B35', border: 'rgba(29,107,53,0.15)' },
-            { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#1A5E8A', bg: '#EBF4FD', activeBg: '#1A5E8A', border: 'rgba(26,94,138,0.15)' },
-            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#6B5410', bg: '#FEFCE8', activeBg: '#9A7B0A', border: 'rgba(154,123,10,0.15)' },
+            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#0F5A28', bg: '#F0FDF4', activeBg: '#0F5A28', border: 'rgba(15,90,40,0.15)' },
+            { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#0E4566', bg: '#EBF4FD', activeBg: '#0E4566', border: 'rgba(14,69,102,0.15)' },
+            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#5C480C', bg: '#FEFCE8', activeBg: '#5C480C', border: 'rgba(92,72,12,0.15)' },
           ].map(({ key, label, count, value, color, bg, activeBg, border }) => {
             const isActive = statusFilter === key
             return (
@@ -305,8 +305,8 @@ export default function ProjectsPage() {
           })}
           {/* Total rate value — non-clickable */}
           <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 12, padding: '16px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#595959', marginBottom: 6 }}>Total rate value</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#475569', marginBottom: 6 }}>Total rate value</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
             {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{formatCurrency(totalValue)}</p>}
           </div>
         </div>

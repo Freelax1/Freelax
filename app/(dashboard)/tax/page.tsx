@@ -72,7 +72,7 @@ function Card({ title, accent, children }: { title: React.ReactNode; accent?: st
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className={`px-5 py-3 border-b border-slate-100 ${accent ?? 'bg-slate-50'}`}>
-        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
+        <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
       </div>
       <div className="px-5 py-1">{children}</div>
     </div>
@@ -609,9 +609,9 @@ export default function TaxPage() {
           {/* Empty state — no income data yet */}
           {pageData.taxDetail.grossIncome === 0 && pageData.taxDetail.totalExpenses === 0 && (
             <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-              <h3 className="text-base font-semibold text-slate-900 mb-2">
+              <h2 className="text-base font-semibold text-slate-900 mb-2">
                 Your tax summary will appear here
-              </h3>
+              </h2>
               <p className="text-sm text-slate-500 mb-5 max-w-md mx-auto">
                 Log some invoices and expenses and we'll calculate your estimated Income Tax, National Insurance, and Corporation Tax — broken down clearly, with every deduction shown.
               </p>
