@@ -5,12 +5,16 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2 } from 'lucide-react'
 
+const SANDBOX_MODE = process.env.NEXT_PUBLIC_HMRC_SANDBOX_MODE === 'true'
+
 export default function HmrcTab() {
   const searchParams                        = useSearchParams()
   const [connected, setConnected]           = useState(false)
   const [loading, setLoading]               = useState(true)
   const [disconnecting, setDisconnecting]   = useState(false)
   const [message, setMessage]               = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [testLoading, setTestLoading]       = useState(false)
+  const [testResult, setTestResult]         = useState<string | null>(null)
 
   // Show success/error from OAuth callback redirect
   useEffect(() => {
@@ -42,6 +46,19 @@ export default function HmrcTab() {
     checkConnection()
     return () => { isMounted = false }
   }, [])
+
+  async function handleTestConnection() {
+    setTestLoading(true)
+    setTestResult(null)
+    try {
+      const res = await fetch('/api/hmrc/test-connection')
+      const data = await res.json()
+      setTestResult(JSON.stringify(data, null, 2))
+    } catch (e) {
+      setTestResult(String(e))
+    }
+    setTestLoading(false)
+  }
 
   async function handleDisconnect() {
     setDisconnecting(true)
@@ -117,6 +134,26 @@ export default function HmrcTab() {
             </a>
           )}
         </div>
+
+
+        {/* Sandbox: test connection button */}
+        {SANDBOX_MODE && connected && (
+          <div className="space-y-2">
+            <button
+              onClick={handleTestConnection}
+              disabled={testLoading}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            >
+              {testLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {testLoading ? 'Testing…' : 'Test connection (sandbox)'}
+            </button>
+            {testResult && (
+              <pre className="text-xs bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
+                {testResult}
+              </pre>
+            )}
+          </div>
+        )}
       </div>
 
       {/* What is MTD explainer */}
