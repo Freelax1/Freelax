@@ -68,5 +68,5 @@ export async function GET(request: NextRequest) {
     body = await hmrcRes.text()
   }
 
-  return NextResponse.json({ status: hmrcRes.status, body })
+  return NextResponse.json({ status: hmrcRes.status, body, sentHeaders: fraudHeaders })
 }
