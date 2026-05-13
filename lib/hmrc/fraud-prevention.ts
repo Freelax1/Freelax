@@ -164,9 +164,10 @@ export function buildFraudPreventionHeaders(
   if (vendorIp) {
     // Gov-Vendor-Public-IP: plain IP(s), comma-separated
     headers['Gov-Vendor-Public-IP'] = vendorIp
-    // Gov-Vendor-Forwarded: IPs must be wrapped in percent-encoded brackets %5B=%5D
-    // The 'for' value must exactly match Gov-Client-Public-IP
-    headers['Gov-Vendor-Forwarded'] = `by=%5B${vendorIp}%5D;for=%5B${clientIp}%5D`
+    // Gov-Vendor-Forwarded: semicolon must be percent-encoded (%3B) to prevent HTTP
+    // parsers treating it as a parameter separator and dropping the 'for' value.
+    // IPv4 addresses need no further encoding. 'for' must match Gov-Client-Public-IP.
+    headers['Gov-Vendor-Forwarded'] = `by=${vendorIp}%3Bfor=${clientIp}`
   }
 
   const licenseId = process.env.HMRC_VENDOR_LICENSE_ID
