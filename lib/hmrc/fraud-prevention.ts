@@ -44,6 +44,12 @@ export interface FraudPreventionContext {
   deviceId?: string
   /** The originating device's public TCP port. Browsers do not expose this — omit if unavailable. */
   publicPort?: number
+  /**
+   * The server's own public IP address (Gov-Vendor-Public-IP / Gov-Vendor-Forwarded).
+   * In production, set HMRC_VENDOR_IP env var. In the test route, fetched dynamically.
+   * Overrides the HMRC_VENDOR_IP env var when provided.
+   */
+  vendorIp?: string
 }
 
 /** Extract the client's public IP from the Vercel/proxy forwarding headers */
@@ -154,7 +160,7 @@ export function buildFraudPreventionHeaders(
 
   // ── Vendor network headers (server-side, from env vars) ───────────────────
 
-  const vendorIp = process.env.HMRC_VENDOR_IP
+  const vendorIp = ctx.vendorIp ?? process.env.HMRC_VENDOR_IP
   if (vendorIp) {
     headers['Gov-Vendor-Public-IP']  = vendorIp
     headers['Gov-Vendor-Forwarded']  = `by=${vendorIp};for=${clientIp}`

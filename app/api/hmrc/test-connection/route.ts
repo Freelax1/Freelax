@@ -25,6 +25,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'No HMRC connection found. Connect your account first.' }, { status: 404 })
   }
 
+  // Dynamically fetch this function's own public IP for Gov-Vendor-Public-IP / Gov-Vendor-Forwarded.
+  // In production, set HMRC_VENDOR_IP env var instead to avoid the extra round-trip.
+  let vendorIp: string | undefined
+  try {
+    const ipRes = await fetch('https://api.ipify.org?format=json', {
+      signal: AbortSignal.timeout(3000),
+    })
+    const { ip } = await ipRes.json() as { ip: string }
+    vendorIp = ip
+  } catch {}
+
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
     userId: user.id,
@@ -35,6 +46,7 @@ export async function GET(request: NextRequest) {
     windowHeight: 900,
     doNotTrack: 'not-set',
     deviceId: user.id,
+    vendorIp,
   })
 
   const hmrcRes = await fetch(
