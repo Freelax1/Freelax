@@ -43,7 +43,13 @@
       "Bash(git config *)",
       "Bash(Find \"C:\\\\Freelax\" -type f -name \"*.ts\" -o -name \"*.tsx\")",
       "Bash(Find \"C:\\\\Freelax\\\\app\\\\api\" -type f -name \"*.ts\")",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "PowerShell(node --use-system-ca \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" audit 2>&1)",
+      "PowerShell(node --use-system-ca \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" audit fix 2>&1)",
+      "PowerShell(node --use-system-ca \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" audit fix --force 2>&1)",
+      "PowerShell(npm ls *)",
+      "Bash(git *)",
+      "PowerShell(New-Item *)"
     ]
   }
 }

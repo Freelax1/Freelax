@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 const taglines = [
   "Know exactly what you owe. Instantly.",
-  "See your real income after tax.",
+  "Your financial co-pilot.",
   "Your business finances. Finally clear.",
 ]
 
@@ -103,30 +103,7 @@ function RightPanel() {
             }}
           />
 
-          <div style={{
-            background: '#fff',
-            borderRadius: 12,
-            border: '0.5px solid #E2E8F0',
-            padding: '14px 16px',
-            marginBottom: 14,
-          }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-              Built for UK freelancers
-            </p>
-            {[
-              { icon: '⚡', text: 'Real-time tax bill — updated every time you log income or expenses' },
-              { icon: '🧾', text: 'Send professional invoices in under 60 seconds' },
-              { icon: '📊', text: "Safe to Spend — know exactly what's yours after tax each month" },
-              { icon: '🔒', text: 'Bank-grade encryption · UK GDPR compliant · Never sold' },
-            ].map(({ icon, text }) => (
-              <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
-                <span style={{ fontSize: 13, flexShrink: 0, marginTop: 1 }}>{icon}</span>
-                <p style={{ fontSize: 11, color: '#334155', lineHeight: 1.5 }}>{text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             {['A', 'J', 'S'].map((initial, i) => (
               <div key={i} style={{
                 width: 24, height: 24, borderRadius: '50%',
