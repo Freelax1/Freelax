@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     windowWidth: 1440,
     windowHeight: 900,
     doNotTrack: 'not-set',
-    deviceId: `test-device-${user.id.slice(0, 8)}`,
+    deviceId: user.id,
   })
 
   const hmrcRes = await fetch(

@@ -5,8 +5,8 @@
 // Spec: https://developer.service.hmrc.gov.uk/guides/fraud-prevention
 //
 // Connection method: WEB_APP_VIA_SERVER
-// Some headers (timezone, screen size, device ID) must be collected
-// browser-side and passed in via FraudPreventionContext.
+// Some headers (timezone, screen size, device ID, public port) must be
+// collected browser-side and passed in via FraudPreventionContext.
 // Headers that can be derived server-side are built automatically
 // from the incoming NextRequest.
 
@@ -29,7 +29,9 @@ export interface FraudPreventionContext {
    *   windowHeight: window.innerHeight
    *   doNotTrack:  navigator.doNotTrack ?? 'not-set'
    *   deviceId:    localStorage.getItem('freelax_device_id') ?? generateAndStoreUUID()
+   *   publicPort:  (not available in browsers — omit)
    */
+  /** IANA timezone name (e.g. "Europe/London") or UTC offset (e.g. "UTC+01:00") */
   timezone?: string
   screenWidth?: number
   screenHeight?: number
@@ -38,8 +40,10 @@ export interface FraudPreventionContext {
   windowWidth?: number
   windowHeight?: number
   doNotTrack?: string
-  /** Persistent UUID stored in the browser. Generate once, store in localStorage. */
+  /** Persistent UUID stored in the browser. Generate once, store in localStorage. Must be a bare UUID. */
   deviceId?: string
+  /** The originating device's public TCP port. Browsers do not expose this — omit if unavailable. */
+  publicPort?: number
 }
 
 /** Extract the client's public IP from the Vercel/proxy forwarding headers */
@@ -50,8 +54,30 @@ function getClientIp(req: NextRequest): string {
 }
 
 /**
- * Percent-encodes a string for use in HMRC header values.
- * HMRC requires values containing special characters to be percent-encoded.
+ * Converts an IANA timezone name or UTC offset string to HMRC's required
+ * UTC±hh:mm format (e.g. "Europe/London" → "UTC+01:00" in BST).
+ */
+function toHmrcTimezone(tz: string): string {
+  if (/^UTC[+-]\d{2}:\d{2}$/.test(tz)) return tz
+  if (tz === 'UTC') return 'UTC+00:00'
+  try {
+    const fmt = new Intl.DateTimeFormat('en', {
+      timeZone: tz,
+      timeZoneName: 'shortOffset',
+    })
+    const tzName = fmt.formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? 'GMT'
+    // tzName is like "GMT", "GMT+1", "GMT-5", "GMT+5:30"
+    const m = tzName.match(/GMT([+-])(\d+)(?::(\d+))?/)
+    if (!m) return 'UTC+00:00'
+    return `UTC${m[1]}${m[2].padStart(2, '0')}:${(m[3] ?? '0').padStart(2, '0')}`
+  } catch {
+    return 'UTC+00:00'
+  }
+}
+
+/**
+ * Percent-encodes a string for use in HMRC header values that require it.
+ * NOTE: Not all headers use percent-encoding — apply only where the spec requires it.
  */
 function pct(value: string): string {
   return encodeURIComponent(value)
@@ -60,16 +86,13 @@ function pct(value: string): string {
 /**
  * Builds the full set of HMRC fraud prevention headers from the context.
  * Pass the returned object as additional headers to hmrcGet / hmrcPost.
- *
- * Headers that cannot be determined (e.g. local IPs, MAC addresses) are
- * omitted rather than sent with placeholder values — HMRC's validation
- * tool scores omitted headers as amber, not red.
  */
 export function buildFraudPreventionHeaders(
   ctx: FraudPreventionContext,
 ): Record<string, string> {
   const now       = new Date().toISOString()
   const clientIp  = getClientIp(ctx.request)
+  // Raw browser UA — must NOT be percent-encoded per HMRC spec
   const userAgent = ctx.request.headers.get('user-agent') ?? ''
   const dnt       = ctx.doNotTrack
     ?? ctx.request.headers.get('dnt')
@@ -89,12 +112,12 @@ export function buildFraudPreventionHeaders(
     'Gov-Client-Public-IP-Timestamp': now,
 
     // ── Browser identity ──────────────────────────────────────────────
-    'Gov-Client-Browser-JS-User-Agent': pct(userAgent),
+    // Raw string, NOT percent-encoded (HMRC spec v3.3 requirement)
+    'Gov-Client-Browser-JS-User-Agent': userAgent,
     'Gov-Client-Browser-Do-Not-Track':  doNotTrack,
-    'Gov-Client-Browser-Plugins':       '', // not accessible server-side
+    'Gov-Client-Browser-Plugins':       '',
 
     // ── User identity ─────────────────────────────────────────────────
-    // key=value format; freelax-user-id is a vendor-defined key name
     'Gov-Client-User-IDs': `freelax-user-id=${pct(ctx.userId)}`,
 
     // ── Vendor info ───────────────────────────────────────────────────
@@ -102,17 +125,19 @@ export function buildFraudPreventionHeaders(
     'Gov-Vendor-Version':      'Freelax=1.0.0',
   }
 
-  // ── Optional browser-side headers (populated when client passes them) ──
+  // ── Optional browser-side headers ─────────────────────────────────────────
 
   if (ctx.deviceId) {
     headers['Gov-Client-Device-ID'] = ctx.deviceId
   }
 
   if (ctx.timezone) {
-    // HMRC expects UTC offset format e.g. UTC+01:00
-    // If the value is an IANA timezone name, we include it as-is — HMRC
-    // accepts both IANA names and UTC offsets in this header.
-    headers['Gov-Client-Timezone'] = pct(ctx.timezone)
+    // HMRC requires UTC±hh:mm format — convert IANA names automatically
+    headers['Gov-Client-Timezone'] = toHmrcTimezone(ctx.timezone)
+  }
+
+  if (ctx.publicPort) {
+    headers['Gov-Client-Public-Port'] = String(ctx.publicPort)
   }
 
   if (ctx.screenWidth && ctx.screenHeight) {
@@ -125,6 +150,19 @@ export function buildFraudPreventionHeaders(
   if (ctx.windowWidth && ctx.windowHeight) {
     headers['Gov-Client-Window-Size'] =
       `width=${ctx.windowWidth}&height=${ctx.windowHeight}`
+  }
+
+  // ── Vendor network headers (server-side, from env vars) ───────────────────
+
+  const vendorIp = process.env.HMRC_VENDOR_IP
+  if (vendorIp) {
+    headers['Gov-Vendor-Public-IP']  = vendorIp
+    headers['Gov-Vendor-Forwarded']  = `by=${vendorIp};for=${clientIp}`
+  }
+
+  const licenseId = process.env.HMRC_VENDOR_LICENSE_ID
+  if (licenseId) {
+    headers['Gov-Vendor-License-IDs'] = licenseId
   }
 
   return headers
