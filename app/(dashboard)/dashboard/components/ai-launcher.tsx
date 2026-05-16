@@ -58,17 +58,17 @@ export default function AiLauncher() {
   if (!visible) return null
 
   return (
-    <div className="bg-white rounded-xl border border-purple-100 overflow-hidden">
+    <div className="bg-surface-card rounded-xl border border-forest-200 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-purple-50 bg-gradient-to-r from-purple-50 to-white">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-forest-100 bg-gradient-to-r from-forest-50 to-surface-card">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-500" />
-          <p className="text-sm font-semibold text-slate-800">AI features in Freelax</p>
-          <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full font-medium">4 tools</span>
+          <Sparkles className="w-4 h-4 text-forest-500" />
+          <p className="text-sm font-semibold text-text-primary">AI features in Freelax</p>
+          <span className="text-xs text-forest-700 bg-forest-100 px-2 py-0.5 rounded-full font-medium">4 tools</span>
         </div>
         <button
           onClick={dismiss}
-          className="text-slate-500 hover:text-slate-500 transition-colors p-1 rounded"
+          className="text-text-muted hover:text-text-secondary transition-colors p-1 rounded"
           title="Dismiss"
           aria-label="Dismiss AI features panel"
         >
@@ -77,19 +77,19 @@ export default function AiLauncher() {
       </div>
 
       {/* Feature tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-100">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border-subtle">
         {FEATURES.map(f => (
           <button
             key={f.id}
             onClick={() => router.push(f.href)}
-            className="bg-white text-left p-4 hover:bg-slate-50 transition-colors group"
+            className="bg-surface-card text-left p-4 hover:bg-forest-50 transition-colors group"
           >
             <span className="text-xl mb-2 block">{f.icon}</span>
-            <p className="text-xs font-semibold text-slate-800 mb-0.5 group-hover:text-purple-700 transition-colors">
+            <p className="text-xs font-semibold text-text-primary mb-0.5 group-hover:text-forest-700 transition-colors">
               {f.title}
             </p>
-            <p className="text-xs text-slate-600 leading-relaxed mb-2">{f.desc}</p>
-            <span className="text-xs font-medium text-purple-600 group-hover:text-purple-700">
+            <p className="text-xs text-text-secondary leading-relaxed mb-2">{f.desc}</p>
+            <span className="text-xs font-medium text-forest-600 group-hover:text-forest-800">
               {f.cta} →
             </span>
           </button>

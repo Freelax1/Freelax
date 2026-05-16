@@ -62,12 +62,14 @@ function fmt(n: number) {
 
 function statusColor(s: string): string {
   const map: Record<string, string> = {
-    paid: '#1D6B35', sent: '#1A5E8A', draft: '#666', overdue: '#C0392B', accepted: '#1D6B35', declined: '#C0392B', expired: '#888',
-    active: '#1D6B35', paused: '#9A7B0A', archived: '#888',
-    outside_ir35: '#1D6B35', inside_ir35: '#C0392B', needs_review: '#9A7B0A',
-    completed: '#888', on_hold: '#9A7B0A', cancelled: '#C0392B',
+    paid:         'var(--success-500)', sent:        'var(--forest-500)', draft:       'var(--text-muted)',
+    overdue:      'var(--danger-500)',  accepted:    'var(--success-500)', declined:   'var(--danger-500)',
+    expired:      'var(--text-muted)',  active:      'var(--success-500)', paused:     'var(--warning-500)',
+    archived:     'var(--text-muted)',
+    outside_ir35: 'var(--success-500)', inside_ir35: 'var(--danger-500)',  needs_review: 'var(--warning-500)',
+    completed:    'var(--text-muted)',  on_hold:     'var(--warning-500)', cancelled:  'var(--danger-500)',
   }
-  return map[s] ?? '#666'
+  return map[s] ?? 'var(--text-muted)'
 }
 
 
@@ -140,26 +142,26 @@ function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; vie
   if (!items.length) return (
     <div style={{
       position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-      background: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 10,
+      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 10,
       padding: '10px 14px', minWidth: 180, zIndex: 100,
-      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+      boxShadow: 'var(--shadow-lg)',
     }}>
-      <p style={{ fontSize: 11, color: '#666', textAlign: 'center' }}>No {label.toLowerCase()} yet</p>
+      <p style={{ fontSize: 11, color: 'var(--forest-400)', textAlign: 'center' }}>No {label.toLowerCase()} yet</p>
     </div>
   )
 
   return (
     <div className="fd-dropdown-enter" style={{
       position: 'absolute', top: 'calc(100% + 2px)', left: '50%', transform: 'translateX(-50%)',
-      background: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 10,
+      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 10,
       minWidth: 240, zIndex: 100,
-      boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+      boxShadow: 'var(--shadow-lg)',
       overflow: 'hidden',
     }}>
       {/* Arrow */}
       <div style={{
         position: 'absolute', top: -5, left: '50%', transform: 'translateX(-50%) rotate(45deg)',
-        width: 9, height: 9, background: '#1A1A1A', border: '1px solid #2A2A2A',
+        width: 9, height: 9, background: 'var(--forest-900)', border: '1px solid var(--forest-700)',
         borderRight: 'none', borderBottom: 'none',
       }} />
 
@@ -168,18 +170,18 @@ function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; vie
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '7px 14px',
-            borderBottom: i < items.length - 1 ? '1px solid #252525' : 'none',
-            transition: 'background 0.1s',
+            borderBottom: i < items.length - 1 ? '1px solid var(--forest-800)' : 'none',
+            transition: `background var(--duration-fast) var(--ease-out)`,
           }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#222')}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--forest-800)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#F0F0F0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-on-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {item.label}
               </p>
               {item.sub && (
-                <p style={{ fontSize: 10, color: '#777', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <p style={{ fontSize: 10, color: 'var(--forest-300)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.sub}
                 </p>
               )}
@@ -199,14 +201,14 @@ function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; vie
       <Link href={viewAllHref} style={{ display: 'block', textDecoration: 'none' }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '8px 14px', borderTop: '1px solid #252525',
-          background: '#161616',
+          padding: '8px 14px', borderTop: '1px solid var(--forest-800)',
+          background: 'var(--forest-950)',
         }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#1E1E1E')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#161616')}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--forest-900)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--forest-950)')}
         >
-          <span style={{ fontSize: 11, color: '#888', fontWeight: 500 }}>View all {label.toLowerCase()}</span>
-          <ChevronRight style={{ width: 12, height: 12, color: '#555' }} />
+          <span style={{ fontSize: 11, color: 'var(--forest-400)', fontWeight: 500 }}>View all {label.toLowerCase()}</span>
+          <ChevronRight style={{ width: 12, height: 12, color: 'var(--forest-500)' }} />
         </div>
       </Link>
     </div>
@@ -360,38 +362,38 @@ function NotificationPanel({
   onClose:    () => void
 }) {
   const typeColor: Record<Notification['type'], string> = {
-    overdue:        '#C0392B',
-    due_soon:       '#9A7B0A',
-    quote_expiring: '#9A7B0A',
-    ir35_risk:      '#C0392B',
+    overdue:        'var(--danger-500)',
+    due_soon:       'var(--warning-500)',
+    quote_expiring: 'var(--warning-500)',
+    ir35_risk:      'var(--danger-500)',
   }
 
   return (
     <div className="fd-dropdown-enter" style={{
       position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-      background: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 12,
+      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 12,
       minWidth: 320, maxWidth: 360, zIndex: 100,
-      boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+      boxShadow: 'var(--shadow-lg)',
       overflow: 'hidden',
     }}>
       {/* Arrow */}
       <div style={{
         position: 'absolute', top: -5, right: 14, transform: 'rotate(45deg)',
-        width: 9, height: 9, background: '#1A1A1A', border: '1px solid #2A2A2A',
+        width: 9, height: 9, background: 'var(--forest-900)', border: '1px solid var(--forest-700)',
         borderRight: 'none', borderBottom: 'none',
       }} />
 
       {/* Header */}
-      <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid #252525', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <p style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Notifications</p>
+      <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--forest-800)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p style={{ fontSize: 11, color: 'var(--forest-400)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Notifications</p>
         <button onClick={onClose} aria-label="Close notifications" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-          <X style={{ width: 13, height: 13, color: '#555' }} />
+          <X style={{ width: 13, height: 13, color: 'var(--forest-400)' }} />
         </button>
       </div>
 
       {notifications.length === 0 ? (
         <div style={{ padding: '20px 14px', textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: '#555' }}>No notifications</p>
+          <p style={{ fontSize: 12, color: 'var(--forest-400)' }}>No notifications</p>
         </div>
       ) : (
         <div style={{ maxHeight: 360, overflowY: 'auto' }}>
@@ -399,37 +401,35 @@ function NotificationPanel({
             <div key={n.id} style={{
               display: 'flex', alignItems: 'flex-start', gap: 10,
               padding: '10px 14px',
-              borderBottom: i < notifications.length - 1 ? '1px solid #222' : 'none',
+              borderBottom: i < notifications.length - 1 ? '1px solid var(--forest-800)' : 'none',
             }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: typeColor[n.type], flexShrink: 0, marginTop: 4 }} />
               <a href={n.href} onClick={onClose} style={{ flex: 1, textDecoration: 'none', minWidth: 0 }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#F0F0F0', lineHeight: 1.3 }}>{n.title}</p>
-                <p style={{ fontSize: 10, color: '#777', marginTop: 2 }}>{n.sub}</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-on-dark)', lineHeight: 1.3 }}>{n.title}</p>
+                <p style={{ fontSize: 10, color: 'var(--forest-300)', marginTop: 2 }}>{n.sub}</p>
               </a>
               <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
-                {/* Don't show again */}
                 <button
                   onClick={() => onSuppress(n.id)}
                   title="Don't show this again"
                   style={{
-                    background: 'none', border: '1px solid #333', borderRadius: 4,
+                    background: 'none', border: '1px solid var(--forest-700)', borderRadius: 4,
                     cursor: 'pointer', padding: '2px 5px', fontSize: 9,
-                    color: '#555', fontWeight: 600, letterSpacing: '0.05em',
+                    color: 'var(--forest-400)', fontWeight: 600, letterSpacing: '0.05em',
                     whiteSpace: 'nowrap',
                   }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C0392B'; (e.currentTarget as HTMLButtonElement).style.color = '#C0392B' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#333'; (e.currentTarget as HTMLButtonElement).style.color = '#555' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--danger-500)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger-500)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--forest-700)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--forest-400)' }}
                 >
                   IGNORE
                 </button>
-                {/* Dismiss for today */}
                 <button
                   onClick={() => onDismiss(n.id)}
                   title="Dismiss for today"
                   aria-label="Dismiss notification for today"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
                 >
-                  <X style={{ width: 13, height: 13, color: '#555' }} />
+                  <X style={{ width: 13, height: 13, color: 'var(--forest-400)' }} />
                 </button>
               </div>
             </div>
@@ -572,11 +572,11 @@ export default function Sidebar() {
   return (
     <>
       <header
-        style={{ background: '#111111', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        style={{ background: 'var(--forest-700)', fontFamily: 'var(--font-sans)' }}
         className="fixed top-0 left-0 right-0 z-40 h-12 flex items-center px-5 shadow-sm"
       >
         {/* Logo */}
-        <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginRight: 28, letterSpacing: '-0.03em' }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--cream-300)', marginRight: 28, letterSpacing: '-0.03em' }}>
           Freelax
         </div>
 
