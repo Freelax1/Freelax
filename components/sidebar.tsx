@@ -3,26 +3,19 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, X, ChevronRight, Bell } from 'lucide-react'
+import {
+  List, X, Bell, MagnifyingGlass, Gear, SignOut, Question, ArrowUp,
+  House, Calculator, FileText, ClipboardText, Receipt,
+  Users, FolderOpen,
+} from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import CommandMenu from '@/components/command-menu'
+import SettingsModal from '@/components/settings-modal'
+import { buildNotifications, READ_KEY } from '@/lib/notifications'
+import type { Notification } from '@/lib/notifications'
 
-// ── types ──────────────────────────────────────────────────────────────
-interface DropdownItem {
-  label: string
-  sub?: string
-  badge?: { text: string; color: string }
-  href: string
-}
+// ── Types ──────────────────────────────────────────────────────────────
 
-interface NavItem {
-  href: string
-  label: string
-  dropdown?: (data: NavData) => DropdownItem[]
-}
-
-// Narrow projection shapes matching the Supabase SELECT strings used in load()/refresh()
-// Supabase infers joined 1:1 relations as arrays, so accept both object and array forms.
 type ClientJoin = { name: string } | { name: string }[] | null
 type NavInvoice = { id: string; invoice_number: string; status: string; total: number; due_date: string; clients: ClientJoin }
 type NavQuote   = { id: string; quote_number: string; status: string; total: number; expiry_date: string | null; clients: ClientJoin }
@@ -44,468 +37,124 @@ interface NavData {
   quotes:   NavQuote[]
 }
 
-const SETTINGS_TABS = [
-  { label: 'Profile',              sub: 'Name, phone, logo',                 href: '/settings?tab=Profile' },
-  { label: 'Business details',     sub: 'Business type, VAT, UTR',           href: '/settings?tab=Business+details' },
-  { label: 'Personal tax inputs',  sub: 'Student loan, pension, salary',     href: '/settings?tab=Personal+tax+inputs' },
-  { label: 'Banking',              sub: 'Sort code, account number',         href: '/settings?tab=Banking' },
-  { label: 'Billing',              sub: 'Plan and subscription',             href: '/settings?tab=Billing' },
-  { label: 'Accountant Access',    sub: 'Invite your accountant',            href: '/settings?tab=Accountant+Access' },
-  { label: 'HMRC',                 sub: 'Connect your HMRC account',         href: '/settings?tab=HMRC' },
-  { label: 'Danger Zone',          sub: 'Delete account',                    href: '/settings?tab=Danger+Zone' },
-]
-
-// ── helpers ────────────────────────────────────────────────────────────
 function fmt(n: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(n)
 }
 
-function statusColor(s: string): string {
-  const map: Record<string, string> = {
-    paid:         'var(--success-500)', sent:        'var(--forest-500)', draft:       'var(--text-muted)',
-    overdue:      'var(--danger-500)',  accepted:    'var(--success-500)', declined:   'var(--danger-500)',
-    expired:      'var(--text-muted)',  active:      'var(--success-500)', paused:     'var(--warning-500)',
-    archived:     'var(--text-muted)',
-    outside_ir35: 'var(--success-500)', inside_ir35: 'var(--danger-500)',  needs_review: 'var(--warning-500)',
-    completed:    'var(--text-muted)',  on_hold:     'var(--warning-500)', cancelled:  'var(--danger-500)',
-  }
-  return map[s] ?? 'var(--text-muted)'
-}
+// ── Nav groups ─────────────────────────────────────────────────────────
 
-
-function humanStatus(s: string) {
-  const map: Record<string, string> = {
-    outside_ir35: 'Outside IR35', inside_ir35: 'Inside IR35', needs_review: 'Review',
-    on_hold: 'On hold',
-  }
-  return map[s] ?? s.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-}
-
-// ── nav config ─────────────────────────────────────────────────────────
-const NAV: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard' },
+const NAV_GROUPS = [
   {
-    href: '/clients',
-    label: 'Clients',
-    dropdown: ({ clients }) => clients.slice(0, 4).map(c => ({
-      label: c.name,
-      sub: c.contact_name ?? c.email ?? '',
-      badge: { text: humanStatus(c.status), color: statusColor(c.status) },
-      href: `/clients/${c.id}`,
-    })),
+    label: 'Overview',
+    items: [
+      { href: '/dashboard', label: 'Dashboard', icon: House },
+      { href: '/tax',       label: 'Tax',       icon: Calculator },
+    ],
   },
   {
-    href: '/projects',
-    label: 'Projects',
-    dropdown: ({ projects }) => projects.slice(0, 4).map(p => ({
-      label: p.title,
-      sub: navClientName(p.clients) ?? '',
-      badge: { text: humanStatus(p.ir35_status), color: statusColor(p.ir35_status) },
-      href: `/projects/${p.id}`,
-    })),
+    label: 'Money',
+    items: [
+      { href: '/invoices', label: 'Invoices', icon: FileText },
+      { href: '/quotes',   label: 'Quotes',   icon: ClipboardText },
+      { href: '/expenses', label: 'Expenses', icon: Receipt },
+    ],
   },
   {
-    href: '/invoices',
-    label: 'Invoices',
-    dropdown: ({ invoices }) => invoices.slice(0, 4).map(i => ({
-      label: i.invoice_number,
-      sub: `${navClientName(i.clients) ?? '—'} · ${fmt(i.total)}`,
-      badge: { text: humanStatus(i.status), color: statusColor(i.status) },
-      href: `/invoices/${i.id}`,
-    })),
-  },
-  {
-    href: '/quotes',
-    label: 'Quotes',
-    dropdown: ({ quotes }) => (quotes ?? []).slice(0, 4).map(q => ({
-      label: q.quote_number,
-      sub: `${navClientName(q.clients) ?? '—'} · ${fmt(q.total)}`,
-      badge: { text: humanStatus(q.status), color: statusColor(q.status) },
-      href: `/quotes/${q.id}`,
-    })),
-  },
-  { href: '/tax', label: 'Tax' },
-
-  {
-    href: '/expenses',
-    label: 'Expenses',
-    dropdown: ({ expenses }) => expenses.slice(0, 4).map(e => ({
-      label: e.merchant,
-      sub: `${e.category.replace(/_/g, ' ')} · ${fmt(e.amount)} · ${new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
-      href: '/expenses',
-    })),
+    label: 'Work',
+    items: [
+      { href: '/clients',  label: 'Clients',  icon: Users },
+      { href: '/projects', label: 'Projects', icon: FolderOpen },
+    ],
   },
 ]
 
-// ── Dropdown panel ─────────────────────────────────────────────────────
-function NavDropdown({ items, viewAllHref, label }: { items: DropdownItem[]; viewAllHref: string; label: string }) {
-  if (!items.length) return (
-    <div style={{
-      position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 10,
-      padding: '10px 14px', minWidth: 180, zIndex: 100,
-      boxShadow: 'var(--shadow-lg)',
-    }}>
-      <p style={{ fontSize: 11, color: 'var(--forest-400)', textAlign: 'center' }}>No {label.toLowerCase()} yet</p>
-    </div>
-  )
-
-  return (
-    <div className="fd-dropdown-enter" style={{
-      position: 'absolute', top: 'calc(100% + 2px)', left: '50%', transform: 'translateX(-50%)',
-      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 10,
-      minWidth: 240, zIndex: 100,
-      boxShadow: 'var(--shadow-lg)',
-      overflow: 'hidden',
-    }}>
-      {/* Arrow */}
-      <div style={{
-        position: 'absolute', top: -5, left: '50%', transform: 'translateX(-50%) rotate(45deg)',
-        width: 9, height: 9, background: 'var(--forest-900)', border: '1px solid var(--forest-700)',
-        borderRight: 'none', borderBottom: 'none',
-      }} />
-
-      {items.map((item, i) => (
-        <Link key={i} href={item.href} style={{ display: 'block', textDecoration: 'none' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '7px 14px',
-            borderBottom: i < items.length - 1 ? '1px solid var(--forest-800)' : 'none',
-            transition: `background var(--duration-fast) var(--ease-out)`,
-          }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--forest-800)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-on-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {item.label}
-              </p>
-              {item.sub && (
-                <p style={{ fontSize: 10, color: 'var(--forest-300)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {item.sub}
-                </p>
-              )}
-            </div>
-            {item.badge && (
-              <div style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: item.badge.color,
-                flexShrink: 0,
-              }} />
-            )}
-          </div>
-        </Link>
-      ))}
-
-      {/* View all */}
-      <Link href={viewAllHref} style={{ display: 'block', textDecoration: 'none' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '8px 14px', borderTop: '1px solid var(--forest-800)',
-          background: 'var(--forest-950)',
-        }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'var(--forest-900)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'var(--forest-950)')}
-        >
-          <span style={{ fontSize: 11, color: 'var(--forest-400)', fontWeight: 500 }}>View all {label.toLowerCase()}</span>
-          <ChevronRight style={{ width: 12, height: 12, color: 'var(--forest-500)' }} />
-        </div>
-      </Link>
-    </div>
-  )
-}
-
-
 // ── Notification system ────────────────────────────────────────────────
 
-const DISMISSED_KEY  = 'fd_dismissed_notifications'
-const SUPPRESSED_KEY = 'fd_suppressed_notifications'
-
-interface Notification {
-  id: string
-  type: 'overdue' | 'due_soon' | 'quote_expiring' | 'ir35_risk'
-  title: string
-  sub: string
-  href: string
-  priority: 'red' | 'amber'
-}
-
-function buildNotifications(
-  invoices: NavInvoice[],
-  quotes:   NavQuote[],
-  projects: NavProject[],
-): Notification[] {
-  const today    = new Date()
-  const todayStr = today.toISOString().slice(0, 10)
-  const notifications: Notification[] = []
-
-  // Overdue invoices
-  invoices
-    .filter(i => i.status === 'overdue')
-    .forEach(i => {
-      const days = Math.floor((today.getTime() - new Date(i.due_date).getTime()) / 86400000)
-      notifications.push({
-        id:       `invoice-overdue-${i.id}`,
-        type:     'overdue',
-        title:    `${i.invoice_number} is overdue`,
-        sub:      `${navClientName(i.clients) ?? 'Unknown'} · ${days} day${days !== 1 ? 's' : ''} late`,
-        href:     `/invoices/${i.id}`,
-        priority: 'red',
-      })
-    })
-
-  // Due within 3 days
-  invoices
-    .filter(i => ['sent', 'draft'].includes(i.status))
-    .forEach(i => {
-      const days = Math.floor((new Date(i.due_date).getTime() - today.getTime()) / 86400000)
-      if (days >= 0 && days <= 3) {
-        notifications.push({
-          id:       `invoice-due-soon-${i.id}-${todayStr}`,
-          type:     'due_soon',
-          title:    `${i.invoice_number} due in ${days === 0 ? 'today' : `${days} day${days !== 1 ? 's' : ''}`}`,
-          sub:      `${navClientName(i.clients) ?? 'Unknown'} · £${Number(i.total).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`,
-          href:     `/invoices/${i.id}`,
-          priority: 'amber',
-        })
-      }
-    })
-
-  // Quotes expiring within 3 days
-  quotes
-    .filter(q => q.status === 'sent')
-    .forEach(q => {
-      if (!q.expiry_date) return
-      const days = Math.floor((new Date(q.expiry_date).getTime() - today.getTime()) / 86400000)
-      if (days >= 0 && days <= 3) {
-        notifications.push({
-          id:       `quote-expiring-${q.id}-${todayStr}`,
-          type:     'quote_expiring',
-          title:    `${q.quote_number} expires in ${days === 0 ? 'today' : `${days} day${days !== 1 ? 's' : ''}`}`,
-          sub:      navClientName(q.clients) ?? 'Unknown',
-          href:     `/quotes/${q.id}`,
-          priority: 'amber',
-        })
-      }
-    })
-
-  // IR35 risks
-  projects
-    .filter(p => p.status === 'active' && ['inside_ir35', 'needs_review'].includes(p.ir35_status))
-    .forEach(p => {
-      notifications.push({
-        id:       `ir35-risk-${p.id}`,
-        type:     'ir35_risk',
-        title:    `${p.title} needs IR35 review`,
-        sub:      navClientName(p.clients) ?? 'Unknown',
-        href:     `/projects/${p.id}`,
-        priority: p.ir35_status === 'inside_ir35' ? 'red' : 'amber',
-      })
-    })
-
-  return notifications
-}
 
 function useNotifications(invoices: NavInvoice[], quotes: NavQuote[], projects: NavProject[]) {
-  const [dismissed,  setDismissed]  = useState<Record<string, string>>({})   // id -> dismissedDate
-  const [suppressed, setSuppressed] = useState<Set<string>>(new Set())
-  const [hasLoaded,  setHasLoaded]  = useState(false)
+  const [readIds,   setReadIds]   = useState<Set<string>>(new Set())
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
     try {
-      const d = JSON.parse(localStorage.getItem(DISMISSED_KEY)  ?? '{}')
-      const s = JSON.parse(localStorage.getItem(SUPPRESSED_KEY) ?? '[]')
-      setDismissed(d)
-      setSuppressed(new Set(s))
+      setReadIds(new Set(JSON.parse(localStorage.getItem(READ_KEY) ?? '[]')))
     } catch {}
     setHasLoaded(true)
+
+    // re-sync when user returns from the notifications page
+    function onFocus() {
+      try { setReadIds(new Set(JSON.parse(localStorage.getItem(READ_KEY) ?? '[]'))) } catch {}
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [])
 
-  const today = new Date().toISOString().slice(0, 10)
+  const all      = buildNotifications(invoices, quotes, projects)
+  const visible  = hasLoaded ? all : []
+  const unreadCount = hasLoaded ? all.filter(n => !readIds.has(n.id)).length : 0
 
-  const all = buildNotifications(invoices, quotes, projects)
-
-  const visible = hasLoaded
-    ? all.filter(n =>
-        !suppressed.has(n.id) &&
-        dismissed[n.id] !== today
-      )
-    : []
-
-  function dismiss(id: string) {
-    const next = { ...dismissed, [id]: today }
-    setDismissed(next)
-    try { localStorage.setItem(DISMISSED_KEY, JSON.stringify(next)) } catch {}
-  }
-
-  function suppress(id: string) {
-    const next = new Set(suppressed)
-    next.add(id)
-    setSuppressed(next)
-    try { localStorage.setItem(SUPPRESSED_KEY, JSON.stringify(Array.from(next))) } catch {}
-    // Also dismiss so it disappears immediately
-    dismiss(id)
-  }
-
-  return { visible, dismiss, suppress }
+  return { visible, unreadCount }
 }
 
-function NotificationPanel({
-  notifications,
-  onDismiss,
-  onSuppress,
-  onClose,
-}: {
-  notifications: Notification[]
-  onDismiss:  (id: string) => void
-  onSuppress: (id: string) => void
-  onClose:    () => void
-}) {
-  const typeColor: Record<Notification['type'], string> = {
-    overdue:        'var(--danger-500)',
-    due_soon:       'var(--warning-500)',
-    quote_expiring: 'var(--warning-500)',
-    ir35_risk:      'var(--danger-500)',
-  }
+// ── Notification panel ─────────────────────────────────────────────────
 
-  return (
-    <div className="fd-dropdown-enter" style={{
-      position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-      background: 'var(--forest-900)', border: '1px solid var(--forest-700)', borderRadius: 12,
-      minWidth: 320, maxWidth: 360, zIndex: 100,
-      boxShadow: 'var(--shadow-lg)',
-      overflow: 'hidden',
-    }}>
-      {/* Arrow */}
-      <div style={{
-        position: 'absolute', top: -5, right: 14, transform: 'rotate(45deg)',
-        width: 9, height: 9, background: 'var(--forest-900)', border: '1px solid var(--forest-700)',
-        borderRight: 'none', borderBottom: 'none',
-      }} />
 
-      {/* Header */}
-      <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--forest-800)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <p style={{ fontSize: 11, color: 'var(--forest-400)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Notifications</p>
-        <button onClick={onClose} aria-label="Close notifications" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-          <X style={{ width: 13, height: 13, color: 'var(--forest-400)' }} />
-        </button>
-      </div>
-
-      {notifications.length === 0 ? (
-        <div style={{ padding: '20px 14px', textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: 'var(--forest-400)' }}>No notifications</p>
-        </div>
-      ) : (
-        <div style={{ maxHeight: 360, overflowY: 'auto' }}>
-          {notifications.map((n, i) => (
-            <div key={n.id} style={{
-              display: 'flex', alignItems: 'flex-start', gap: 10,
-              padding: '10px 14px',
-              borderBottom: i < notifications.length - 1 ? '1px solid var(--forest-800)' : 'none',
-            }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: typeColor[n.type], flexShrink: 0, marginTop: 4 }} />
-              <a href={n.href} onClick={onClose} style={{ flex: 1, textDecoration: 'none', minWidth: 0 }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-on-dark)', lineHeight: 1.3 }}>{n.title}</p>
-                <p style={{ fontSize: 10, color: 'var(--forest-300)', marginTop: 2 }}>{n.sub}</p>
-              </a>
-              <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
-                <button
-                  onClick={() => onSuppress(n.id)}
-                  title="Don't show this again"
-                  style={{
-                    background: 'none', border: '1px solid var(--forest-700)', borderRadius: 4,
-                    cursor: 'pointer', padding: '2px 5px', fontSize: 9,
-                    color: 'var(--forest-400)', fontWeight: 600, letterSpacing: '0.05em',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--danger-500)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger-500)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--forest-700)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--forest-400)' }}
-                >
-                  IGNORE
-                </button>
-                <button
-                  onClick={() => onDismiss(n.id)}
-                  title="Dismiss for today"
-                  aria-label="Dismiss notification for today"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
-                >
-                  <X style={{ width: 13, height: 13, color: 'var(--forest-400)' }} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+// ── Data fetching ──────────────────────────────────────────────────────
 
 async function fetchNavData(): Promise<NavData> {
   const supabase = createClient()
   const [
-    { data: invoices },
-    { data: quotes },
-    { data: clients },
-    { data: projects },
-    { data: expenses },
+    { data: invoices }, { data: quotes }, { data: clients },
+    { data: projects }, { data: expenses },
   ] = await Promise.all([
-    supabase.from('invoices')
-      .select('id, invoice_number, status, total, due_date, clients(name)')
-      .order('created_at', { ascending: false }).limit(50),
-    supabase.from('quotes')
-      .select('id, quote_number, status, total, expiry_date, clients(name)')
-      .order('created_at', { ascending: false }).limit(20),
-    supabase.from('clients')
-      .select('id, name, contact_name, email, status')
-      .order('created_at', { ascending: false }).limit(4),
-    supabase.from('projects')
-      .select('id, title, ir35_status, status, clients(name)')
-      .order('created_at', { ascending: false }).limit(4),
-    supabase.from('expenses')
-      .select('id, merchant, category, amount, date')
-      .order('date', { ascending: false }).limit(4),
+    supabase.from('invoices').select('id, invoice_number, status, total, due_date, clients(name)').order('created_at', { ascending: false }).limit(50),
+    supabase.from('quotes').select('id, quote_number, status, total, expiry_date, clients(name)').order('created_at', { ascending: false }).limit(20),
+    supabase.from('clients').select('id, name, contact_name, email, status').order('created_at', { ascending: false }).limit(4),
+    supabase.from('projects').select('id, title, ir35_status, status, clients(name)').order('created_at', { ascending: false }).limit(4),
+    supabase.from('expenses').select('id, merchant, category, amount, date').order('date', { ascending: false }).limit(4),
   ])
   const ir35 = (projects ?? []).filter((p: NavProject) => p.status === 'active').slice(0, 4)
-  return {
-    invoices: invoices ?? [],
-    quotes:   quotes   ?? [],
-    clients:  clients  ?? [],
-    projects: projects ?? [],
-    expenses: expenses ?? [],
-    ir35,
-  }
+  return { invoices: invoices ?? [], quotes: quotes ?? [], clients: clients ?? [], projects: projects ?? [], expenses: expenses ?? [], ir35 }
 }
 
 // ── Main component ─────────────────────────────────────────────────────
+
+const SIDEBAR_W = 240
+
 export default function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [openTab, setOpenTab] = useState<string | null>(null)
-  const [navData, setNavData] = useState<NavData>({ invoices: [], quotes: [], clients: [], projects: [], expenses: [], ir35: [] })
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [notifOpen, setNotifOpen] = useState(false)
-  const [notifSeen, setNotifSeen] = useState(false)
-  const notifRef = useRef<HTMLDivElement>(null)
-  const [cmdOpen, setCmdOpen] = useState(false)
+  const router   = useRouter()
 
-  // Load dropdown data once on mount
+  const [mobileOpen,   setMobileOpen]   = useState(false)
+  const [navData,      setNavData]      = useState<NavData>({ invoices: [], quotes: [], clients: [], projects: [], expenses: [], ir35: [] })
+  const [userEmail,    setUserEmail]    = useState<string | null>(null)
+  const [userName,     setUserName]     = useState<string | null>(null)
+  const [userPlan,     setUserPlan]     = useState<string | null>(null)
+  const [cmdOpen,       setCmdOpen]      = useState(false)
+  const [headerHidden,  setHeaderHidden] = useState(false)
+  const [profileOpen,      setProfileOpen]      = useState(false)
+  const [settingsOpen,     setSettingsOpen]     = useState(false)
+  const [settingsInitialTab, setSettingsInitialTab] = useState<import('@/components/settings/shared').SettingsTab | undefined>(undefined)
+  const lastScrollY  = useRef(0)
+  const profileRef   = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) setUserEmail(user.email)
+      if (user?.id) {
+        const { data: profile } = await supabase.from('users').select('full_name, subscription_plan').eq('id', user.id).single()
+        if (profile?.full_name) setUserName(profile.full_name)
+        if (profile?.subscription_plan) setUserPlan(profile.subscription_plan)
+      }
       setNavData(await fetchNavData())
     }
     load()
   }, [])
 
-  // Re-fetch on window focus and custom invalidate events
   useEffect(() => {
-    async function refresh() {
-      setNavData(await fetchNavData())
-    }
+    async function refresh() { setNavData(await fetchNavData()) }
     window.addEventListener('focus', refresh)
     window.addEventListener('fd:data-invalidate', refresh as EventListener)
     return () => {
@@ -514,52 +163,43 @@ export default function Sidebar() {
     }
   }, [])
 
-  // Close notification panel on outside click
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setNotifOpen(false)
-      }
+    function onScroll() {
+      const y = window.scrollY
+      setHeaderHidden(y > lastScrollY.current && y > 60)
+      lastScrollY.current = y
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setCmdOpen(true)
-      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(true) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const { visible: notifications, dismiss: dismissNotif, suppress: suppressNotif } = useNotifications(
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const { visible: notifications, unreadCount } = useNotifications(
     navData.invoices, navData.quotes, navData.projects
   )
-  const unreadCount = notifSeen ? 0 : notifications.length
 
-  // Derive checklist progress from already-fetched navData
-  const checklistSteps = [
-    true, // profile — always complete (onboarding gate ensures this before dashboard access)
-    navData.clients.length > 0,
-    navData.invoices.length > 0,
-    navData.expenses.length > 0,
-    navData.projects.length > 0,
-  ]
+  const checklistSteps = [true, navData.clients.length > 0, navData.invoices.length > 0, navData.expenses.length > 0, navData.projects.length > 0]
   const completedSteps = checklistSteps.filter(Boolean).length
-  const totalSteps = 5
-  const checklistDone = completedSteps >= totalSteps
+  const checklistDone  = completedSteps >= 5
 
-  function handleMouseEnter(href: string) {
-    if (closeTimer.current) clearTimeout(closeTimer.current)
-    setOpenTab(href)
-  }
-
-  function handleMouseLeave() {
-    closeTimer.current = setTimeout(() => setOpenTab(null), 120)
+  function openSettings(tab?: import('@/components/settings/shared').SettingsTab) {
+    setSettingsInitialTab(tab)
+    setSettingsOpen(true)
   }
 
   async function handleSignOut() {
@@ -569,283 +209,327 @@ export default function Sidebar() {
     router.refresh()
   }
 
-  return (
-    <>
-      <header
-        style={{ background: 'var(--forest-700)', fontFamily: 'var(--font-sans)' }}
-        className="fixed top-0 left-0 right-0 z-40 h-12 flex items-center px-5 shadow-sm"
-      >
-        {/* Logo */}
-        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--cream-300)', marginRight: 28, letterSpacing: '-0.03em' }}>
-          Freelax
+  const displayName = userName || userEmail
+  const initial     = displayName ? displayName[0].toUpperCase() : '?'
+
+  // ── Shared sidebar content ─────────────────────────────────────────
+
+  function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+
+        {/* Logo + search */}
+        <div style={{ padding: '20px 14px 14px', flexShrink: 0 }}>
+          <div style={{ marginBottom: 14 }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+              Freelax
+            </span>
+          </div>
+          <button
+            onClick={() => { setCmdOpen(true); onNavClick?.() }}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+              padding: '7px 12px', borderRadius: 'var(--radius-full)',
+              background: 'transparent', border: '1px solid var(--border-default)',
+              color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12,
+              fontFamily: 'var(--font-sans)', transition: 'background 150ms',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            <MagnifyingGlass weight="regular" style={{ width: 13, height: 13, flexShrink: 0 }} />
+            <span style={{ flex: 1, textAlign: 'left' }}>Search…</span>
+            <kbd style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
+              {typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}
+            </kbd>
+          </button>
         </div>
 
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center h-12">
-          {NAV.map(({ href, label, dropdown }) => {
-            const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-            const isOpen = openTab === href
-            const items = dropdown ? dropdown(navData) : []
-
-            return (
-              <div
-                key={href}
-                style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
-                onMouseEnter={() => dropdown && handleMouseEnter(href)}
-                onMouseLeave={() => dropdown && handleMouseLeave()}
-              >
-                <Link
-                  href={href}
-                  className={`fd-nav-tab ${active ? 'active' : ''}`}
-                  onClick={() => setOpenTab(null)}
-                >
-                  {label}
-                </Link>
-
-                {/* Dropdown */}
-                {dropdown && isOpen && (
-                  <div
-                    onMouseEnter={() => { if (closeTimer.current) clearTimeout(closeTimer.current) }}
-                    onMouseLeave={handleMouseLeave}
+        {/* Nav groups */}
+        <nav style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+          {NAV_GROUPS.map((group, idx) => (
+            <div key={group.label} style={{ marginBottom: 4 }}>
+              <p style={{
+                fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+                padding: idx === 0 ? '4px 8px 4px' : '14px 8px 4px',
+                letterSpacing: '0.01em',
+              }}>
+                {group.label}
+              </p>
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={onNavClick}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '7px 10px', borderRadius: 'var(--radius-xl)',
+                      marginBottom: 1, textDecoration: 'none',
+                      background: active ? 'var(--surface-sunken)' : 'transparent',
+                      color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      fontWeight: active ? 600 : 400,
+                      fontSize: 13, transition: 'background 100ms, color 100ms',
+                    }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
                   >
-                    <NavDropdown items={items} viewAllHref={href} label={label} />
+                    <Icon weight="regular" style={{ width: 17, height: 17, flexShrink: 0, color: active ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
+                    <span className="flex-1">{label}</span>
+                    {active && <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--brand-primary)', flexShrink: 0 }} />}
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
+
+          {/* Onboarding checklist progress */}
+          {!checklistDone && (
+            <div style={{ padding: '4px 0 8px' }}>
+              <Link href="/dashboard#getting-started" onClick={onNavClick} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '8px 10px', borderRadius: 'var(--radius-xl)',
+                background: 'var(--surface-sunken)', border: '1px solid var(--border-default)',
+                textDecoration: 'none',
+              }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Getting started</span>
+                <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
+                  {completedSteps}/5
+                </span>
+              </Link>
+            </div>
+          )}
+        </nav>
+
+        {/* Bottom: settings, notifications, user */}
+        <div style={{ flexShrink: 0, borderTop: '1px solid var(--border-default)', padding: '8px 8px 10px' }}>
+          <Link
+            href="/notifications"
+            onClick={onNavClick}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '8px 10px', borderRadius: 'var(--radius-xl)',
+              textDecoration: 'none', marginBottom: 1,
+              color: pathname.startsWith('/notifications') ? 'var(--text-primary)' : 'var(--text-secondary)',
+              background: pathname.startsWith('/notifications') ? 'var(--surface-sunken)' : 'transparent',
+              fontSize: 13, transition: 'background 100ms',
+            }}
+            onMouseEnter={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
+            onMouseLeave={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+          >
+            <Bell weight="regular" style={{ width: 17, height: 17, color: pathname.startsWith('/notifications') ? 'var(--brand-primary)' : 'var(--text-muted)', flexShrink: 0 }} />
+            <span style={{ flex: 1 }}>Notifications</span>
+            {unreadCount > 0 && (
+              <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Profile row + menu */}
+          <div ref={profileRef} style={{ position: 'relative' }}>
+            {profileOpen && (
+              <div style={{
+                position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0,
+                background: 'var(--surface-card)', border: '1px solid var(--border-default)',
+                borderRadius: 12, overflow: 'hidden', zIndex: 100,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
+              }}>
+                {/* Email header */}
+                <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {userEmail ?? '…'}
+                  </p>
+                </div>
+                {/* Upgrade plan — only for free/solo */}
+                {(userPlan === 'free' || userPlan === 'solo' || !userPlan) && (
+                  <button
+                    onClick={() => { setProfileOpen(false); openSettings('Billing'); onNavClick?.() }}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--brand-primary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                      fontWeight: 500, transition: 'background 80ms',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <ArrowUp weight="regular" style={{ width: 15, height: 15, flexShrink: 0 }} />
+                    Upgrade plan
+                  </button>
+                )}
+
+                {/* Settings — opens modal */}
+                <button
+                  onClick={() => { setProfileOpen(false); openSettings(); onNavClick?.() }}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--text-secondary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                    transition: 'background 80ms',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <Gear weight="regular" style={{ width: 15, height: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                  Settings
+                </button>
+
+                {/* Get help — external link */}
+                <Link
+                  href="mailto:support@freelax.app"
+                  onClick={() => { setProfileOpen(false); onNavClick?.() }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 14px', textDecoration: 'none',
+                    color: 'var(--text-secondary)', fontSize: 13,
+                    transition: 'background 80ms',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <Question weight="regular" style={{ width: 15, height: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                  Get help
+                </Link>
+                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                <button
+                  onClick={() => { setProfileOpen(false); handleSignOut() }}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--danger-500)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                    transition: 'background 80ms',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <SignOut weight="regular" style={{ width: 15, height: 15, flexShrink: 0 }} />
+                  Log out
+                </button>
+              </div>
+            )}
+
+            {/* Trigger row */}
+            <button
+              onClick={() => setProfileOpen(o => !o)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                padding: '6px 10px', borderRadius: 'var(--radius-xl)',
+                background: profileOpen ? 'var(--surface-sunken)' : 'transparent',
+                border: 'none', cursor: 'pointer', transition: 'background 100ms',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+              onMouseLeave={e => (e.currentTarget.style.background = profileOpen ? 'var(--surface-sunken)' : 'transparent')}
+            >
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                background: 'var(--brand-primary)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700, color: '#fff',
+              }}>
+                {initial}
+              </div>
+              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, lineHeight: 1.3 }}>
+                  {userName ?? userEmail ?? '…'}
+                </div>
+                {userPlan && (
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, textTransform: 'capitalize', lineHeight: 1 }}>
+                    {userPlan} plan
                   </div>
                 )}
               </div>
-            )
-          })}
-        </nav>
-
-        {/* Right side */}
-        <div className="ml-auto flex items-center gap-3 h-12">
-          {/* Search trigger */}
-          <button
-            onClick={() => setCmdOpen(true)}
-            title="Search"
-            aria-label="Search"
-            style={{
-              display:        'flex',
-              alignItems:     'center',
-              gap:            6,
-              padding:        '5px 10px',
-              borderRadius:   7,
-              border:         '1px solid rgba(255,255,255,0.1)',
-              background:     'rgba(255,255,255,0.06)',
-              color:          'rgba(255,255,255,0.5)',
-              cursor:         'pointer',
-              fontSize:       12,
-              fontFamily:     "'Plus Jakarta Sans', sans-serif",
-              transition:     'all 150ms',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-              e.currentTarget.style.color = 'rgba(255,255,255,0.8)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-              e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" strokeWidth="1.4"/>
-              <path d="M8.5 8.5l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-            <span className="hidden lg:inline">Search</span>
-            <kbd style={{
-              fontSize: 10,
-              padding: '1px 5px',
-              borderRadius: 4,
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              lineHeight: 1.5,
-            }} className="hidden lg:inline" suppressHydrationWarning>{typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}</kbd>
-          </button>
-
-          {/* Notification bell */}
-          <div ref={notifRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <button
-              onClick={() => { setNotifOpen(o => !o); setNotifSeen(true) }}
-              className="hidden lg:flex"
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                padding: '4px 6px', borderRadius: 6, position: 'relative',
-                alignItems: 'center',
-              }}
-              title="Notifications"
-              aria-label="Notifications"
-            >
-              <Bell style={{ width: 16, height: 16, color: unreadCount > 0 ? '#fff' : 'rgba(255,255,255,0.5)' }} />
-              {unreadCount > 0 && (
-                <span style={{
-                  position: 'absolute', top: 0, right: 0,
-                  width: 16, height: 16, borderRadius: '50%',
-                  background: '#C0392B', color: '#fff',
-                  fontSize: 9, fontWeight: 700,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: '1.5px solid #111',
-                }}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
             </button>
-            {notifOpen && (
-              <NotificationPanel
-                notifications={notifications}
-                onDismiss={id => { dismissNotif(id) }}
-                onSuppress={id => { suppressNotif(id) }}
-                onClose={() => setNotifOpen(false)}
-              />
-            )}
           </div>
-
-          {!checklistDone && (
-            <Link
-              href="/dashboard#getting-started"
-              className="fd-nav-tab hidden lg:flex"
-              style={{ gap: 6 }}
-            >
-              Getting started
-              <span style={{
-                fontSize: 10, fontWeight: 700,
-                background: '#1D6B35', color: '#fff',
-                borderRadius: 99, padding: '1px 6px',
-              }}>
-                {completedSteps}/{totalSteps}
-              </span>
-            </Link>
-          )}
-
-          <div
-            style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
-            onMouseEnter={() => handleMouseEnter('/settings')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Link
-              href="/settings"
-              className={`fd-nav-tab hidden lg:flex ${pathname.startsWith('/settings') ? 'active' : ''}`}
-              onClick={() => setOpenTab(null)}
-            >
-              Settings
-            </Link>
-            {openTab === '/settings' && (
-              <div
-                onMouseEnter={() => { if (closeTimer.current) clearTimeout(closeTimer.current) }}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="fd-dropdown-enter" style={{
-                  position: 'absolute', top: 'calc(100% + 2px)', right: 0,
-                  background: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 10,
-                  minWidth: 240, zIndex: 100,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
-                  overflow: 'hidden',
-                }}>
-                  {/* Arrow */}
-                  <div style={{
-                    position: 'absolute', top: -5, right: 20, transform: 'rotate(45deg)',
-                    width: 9, height: 9, background: '#1A1A1A', border: '1px solid #2A2A2A',
-                    borderRight: 'none', borderBottom: 'none',
-                  }} />
-                  {SETTINGS_TABS.map((tab, i) => (
-                    <Link key={i} href={tab.href} style={{ display: 'block', textDecoration: 'none' }}>
-                      <div style={{
-                        padding: '7px 14px',
-                        borderBottom: i < SETTINGS_TABS.length - 1 ? '1px solid #252525' : 'none',
-                        transition: 'background 0.1s',
-                      }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#222')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <p style={{ fontSize: 12, fontWeight: 600, color: '#F0F0F0' }}>{tab.label}</p>
-                        <p style={{ fontSize: 10, color: '#777', marginTop: 1 }}>{tab.sub}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="fd-nav-tab hidden lg:flex"
-          >
-            Sign out
-          </button>
-          <div style={{
-            width: 30, height: 30, borderRadius: '50%',
-            background: '#333', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: 12, fontWeight: 700,
-            color: '#fff', border: '1px solid #444',
-          }}>
-            {userEmail ? userEmail[0].toUpperCase() : '?'}
-          </div>
-          <button className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
-            <Menu style={{ width: 20, height: 20, color: '#fff' }} />
-          </button>
         </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {/* ── Desktop sidebar ──────────────────────────────────────────── */}
+      <aside
+        className="hidden lg:flex"
+        style={{
+          position: 'fixed', top: 12, left: 12, bottom: 12,
+          width: SIDEBAR_W, flexDirection: 'column',
+          background: 'rgba(255,255,255,0.78)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid rgba(0,0,0,0.07)',
+          borderRadius: 16,
+          boxShadow: '0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+          zIndex: 40,
+          overflow: 'hidden',
+        }}
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* ── Mobile top bar ───────────────────────────────────────────── */}
+      <header
+        className="flex items-center lg:hidden"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: 52, zIndex: 40,
+          background: 'rgba(255,255,255,0.82)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          padding: '0 16px', gap: 12,
+          transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
+          transition: 'transform 280ms cubic-bezier(0.4,0,0.2,1)',
+        }}
+      >
+        <button onClick={() => setMobileOpen(true)} aria-label="Open menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+          <List weight="regular" style={{ width: 20, height: 20 }} />
+        </button>
+        <span style={{ flex: 1, fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+          Freelax
+        </span>
+        <button onClick={() => setCmdOpen(true)} aria-label="Search" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+          <MagnifyingGlass weight="regular" style={{ width: 18, height: 18 }} />
+        </button>
+        <Link
+          href="/notifications"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex', position: 'relative' }}
+        >
+          <Bell weight="regular" style={{ width: 18, height: 18 }} />
+          {unreadCount > 0 && (
+            <span style={{ position: 'absolute', top: 2, right: 2, width: 7, height: 7, borderRadius: '50%', background: 'var(--danger-500)', border: '1px solid var(--surface-card)' }} />
+          )}
+        </Link>
       </header>
 
-      <CommandMenu open={cmdOpen} onClose={() => setCmdOpen(false)} />
-
-      {/* Mobile menu */}
+      {/* ── Mobile drawer ────────────────────────────────────────────── */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <nav aria-label="Site menu" style={{
-            background: '#111', position: 'absolute', top: 0, left: 0, bottom: 0,
-            width: 240, display: 'flex', flexDirection: 'column',
+        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
+          <div
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }}
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside style={{
+            position: 'absolute', top: 0, left: 0, bottom: 0,
+            width: SIDEBAR_W, background: 'var(--surface-card)',
+            borderRight: '1px solid var(--border-default)',
+            display: 'flex', flexDirection: 'column',
           }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ flexShrink: 0 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>Freelax</span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
-                <X style={{ width: 20, height: 20, color: '#fff' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 0', flexShrink: 0 }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>Freelax</span>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+                <X weight="regular" style={{ width: 18, height: 18 }} />
               </button>
             </div>
-            {/* Scrollable body — nav + footer scroll together so Sign out is always reachable */}
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <div className="py-3 px-3 space-y-0.5" style={{ flexShrink: 0 }}>
-                {NAV.map(({ href, label }) => {
-                  const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-                  return (
-                    <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{
-                      display: 'block', padding: '9px 14px', borderRadius: 6,
-                      fontSize: 13, fontWeight: active ? 600 : 400,
-                      color: active ? '#fff' : 'rgba(255,255,255,0.6)',
-                      background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
-                      textDecoration: 'none',
-                    }}>
-                      {label}
-                    </Link>
-                  )
-                })}
-              </div>
-              {/* mt-auto keeps footer pinned to the bottom of the scrollable area;
-                  safe-area-inset-bottom stops iOS chrome from covering Sign out */}
-              <div className="mt-auto px-5 border-t border-white/10 space-y-3"
-                style={{ paddingTop: 16, paddingBottom: 'max(env(safe-area-inset-bottom), 16px)' }}>
-                {!checklistDone && (
-                  <Link href="/dashboard#getting-started" onClick={() => setMobileOpen(false)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500 }}>
-                    Getting started
-                    <span style={{ fontSize: 10, fontWeight: 700, background: '#1D6B35', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
-                      {completedSteps}/{totalSteps}
-                    </span>
-                  </Link>
-                )}
-                <Link href="/settings" onClick={() => setMobileOpen(false)}
-                  style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
-                  Settings
-                </Link>
-                <button onClick={handleSignOut}
-                  style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                  Sign out
-                </button>
-              </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <SidebarContent onNavClick={() => setMobileOpen(false)} />
             </div>
-          </nav>
+          </aside>
         </div>
       )}
+
+      <CommandMenu open={cmdOpen} onClose={() => setCmdOpen(false)} />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} initialTab={settingsInitialTab} />
     </>
   )
 }

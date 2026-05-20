@@ -21,22 +21,25 @@ import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  free:   { label: 'Free',   color: 'bg-slate-100 text-slate-700' },
-  solo:   { label: 'Solo',   color: 'bg-blue-50 text-blue-600' },
-  pro:    { label: 'Pro',    color: 'bg-green-50 text-green-700' },
-  studio: { label: 'Studio', color: 'bg-purple-50 text-purple-700' },
+  free:   { label: 'Free',   color: 'bg-surface-sunken text-text-primary' },
+  solo:   { label: 'Solo',   color: 'bg-forest-50 text-forest-600' },
+  pro:    { label: 'Pro',    color: 'bg-success-50 text-success-700' },
+  studio: { label: 'Studio', color: 'bg-forest-50 text-forest-700' },
 }
 
 interface Props {
   profile: User
   email: string
+  embedded?: boolean
+  initialTab?: SettingsTab
 }
 
-export default function SettingsForm({ profile, email }: Props) {
+export default function SettingsForm({ profile, email, embedded, initialTab }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const [tab, setTab] = useState<SettingsTab>(() => {
+    if (initialTab) return initialTab
     const t = searchParams.get('tab')
     if (!t) return 'Profile'
     const decoded = decodeURIComponent(t.replace(/\+/g, ' '))
@@ -69,45 +72,33 @@ export default function SettingsForm({ profile, email }: Props) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
+    <div className="flex flex-col lg:flex-row gap-10 pt-2">
       {/* Sidebar nav */}
-      <nav className="w-full lg:w-52 flex-shrink-0 lg:bg-[#F0F0EB] lg:rounded-xl lg:p-4">
-
-        {/* Identity block */}
-        <div className="flex items-center gap-3 px-3 py-3 mb-4 border-b border-slate-100">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: '#1D6B35' }}>
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900 truncate">{displayName}</p>
-            <span className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded mt-0.5 ${planMeta.color}`}>
-              {planMeta.label}
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-5">
+      <nav className="w-full lg:w-44 flex-shrink-0">
+        <div className="space-y-6">
           {TAB_GROUPS.map(group => (
             <div key={group.label}>
-              <p className="text-xs font-semibold text-slate-600 uppercase tracking-widest px-3 mb-1.5">
+              <p className="text-[10px] font-semibold text-text-muted px-2 mb-1.5 tracking-wide">
                 {group.label}
               </p>
-              <div className="space-y-0.5">
+              <div className="space-y-px">
                 {group.tabs.map(t => (
                   <button
                     key={t}
                     onClick={() => setTab(t)}
-                    style={tab === t && t !== 'Danger Zone' ? { borderLeft: '2px solid #1D6B35' } : { borderLeft: '2px solid transparent' }}
-                    className={`w-full text-left px-3 py-2 text-sm transition-all ${
+                    className={`relative w-full text-left pl-3 pr-2 py-1.5 text-[13px] transition-colors ${
                       tab === t
                         ? t === 'Danger Zone'
-                          ? 'text-red-600 font-medium bg-red-50 rounded-lg'
-                          : 'text-slate-900 font-medium bg-slate-50 rounded-r-lg'
+                          ? 'text-danger-600 font-semibold'
+                          : 'text-text-primary font-semibold'
                         : t === 'Danger Zone'
-                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg'
+                        ? 'text-danger-500 hover:text-danger-600'
+                        : 'text-text-secondary hover:text-text-primary'
                     }`}
                   >
+                    {tab === t && t !== 'Danger Zone' && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-3.5 rounded-full bg-brand-primary" />
+                    )}
                     {t}
                   </button>
                 ))}
@@ -123,21 +114,23 @@ export default function SettingsForm({ profile, email }: Props) {
             router.push('/auth/login')
             router.refresh()
           }}
-          className="lg:hidden mt-4 w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          className="lg:hidden mt-4 w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-danger-600 hover:bg-danger-50 transition-colors"
         >
           Sign out
         </button>
       </nav>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 max-w-[580px] space-y-4">
-        {/* Tab header */}
-        <div className="mb-2">
-          <h1 className="text-base font-bold text-slate-900">{tab}</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
-        </div>
+      <div className="flex-1 min-w-0 max-w-[640px]">
+        <div className={embedded ? '' : 'bg-surface-card border border-border-default rounded-2xl overflow-hidden'}>
+          {/* Tab header */}
+          <div className={embedded ? 'pb-4 mb-2 border-b border-border-subtle' : 'px-7 py-5 border-b border-border-subtle'}>
+            <h1 className="text-[15px] font-bold text-text-primary tracking-[-0.01em]">{tab}</h1>
+            <p className="text-[12px] text-text-secondary mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
+          </div>
 
-        {tab === 'Profile'             && <ProfileTab         profile={profile} email={email} save={save} saving={saving} />}
+          <div className={embedded ? 'pt-4' : 'px-7 py-6'}>
+            {tab === 'Profile'             && <ProfileTab         profile={profile} email={email} save={save} saving={saving} />}
         {tab === 'Business details'    && <BusinessTab        profile={profile} save={save} saving={saving} />}
         {tab === 'Personal tax inputs' && <TaxTab             profile={profile} save={save} saving={saving} />}
         {tab === 'Invoice Defaults'    && <InvoiceDefaultsTab profile={profile} save={save} saving={saving} />}
@@ -151,7 +144,9 @@ export default function SettingsForm({ profile, email }: Props) {
         )}
         {tab === 'Accountant Access'   && <AccountantTab />}
         {tab === 'HMRC'               && <Suspense fallback={null}><HmrcTab /></Suspense>}
-        {tab === 'Danger Zone'         && <DangerZoneTab />}
+            {tab === 'Danger Zone'         && <DangerZoneTab />}
+          </div>
+        </div>
       </div>
     </div>
   )

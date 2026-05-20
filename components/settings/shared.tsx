@@ -2,9 +2,9 @@
 
 import React from 'react'
 
-export const inputClass = 'w-full px-3 py-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 bg-white transition-colors'
-export const labelClass = 'block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5'
-export const btnClass   = 'inline-flex items-center px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors w-auto'
+export const inputClass = 'w-full px-3 py-2.5 border border-border-default rounded-lg text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/10 focus:border-border-focus bg-surface-card text-text-primary transition-colors'
+export const labelClass = 'block text-[12px] font-semibold text-text-primary mb-1.5'
+export const btnClass   = 'inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg text-[13px] font-medium hover:bg-forest-700 disabled:opacity-50 transition-colors w-auto'
 
 export const TABS = [
   'Profile',
@@ -72,7 +72,7 @@ export function Field({
     <label className="block">
       <span className={labelClass}>{label}</span>
       {children}
-      {hint && <span className="text-xs text-slate-600 mt-1 block">{hint}</span>}
+      {hint && <span className="text-xs text-text-muted mt-1 block">{hint}</span>}
     </label>
   )
 }
@@ -90,11 +90,11 @@ export function Toggle({
     <label className="flex items-center gap-2 cursor-pointer">
       <div
         onClick={() => onChange(!checked)}
-        className={`relative w-9 h-5 rounded-full transition-colors ${checked ? 'bg-slate-900' : 'bg-slate-200'}`}
+        className={`relative w-9 h-5 rounded-full transition-colors ${checked ? 'bg-brand-primary' : 'bg-border-default'}`}
       >
-        <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : ''}`} />
+        <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-surface-card rounded-full shadow transition-transform ${checked ? 'translate-x-4' : ''}`} />
       </div>
-      {label && <span className="text-sm text-slate-700">{label}</span>}
+      {label && <span className="text-sm text-text-primary">{label}</span>}
     </label>
   )
 }
