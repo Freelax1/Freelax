@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { fetchExpenses, deleteExpense } from '@/lib/api/expenses'
 import { fetchMileageEntries, deleteMileageEntry, calcMileageRelief, calcMileageRate, HMRC_THRESHOLD, HMRC_RATE_FIRST, HMRC_RATE_AFTER } from '@/lib/api/mileage'
-import { CATEGORY_LABELS, CATEGORY_COLORS, calcTotalExVat, calcVatReclaimable, calcReceiptsUploaded } from '@/lib/logic/expenses'
+import { CATEGORY_LABELS, calcTotalExVat, calcVatReclaimable, calcReceiptsUploaded } from '@/lib/logic/expenses'
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import PageHeader from '@/components/page-header'
@@ -314,8 +314,8 @@ export default function ExpensesPage() {
                       </td>
                       <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{new Date(exp.date).toLocaleDateString('en-GB')}</td>
                       <td className="px-4 py-2.5 font-medium text-sm text-text-primary">{exp.merchant}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', CATEGORY_COLORS[exp.category] ?? 'bg-surface-sunken text-text-secondary')}>
+                      <td className="px-4 py-2.5 max-w-0">
+                        <span className="block truncate text-sm text-text-secondary">
                           {CATEGORY_LABELS[exp.category] ?? exp.category}
                         </span>
                       </td>
@@ -367,7 +367,7 @@ export default function ExpensesPage() {
                   <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(exp.amount)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', CATEGORY_COLORS[exp.category] ?? 'bg-surface-sunken text-text-secondary')}>
+                  <span className="text-xs text-text-secondary truncate min-w-0">
                     {CATEGORY_LABELS[exp.category] ?? exp.category}
                   </span>
                   {exp.vat_reclaimable && <span className="text-success-700 font-medium text-xs">VAT {formatCurrency(exp.vat_amount ?? 0)}</span>}

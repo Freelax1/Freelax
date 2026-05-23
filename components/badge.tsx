@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badge = cva(
-  'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border',
+  'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border whitespace-nowrap',
   {
     variants: {
       intent: {
