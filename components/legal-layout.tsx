@@ -52,7 +52,7 @@ export default async function LegalLayout({
             Freelax<span style={{ color: 'var(--brand-primary)' }}>.</span>
           </Link>
 
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <nav className="flex items-center gap-6">
             <Link href="/security" className="fd-legal-link" style={{
               fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
             }}>Security</Link>
@@ -75,12 +75,12 @@ export default async function LegalLayout({
       </header>
 
       {/* Page container */}
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 24px 96px' }}>
+      <main className="mx-auto pt-14 px-6 pb-24" style={{ maxWidth: 1200 }}>
 
         {/* Title block */}
         <div style={{ marginBottom: hero ? 40 : 56, maxWidth: 780 }}>
           {eyebrow && (
-            <p style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--brand-primary)', margin: '0 0 12px' }}>
+            <p className="mb-3" style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--brand-primary)' }}>
               {eyebrow}
             </p>
           )}
@@ -93,14 +93,14 @@ export default async function LegalLayout({
             {title}
           </h1>
           {subtitle && (
-            <p style={{
+            <p className="mt-4 mb-0" style={{
               fontSize: 'var(--text-lg)', color: 'var(--text-secondary)',
-              lineHeight: 1.55, marginTop: 16, marginBottom: 0, maxWidth: 640,
+              lineHeight: 1.55, maxWidth: 640,
             }}>
               {subtitle}
             </p>
           )}
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 16, marginBottom: 0 }}>
+          <p className="mt-4 mb-0" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
             Last updated {updated}
           </p>
         </div>
@@ -108,16 +108,15 @@ export default async function LegalLayout({
         {hero}
 
         {/* Content + sticky TOC */}
-        <div className="fd-legal-grid" style={{
+        <div className="fd-legal-grid gap-12" style={{
           display: 'grid',
           gridTemplateColumns: toc ? '240px 1fr' : '1fr',
-          gap: 48,
           alignItems: 'start',
           marginTop: hero ? 56 : 0,
         }}>
           {toc && (
-            <aside className="fd-legal-toc" style={{ position: 'sticky', top: 80 }}>
-              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', margin: '0 0 12px' }}>
+            <aside className="fd-legal-toc sticky top-20">
+              <p className="mb-3" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>
                 On this page
               </p>
               <ul style={{
@@ -153,18 +152,12 @@ export default async function LegalLayout({
       </main>
 
       {/* Footer */}
-      <footer style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 96px' }}>
-        <div style={{
-          marginTop: 80, paddingTop: 28,
-          borderTop: '1px solid var(--border-subtle)',
-          display: 'flex', flexWrap: 'wrap',
-          alignItems: 'center', justifyContent: 'space-between',
-          gap: 16,
-        }}>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: 0 }}>
+      <footer className="mx-auto px-6 pb-24" style={{ maxWidth: 1200 }}>
+        <div className="mt-20 pt-7 border-t border-border-subtle flex flex-wrap items-center justify-between gap-4">
+          <p className="m-0" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
             Built in the UK · Your data is encrypted and never sold.
           </p>
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+          <div className="flex gap-5 flex-wrap">
             <Link href="/security" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Security</Link>
             <Link href="/privacy"  style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy</Link>
             <Link href="/terms"    style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Terms</Link>

@@ -385,42 +385,42 @@ export default function QuoteDetailPage() {
         `}</style>
 
         {/* Header */}
-        <div style={{ padding: '32px 40px 28px', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="pt-8 px-10 pb-7" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="q-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               {sender?.logo_url
-                ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 8, display: 'block' }} />
-                : <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
+                ? <img src={sender.logo_url} alt="" className="mb-2 block" style={{ height: 40, objectFit: 'contain' }} />
+                : <p className="mb-1" style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.email && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.email}</p>}
               {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
             </div>
             <div className="text-right">
-              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>Quote</p>
+              <p className="mb-1.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Quote</p>
               <p style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>{quote.quote_number}</p>
             </div>
           </div>
         </div>
 
         {/* Prepared for + dates */}
-        <div style={{ padding: '24px 40px', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="py-6 px-10" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="q-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Prepared for</p>
-              <p style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
-              {client?.contact_name && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 2 }}>{client.contact_name}</p>}
+              <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Prepared for</p>
+              <p className="mb-[3px]" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>{client?.name ?? '—'}</p>
+              {client?.contact_name && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{client.contact_name}</p>}
               {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.email}</p>}
             </div>
-            <div className="q-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="q-dates flex flex-col gap-2.5" style={{ textAlign: 'right' }}>
               <div>
-                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Issue date</p>
+                <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
                 <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Valid until</p>
+                <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Valid until</p>
                 <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: expired ? 'var(--danger-600)' : 'var(--text-primary)' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
-              <div style={{ marginTop: 4 }}>
+              <div className="mt-1">
                 {quote.status === 'accepted' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Accepted</span>}
                 {quote.status === 'declined' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Declined</span>}
                 {expired && quote.status === 'sent' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Expired</span>}
@@ -431,8 +431,8 @@ export default function QuoteDetailPage() {
         </div>
 
         {/* Line items */}
-        <div style={{ padding: '24px 40px' }}>
-          <table className="w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
+        <div className="py-6 px-10">
+          <table className="w-full mb-6" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
                 <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
@@ -445,42 +445,42 @@ export default function QuoteDetailPage() {
             <tbody>
               {lineItems.map((item: QuoteLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
-                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
+                  <td className="py-3" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
+                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td className="py-3" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {/* Footer: validity + totals */}
-          <div className="q-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
+          <div className="q-footer-row flex justify-between items-start gap-6">
             <div>
-              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Validity</p>
+              <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Validity</p>
               <p style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                 {quote.expiry_date
                   ? <>Valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.</>
                   : 'No expiry date set.'}
               </p>
-              {quote.notes && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 8 }}>{quote.notes}</p>}
+              {quote.notes && <p className="mt-2" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{quote.notes}</p>}
             </div>
             <div className="q-totals" style={{ width: 220, flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span>Subtotal</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span>VAT</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.vat_amount)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)', marginTop: 4 }}>
+              <div className="flex justify-between pt-3 mt-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)' }}>
                 <span>Total</span><span>{formatCurrency(quote.total)}</span>
               </div>
             </div>
           </div>
 
           {/* Doc footer */}
-          <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="mt-8 pt-4 flex justify-between items-center" style={{ borderTop: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
             <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>Powered by Freelax</span>
           </div>

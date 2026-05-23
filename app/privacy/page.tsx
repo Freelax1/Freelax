@@ -26,14 +26,11 @@ const TOC = [
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} style={{ scrollMarginTop: 80 }}>
-      <h2 style={{
-        fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',
-        letterSpacing: '-0.015em', margin: '0 0 12px',
-      }}>
+    <section id={id} className="scroll-mt-20">
+      <h2 className="text-lg font-semibold text-text-primary tracking-tight mb-3">
         {title}
       </h2>
-      <div style={{ fontSize: 'var(--text-base)', color: 'var(--text-body)', lineHeight: 1.65 }}>
+      <div className="text-base text-text-body leading-relaxed">
         {children}
       </div>
     </section>
@@ -49,7 +46,7 @@ export default function PrivacyPage() {
       updated={UPDATED}
       toc={TOC}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+      <div className="flex flex-col gap-10">
 
         <Section id="who-we-are" title="1. Who we are">
           <p className="m-0">
@@ -62,7 +59,7 @@ export default function PrivacyPage() {
           <p className="m-0">
             We collect the following categories of personal data:
           </p>
-          <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
+          <ul className="mt-2.5 pl-5 leading-[1.8]">
             <li><strong>Account information</strong> — name, email address, password hash</li>
             <li><strong>Business information</strong> — business name, address, VAT number, UTR</li>
             <li><strong>Financial data</strong> — invoices, expenses, income figures you enter</li>
@@ -83,7 +80,7 @@ export default function PrivacyPage() {
           <p className="m-0">
             We process your data on the following legal bases under UK GDPR:
           </p>
-          <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
+          <ul className="mt-2.5 pl-5 leading-[1.8]">
             <li><strong>Contractual necessity</strong> — to provide the service you signed up for</li>
             <li><strong>Legitimate interests</strong> — to improve the service, prevent fraud, and ensure network and information security</li>
             <li><strong>Legal obligation</strong> — to comply with UK law where applicable</li>
@@ -114,7 +111,7 @@ export default function PrivacyPage() {
           <p className="m-0">
             We share data only with the following third-party processors who are necessary to operate the service:
           </p>
-          <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
+          <ul className="mt-2.5 pl-5 leading-[1.8]">
             <li><strong>Supabase</strong> — database and authentication</li>
             <li><strong>Vercel</strong> — application hosting</li>
             <li><strong>Stripe</strong> — payment processing</li>
@@ -122,7 +119,7 @@ export default function PrivacyPage() {
             <li><strong>Anthropic</strong> — AI features (tax Q&amp;A, expense scanning, IR35 assessments). Anthropic is based in the United States. Data transferred to Anthropic is protected under the UK-US data bridge adequacy framework.</li>
             <li><strong>HMRC</strong> — when you connect your HMRC account via Making Tax Digital, we store encrypted OAuth tokens to submit tax data on your behalf. We do not store your Government Gateway credentials.</li>
           </ul>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             Each processor is contractually bound to process your data only as instructed and in accordance with UK GDPR.
           </p>
         </Section>
@@ -131,14 +128,14 @@ export default function PrivacyPage() {
           <p className="m-0">
             Under UK GDPR you have the right to:
           </p>
-          <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
+          <ul className="mt-2.5 pl-5 leading-[1.8]">
             <li>Access the personal data we hold about you</li>
             <li>Correct inaccurate data</li>
             <li>Request deletion of your data</li>
             <li>Restrict or object to processing</li>
             <li>Port your data to another provider</li>
           </ul>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             You can download a complete copy of your data at any time from <strong>Settings → Export your data</strong>. To exercise any other rights, email{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days. Where we rely on your consent to process data, you may withdraw it at any time by contacting{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a> — withdrawal does not affect the lawfulness of processing carried out before withdrawal.

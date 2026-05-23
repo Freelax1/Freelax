@@ -25,14 +25,11 @@ const TOC = [
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} style={{ scrollMarginTop: 80 }}>
-      <h2 style={{
-        fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',
-        letterSpacing: '-0.015em', margin: '0 0 12px',
-      }}>
+    <section id={id} className="scroll-mt-20">
+      <h2 className="text-lg font-semibold text-text-primary tracking-tight mb-3">
         {title}
       </h2>
-      <div style={{ fontSize: 'var(--text-base)', color: 'var(--text-body)', lineHeight: 1.65 }}>
+      <div className="text-base text-text-body leading-relaxed">
         {children}
       </div>
     </section>
@@ -48,7 +45,7 @@ export default function TermsPage() {
       updated={UPDATED}
       toc={TOC}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+      <div className="flex flex-col gap-10">
 
         <Section id="about" title="1. About Freelax by Britnova">
           <p className="m-0">
@@ -74,14 +71,14 @@ export default function TermsPage() {
           <p className="m-0">
             You agree not to use Freelax by Britnova to:
           </p>
-          <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
+          <ul className="mt-2.5 pl-5 leading-[1.8]">
             <li>Submit false or misleading financial information</li>
             <li>Attempt to reverse-engineer or circumvent the platform</li>
             <li>Upload malicious code or content</li>
             <li>Use the service for any unlawful purpose</li>
             <li>Use the service to facilitate tax evasion, money laundering, or any activity that is illegal under UK tax law</li>
           </ul>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             We reserve the right to remove content or suspend accounts that breach these conditions.
           </p>
         </Section>
@@ -90,10 +87,10 @@ export default function TermsPage() {
           <p className="m-0">
             Freelax by Britnova offers a free tier and paid subscription plans. Paid plans are billed monthly or annually via <strong>Stripe</strong>. You may cancel your subscription at any time; cancellation takes effect at the end of your current billing period. We do not offer refunds for partial periods except where required by UK consumer law.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             By activating your subscription and accessing the service immediately, you acknowledge that you waive your 14-day cooling-off right under the Consumer Contracts Regulations 2013, as the digital service will have been fully provided upon activation.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             We will give you at least 30 days notice of any price changes by email. Continued use of the service after the notice period constitutes acceptance of the new pricing.
           </p>
         </Section>
@@ -122,13 +119,13 @@ export default function TermsPage() {
           <p className="m-0">
             To the maximum extent permitted by UK law, Freelax by Britnova&rsquo;s total liability for any claim arising out of or relating to this service is limited to <strong>the amount you paid us in the 12 months preceding the claim</strong>. We are not liable for indirect, incidental, or consequential losses, including lost profits or data.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             We do not guarantee uninterrupted or error-free access to the service. We will use reasonable endeavours to maintain availability but accept no liability for downtime caused by third-party infrastructure providers or circumstances outside our control.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             Free tier accounts are subject to usage limits as described on our pricing page. We reserve the right to modify free tier limits with 30 days notice.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             Certain features may be released in beta or preview status. Beta features are provided as-is without warranty and may be withdrawn or changed at any time.
           </p>
         </Section>
@@ -149,7 +146,7 @@ export default function TermsPage() {
           <p className="m-0">
             These terms are governed by the laws of <strong>England and Wales</strong>. Any disputes will be subject to the exclusive jurisdiction of the courts of England and Wales. Nothing in these terms affects your statutory rights as a consumer under UK law.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             These terms constitute the entire agreement between you and Britnova Limited and supersede any prior agreements or representations relating to the subject matter herein.
           </p>
         </Section>

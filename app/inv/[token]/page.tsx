@@ -44,17 +44,17 @@ export default async function PublicInvoicePage({
         }
       `}</style>
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 20px 64px' }}>
+      <div className="mx-auto py-10 px-5 pb-16" style={{ maxWidth: 680 }}>
 
         {/* Status banners */}
         {isPaid && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--success-50)', border: '1px solid var(--success-200)', borderRadius: 8, padding: '12px 18px', marginBottom: 20 }}>
+          <div className="flex items-center gap-2.5 mb-5 rounded-md" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)', padding: '12px 18px' }}>
             <CheckCircle weight="regular" style={{ width: 16, height: 16, color: 'var(--success-600)', flexShrink: 0 }} />
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-700)' }}>Payment received – thank you!</span>
           </div>
         )}
         {isOverdue && !isPaid && (
-          <div style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)', borderRadius: 8, padding: '12px 18px', marginBottom: 20 }}>
+          <div className="mb-5 rounded-md" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)', padding: '12px 18px' }}>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--danger-800)' }}>This invoice is overdue. Please arrange payment as soon as possible.</span>
           </div>
         )}
@@ -63,44 +63,44 @@ export default async function PublicInvoicePage({
         <div style={{ background: 'var(--surface-card)', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04)' }}>
 
           {/* Header */}
-          <div style={{ padding: '32px 40px 28px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="pt-8 px-10 pb-7" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
             <div className="pub-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 {sender?.logo_url
-                  ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 8, display: 'block' }} />
+                  ? <img src={sender.logo_url} alt="" className="mb-2 block" style={{ height: 40, objectFit: 'contain' }} />
                   : <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{sender?.business_name || sender?.full_name || ''}</p>
                 }
-                {sender?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 3 }}>{sender.email}</p>}
+                {sender?.email && <p className="mt-[3px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.email}</p>}
                 {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
-                {sender?.vat_number && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
+                {sender?.vat_number && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>VAT: {sender.vat_number}</p>}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>Invoice</p>
+                <p className="mb-1.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Invoice</p>
                 <p style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
               </div>
             </div>
           </div>
 
           {/* Bill to + dates */}
-          <div style={{ padding: '24px 40px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="py-6 px-10" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
             <div className="pub-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Bill to</p>
-                <p style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name}</p>
-                {client?.contact_name && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>{client.contact_name}</p>}
+                <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Bill to</p>
+                <p className="mb-[3px]" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{client?.name}</p>
+                {client?.contact_name && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.contact_name}</p>}
                 {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.email}</p>}
               </div>
-              <div className="pub-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div className="pub-dates flex flex-col gap-2.5" style={{ textAlign: 'right' }}>
                 <div>
-                  <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Issue date</p>
+                  <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
                   <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Due date</p>
+                  <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Due date</p>
                   <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: isOverdue ? 'var(--danger-600)' : 'var(--text-primary)' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 {isPaid && (
-                  <div style={{ marginTop: 4 }}>
+                  <div className="mt-1">
                     <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Paid</span>
                   </div>
                 )}
@@ -109,8 +109,8 @@ export default async function PublicInvoicePage({
           </div>
 
           {/* Line items */}
-          <div style={{ padding: '24px 40px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
+          <div className="py-6 px-10">
+            <table className="mb-6" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
                   <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
@@ -123,30 +123,30 @@ export default async function PublicInvoicePage({
               <tbody>
                 {lineItems.map((item: any) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                    <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
-                    <td className="pub-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
-                    <td className="pub-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                    <td className="pub-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'right' }}>{item.vat_rate}%</td>
-                    <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total ?? item.quantity * item.unit_price)}</td>
+                    <td className="py-3" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
+                    <td className="pub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                    <td className="pub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                    <td className="pub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                    <td className="py-3" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total ?? item.quantity * item.unit_price)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
             {/* Footer: payment details + totals */}
-            <div className="pub-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
+            <div className="pub-footer-row flex justify-between items-start gap-6">
               <div>
                 {hasBankDetails && (
                   <>
-                    <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10 }}>Payment details</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    <p className="mb-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Payment details</p>
+                    <div className="flex flex-col gap-[5px]">
                       {[
                         { label: 'Account name',   value: sender.bank_account_name || sender.business_name || sender.full_name },
                         { label: 'Sort code',      value: sender.bank_sort_code },
                         { label: 'Account number', value: sender.bank_account_number },
                         { label: 'Reference',      value: sender.bank_reference_note || invoice.invoice_number },
                       ].map((r: any) => (
-                        <div key={r.label} style={{ display: 'flex', gap: 16 }}>
+                        <div key={r.label} className="flex gap-4">
                           <span style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', width: 110, flexShrink: 0 }}>{r.label}</span>
                           <span style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-body)' }}>{r.value}</span>
                         </div>
@@ -155,17 +155,17 @@ export default async function PublicInvoicePage({
                   </>
                 )}
                 {invoice.payment_terms && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)', marginTop: hasBankDetails ? 12 : 0 }}>{invoice.payment_terms}</p>}
-                {invoice.notes && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 6 }}>{invoice.notes}</p>}
+                {invoice.notes && <p className="mt-1.5" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{invoice.notes}</p>}
               </div>
 
               <div className="pub-totals" style={{ width: 220, flexShrink: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                   <span>Subtotal</span><span style={{ fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                   <span>VAT</span><span style={{ fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)', marginTop: 4 }}>
+                <div className="flex justify-between pt-3 mt-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)' }}>
                   <span>Total due</span><span>{formatCurrency(invoice.total)}</span>
                 </div>
               </div>
@@ -173,17 +173,17 @@ export default async function PublicInvoicePage({
 
             {/* Pay Now CTA */}
             {!isPaid && (
-              <div style={{ marginTop: 32 }}>
+              <div className="mt-8">
                 <form method="POST" action="/api/invoices/create-payment">
                   <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
-                    style={{
+                    className="flex items-center justify-center gap-2.5"
+                  style={{
                       width: '100%', padding: '15px 24px',
                       background: 'var(--text-primary)', color: 'var(--text-on-dark)',
                       border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600,
                       cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                       transition: 'background 0.15s', letterSpacing: '-0.01em',
                       fontFamily: 'var(--font-sans)',
                     }}
@@ -191,14 +191,14 @@ export default async function PublicInvoicePage({
                     <CreditCard weight="regular" style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely
                   </button>
                 </form>
-                <p style={{ textAlign: 'center', fontSize: 'var(--text-caption)', color: 'var(--text-muted)', marginTop: 10 }}>
+                <p className="text-center mt-2.5" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)' }}>
                   Secured by Stripe · Your card details are never stored
                 </p>
               </div>
             )}
 
             {/* Doc footer */}
-            <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="mt-7 pt-4 flex justify-between items-center" style={{ borderTop: '1px solid var(--border-subtle)' }}>
               <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-disabled)' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
               <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-disabled)' }}>Powered by Freelax</span>
             </div>

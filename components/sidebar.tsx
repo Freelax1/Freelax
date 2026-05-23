@@ -219,8 +219,8 @@ export default function Sidebar() {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
         {/* Logo + search */}
-        <div style={{ padding: '20px 14px 14px', flexShrink: 0 }}>
-          <div style={{ marginBottom: 14 }}>
+        <div className="pt-5 px-3.5 pb-3.5 shrink-0">
+          <div className="mb-3.5">
             <span style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
               Freelax
             </span>
@@ -246,9 +246,9 @@ export default function Sidebar() {
         </div>
 
         {/* Nav groups */}
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+        <nav className="flex-1 overflow-y-auto px-2">
           {NAV_GROUPS.map((group, idx) => (
-            <div key={group.label} style={{ marginBottom: 4 }}>
+            <div key={group.label} className="mb-1">
               <p style={{
                 fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-muted)',
                 padding: idx === 0 ? '4px 8px 4px' : '14px 8px 4px',
@@ -286,7 +286,7 @@ export default function Sidebar() {
 
           {/* Onboarding checklist progress */}
           {!checklistDone && (
-            <div style={{ padding: '4px 0 8px' }}>
+            <div className="pt-1 pb-2">
               <Link href="/dashboard#getting-started" onClick={onNavClick} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '8px 10px', borderRadius: 'var(--radius-xl)',
@@ -303,7 +303,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Bottom: settings, notifications, user */}
-        <div style={{ flexShrink: 0, borderTop: '1px solid var(--border-default)', padding: '8px 8px 10px' }}>
+        <div className="shrink-0 border-t border-border-default px-2 pt-2 pb-2.5">
           <Link
             href="/notifications"
             onClick={onNavClick}
@@ -392,7 +392,7 @@ export default function Sidebar() {
                   <Question weight="regular" style={{ width: 15, height: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
                   Get help
                 </Link>
-                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                <div className="border-t border-border-subtle my-1" />
                 <button
                   onClick={() => { setProfileOpen(false); handleSignOut() }}
                   style={{
@@ -482,18 +482,19 @@ export default function Sidebar() {
           transition: 'transform 280ms cubic-bezier(0.4,0,0.2,1)',
         }}
       >
-        <button onClick={() => setMobileOpen(true)} aria-label="Open menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+        <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
           <List weight="regular" style={{ width: 20, height: 20 }} />
         </button>
         <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
           Freelax
         </span>
-        <button onClick={() => setCmdOpen(true)} aria-label="Search" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+        <button onClick={() => setCmdOpen(true)} aria-label="Search" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
           <MagnifyingGlass weight="regular" style={{ width: 18, height: 18 }} />
         </button>
         <Link
           href="/notifications"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex', position: 'relative' }}
+          className="p-1 flex relative"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
         >
           <Bell weight="regular" style={{ width: 18, height: 18 }} />
           {unreadCount > 0 && (
@@ -515,9 +516,9 @@ export default function Sidebar() {
             borderRight: '1px solid var(--border-default)',
             display: 'flex', flexDirection: 'column',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 0', flexShrink: 0 }}>
+            <div className="flex items-center justify-between pt-4 px-4 shrink-0">
               <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>Freelax</span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                 <X weight="regular" style={{ width: 18, height: 18 }} />
               </button>
             </div>

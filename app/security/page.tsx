@@ -26,24 +26,19 @@ const TOC = [
 // ── Visual primitives ───────────────────────────────────────────────
 function TrustBadge({ Icon, title, sub }: { Icon: React.ElementType; title: string; sub: string }) {
   return (
-    <div style={{
+    <div className="rounded-lg px-[18px] py-4 flex items-start gap-3" style={{
       background: 'var(--surface-card)', border: '1px solid rgba(0,0,0,0.07)',
-      borderRadius: 12, padding: '16px 18px',
-      display: 'flex', alignItems: 'flex-start', gap: 12,
     }}>
-      <div style={{
-        width: 32, height: 32, flexShrink: 0,
+      <div className="w-8 h-8 shrink-0 rounded-md flex items-center justify-center" style={{
         background: 'var(--success-50)', color: 'var(--brand-primary)',
-        borderRadius: 8,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <Icon weight="regular" style={{ width: 16, height: 16 }} />
       </div>
       <div>
-        <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', margin: 0, letterSpacing: '0' }}>
+        <p className="m-0 tracking-normal" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>
           {title}
         </p>
-        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: '2px 0 0', lineHeight: 1.5 }}>
+        <p className="mt-0.5 mb-0" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', lineHeight: 1.5 }}>
           {sub}
         </p>
       </div>
@@ -55,26 +50,21 @@ function Section({ id, Icon, title, children }: {
   id: string; Icon: React.ElementType; title: string; children: React.ReactNode
 }) {
   return (
-    <section id={id} style={{ scrollMarginTop: 80 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-        <div style={{
-          width: 28, height: 28, flexShrink: 0,
+    <section id={id} className="scroll-mt-20">
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="w-7 h-7 shrink-0 rounded-md flex items-center justify-center" style={{
           background: 'var(--surface-sunken)', color: 'var(--text-primary)',
-          borderRadius: 7,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Icon weight="regular" style={{ width: 15, height: 15 }} />
         </div>
-        <h2 style={{
+        <h2 className="m-0 tracking-tight" style={{
           fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',
-          letterSpacing: '-0.015em', margin: 0,
         }}>
           {title}
         </h2>
       </div>
-      <div style={{
+      <div className="pl-10" style={{
         fontSize: 'var(--text-base)', color: 'var(--text-body)', lineHeight: 1.65,
-        paddingLeft: 38,
       }}>
         {children}
       </div>
@@ -84,10 +74,9 @@ function Section({ id, Icon, title, children }: {
 
 export default function SecurityPage() {
   const hero = (
-    <div className="fd-security-badges" style={{
+    <div className="fd-security-badges gap-3" style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-      gap: 12,
       maxWidth: 1000,
     }}>
       <TrustBadge Icon={Lock}       title="AES-256 at rest"      sub="All data encrypted with industry-standard keys" />
@@ -106,10 +95,10 @@ export default function SecurityPage() {
       toc={TOC}
       hero={hero}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 44 }}>
+      <div className="flex flex-col gap-11">
 
         <Section id="encryption" Icon={Lock} title="Data encryption">
-          <p style={{ margin: '0 0 12px' }}>
+          <p className="mb-3">
             Every byte you send to Freelax by Britnova is encrypted in transit using <strong>TLS 1.2 or higher</strong>. Once it reaches our infrastructure, it is encrypted at rest with <strong>AES-256</strong> — the same algorithm trusted by governments and the financial industry.
           </p>
           <p className="m-0">
@@ -118,7 +107,7 @@ export default function SecurityPage() {
         </Section>
 
         <Section id="infrastructure" Icon={Gear} title="Infrastructure">
-          <p style={{ margin: '0 0 12px' }}>
+          <p className="mb-3">
             Freelax by Britnova is hosted on <strong>Supabase</strong> (database and auth) and <strong>Vercel</strong> (application layer). Both providers are <strong>SOC 2 Type II</strong> certified and maintain transparent, independently audited security controls.
           </p>
           <p className="m-0">
@@ -127,7 +116,7 @@ export default function SecurityPage() {
         </Section>
 
         <Section id="access" Icon={Key} title="Access controls">
-          <p style={{ margin: '0 0 12px' }}>
+          <p className="mb-3">
             Every row of your data is protected by database-level <strong>Row Level Security (RLS)</strong>. Another user cannot read, modify, or even detect your records — the database physically refuses to return them.
           </p>
           <p className="m-0">
@@ -136,7 +125,7 @@ export default function SecurityPage() {
         </Section>
 
         <Section id="compliance" Icon={ShieldCheck} title="UK GDPR & compliance">
-          <p style={{ margin: '0 0 12px' }}>
+          <p className="mb-3">
             Freelax by Britnova is built for UK users and complies with the <strong>UK General Data Protection Regulation (UK GDPR)</strong> and the Data Protection Act 2018. Your data is processed lawfully, stored only as long as necessary, and <strong>never sold or shared with advertisers</strong>.
           </p>
           <p className="m-0">
@@ -151,7 +140,7 @@ export default function SecurityPage() {
         </Section>
 
         <Section id="export" Icon={Database} title="Export & deletion">
-          <p style={{ margin: '0 0 12px' }}>
+          <p className="mb-3">
             You can export your full data at any time from <strong>Settings</strong>, or request a machine-readable copy by emailing{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
@@ -177,7 +166,7 @@ export default function SecurityPage() {
             Questions about security, compliance, or data protection? Email{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We aim to respond within two business days.
           </p>
-          <p style={{ margin: '12px 0 0' }}>
+          <p className="mt-3 mb-0">
             If you discover a security vulnerability in Freelax, please report it responsibly to{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will acknowledge receipt within two business days and work to resolve confirmed issues promptly. We ask that you do not publicly disclose vulnerabilities until we have had a reasonable opportunity to address them.
           </p>
