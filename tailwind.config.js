@@ -177,6 +177,16 @@ module.exports = {
         '3xl':     ['2.25rem',   { lineHeight: '1.15', letterSpacing: '-0.03em' }], // 36px
       },
 
+      // ── Line-height ───────────────────────────────────────────────────────
+      // Mirrors --leading-* tokens in globals.css so leading-body, leading-heading
+      // etc. resolve to the same values used in inline styles.
+      lineHeight: {
+        'display':  'var(--leading-display)', // 1.15 — hero numbers, large serif
+        'heading':  'var(--leading-heading)', // 1.30 — card titles, section heads
+        'body':     'var(--leading-body)',    // 1.50 — default body text
+        'relaxed':  'var(--leading-relaxed)', // 1.65 — long-form prose
+      },
+
       borderRadius: {
         'none': 'var(--radius-none)',
         'xs':   'var(--radius-xs)',

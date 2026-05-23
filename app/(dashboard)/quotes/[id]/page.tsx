@@ -459,7 +459,7 @@ export default function QuoteDetailPage() {
           <div className="q-footer-row flex justify-between items-start gap-6">
             <div>
               <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Validity</p>
-              <p style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              <p className="text-caption leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                 {quote.expiry_date
                   ? <>Valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.</>
                   : 'No expiry date set.'}

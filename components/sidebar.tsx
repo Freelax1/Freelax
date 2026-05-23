@@ -252,7 +252,6 @@ export default function Sidebar() {
               <p style={{
                 fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-muted)',
                 padding: idx === 0 ? '4px 8px 4px' : '14px 8px 4px',
-                letterSpacing: '0',
               }}>
                 {group.label}
               </p>

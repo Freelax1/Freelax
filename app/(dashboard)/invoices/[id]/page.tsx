@@ -629,8 +629,8 @@ export default function InvoiceDetailPage() {
                     { label: 'Reference',      value: sender.bank_reference_note || invoice.invoice_number },
                   ].map(r => (
                     <div key={r.label} className="flex gap-4">
-                      <span style={{ fontSize: 11.5, color: 'var(--text-muted)', width: 110, flexShrink: 0 }}>{r.label}</span>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--text-body)' }}>{r.value}</span>
+                      <span className="text-caption" style={{ color: 'var(--text-muted)', width: 110, flexShrink: 0 }}>{r.label}</span>
+                      <span className="text-caption font-semibold" style={{ color: 'var(--text-body)' }}>{r.value}</span>
                     </div>
                   ))}
                 </div>

@@ -120,10 +120,13 @@
     --text-3xl:     2.25rem;
 
     /* ── Line-height ──────────────────────────────────────────────── */
-    --leading-display: 1.15;
-    --leading-heading: 1.3;
-    --leading-body:    1.5;
-    --leading-relaxed: 1.65;
+    /* Wired through tailwind.config.js extend.lineHeight so              */
+    /* leading-display / leading-heading / leading-body / leading-relaxed */
+    /* resolve here and can be tuned globally.                            */
+    --leading-display: 1.15;  /* hero numbers, large serif headings */
+    --leading-heading: 1.3;   /* card titles, section heads         */
+    --leading-body:    1.5;   /* default body text, inputs          */
+    --leading-relaxed: 1.65;  /* long-form prose, legal copy        */
 
     /* ── Font weights ─────────────────────────────────────────────── */
     --weight-regular:  400;
