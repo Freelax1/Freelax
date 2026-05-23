@@ -116,7 +116,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
                   <ArrowCounterClockwise weight="regular" className="w-4 h-4 text-text-secondary" />
                 </button>
-                <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
+                <button onClick={() => setOpen(false)} aria-label="Close" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
                   <X weight="regular" className="w-4 h-4 text-text-secondary" />
                 </button>
               </div>

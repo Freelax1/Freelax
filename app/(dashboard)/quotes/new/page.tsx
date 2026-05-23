@@ -327,7 +327,7 @@ export default function NewQuotePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
+                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} aria-label="Remove line item" className="text-text-muted hover:text-danger-500">
                         <X weight="regular" className="w-4 h-4" />
                       </button>
                     )}

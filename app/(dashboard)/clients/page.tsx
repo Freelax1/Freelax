@@ -338,7 +338,7 @@ export default function ClientsPage() {
             <thead>
               <tr>
                 <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                  <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                  <button onClick={toggleAll} aria-label={allSelected ? 'Deselect all clients' : 'Select all clients'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                     {allSelected
                       ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
                       : <Square weight="regular" className="w-4 h-4" />}
@@ -362,7 +362,7 @@ export default function ClientsPage() {
                 return (
                   <tr key={c.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                     <td className="px-3 py-2.5 text-center">
-                      <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                      <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                         {isSelected
                           ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
                           : <Square weight="regular" className="w-4 h-4" />}

@@ -332,7 +332,7 @@ export default function QuoteDetailPage() {
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
+              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
                 <X weight="regular" className="w-4 h-4" />
               </button>
             </div>

@@ -481,7 +481,7 @@ export default function InvoiceDetailPage() {
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
+              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               </button>
             </div>
