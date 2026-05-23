@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
-const INPUT_CLS = 'w-full px-[14px] py-[11px] text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
+const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
 const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
 
 function Spinner() {
@@ -92,7 +92,7 @@ function SignupForm() {
       </p>
 
       {error && (
-        <div className="text-sm rounded-lg px-[14px] py-[10px] mb-4 border text-[color:var(--danger-300)] bg-[color:var(--danger-950)] border-[color:var(--danger-800)]">
+        <div className="text-sm rounded-lg px-3.5 py-2.5 mb-4 border text-[color:var(--danger-300)] bg-[color:var(--danger-950)] border-[color:var(--danger-800)]">
           {error}
         </div>
       )}
@@ -146,7 +146,7 @@ function SignupForm() {
         </div>
 
         {/* Terms + Privacy acceptance — required for HMRC production application */}
-        <label className={`flex items-start gap-[10px] cursor-pointer px-3 py-[10px] rounded-lg transition-colors bg-white/[0.04] border ${terms ? 'border-brand-primary' : 'border-white/10'}`}>
+        <label className={`flex items-start gap-2.5 cursor-pointer px-3 py-2.5 rounded-lg transition-colors bg-white/[0.04] border ${terms ? 'border-brand-primary' : 'border-white/10'}`}>
           <input
             type="checkbox"
             checked={terms}
@@ -181,7 +181,7 @@ function SignupForm() {
 
       </form>
 
-      <p className="text-sm text-center mt-[22px] mb-0 pt-[18px] text-white/50 border-t border-white/10">
+      <p className="text-sm text-center mt-5 mb-0 pt-4 text-white/50 border-t border-white/10">
         Already have an account?{' '}
         <Link href="/auth/login" className="text-white font-semibold no-underline">
           Sign in

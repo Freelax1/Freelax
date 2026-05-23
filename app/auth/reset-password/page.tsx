@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
-const INPUT_CLS = 'w-full px-[14px] py-[11px] text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
+const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
 const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
 
 function Spinner() {
@@ -30,7 +30,7 @@ function PasswordStrength({ password }: { password: string }) {
   const met = len >= 8
   return (
     <div className="mt-2 flex items-center gap-2">
-      <div className="flex gap-[3px] flex-1">
+      <div className="flex gap-1 flex-1">
         {[1, 2, 3].map(i => (
           <div
             key={i}
@@ -255,7 +255,7 @@ export default function ResetPasswordPage() {
         </button>
       </form>
 
-      <p className="text-sm text-center mt-[22px] mb-0 text-white/50">
+      <p className="text-sm text-center mt-5 mb-0 text-white/50">
         <Link href="/auth/login" className="text-white font-semibold no-underline">
           Back to sign in
         </Link>

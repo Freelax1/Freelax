@@ -126,21 +126,21 @@ function BulkBar({ count, selectedStatuses, onDelete, onStatusChange, onClear }:
   ].filter(s => !allAre(s.key))
 
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
       <span className="text-sm font-medium text-white mr-1">{count} selected</span>
       {statusOptions.length > 0 && (
         <div className="w-px h-4 bg-white/15" />
       )}
       {statusOptions.map(s => (
         <button key={s.key} onClick={() => onStatusChange(s.key)}
-          className="text-xs font-medium px-[10px] py-1 rounded-[6px] text-white cursor-pointer bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
+          className="text-xs font-medium px-2.5 py-1 rounded-md text-white cursor-pointer bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
         >
           {s.label}
         </button>
       ))}
       <div className="w-px h-4 bg-white/15" />
       <button onClick={onDelete}
-        className="flex items-center gap-[5px] text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
+        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
       >
         <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
@@ -302,7 +302,7 @@ export default function QuotesPage() {
               <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
                 onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
                 onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
-                className="rounded-[12px] px-4 py-[14px] cursor-pointer text-left transition-[background] duration-150"
+                className="rounded-lg px-4 py-3.5 cursor-pointer text-left transition-[background] duration-150"
                 style={{
                   background: isActive ? 'var(--text-primary)' : t.bg,
                   border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
@@ -325,12 +325,12 @@ export default function QuotesPage() {
               <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
             </svg>
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search quotes..."
-              className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
+              className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
               onKeyDown={e => e.key === 'Escape' && setQuery('')}
             />
             {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
           </div>
-          <button className="md:hidden flex-shrink-0 px-3 py-[9px] border border-border-default rounded-xl text-xs font-medium text-text-secondary bg-surface-card cursor-pointer whitespace-nowrap font-[inherit]" onClick={cycleQuoteSort}>
+          <button className="md:hidden flex-shrink-0 px-3 py-2 border border-border-default rounded-xl text-xs font-medium text-text-secondary bg-surface-card cursor-pointer whitespace-nowrap font-[inherit]" onClick={cycleQuoteSort}>
             {mobileSortLabel}
           </button>
         </div>

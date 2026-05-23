@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
-const INPUT_CLS = 'w-full px-[14px] py-[11px] text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
+const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
 const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
 
 function Spinner() {
@@ -127,7 +127,7 @@ function LoginForm() {
         </button>
       </form>
 
-      <p className="text-sm text-center mt-[22px] mb-0 text-white/50">
+      <p className="text-sm text-center mt-5 mb-0 text-white/50">
         No account?{' '}
         <Link href="/auth/signup" className="text-white font-semibold no-underline">
           Sign up free

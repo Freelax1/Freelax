@@ -53,12 +53,12 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
         /* ── Mobile: bottom sheet ── */
         <div className="fixed bottom-0 left-0 right-0 bg-white flex flex-col shadow-sheet-bottom max-h-[92dvh] rounded-t-[16px]">
           {/* Drag handle */}
-          <div className="flex justify-center pt-[10px] pb-0.5 shrink-0">
+          <div className="flex justify-center pt-2.5 pb-0.5 shrink-0">
             <div className="w-9 h-1 rounded-full bg-border-default" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-[10px] pb-[14px] shrink-0 border-b border-b-border-subtle">
+          <div className="flex items-center justify-between px-5 pt-2.5 pb-3.5 shrink-0 border-b border-b-border-subtle">
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
             <button
               onClick={onClose}

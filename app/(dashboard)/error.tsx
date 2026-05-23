@@ -35,13 +35,13 @@ export default function DashboardError({
         <div className="flex gap-2 justify-center">
           <button
             onClick={reset}
-            className="px-[18px] py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
+            className="px-4 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
           >
             Try again
           </button>
           <Link
             href="/dashboard"
-            className="px-[18px] py-2 bg-surface-card text-text-secondary border border-border-default rounded-lg text-sm font-medium no-underline inline-block"
+            className="px-4 py-2 bg-surface-card text-text-secondary border border-border-default rounded-lg text-sm font-medium no-underline inline-block"
           >
             Go to dashboard
           </Link>

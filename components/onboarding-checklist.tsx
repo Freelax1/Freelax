@@ -113,7 +113,7 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
             {!s.done && (
               <Link
                 href={s.href}
-                className="flex items-center gap-[3px] text-caption font-semibold rounded-md px-[10px] py-[5px] no-underline whitespace-nowrap text-text-primary bg-surface-sunken"
+                className="flex items-center gap-1 text-caption font-semibold rounded-md px-2.5 py-1 no-underline whitespace-nowrap text-text-primary bg-surface-sunken"
               >
                 {s.cta} <CaretRight weight="regular" className="w-[11px] h-[11px]" />
               </Link>

@@ -407,17 +407,17 @@ export default function QuoteDetailPage() {
           <div className="q-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Prepared for</p>
-              <p className="mb-[3px]" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>{client?.name ?? '—'}</p>
+              <p className="mb-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>{client?.name ?? '—'}</p>
               {client?.contact_name && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{client.contact_name}</p>}
               {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.email}</p>}
             </div>
             <div className="q-dates flex flex-col gap-2.5" style={{ textAlign: 'right' }}>
               <div>
-                <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
+                <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
                 <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Valid until</p>
+                <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Valid until</p>
                 <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: expired ? 'var(--danger-600)' : 'var(--text-primary)' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
               <div className="mt-1">
@@ -467,10 +467,10 @@ export default function QuoteDetailPage() {
               {quote.notes && <p className="mt-2" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{quote.notes}</p>}
             </div>
             <div className="q-totals" style={{ width: 220, flexShrink: 0 }}>
-              <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span>Subtotal</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.subtotal)}</span>
               </div>
-              <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span>VAT</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.vat_amount)}</span>
               </div>
               <div className="flex justify-between pt-3 mt-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)' }}>

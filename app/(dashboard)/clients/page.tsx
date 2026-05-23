@@ -123,21 +123,21 @@ function BulkBar({ count, onDelete, onStatusChange }: {
   onStatusChange: (status: string) => void
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
       <span className="text-sm font-medium text-white mr-1">
         {count} selected
       </span>
       <div className="w-px h-4 bg-white/15" />
       {['active', 'paused', 'archived'].map(s => (
         <button key={s} onClick={() => onStatusChange(s)}
-          className="text-xs font-medium px-2.5 py-1 rounded-[6px] text-white cursor-pointer capitalize bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
+          className="text-xs font-medium px-2.5 py-1 rounded-md text-white cursor-pointer capitalize bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
         >
           Mark as {s}
         </button>
       ))}
       <div className="w-px h-4 bg-white/15" />
       <button onClick={onDelete}
-        className="text-xs font-medium px-2.5 py-1 rounded-[6px] text-danger-300 cursor-pointer flex items-center gap-[5px] bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
+        className="text-xs font-medium px-2.5 py-1 rounded-md text-danger-300 cursor-pointer flex items-center gap-1.5 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
       >
         <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
@@ -302,7 +302,7 @@ export default function ClientsPage() {
             <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
           </svg>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search clients..."
-            className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
+            className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
             onKeyDown={e => e.key === 'Escape' && setQuery('')}
           />
           {query && (

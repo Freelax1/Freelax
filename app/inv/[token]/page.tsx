@@ -70,7 +70,7 @@ export default async function PublicInvoicePage({
                   ? <img src={sender.logo_url} alt="" className="mb-2 block" style={{ height: 40, objectFit: 'contain' }} />
                   : <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{sender?.business_name || sender?.full_name || ''}</p>
                 }
-                {sender?.email && <p className="mt-[3px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.email}</p>}
+                {sender?.email && <p className="mt-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.email}</p>}
                 {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
                 {sender?.vat_number && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>VAT: {sender.vat_number}</p>}
               </div>
@@ -86,17 +86,17 @@ export default async function PublicInvoicePage({
             <div className="pub-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Bill to</p>
-                <p className="mb-[3px]" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{client?.name}</p>
+                <p className="mb-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{client?.name}</p>
                 {client?.contact_name && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.contact_name}</p>}
                 {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.email}</p>}
               </div>
               <div className="pub-dates flex flex-col gap-2.5" style={{ textAlign: 'right' }}>
                 <div>
-                  <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
+                  <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
                   <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div>
-                  <p className="mb-[3px]" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Due date</p>
+                  <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Due date</p>
                   <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: isOverdue ? 'var(--danger-600)' : 'var(--text-primary)' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 {isPaid && (
@@ -139,7 +139,7 @@ export default async function PublicInvoicePage({
                 {hasBankDetails && (
                   <>
                     <p className="mb-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Payment details</p>
-                    <div className="flex flex-col gap-[5px]">
+                    <div className="flex flex-col gap-1.5">
                       {[
                         { label: 'Account name',   value: sender.bank_account_name || sender.business_name || sender.full_name },
                         { label: 'Sort code',      value: sender.bank_sort_code },
@@ -159,10 +159,10 @@ export default async function PublicInvoicePage({
               </div>
 
               <div className="pub-totals" style={{ width: 220, flexShrink: 0 }}>
-                <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                   <span>Subtotal</span><span style={{ fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
                 </div>
-                <div className="flex justify-between py-[5px]" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
                   <span>VAT</span><span style={{ fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
                 </div>
                 <div className="flex justify-between pt-3 mt-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)' }}>

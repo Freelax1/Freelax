@@ -117,7 +117,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
           <button
             onClick={() => generateInsight(!!showInsightPanel)}
             disabled={insightLoading}
-            className={cn('flex items-center gap-[5px] text-caption font-semibold text-text-on-dark bg-brand-primary border-none rounded-[6px] px-2.5 py-1 transition-opacity duration-150', insightLoading ? 'cursor-default opacity-70' : 'cursor-pointer')}
+            className={cn('flex items-center gap-1.5 text-caption font-semibold text-text-on-dark bg-brand-primary border-none rounded-md px-2.5 py-1 transition-opacity duration-150', insightLoading ? 'cursor-default opacity-70' : 'cursor-pointer')}
           >
             {insightLoading
               ? <CircleNotch weight="regular" className="w-[11px] h-[11px] animate-spin" />
@@ -130,9 +130,9 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
 
       {/* AI insight panel */}
       {showInsightPanel && (
-        <div className="bg-success-50 border border-success-200 rounded-xl px-[14px] py-3 mb-[14px] text-sm text-text-primary leading-relaxed">
+        <div className="bg-success-50 border border-success-200 rounded-xl px-3.5 py-3 mb-3.5 text-sm text-text-primary leading-relaxed">
           <div className="flex justify-between items-center mb-1.5">
-            <div className="flex items-center gap-[5px]">
+            <div className="flex items-center gap-1.5">
               <Sparkle weight="regular" className="w-[11px] h-[11px] text-brand-primary" />
               <span className="text-micro font-semibold text-brand-primary">
                 AI insight · {monthName}

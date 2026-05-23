@@ -26,7 +26,7 @@ const TOC = [
 // ── Visual primitives ───────────────────────────────────────────────
 function TrustBadge({ Icon, title, sub }: { Icon: React.ElementType; title: string; sub: string }) {
   return (
-    <div className="rounded-lg px-[18px] py-4 flex items-start gap-3" style={{
+    <div className="rounded-lg px-4 py-4 flex items-start gap-3" style={{
       background: 'var(--surface-card)', border: '1px solid rgba(0,0,0,0.07)',
     }}>
       <div className="w-8 h-8 shrink-0 rounded-md flex items-center justify-center" style={{

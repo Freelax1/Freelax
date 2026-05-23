@@ -28,7 +28,7 @@ export default function CookieNotice() {
       </p>
       <button
         onClick={dismiss}
-        className="bg-brand-primary text-white border-none rounded-lg px-3.5 py-[7px] text-sm font-semibold cursor-pointer shrink-0 font-[inherit]"
+        className="bg-brand-primary text-white border-none rounded-lg px-3.5 py-2 text-sm font-semibold cursor-pointer shrink-0 font-[inherit]"
       >
         Got it
       </button>

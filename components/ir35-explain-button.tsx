@@ -35,7 +35,7 @@ function RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
           neutral: { bg: 'var(--surface-sunken)', border: 'var(--border-default)', color: 'var(--text-secondary)' },
         }[s.tone] : null
         return (
-          <div key={s.key} className="flex-1 py-[7px] rounded-lg text-center" style={{
+          <div key={s.key} className="flex-1 py-2 rounded-lg text-center" style={{
             border: `1px solid ${active ? t!.border : 'var(--border-default)'}`,
             background: active ? t!.bg : 'var(--surface-sunken)',
             opacity: active ? 1 : 0.45,

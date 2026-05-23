@@ -114,7 +114,7 @@ function BulkBar({ count, onDelete, onStatusChange }: {
   count: number; onDelete: () => void; onStatusChange: (s: string) => void
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
       <span className="text-sm font-medium text-white mr-1">{count} selected</span>
       <div className="w-px h-4 bg-white/15" />
       {['active', 'completed', 'on_hold'].map(s => (
@@ -126,7 +126,7 @@ function BulkBar({ count, onDelete, onStatusChange }: {
       ))}
       <div className="w-px h-4 bg-white/15" />
       <button onClick={onDelete}
-        className="flex items-center gap-[5px] text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
+        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
       >
         <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
@@ -139,7 +139,7 @@ function StatCard({ label, count, value, color, bg, border }: {
   label: string; count: number; value?: string; color: string; bg: string; border: string
 }) {
   return (
-    <div className="flex-1 rounded-[12px] px-5 py-4" style={{ background: bg, border: `1px solid ${border}` }}>
+    <div className="flex-1 rounded-lg px-5 py-4" style={{ background: bg, border: `1px solid ${border}` }}>
       <p className="text-caption font-semibold mb-1.5" style={{ color }}>{label}</p>
       <p className="text-2xl font-semibold tracking-tight leading-none" style={{ color }}>{count}</p>
       {value && <p className="text-xs mt-1 opacity-70" style={{ color }}>{value}</p>}
@@ -244,7 +244,7 @@ export default function ProjectsPage() {
             return (
               <button key={key}
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                className="flex-1 rounded-[12px] px-5 py-4 text-left cursor-pointer transition-all duration-150"
+                className="flex-1 rounded-lg px-5 py-4 text-left cursor-pointer transition-all duration-150"
                 style={{
                   background: isActive ? 'var(--text-primary)' : t.bg,
                   border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
@@ -274,7 +274,7 @@ export default function ProjectsPage() {
           { key: 'needs_review', label: 'Needs review' },
         ].map(({ key, label }) => (
           <button key={key} onClick={() => setIr35Filter(key)}
-            className={cn('px-3 py-[5px] rounded-[20px] text-xs cursor-pointer transition-all duration-[120ms] border', ir35Filter === key ? 'bg-forest-950 text-white border-forest-950 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal')}
+            className={cn('px-3 py-1 rounded-xl text-xs cursor-pointer transition-all duration-[120ms] border', ir35Filter === key ? 'bg-forest-950 text-white border-forest-950 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal')}
           >{label}</button>
         ))}
       </div>
@@ -285,7 +285,7 @@ export default function ProjectsPage() {
           <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
         </svg>
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search projects..."
-          className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
+          className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
         />
         {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}

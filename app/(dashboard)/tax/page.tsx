@@ -143,7 +143,7 @@ function NextSteps({ actions }: { actions: TaxAction[] }) {
 
   return (
     <div className={`rounded-xl p-5 border ${cardCn}`}>
-      <div className="flex items-center gap-[7px] mb-3.5">
+      <div className="flex items-center gap-2 mb-3.5">
         <Lightning weight="regular" className={`w-3 h-3 ${accentCn}`} />
         <p className={`text-caption font-medium ${accentCn}`}>
           {label}
@@ -197,7 +197,7 @@ function TaxPotCard({
       </div>
       {/* Progress bar */}
       {totalTarget > 0 && (
-        <div className="h-[5px] rounded-[99px] overflow-hidden mb-2.5 bg-black/[0.06]">
+        <div className="h-[5px] rounded-full overflow-hidden mb-2.5 bg-black/[0.06]">
           <div style={{
             height: '100%', borderRadius: 99,
             background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',

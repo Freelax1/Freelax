@@ -31,16 +31,16 @@ export default function GlobalError({
           An unexpected error occurred. Try refreshing the page — if it keeps happening, contact support.
         </p>
 
-        <div className="flex gap-[10px] justify-center">
+        <div className="flex gap-2.5 justify-center">
           <button
             onClick={reset}
-            className="px-5 py-[9px] bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
+            className="px-5 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
           >
             Try again
           </button>
           <a
             href="/"
-            className="px-5 py-[9px] bg-surface-card text-text-secondary border border-border-default rounded-lg text-sm font-medium no-underline inline-block"
+            className="px-5 py-2 bg-surface-card text-text-secondary border border-border-default rounded-lg text-sm font-medium no-underline inline-block"
           >
             Go home
           </a>

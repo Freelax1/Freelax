@@ -150,7 +150,7 @@ export default function StatusLine(props: Props) {
       transform: visible ? 'translateY(0)' : 'translateY(4px)',
       transition: 'opacity 200ms cubic-bezier(0.22,1,0.36,1), transform 200ms cubic-bezier(0.22,1,0.36,1)',
     }}>
-      <div className="flex items-center gap-[9px] flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
         <WeatherGlyph state={state} />
         <p className="font-semibold text-text-primary inline-flex items-center gap-1 text-2xl font-sans tracking-tight leading-heading">
           {text}

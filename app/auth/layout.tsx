@@ -29,7 +29,7 @@ function RightPanel() {
       className="auth-right flex-[0_0_40%] bg-cover bg-center"
       style={{ backgroundImage: "url('/left-panel-bg.png')" }}
     >
-      <div className="relative z-[1] h-screen flex flex-col justify-center overflow-y-hidden pt-[80px] px-10 pb-6">
+      <div className="relative z-[1] h-screen flex flex-col justify-center overflow-y-hidden pt-20 px-10 pb-6">
         <div className="w-full mt-8 max-w-[420px]">
           <div
             className="text-lg font-semibold text-text-primary leading-tight mb-3 min-h-11 tracking-tight transition-opacity duration-[400ms] ease-[ease]"
@@ -44,7 +44,7 @@ function RightPanel() {
 
           <div className="flex gap-2 flex-wrap mb-3.5">
             {['✓ Real-time tax calculations', '✓ IR35 status clarity', '✓ Self Assessment ready'].map(pill => (
-              <div key={pill} className="bg-surface-card border-[0.5px] border-border-default rounded-lg px-[10px] py-1 text-micro font-semibold text-brand-primary">{pill}</div>
+              <div key={pill} className="bg-surface-card border-[0.5px] border-border-default rounded-lg px-2.5 py-1 text-micro font-semibold text-brand-primary">{pill}</div>
             ))}
           </div>
 
@@ -58,7 +58,7 @@ function RightPanel() {
             {['A', 'J', 'S'].map((initial, i) => (
               <div key={i} className="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-micro font-semibold relative -mr-1.5 text-text-on-dark border-2 border-cream-100" style={{ zIndex: 3 - i }}>{initial}</div>
             ))}
-            <span className="text-caption text-text-secondary ml-[18px]">
+            <span className="text-caption text-text-secondary ml-4">
               Join UK freelancers who actually know their tax bill
             </span>
           </div>
@@ -106,7 +106,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <span className="text-brand-primary">.</span>
         </div>
 
-        <div className="auth-left h-screen flex-[0_0_60%] flex flex-col items-center justify-center pt-[140px] px-8 pb-12 bg-cover bg-center"
+        <div className="auth-left h-screen flex-[0_0_60%] flex flex-col items-center justify-center pt-36 px-8 pb-12 bg-cover bg-center"
           style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')" }}>
           <div className="w-full max-w-[420px]">
             <div key={pathname} className="animate-auth-in">

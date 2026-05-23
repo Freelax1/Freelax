@@ -113,16 +113,16 @@ function ShortcutHint() {
         <Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />
       </button>
       {open && (
-        <div className="absolute bottom-9 right-0 bg-forest-900 rounded-[10px] px-3.5 py-2.5 min-w-[200px] shadow-lg">
+        <div className="absolute bottom-9 right-0 bg-forest-900 rounded-lg px-3.5 py-2.5 min-w-[200px] shadow-lg">
           {[
             ['N', 'New invoice'],
             ['T', 'Tax page'],
             ['E', 'Expenses'],
             ['⌘K', 'Command menu'],
           ].map(([k, v]) => (
-            <div key={k} className="flex justify-between items-center py-[5px] border-b border-b-white/[0.06]">
+            <div key={k} className="flex justify-between items-center py-1 border-b border-b-white/[0.06]">
               <span className="text-xs text-white/60">{v}</span>
-              <kbd className="text-micro text-white rounded-[4px] px-1.5 py-px bg-white/10">{k}</kbd>
+              <kbd className="text-micro text-white rounded-sm px-1.5 py-px bg-white/10">{k}</kbd>
             </div>
           ))}
         </div>
@@ -356,7 +356,7 @@ export default function DashboardPage() {
       {/* Header row — New invoice button sits here, no overlap */}
       <div className="flex justify-end pb-2">
         <Link href="/invoices/new"
-          className="flex items-center gap-1.5 bg-forest-950 hover:bg-forest-900 text-white rounded-lg px-3.5 py-[7px] text-xs font-semibold no-underline transition-colors shadow-btn-dark"
+          className="flex items-center gap-1.5 bg-forest-950 hover:bg-forest-900 text-white rounded-lg px-3.5 py-2 text-xs font-semibold no-underline transition-colors shadow-btn-dark"
         >
           <Plus weight="regular" className="w-[13px] h-[13px]" />
           New invoice
@@ -364,7 +364,7 @@ export default function DashboardPage() {
       </div>
 
       {loading || !data ? (
-        <div className="flex flex-col gap-8 pt-[60px]">
+        <div className="flex flex-col gap-8 pt-16">
           {/* Line skeleton */}
           <div className="h-7 rounded w-1/2 bg-black/[0.05]" />
           {/* Three pots — no shimmer per spec, just muted placeholders */}
@@ -406,7 +406,7 @@ export default function DashboardPage() {
               isNewUser={data.isNewUser}
               taxTotal={data.taxTotal}
             />
-            <p className="text-xs text-text-secondary mt-1.5 ml-[23px]">
+            <p className="text-xs text-text-secondary mt-1.5 ml-6">
               {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
               {' · '}Tax year {data.taxYearLabel}
             </p>
@@ -415,7 +415,7 @@ export default function DashboardPage() {
           {/* B. Do This Now — hidden when empty */}
           {data.actions.length > 0 && (
             <div className="rounded-xl p-5 bg-warning-50 border border-warning-200">
-              <div className="flex items-center gap-[7px] mb-3.5">
+              <div className="flex items-center gap-2 mb-3.5">
                 <Lightning weight="regular" className="w-3 h-3 text-warning-700" />
                 <p className="text-caption font-medium text-warning-700">
                   Do this now

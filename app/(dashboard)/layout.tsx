@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="bg-surface-paper min-h-screen">
       <Sidebar />
       <main className="lg:pl-[264px] pt-[52px] lg:pt-0">
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-[80px]">
+        <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-20">
           {children}
         </div>
       </main>

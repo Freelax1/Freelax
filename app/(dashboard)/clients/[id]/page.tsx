@@ -25,7 +25,7 @@ type ClientQuote   = Pick<Quote,   'id' | 'quote_number' | 'issue_date' | 'expir
 function ProjectStatusBadge({ status }: { status: string }) {
   if (status === 'completed') {
     return (
-      <span className="text-caption font-semibold px-2 py-px rounded-[20px] bg-forest-50 text-forest-700 inline-flex items-center border border-forest-200">
+      <span className="text-caption font-semibold px-2 py-px rounded-xl bg-forest-50 text-forest-700 inline-flex items-center border border-forest-200">
         Completed
       </span>
     )

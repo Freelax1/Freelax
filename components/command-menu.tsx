@@ -52,10 +52,10 @@ export default function CommandMenu({ open, onClose }: Props) {
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[14px] w-full max-w-[520px] overflow-hidden border border-black/[0.08] shadow-modal animate-cmd-slide"
+        className="bg-white rounded-lg w-full max-w-[520px] overflow-hidden border border-black/[0.08] shadow-modal animate-cmd-slide"
       >
         {/* Search input */}
-        <div className="px-4 py-[14px] flex items-center gap-[10px] border-b border-b-black/[0.06]">
+        <div className="px-4 py-3.5 flex items-center gap-2.5 border-b border-b-black/[0.06]">
           <ArrowRight weight="regular" className="w-[14px] h-[14px] shrink-0 text-text-muted" />
           <input
             ref={inputRef}
@@ -70,13 +70,13 @@ export default function CommandMenu({ open, onClose }: Props) {
         {/* Results */}
         <div className="max-h-[340px] overflow-y-auto py-1.5">
           {filtered.length === 0 && (
-            <p className="px-4 py-[14px] text-sm text-text-secondary">No results for "{query}"</p>
+            <p className="px-4 py-3.5 text-sm text-text-secondary">No results for "{query}"</p>
           )}
           {filtered.map((cmd, i) => {
             const Icon = cmd.icon
             return (
               <button key={cmd.id} onClick={() => go(cmd.href)}
-                className={cn('w-full text-left border-none px-4 py-[10px] cursor-pointer flex items-center gap-3 transition-colors', i === cursor ? 'bg-surface-sunken' : 'bg-transparent')}
+                className={cn('w-full text-left border-none px-4 py-2.5 cursor-pointer flex items-center gap-3 transition-colors', i === cursor ? 'bg-surface-sunken' : 'bg-transparent')}
                 onMouseEnter={() => setCursor(i)}
               >
                 <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-black/[0.06]', i === cursor ? 'bg-white' : 'bg-surface-sunken')}>

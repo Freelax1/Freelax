@@ -68,7 +68,7 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
       </button>
 
       {open && (
-        <div className="absolute bottom-[calc(100%+10px)] right-0 w-[264px] bg-forest-900 rounded-[var(--radius-lg)] px-[18px] py-4 z-50 shadow-lg animate-tooltip-in">
+        <div className="absolute bottom-[calc(100%+10px)] right-0 w-[264px] bg-forest-900 rounded-[var(--radius-lg)] px-4 py-4 z-50 shadow-lg animate-tooltip-in">
 
           <div className="absolute -bottom-1.5 right-[7px] w-3 h-3 bg-forest-900 rotate-45 rounded-sm" />
 
@@ -81,8 +81,8 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
             { label: 'Tax still to save',      value: '−', dotClass: 'bg-danger-500',  note: 'Remaining tax liability ÷ months until January deadline' },
             { label: 'Personal outgoings',     value: '−', dotClass: 'bg-danger-500',  note: 'Rent, food, bills — your cost of living each month' },
           ].map((row, i) => (
-            <div key={i} className={cn('flex gap-2.5 items-start', i > 0 && 'pt-[10px] border-t border-t-white/[0.06]')}>
-              <div className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-[5px]', row.dotClass)} />
+            <div key={i} className={cn('flex gap-2.5 items-start', i > 0 && 'pt-2.5 border-t border-t-white/[0.06]')}>
+              <div className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-1', row.dotClass)} />
               <div className="flex-1">
                 <p className="text-xs font-medium text-text-on-dark">{row.label}</p>
                 <p className="text-caption text-forest-300 mt-px leading-body">{row.note}</p>

@@ -26,7 +26,7 @@ export default function DetailError({
       <p className="text-sm text-text-secondary m-0">Something went wrong loading this page.</p>
       <button
         onClick={reset}
-        className="mt-1 px-4 py-[7px] bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
+        className="mt-1 px-4 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
       >
         Try again
       </button>
