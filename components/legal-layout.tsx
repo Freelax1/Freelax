@@ -59,12 +59,12 @@ export default async function LegalLayout({
             <Link href="/terms" className="fd-legal-link" style={{
               fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
             }}>Terms</Link>
-            <Link href={ctaHref} className="inline-flex items-center gap-1.5 py-2 px-3.5" style={{
+            <Link href={ctaHref} className="inline-flex items-center gap-1.5 py-2 px-3.5 rounded" style={{
               fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-on-dark)',
-              background: 'var(--brand-primary)', borderRadius: 8,
+              background: 'var(--brand-primary)',
               textDecoration: 'none',
             }}>
-              {ctaLabel} <ArrowRight weight="regular" style={{ width: 12, height: 12 }} />
+              {ctaLabel} <ArrowRight weight="regular" className="w-3 h-3" />
             </Link>
           </nav>
         </div>

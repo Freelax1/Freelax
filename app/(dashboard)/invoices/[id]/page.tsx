@@ -149,9 +149,9 @@ function ChaseModal({
                     onClick={() => { if (!locked) handleTierChange(t) }}
                     disabled={locked}
                     title={lockReason || undefined}
-                    className="py-2 px-1"
+                    className="py-2 px-1 rounded"
                     style={{
-                      flex: 1, borderRadius: 8,
+                      flex: 1,
                       cursor: locked ? 'not-allowed' : 'pointer',
                       border: `1.5px solid ${isActive ? meta.badgeColor : 'var(--border-default)'}`,
                       background: isActive ? meta.badgeBg : 'var(--surface-card)',

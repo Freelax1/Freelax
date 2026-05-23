@@ -28,7 +28,7 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
     return (
       <div style={{ minHeight: '100vh', background: 'var(--surface-sunken)', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="py-10 px-6 mx-auto text-center" style={{ maxWidth: 440 }}>
-          <div className="py-10 px-8 rounded-md" style={{ background: 'var(--surface-card)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+          <div className="py-10 px-8 rounded-md shadow-card-sm" style={{ background: 'var(--surface-card)' }}>
             <p className="mb-4" style={{ fontSize: 'var(--text-2xl)' }}>⏱</p>
             <h1 className="mb-2" style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)' }}>This quote has expired</h1>
             <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -76,7 +76,7 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
         )}
 
         {/* Quote card */}
-        <div style={{ background: 'var(--surface-card)', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04)' }}>
+        <div className="rounded-sm shadow-card-public" style={{ background: 'var(--surface-card)' }}>
 
           {/* Header */}
           <div className="pt-8 px-10 pb-7" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
@@ -175,12 +175,12 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                 </p>
                 <div className="qpub-cta flex gap-2.5">
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} style={{ flex: 1 }}>
-                    <button type="submit" className="w-full py-3 px-5" style={{ background: 'var(--text-primary)', color: 'var(--text-on-dark)', border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
+                    <button type="submit" className="w-full py-3 px-5 rounded cursor-pointer" style={{ background: 'var(--text-primary)', color: 'var(--text-on-dark)', border: 'none', fontSize: 'var(--text-sm)', fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
                       Accept quote →
                     </button>
                   </form>
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} style={{ flex: 1 }}>
-                    <button type="submit" className="w-full py-3 px-5" style={{ background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+                    <button type="submit" className="w-full py-3 px-5 rounded cursor-pointer" style={{ background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)', fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>
                       Decline
                     </button>
                   </form>

@@ -239,7 +239,7 @@ export default function Sidebar() {
           >
             <MagnifyingGlass weight="regular" style={{ width: 13, height: 13, flexShrink: 0 }} />
             <span style={{ flex: 1, textAlign: 'left' }}>Search…</span>
-            <kbd style={{ fontSize: 'var(--text-micro)', padding: '1px 5px', borderRadius: 4, background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
+            <kbd className="rounded-sm" style={{ fontSize: 'var(--text-micro)', padding: '1px 5px', background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
               {typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}
             </kbd>
           </button>
@@ -277,7 +277,7 @@ export default function Sidebar() {
                   >
                     <Icon weight="regular" style={{ width: 17, height: 17, flexShrink: 0, color: active ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
                     <span className="flex-1">{label}</span>
-                    {active && <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--brand-primary)', flexShrink: 0 }} />}
+                    {active && <div className="rounded-full shrink-0" style={{ width: 5, height: 5, background: 'var(--brand-primary)' }} />}
                   </Link>
                 )
               })}
@@ -294,7 +294,7 @@ export default function Sidebar() {
                 textDecoration: 'none',
               }}>
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>Getting started</span>
-                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--brand-primary)', color: 'var(--text-on-dark)', borderRadius: 99, padding: '1px 7px' }}>
+                <span className="rounded-full" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--brand-primary)', color: 'var(--text-on-dark)', padding: '1px 7px' }}>
                   {completedSteps}/5
                 </span>
               </Link>
@@ -321,7 +321,7 @@ export default function Sidebar() {
             <Bell weight="regular" style={{ width: 17, height: 17, color: pathname.startsWith('/notifications') ? 'var(--brand-primary)' : 'var(--text-muted)', flexShrink: 0 }} />
             <span style={{ flex: 1 }}>Notifications</span>
             {unreadCount > 0 && (
-              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--danger-500)', color: 'var(--text-on-dark)', borderRadius: 99, padding: '1px 6px' }}>
+              <span className="rounded-full" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--danger-500)', color: 'var(--text-on-dark)', padding: '1px 6px' }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -330,11 +330,10 @@ export default function Sidebar() {
           {/* Profile row + menu */}
           <div ref={profileRef} style={{ position: 'relative' }}>
             {profileOpen && (
-              <div style={{
+              <div className="rounded-lg shadow-overlay" style={{
                 position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0,
                 background: 'var(--surface-card)', border: '1px solid var(--border-default)',
-                borderRadius: 12, overflow: 'hidden', zIndex: 100,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
+                overflow: 'hidden', zIndex: 100,
               }}>
                 {/* Email header */}
                 <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -422,8 +421,8 @@ export default function Sidebar() {
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
               onMouseLeave={e => (e.currentTarget.style.background = profileOpen ? 'var(--surface-sunken)' : 'transparent')}
             >
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+              <div className="rounded-full shrink-0" style={{
+                width: 28, height: 28,
                 background: 'var(--brand-primary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-on-dark)',
@@ -451,7 +450,7 @@ export default function Sidebar() {
     <>
       {/* ── Desktop sidebar ──────────────────────────────────────────── */}
       <aside
-        className="hidden lg:flex"
+        className="hidden lg:flex rounded-xl"
         style={{
           position: 'fixed', top: 12, left: 12, bottom: 12,
           width: SIDEBAR_W, flexDirection: 'column',
@@ -459,7 +458,6 @@ export default function Sidebar() {
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           border: '1px solid rgba(0,0,0,0.07)',
-          borderRadius: 16,
           boxShadow: '0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
           zIndex: 40,
           overflow: 'hidden',
@@ -483,7 +481,7 @@ export default function Sidebar() {
         }}
       >
         <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-          <List weight="regular" style={{ width: 20, height: 20 }} />
+          <List weight="regular" className="w-5 h-5" />
         </button>
         <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
           Freelax
@@ -498,7 +496,7 @@ export default function Sidebar() {
         >
           <Bell weight="regular" style={{ width: 18, height: 18 }} />
           {unreadCount > 0 && (
-            <span style={{ position: 'absolute', top: 2, right: 2, width: 7, height: 7, borderRadius: '50%', background: 'var(--danger-500)', border: '1px solid var(--surface-card)' }} />
+            <span className="absolute rounded-full" style={{ top: 2, right: 2, width: 7, height: 7, background: 'var(--danger-500)', border: '1px solid var(--surface-card)' }} />
           )}
         </Link>
       </header>

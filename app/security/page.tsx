@@ -32,7 +32,7 @@ function TrustBadge({ Icon, title, sub }: { Icon: React.ElementType; title: stri
       <div className="w-8 h-8 shrink-0 rounded-md flex items-center justify-center" style={{
         background: 'var(--success-50)', color: 'var(--brand-primary)',
       }}>
-        <Icon weight="regular" style={{ width: 16, height: 16 }} />
+        <Icon weight="regular" className="w-4 h-4" />
       </div>
       <div>
         <p className="m-0 tracking-normal" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -55,7 +55,7 @@ function Section({ id, Icon, title, children }: {
         <div className="w-7 h-7 shrink-0 rounded-md flex items-center justify-center" style={{
           background: 'var(--surface-sunken)', color: 'var(--text-primary)',
         }}>
-          <Icon weight="regular" style={{ width: 15, height: 15 }} />
+          <Icon weight="regular" className="w-4 h-4" />
         </div>
         <h2 className="m-0 tracking-tight" style={{
           fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',

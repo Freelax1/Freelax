@@ -49,7 +49,7 @@ export default async function PublicInvoicePage({
         {/* Status banners */}
         {isPaid && (
           <div className="flex items-center gap-2.5 mb-5 rounded-md py-3 px-4" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)' }}>
-            <CheckCircle weight="regular" style={{ width: 16, height: 16, color: 'var(--success-600)', flexShrink: 0 }} />
+            <CheckCircle weight="regular" className="w-4 h-4 shrink-0 text-success-600" />
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-700)' }}>Payment received – thank you!</span>
           </div>
         )}
@@ -60,7 +60,7 @@ export default async function PublicInvoicePage({
         )}
 
         {/* Invoice card */}
-        <div style={{ background: 'var(--surface-card)', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04)' }}>
+        <div className="rounded-sm shadow-card-public" style={{ background: 'var(--surface-card)' }}>
 
           {/* Header */}
           <div className="pt-8 px-10 pb-7" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
@@ -178,16 +178,15 @@ export default async function PublicInvoicePage({
                   <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6"
+                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded cursor-pointer"
                     style={{
                       background: 'var(--text-primary)', color: 'var(--text-on-dark)',
-                      border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600,
-                      cursor: 'pointer',
+                      border: 'none', fontSize: 'var(--text-sm)', fontWeight: 600,
                       transition: 'background 0.15s', letterSpacing: '-0.01em',
                       fontFamily: 'var(--font-sans)',
                     }}
                   >
-                    <CreditCard weight="regular" style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely
+                    <CreditCard weight="regular" className="w-4 h-4" /> Pay {formatCurrency(invoice.total)} securely
                   </button>
                 </form>
                 <p className="text-center mt-2.5" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)' }}>

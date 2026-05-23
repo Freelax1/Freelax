@@ -101,7 +101,7 @@ function StatCard({
       {progressBar && (
         <div className="h-[5px] rounded-full overflow-hidden mt-3 bg-border-subtle">
           <div style={{
-            height: '100%', borderRadius: 9999,
+            height: '100%',
             background: progressBar.color,
             width: `${progressBar.pct}%`,
             transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
@@ -199,7 +199,7 @@ function TaxPotCard({
       {totalTarget > 0 && (
         <div className="h-[5px] rounded-full overflow-hidden mb-2.5 bg-black/[0.06]">
           <div style={{
-            height: '100%', borderRadius: 99,
+            height: '100%',
             background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',
             width: `${Math.min(100, Math.round((totalSaved / totalTarget) * 100))}%`,
             transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',

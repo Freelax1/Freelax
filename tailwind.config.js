@@ -211,6 +211,7 @@ module.exports = {
         // ── Named elevation tokens ─────────────────────────────────────
         'card':         '0 2px 8px rgba(0,0,0,0.08)',
         'card-sm':      '0 1px 3px rgba(0,0,0,0.05)',
+        'card-public':  '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04)',
         'modal':        '0 24px 64px rgba(0,0,0,0.18)',
         'popover':      '0 8px 24px rgba(0,0,0,0.10)',
         'overlay':      '0 8px 32px rgba(0,0,0,0.12)',

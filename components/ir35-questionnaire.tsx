@@ -25,8 +25,8 @@ function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
       {segments.map(s => {
         const active = level === s.key
         return (
-          <div key={s.key} className="py-1.5 text-center" style={{
-            flex: 1, borderRadius: 8,
+          <div key={s.key} className="py-1.5 text-center rounded" style={{
+            flex: 1,
             border: `1px solid ${active ? s.border : 'var(--border-default)'}`,
             background: active ? s.bg : 'var(--surface-sunken)',
             opacity: active ? 1 : 0.45,

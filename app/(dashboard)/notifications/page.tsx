@@ -71,16 +71,16 @@ export default function NotificationsPage() {
               role="switch"
               aria-checked={unreadOnly}
               onClick={() => setUnreadOnly(v => !v)}
-              className="relative shrink-0 cursor-pointer border-none p-0 transition-colors duration-200"
+              className="relative shrink-0 cursor-pointer border-none p-0 transition-colors duration-200 rounded-full"
               style={{
-                width: 28, height: 16, borderRadius: 99,
+                width: 28, height: 16,
                 background: unreadOnly ? 'var(--brand-primary)' : 'var(--border-default)',
               }}
             >
               <span
-                className="absolute top-0.5 transition-all duration-200"
+                className="absolute top-0.5 transition-all duration-200 rounded-full"
                 style={{
-                  width: 12, height: 12, borderRadius: '50%',
+                  width: 12, height: 12,
                   background: 'var(--surface-card)',
                   left: unreadOnly ? 14 : 2,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
