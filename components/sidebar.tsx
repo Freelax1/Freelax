@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import {
   List, X, Bell, MagnifyingGlass, Gear, SignOut, Question, ArrowUp,
-  House, Calculator, FileText, ClipboardText, Receipt,
+  House, Calculator, FileText, ClipboardText, Receipt, Car,
   Users, FolderOpen,
 } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
@@ -58,6 +58,7 @@ const NAV_GROUPS = [
       { href: '/invoices', label: 'Invoices', icon: FileText },
       { href: '/quotes',   label: 'Quotes',   icon: ClipboardText },
       { href: '/expenses', label: 'Expenses', icon: Receipt },
+      { href: '/mileage',  label: 'Mileage',  icon: Car },
     ],
   },
   {
