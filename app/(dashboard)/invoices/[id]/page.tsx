@@ -135,14 +135,13 @@ function ChaseModal({
                     onClick={() => { if (!locked) handleTierChange(t) }}
                     disabled={locked}
                     title={lockReason || undefined}
-                    className="py-2 px-1 rounded"
+                    className="py-2 px-1 rounded transition-all duration-150"
                     style={{
                       flex: 1,
                       cursor: locked ? 'not-allowed' : 'pointer',
                       border: `1.5px solid ${isActive ? meta.badgeColor : 'var(--border-default)'}`,
                       background: isActive ? meta.badgeBg : 'var(--surface-card)',
                       opacity: locked ? 0.45 : 1,
-                      transition: 'all 0.15s',
                     }}
                   >
                     <p className="mb-0.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-muted)' }}>

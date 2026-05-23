@@ -122,12 +122,11 @@ export default async function LegalLayout({
                   <li key={t.id}>
                     <a
                       href={`#${t.id}`}
-                      className="block py-1.5 px-3.5 -ml-px leading-body"
+                      className="block py-1.5 px-3.5 -ml-px leading-body transition-colors duration-fast"
                       style={{
                         fontSize: 'var(--text-sm)', color: 'var(--text-secondary)',
                         textDecoration: 'none',
                         borderLeft: '2px solid transparent',
-                        transition: 'color 120ms, border-color 120ms',
                       }}
                     >
                       {t.label}

@@ -178,11 +178,11 @@ export default async function PublicInvoicePage({
                   <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded cursor-pointer transition-colors duration-150"
                     style={{
                       background: 'var(--text-primary)', color: 'var(--text-on-dark)',
                       border: 'none', fontSize: 'var(--text-sm)', fontWeight: 600,
-                      transition: 'background 0.15s', letterSpacing: '-0.01em',
+                      letterSpacing: '-0.01em',
                       fontFamily: 'var(--font-sans)',
                     }}
                   >

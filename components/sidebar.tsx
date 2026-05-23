@@ -227,12 +227,13 @@ export default function Sidebar() {
           </div>
           <button
             onClick={() => { setCmdOpen(true); onNavClick?.() }}
+            className="transition-colors duration-150"
             style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 8,
               padding: '7px 12px', borderRadius: 'var(--radius-full)',
               background: 'transparent', border: '1px solid var(--border-default)',
               color: 'var(--text-muted)', cursor: 'pointer', fontSize: 'var(--text-xs)',
-              fontFamily: 'var(--font-sans)', transition: 'background 150ms',
+              fontFamily: 'var(--font-sans)',
             }}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -262,7 +263,7 @@ export default function Sidebar() {
                     key={href}
                     href={href}
                     onClick={onNavClick}
-                    className="mb-px"
+                    className="mb-px transition-colors duration-100"
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '7px 10px', borderRadius: 'var(--radius-xl)',
@@ -270,7 +271,7 @@ export default function Sidebar() {
                       background: active ? 'var(--surface-sunken)' : 'transparent',
                       color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                       fontWeight: active ? 600 : 400,
-                      fontSize: 'var(--text-sm)', transition: 'background 100ms, color 100ms',
+                      fontSize: 'var(--text-sm)',
                     }}
                     onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
@@ -307,13 +308,14 @@ export default function Sidebar() {
           <Link
             href="/notifications"
             onClick={onNavClick}
+            className="transition-colors duration-100"
             style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '8px 10px', borderRadius: 'var(--radius-xl)',
               textDecoration: 'none',
               color: pathname.startsWith('/notifications') ? 'var(--text-primary)' : 'var(--text-secondary)',
               background: pathname.startsWith('/notifications') ? 'var(--surface-sunken)' : 'transparent',
-              fontSize: 'var(--text-sm)', transition: 'background 100ms',
+              fontSize: 'var(--text-sm)',
             }}
             onMouseEnter={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
             onMouseLeave={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
@@ -345,11 +347,12 @@ export default function Sidebar() {
                 {(userPlan === 'free' || userPlan === 'solo' || !userPlan) && (
                   <button
                     onClick={() => { setProfileOpen(false); openSettings('Billing'); onNavClick?.() }}
+                    className="transition-colors duration-75"
                     style={{
                       width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                       padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
                       color: 'var(--brand-primary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
-                      fontWeight: 500, transition: 'background 80ms',
+                      fontWeight: 500,
                     }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -362,11 +365,11 @@ export default function Sidebar() {
                 {/* Settings — opens modal */}
                 <button
                   onClick={() => { setProfileOpen(false); openSettings(); onNavClick?.() }}
+                  className="transition-colors duration-75"
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
                     color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
-                    transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -379,11 +382,11 @@ export default function Sidebar() {
                 <Link
                   href="mailto:support@freelax.app"
                   onClick={() => { setProfileOpen(false); onNavClick?.() }}
+                  className="transition-colors duration-75"
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', textDecoration: 'none',
                     color: 'var(--text-secondary)', fontSize: 'var(--text-sm)',
-                    transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -394,11 +397,11 @@ export default function Sidebar() {
                 <div className="border-t border-border-subtle my-1" />
                 <button
                   onClick={() => { setProfileOpen(false); handleSignOut() }}
+                  className="transition-colors duration-75"
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
                     color: 'var(--danger-500)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
-                    transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -412,11 +415,12 @@ export default function Sidebar() {
             {/* Trigger row */}
             <button
               onClick={() => setProfileOpen(o => !o)}
+              className="transition-colors duration-100"
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                 padding: '6px 10px', borderRadius: 'var(--radius-xl)',
                 background: profileOpen ? 'var(--surface-sunken)' : 'transparent',
-                border: 'none', cursor: 'pointer', transition: 'background 100ms',
+                border: 'none', cursor: 'pointer',
               }}
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
               onMouseLeave={e => (e.currentTarget.style.background = profileOpen ? 'var(--surface-sunken)' : 'transparent')}
