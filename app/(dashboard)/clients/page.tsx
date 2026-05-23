@@ -355,7 +355,7 @@ export default function ClientsPage() {
             <tbody>
               {loading ? Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i}>{Array.from({ length: 7 }).map((_, j) => (
-                  <td key={j} className="px-4 py-2.5"><div className="h-4 bg-surface-sunken rounded animate-pulse w-24" /></td>
+                  <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-24" /></td>
                 ))}</tr>
               )) : filtered.map(c => {
                 const isSelected = selected.has(c.id)

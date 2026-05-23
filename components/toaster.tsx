@@ -56,7 +56,6 @@ export default function Toaster() {
           {t.action && (
             <button
               onClick={t.action.onClick}
-              className="shrink-0 px-2 py-1 rounded-md text-xs font-semibold cursor-pointer text-[inherit] font-[inherit]"
               className="shrink-0 px-2 py-1 rounded-md text-xs font-semibold cursor-pointer text-[inherit] font-[inherit] bg-black/[0.08] border border-black/10"
             >
               {t.action.label}

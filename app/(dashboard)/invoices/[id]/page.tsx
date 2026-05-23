@@ -7,21 +7,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, X, Clock, LinkSimple, Lock } from '@phosphor-icons/react'
 import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
-
-function Badge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    draft:     'bg-surface-sunken text-text-secondary border border-border-default',
-    sent:      'bg-forest-50 text-forest-700 border border-forest-200',
-    paid:      'bg-success-50 text-success-700 border border-success-200',
-    overdue:   'bg-danger-50 text-danger-700 border border-danger-200',
-    cancelled: 'bg-surface-sunken text-text-muted border border-border-default',
-  }
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-xl text-sm font-semibold ${map[status] ?? 'bg-surface-sunken text-text-secondary'}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  )
-}
+import Badge from '@/components/badge'
 
 // ── Chase modal ────────────────────────────────────────────────────────
 // ── Chase tiers ────────────────────────────────────────────────────────

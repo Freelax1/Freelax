@@ -395,7 +395,7 @@ export default function QuotesPage() {
               </thead>
               <tbody>
                 {loading ? Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-4 bg-surface-sunken rounded animate-pulse w-20" /></td>)}</tr>
+                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-20" /></td>)}</tr>
                 )) : sorted.map(q => {
                   const expired  = q.status === 'sent' && isQuoteExpired(q.expiry_date)
                   const days     = daysUntilExpiry(q.expiry_date)
