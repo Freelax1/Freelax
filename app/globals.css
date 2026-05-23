@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -32,9 +32,9 @@
     --cream-900: #4A3D1F;
 
     /* ── Semantic surface tokens ───────────────────────────────────── */
-    --surface-paper:   #FAF6EA;
+    --surface-paper:   #FFFFFF;
     --surface-card:    #FFFFFF;
-    --surface-sunken:  #F5EFE2;
+    --surface-sunken:  #F5F4F2;
     --surface-overlay: rgba(15, 32, 22, 0.5);
 
     /* ── Semantic text tokens ──────────────────────────────────────── */
@@ -47,8 +47,9 @@
     --text-on-accent: #1F3D2D;
 
     /* ── Semantic border tokens ────────────────────────────────────── */
-    --border-default: #D3D1C7;
-    --border-subtle:  #E8E5DD;
+    --border-default: #E2E1DE;
+    --border-hover:   #C8C6C2;
+    --border-subtle:  #EBEBEA;
     --border-strong:  #888780;
     --border-focus:   #3D6B52;
 
@@ -61,41 +62,60 @@
     --brand-accent-active:  var(--cream-500);
 
     /* ── Status colour tokens ──────────────────────────────────────── */
-    --success-50:  #E8F2EA;
+    --success-50:  #EDFAF1;
+    --success-200: #A7DFB5;
     --success-500: #2D6B3F;
+    --success-600: #256035;
     --success-700: #1F4D2D;
-    --warning-50:  #FCF1E8;
-    --warning-500: #C7794A;
-    --warning-700: #8C5224;
-    --danger-50:   #FCEAEA;
-    --danger-500:  #C4413B;
-    --danger-700:  #A32D2D;
+    --success-800: #183E25;
+    --warning-50:  #FFFBEB;
+    --warning-200: #FDE68A;
+    --warning-500: #D97706;
+    --warning-600: #B45309;
+    --warning-700: #92400E;
+    --warning-800: #78350F;
+    --danger-50:   #FEF2F2;
+    --danger-200:  #FECACA;
+    --danger-500:  #EF4444;
+    --danger-600:  #DC2626;
+    --danger-700:  #B91C1C;
+    --danger-800:  #991B1B;
 
     /* ── Typography tokens ─────────────────────────────────────────── */
+    /* Two fonts only: Outfit (UI) · DM Serif Display (display/wordmark) */
     --font-serif: "DM Serif Display", Georgia, serif;
     --font-sans:  "Outfit", system-ui, sans-serif;
-    --font-mono:  "JetBrains Mono", "SF Mono", Consolas, monospace;
 
-    --text-2xs:  0.625rem;
-    --text-xs:   0.6875rem;
-    --text-sm:   0.8125rem;
-    --text-base: 0.9375rem;
-    --text-md:   1.125rem;
-    --text-lg:   1.5rem;
-    --text-xl:   2rem;
-    --text-2xl:  2.625rem;
-    --text-3xl:  3.5rem;
+    /* ── Type scale (9 steps) ─────────────────────────────────────── */
+    /*   micro   10px — tiny pills, avatar initials, kbd hints         */
+    /*   caption 11px — meta, timestamps, field hints                  */
+    /*   xs      12px — secondary labels, badges                       */
+    /*   sm      13px — default UI body, inputs, buttons               */
+    /*   base    15px — section headings, prominent CTAs               */
+    /*   lg      18px — card headings, modal subtitles                 */
+    /*   xl      22px — page titles in modals/drawers                  */
+    /*   2xl     28px — page titles, stat values                       */
+    /*   3xl     36px — hero stats (rare)                              */
+    --text-micro:   0.625rem;
+    --text-caption: 0.6875rem;
+    --text-xs:      0.75rem;
+    --text-sm:      0.8125rem;
+    --text-base:    0.9375rem;
+    --text-lg:      1.125rem;
+    --text-xl:      1.375rem;
+    --text-2xl:     1.75rem;
+    --text-3xl:     2.25rem;
 
-    --leading-tight: 1.05;
-    --leading-snug:  1.2;
-    --leading-base:  1.55;
-    --leading-loose: 1.75;
+    /* ── Line-height ──────────────────────────────────────────────── */
+    --leading-display: 1.15;
+    --leading-heading: 1.3;
+    --leading-body:    1.5;
+    --leading-relaxed: 1.65;
 
-    --weight-light:    300;
+    /* ── Font weights ─────────────────────────────────────────────── */
     --weight-regular:  400;
     --weight-medium:   500;
     --weight-semibold: 600;
-    --weight-bold:     700;
 
     /* ── Spacing tokens ────────────────────────────────────────────── */
     --space-0:    0;
@@ -121,8 +141,9 @@
     --radius-sm:   4px;
     --radius-md:   8px;
     --radius-lg:   12px;
-    --radius-xl:   16px;
-    --radius-2xl:  24px;
+    --radius-xl:   18px;
+    --radius-2xl:  28px;
+    --radius-3xl:  40px;
     --radius-full: 9999px;
 
     /* ── Elevation tokens ──────────────────────────────────────────── */
@@ -149,17 +170,17 @@
     --container-2xl: 1536px;
 
     /* ── shadcn / Tailwind compatibility (HSL, no hsl() wrapper) ───── */
-    --background:             47 46% 95%;   /* surface-paper  #FAF6EA */
+    --background:              0  0% 100%;   /* surface-paper  #FFFFFF */
     --foreground:             60  2% 17%;   /* text-body      #2C2C2A */
     --card:                    0  0% 100%;  /* surface-card   #FFFFFF */
     --card-foreground:        60  2% 17%;
-    --border:                 50  8% 80%;   /* border-default #D3D1C7 */
-    --input:                  50  8% 80%;
+    --border:                 40  5% 87%;   /* border-default #E2E1DE */
+    --input:                  40  5% 87%;
     --primary:               152 32% 18%;   /* brand-primary  #1F3D2D */
     --primary-foreground:     39 40% 84%;   /* text-on-dark   #E8DCC4 */
     --secondary:             145 28% 88%;   /* forest-100     #DEEBE2 */
     --secondary-foreground:  152 32% 18%;
-    --muted:                  40 42% 92%;   /* surface-sunken #F5EFE2 */
+    --muted:                  40  8% 96%;   /* surface-sunken #F5F4F2 */
     --muted-foreground:       45  3% 36%;   /* text-secondary #5F5E5A */
     --accent:                 39 40% 84%;   /* cream-300      #E8DCC4 */
     --accent-foreground:     152 32% 18%;
@@ -186,6 +207,7 @@
     --text-on-accent: #0D2014;
 
     --border-default: #2B5340;
+    --border-hover:   #3D6B52;
     --border-subtle:  #1F3D2D;
     --border-strong:  #5E8E72;
     --border-focus:   #C9B58A;
@@ -198,14 +220,23 @@
     --brand-accent-active:  #1F3D2D;
 
     --success-50:  #0D2914;
+    --success-200: #1F5C2E;
     --success-500: #8FB59C;
+    --success-600: #A8CBAF;
     --success-700: #DEEBE2;
+    --success-800: #EEF5F0;
     --warning-50:  #2A1A0A;
+    --warning-200: #4A3010;
     --warning-500: #E89B6F;
+    --warning-600: #F0AE87;
     --warning-700: #F8C9A2;
+    --warning-800: #FDE8D0;
     --danger-50:   #2E0F0F;
+    --danger-200:  #5C1A1A;
     --danger-500:  #E59082;
+    --danger-600:  #EDA89F;
     --danger-700:  #F5D3CD;
+    --danger-800:  #FAE8E5;
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -266,7 +297,7 @@
   }
 
   code, kbd, pre, samp {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
   }
 }
 

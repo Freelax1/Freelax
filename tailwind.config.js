@@ -69,20 +69,30 @@ module.exports = {
 
         // ── Border tokens ──────────────────────────────────────────────
         'border-default': 'var(--border-default)',
+        'border-hover':   'var(--border-hover)',
         'border-subtle':  'var(--border-subtle)',
         'border-strong':  'var(--border-strong)',
         'border-focus':   'var(--border-focus)',
 
         // ── Status tokens ──────────────────────────────────────────────
         'success-50':  'var(--success-50)',
+        'success-200': 'var(--success-200)',
         'success-500': 'var(--success-500)',
+        'success-600': 'var(--success-600)',
         'success-700': 'var(--success-700)',
+        'success-800': 'var(--success-800)',
         'warning-50':  'var(--warning-50)',
+        'warning-200': 'var(--warning-200)',
         'warning-500': 'var(--warning-500)',
+        'warning-600': 'var(--warning-600)',
         'warning-700': 'var(--warning-700)',
+        'warning-800': 'var(--warning-800)',
         'danger-50':   'var(--danger-50)',
+        'danger-200':  'var(--danger-200)',
         'danger-500':  'var(--danger-500)',
+        'danger-600':  'var(--danger-600)',
         'danger-700':  'var(--danger-700)',
+        'danger-800':  'var(--danger-800)',
 
         // ── Forest ramp ────────────────────────────────────────────────
         'forest-50':  'var(--forest-50)',
@@ -111,21 +121,24 @@ module.exports = {
       },
 
       fontFamily: {
-        serif: ['var(--font-serif)'],
-        sans:  ['var(--font-sans)'],
-        mono:  ['var(--font-mono)'],
+        serif:   ['var(--font-serif)'],
+        sans:    ['var(--font-sans)'],
+        display: ['var(--font-serif)'], // alias — use font-display for wordmark / hero
       },
 
       fontSize: {
-        '2xs': 'var(--text-2xs)',
-        'ds-xs':   'var(--text-xs)',
-        'ds-sm':   'var(--text-sm)',
-        'ds-base': 'var(--text-base)',
-        'ds-md':   'var(--text-md)',
-        'ds-lg':   'var(--text-lg)',
-        'ds-xl':   'var(--text-xl)',
-        'ds-2xl':  'var(--text-2xl)',
-        'ds-3xl':  'var(--text-3xl)',
+        // ── Freelax type scale ────────────────────────────────────────
+        // All sizes ship with lineHeight + letterSpacing baked in.
+        // Use these exclusively — avoid arbitrary text-[Npx] values.
+        'micro':   ['0.625rem',  { lineHeight: '1.3',  letterSpacing: '0' }],       // 10px
+        'caption': ['0.6875rem', { lineHeight: '1.4',  letterSpacing: '0' }],       // 11px
+        'xs':      ['0.75rem',   { lineHeight: '1.45', letterSpacing: '0' }],       // 12px
+        'sm':      ['0.8125rem', { lineHeight: '1.5',  letterSpacing: '0' }],       // 13px — default body
+        'base':    ['0.9375rem', { lineHeight: '1.55', letterSpacing: '-0.01em' }], // 15px
+        'lg':      ['1.125rem',  { lineHeight: '1.4',  letterSpacing: '-0.015em' }],// 18px
+        'xl':      ['1.375rem',  { lineHeight: '1.3',  letterSpacing: '-0.02em' }], // 22px
+        '2xl':     ['1.75rem',   { lineHeight: '1.2',  letterSpacing: '-0.025em' }],// 28px
+        '3xl':     ['2.25rem',   { lineHeight: '1.15', letterSpacing: '-0.03em' }], // 36px
       },
 
       borderRadius: {
@@ -137,17 +150,29 @@ module.exports = {
         'lg':   'var(--radius-lg)',
         'xl':   'var(--radius-xl)',
         '2xl':  'var(--radius-2xl)',
+        '3xl':  'var(--radius-3xl)',
         'full': 'var(--radius-full)',
       },
 
       boxShadow: {
-        'xs':      'var(--shadow-xs)',
-        'sm':      'var(--shadow-sm)',
-        DEFAULT:   'var(--shadow-md)',
-        'md':      'var(--shadow-md)',
-        'lg':      'var(--shadow-lg)',
-        'xl':      'var(--shadow-xl)',
-        'inset':   'var(--shadow-inset)',
+        'xs':           'var(--shadow-xs)',
+        'sm':           'var(--shadow-sm)',
+        DEFAULT:        'var(--shadow-md)',
+        'md':           'var(--shadow-md)',
+        'lg':           'var(--shadow-lg)',
+        'xl':           'var(--shadow-xl)',
+        'inset':        'var(--shadow-inset)',
+        // ── Named elevation tokens ─────────────────────────────────────
+        'card':         '0 2px 8px rgba(0,0,0,0.08)',
+        'card-sm':      '0 1px 3px rgba(0,0,0,0.05)',
+        'modal':        '0 24px 64px rgba(0,0,0,0.18)',
+        'popover':      '0 8px 24px rgba(0,0,0,0.10)',
+        'overlay':      '0 8px 32px rgba(0,0,0,0.12)',
+        'overlay-dark': '0 8px 32px rgba(0,0,0,0.24)',
+        'tooltip':      '0 8px 20px rgba(0,0,0,0.15)',
+        'sheet-bottom': '0 -4px 32px rgba(0,0,0,0.15)',
+        'slide-left':   '-4px 0 24px rgba(0,0,0,0.12)',
+        'btn-dark':     '0 2px 8px rgba(0,0,0,0.18)',
       },
 
       transitionDuration: {
@@ -165,10 +190,43 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to:   { height: 0 },
         },
+        "fd-spin": {
+          to: { transform: "rotate(360deg)" },
+        },
+        "auth-form-in": {
+          from: { opacity: "0", transform: "translateY(6px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
+        },
+        "cmd-fade-in": {
+          from: { opacity: "0" },
+          to:   { opacity: "1" },
+        },
+        "cmd-slide-in": {
+          from: { opacity: "0", transform: "translateY(-8px) scale(0.97)" },
+          to:   { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "tooltip-in": {
+          from: { opacity: "0", transform: "scale(0.95) translateY(-2px)" },
+          to:   { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "fd-toast-in": {
+          from: { opacity: "0", transform: "translateX(12px)" },
+          to:   { opacity: "1", transform: "translateX(0)" },
+        },
+        "sheet-up": {
+          from: { transform: "translateY(100%)" },
+          to:   { transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up":   "accordion-up 0.2s ease-out",
+        "fd-spin":        "fd-spin 0.7s linear infinite",
+        "auth-in":        "auth-form-in 220ms ease both",
+        "cmd-fade":       "cmd-fade-in 150ms cubic-bezier(0.22,1,0.36,1) both",
+        "cmd-slide":      "cmd-slide-in 150ms cubic-bezier(0.22,1,0.36,1) both",
+        "tooltip-in":     "tooltip-in 150ms var(--ease-out) both",
+        "toast-in":       "fd-toast-in 200ms cubic-bezier(0.22,1,0.36,1) both",
       },
     },
   },
