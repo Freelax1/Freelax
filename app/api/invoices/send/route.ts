@@ -7,6 +7,7 @@ import { logActivity } from '@/lib/api/invoice-activity'
 import { canSendByEmail } from '@/lib/plan-limits'
 import { generateInvoicePdfBuffer } from '@/lib/pdf/generate-invoice-pdf'
 import { escapeHtml } from '@/lib/escape-html'
+import type { Invoice } from '@/types/database'
 
 function applyTemplate(template: string, vars: Record<string, string>): string {
   return Object.entries(vars).reduce((t, [k, v]) => t.replaceAll(`{{${k}}}`, v), template)
@@ -29,11 +30,12 @@ export async function POST(req: NextRequest) {
 
   const { invoiceId } = await req.json()
 
-  const { data: invoice } = await supabase
+  const { data: invoiceData } = await supabase
     .from('invoices')
     .select('*, clients(*), users(*), invoice_line_items(*)')
     .eq('id', invoiceId)
     .single()
+  const invoice = invoiceData as Invoice | null
 
   if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
   if (invoice.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -48,8 +50,8 @@ export async function POST(req: NextRequest) {
   // Try to send email if Resend key exists
   let emailSent = false
   const resendKey = process.env.RESEND_API_KEY
-  const client = (invoice as any).clients
-  const sender = (invoice as any).users
+  const client = invoice.clients
+  const sender = invoice.users
 
   if (resendKey && client?.email) {
     try {

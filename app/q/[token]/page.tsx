@@ -90,7 +90,7 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                 {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Quote</p>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', marginBottom: 6 }}>Quote</p>
                 <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{quote.quote_number}</p>
               </div>
             </div>
@@ -100,24 +100,24 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
           <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
             <div className="qpub-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Prepared for</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 8 }}>Prepared for</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name}</p>
                 {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
                 {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
               </div>
               <div className="qpub-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Issue date</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 3 }}>Issue date</p>
                   <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Valid until</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 3 }}>Valid until</p>
                   <p style={{ fontSize: 13, fontWeight: 600, color: expired ? '#dc2626' : '#0f172a' }}>{new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div style={{ marginTop: 4 }}>
-                  {accepted && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
-                  {declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Declined</span>}
-                  {expired && !accepted && !declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
+                  {accepted && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px' }}>Accepted</span>}
+                  {declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px' }}>Declined</span>}
+                  {expired && !accepted && !declined && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Expired</span>}
                 </div>
               </div>
             </div>
@@ -128,11 +128,11 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
               <thead>
                 <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                  <th className="qpub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Total</th>
                 </tr>
               </thead>
               <tbody>

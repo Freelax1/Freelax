@@ -26,14 +26,14 @@ function getStatus(p: Props): { text: string; state: State } {
 }
 
 function WeatherGlyph({ state }: { state: State }) {
-  const green  = '#1D6B35'
-  const amber  = '#9A7B0A'
-  const red    = '#C0392B'
+  const green  = 'var(--success-500)'
+  const amber  = 'var(--warning-500)'
+  const red    = 'var(--danger-500)'
 
   // ── Sun (clear / onboarding) ──────────────────────────────────────
   if (state === 'clear' || state === 'onboarding') {
     return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
         <circle cx="8" cy="8" r="3" stroke={green} strokeWidth="1.5" />
         {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => {
           const r = (Math.PI * deg) / 180
@@ -52,7 +52,7 @@ function WeatherGlyph({ state }: { state: State }) {
   if (state === 'nudge' || state === 'watch' || state === 'behind') {
     const color = state === 'behind' ? red : amber
     return (
-      <svg width="18" height="13" viewBox="0 0 18 13" fill="none" style={{ flexShrink: 0 }}>
+      <svg width="18" height="13" viewBox="0 0 18 13" fill="none" className="shrink-0">
         {/* Cloud body — arc-based path that reliably looks like a cloud */}
         <path
           d="M3.5 11 C1.5 11 1 9.5 1 8.5 C1 7 2 6 3.5 6 C3.5 4 5 2.5 7 2.5 C8.5 2.5 9.7 3.4 10.2 4.7 C10.6 4.5 11 4.4 11.5 4.4 C13.4 4.4 15 6 15 7.9 C15 9.7 13.6 11 11.8 11 Z"
@@ -72,7 +72,7 @@ function WeatherGlyph({ state }: { state: State }) {
 
   // ── Storm cloud (attention) ───────────────────────────────────────
   return (
-    <svg width="18" height="15" viewBox="0 0 18 15" fill="none" style={{ flexShrink: 0 }}>
+    <svg width="18" height="15" viewBox="0 0 18 15" fill="none" className="shrink-0">
       {/* Cloud */}
       <path
         d="M3.5 10 C1.5 10 1 8.5 1 7.5 C1 6 2 5 3.5 5 C3.5 3 5 1.5 7 1.5 C8.5 1.5 9.7 2.4 10.2 3.7 C10.6 3.5 11 3.4 11.5 3.4 C13.4 3.4 15 5 15 6.9 C15 8.7 13.6 10 11.8 10 Z"
@@ -114,19 +114,12 @@ function NudgeChevron() {
     <button
       onClick={handleClick}
       aria-label="Scroll to the action below"
-      style={{
-        background: 'none', border: 'none', cursor: 'pointer',
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        padding: 4, marginLeft: 4,
-        color: '#1D6B35',
-        animation: 'fd-chevron-nudge 1.8s ease-in-out infinite',
-        borderRadius: 999,
-        transition: 'background 120ms',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(29,107,53,0.10)' }}
+      className="bg-transparent border-none cursor-pointer inline-flex items-center justify-center p-1 ml-1 text-brand-primary rounded-full transition-[background] duration-[120ms]"
+      style={{ animation: 'fd-chevron-nudge 1.8s ease-in-out infinite' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--forest-50)' }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
     >
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ display: 'block' }}>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="block">
         <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <style>{`
@@ -152,20 +145,14 @@ export default function StatusLine(props: Props) {
   }, [])
 
   return (
-    <div data-fd-status-line style={{
+    <div data-fd-status-line className="pt-1" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(4px)',
       transition: 'opacity 200ms cubic-bezier(0.22,1,0.36,1), transform 200ms cubic-bezier(0.22,1,0.36,1)',
-      paddingTop: 4,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
+      <div className="flex items-center gap-[9px] flex-wrap">
         <WeatherGlyph state={state} />
-        <p style={{
-          fontSize: 26, fontWeight: 600, color: '#0F172A',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          letterSpacing: '-0.015em', lineHeight: 1.25,
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-        }}>
+        <p className="font-semibold text-text-primary inline-flex items-center gap-1 text-2xl font-sans tracking-tight leading-[1.25]">
           {text}
           {state === 'nudge' && <NudgeChevron />}
         </p>

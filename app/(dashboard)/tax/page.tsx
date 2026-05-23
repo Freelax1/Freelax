@@ -16,7 +16,7 @@ import AIFlag from '@/components/ai-flag'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
-import { Sparkles, Download, Loader2, AlertTriangle, Info, X, ArrowRight, Zap, RotateCcw, Lock } from 'lucide-react'
+import { Sparkle, DownloadSimple, CircleNotch, Warning, Info, X, ArrowRight, Lightning, ArrowCounterClockwise, Lock } from '@phosphor-icons/react'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
@@ -56,12 +56,12 @@ function Row({ label, value, bold, red, green, indent, hint }: {
 }) {
 
   return (
-    <div className={`flex justify-between items-start py-2 border-b border-slate-50 last:border-0 ${indent ? 'pl-4' : ''}`}>
+    <div className={`flex justify-between items-start py-2 border-b border-border-subtle last:border-0 ${indent ? 'pl-4' : ''}`}>
       <div>
-        <span className={`text-sm ${bold ? 'font-semibold text-slate-800' : 'text-slate-500'}`}>{label}</span>
-        {hint && <p className="text-xs text-slate-600 mt-0.5">{hint}</p>}
+        <span className={`text-sm ${bold ? 'font-semibold text-text-primary' : 'text-text-secondary'}`}>{label}</span>
+        {hint && <p className="text-xs text-text-secondary mt-0.5">{hint}</p>}
       </div>
-      <span className={`text-sm ml-4 shrink-0 ${bold ? 'font-semibold' : 'font-medium'} ${red ? 'text-red-600' : green ? 'text-green-700' : bold ? 'text-slate-900' : 'text-slate-700'}`}>
+      <span className={`text-sm ml-4 shrink-0 ${bold ? 'font-semibold' : 'font-medium'} ${red ? 'text-danger-600' : green ? 'text-success-700' : bold ? 'text-text-primary' : 'text-text-primary'}`}>
         {value}
       </span>
     </div>
@@ -70,9 +70,9 @@ function Row({ label, value, bold, red, green, indent, hint }: {
 
 function Card({ title, accent, children }: { title: React.ReactNode; accent?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div className={`px-5 py-3 border-b border-slate-100 ${accent ?? 'bg-slate-50'}`}>
-        <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
+    <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
+      <div className={`px-5 py-3 border-b border-border-subtle ${accent ?? 'bg-surface-sunken'}`}>
+        <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
       </div>
       <div className="px-5 py-1">{children}</div>
     </div>
@@ -91,34 +91,17 @@ function StatCard({
   progressBar?: { pct: number; color: string }
 }) {
   return (
-    <div style={{
-      background: tone === 'cream' ? '#F5F4EE' : '#fff',
-      borderRadius: 14,
-      border: '1px solid rgba(0,0,0,0.06)',
-      padding: '22px 22px 20px',
-      display: 'flex', flexDirection: 'column',
-    }}>
-      <p style={{
-        fontSize: 11, fontWeight: 500, color: '#475569',
-        textTransform: 'uppercase', letterSpacing: '0.12em',
-        margin: '0 0 12px',
-      }}>
+    <div className="rounded-xl p-6 flex flex-col border border-border-default bg-surface-card">
+      <p className="text-caption font-medium text-text-secondary mb-3">
         {label}
       </p>
-      <p style={{
-        fontSize: 'clamp(22px, 3.4vw, 28px)', fontWeight: 700,
-        color: valueColor ?? '#0F172A',
-        letterSpacing: '-0.02em', lineHeight: 1,
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-        fontVariantNumeric: 'tabular-nums',
-        margin: 0,
-      }}>
+      <p className="text-[clamp(22px,3.4vw,28px)] font-semibold tracking-tight leading-none [font-variant-numeric:tabular-nums]" style={{ color: valueColor ?? 'var(--text-primary)' }}>
         {value}
       </p>
       {progressBar && (
-        <div style={{ height: 5, background: 'rgba(0,0,0,0.06)', borderRadius: 99, overflow: 'hidden', marginTop: 12 }}>
+        <div className="h-[5px] rounded-full overflow-hidden mt-3 bg-border-subtle">
           <div style={{
-            height: '100%', borderRadius: 99,
+            height: '100%', borderRadius: 9999,
             background: progressBar.color,
             width: `${progressBar.pct}%`,
             transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
@@ -126,7 +109,7 @@ function StatCard({
         </div>
       )}
       {sub && (
-        <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, margin: '8px 0 0' }}>
+        <p className="text-xs text-text-secondary leading-relaxed mt-2">
           {sub}
         </p>
       )}
@@ -148,39 +131,33 @@ function NextSteps({ actions }: { actions: TaxAction[] }) {
   const allGreen = actions.every(a => a.priority === 'green')
   const hasRed   = actions.some(a => a.priority === 'red')
 
-  const bg     = allGreen ? '#F0FDF4'  : hasRed ? '#FEF2F2'  : '#FFFDF5'
-  const border = allGreen ? 'rgba(29,107,53,0.20)'  : hasRed ? 'rgba(192,57,43,0.25)'  : 'rgba(245,226,155,0.6)'
-  const accent = allGreen ? '#1D6B35'  : hasRed ? '#C0392B'  : '#6B5410'
+  const cardCn = allGreen ? 'bg-success-50 border-success-200' : hasRed ? 'bg-danger-50 border-danger-200' : 'bg-warning-50 border-warning-200'
+  const accentCn = allGreen ? 'text-success-700' : hasRed ? 'text-danger-700' : 'text-warning-700'
   const label  = allGreen ? 'On track' : hasRed ? 'Act soon' : 'What to do next'
 
-  const dotColor = (p: TaxAction['priority']) =>
-    p === 'red'   ? '#C0392B' :
-    p === 'amber' ? '#9A7B0A' :
-    p === 'green' ? '#1D6B35' :
-                    '#64748B'
+  const dotCn = (p: TaxAction['priority']) =>
+    p === 'red'   ? 'bg-danger-600' :
+    p === 'amber' ? 'bg-warning-600' :
+    p === 'green' ? 'bg-success-600' :
+                    'bg-text-muted'
 
   return (
-    <div style={{
-      background: bg,
-      borderRadius: 14,
-      border: `1px solid ${border}`,
-      padding: '18px 22px',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-        <Zap style={{ width: 12, height: 12, color: accent }} strokeWidth={2} />
-        <p style={{ fontSize: 11, fontWeight: 500, color: accent, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
+    <div className={`rounded-xl p-5 border ${cardCn}`}>
+      <div className="flex items-center gap-[7px] mb-3.5">
+        <Lightning weight="regular" className={`w-3 h-3 ${accentCn}`} />
+        <p className={`text-caption font-medium ${accentCn}`}>
           {label}
         </p>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="flex flex-col gap-3">
         {actions.map((a, i) => (
-          <Link key={i} href={a.href} style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: dotColor(a.priority) }} />
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B', margin: 0 }}>{a.title}</p>
-              <p style={{ fontSize: 11, color: '#475569', margin: '1px 0 0' }}>{a.sub}</p>
+          <Link key={i} href={a.href} className="flex items-center gap-3 no-underline">
+            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotCn(a.priority)}`} />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-text-primary">{a.title}</p>
+              <p className="text-caption text-text-secondary mt-px">{a.sub}</p>
             </div>
-            <ArrowRight style={{ width: 12, height: 12, color: '#CBD5E1', flexShrink: 0 }} strokeWidth={1.75} />
+            <ArrowRight weight="regular" className="w-3 h-3 text-text-muted shrink-0" />
           </Link>
         ))}
       </div>
@@ -208,19 +185,19 @@ function TaxPotCard({
   return (
     <Card title="Tax Pot">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-xs text-slate-500">Target</span>
+        <span className="text-xs text-text-secondary">Target</span>
         <span className="text-sm font-semibold">{formatCurrency(totalTarget)}</span>
       </div>
       <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-slate-500">Already set aside</span>
-        <span className={`text-sm font-semibold ${totalSaved >= totalTarget ? 'text-green-700' : 'text-slate-800'}`}>
+        <span className="text-xs text-text-secondary">Already set aside</span>
+        <span className={`text-sm font-semibold ${totalSaved >= totalTarget ? 'text-success-700' : 'text-text-primary'}`}>
           {formatCurrency(totalSaved)}
           {totalSaved >= totalTarget && <span className="text-xs font-normal ml-1">✓ On track</span>}
         </span>
       </div>
       {/* Progress bar */}
       {totalTarget > 0 && (
-        <div style={{ height: 5, background: 'rgba(0,0,0,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>
+        <div className="h-[5px] rounded-[99px] overflow-hidden mb-2.5 bg-black/[0.06]">
           <div style={{
             height: '100%', borderRadius: 99,
             background: totalSaved >= totalTarget ? '#1D6B35' : totalSaved / totalTarget > 0.6 ? '#9A7B0A' : '#C0392B',
@@ -230,22 +207,22 @@ function TaxPotCard({
         </div>
       )}
       {entries.map((e: TaxPotEntry) => (
-        <div key={e.id} className="flex justify-between items-center text-xs text-slate-600 mb-1 group">
+        <div key={e.id} className="flex justify-between items-center text-xs text-text-secondary mb-1 group">
           <span>{e.note || 'Contribution'} · {new Date(e.date).toLocaleDateString('en-GB')}</span>
           <div className="flex items-center gap-2">
             <span>+{formatCurrency(e.amount)}</span>
             <button
               onClick={() => onDelete(e.id)}
               title="Remove this entry"
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-red-50 hover:text-red-500 text-slate-500"
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-danger-50 hover:text-danger-500 text-text-secondary"
             >
-              <X className="w-3 h-3" />
+              <X weight="regular" className="w-3 h-3" />
             </button>
           </div>
         </div>
       ))}
       {totalTarget > totalSaved && (
-        <p className="text-xs text-amber-800 mt-1">
+        <p className="text-xs text-warning-800 mt-1">
           {formatCurrency(totalTarget - totalSaved)} still to set aside
         </p>
       )}
@@ -253,17 +230,17 @@ function TaxPotCard({
         <input
           type="number" min="0" placeholder="Add amount (£)"
           value={potAmount} onChange={e => setPotAmount(e.target.value)}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 min-w-0"
+          className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
         />
         <input
           placeholder="Note (optional)"
           value={potNote} onChange={e => setPotNote(e.target.value)}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 min-w-0"
+          className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
         />
         <button
           onClick={onAdd}
           disabled={savingPot || !potAmount || Number(potAmount) <= 0}
-          className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 disabled:opacity-40 whitespace-nowrap"
+          className="px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 whitespace-nowrap"
         >
           {savingPot ? '…' : '+ Save'}
         </button>
@@ -302,7 +279,7 @@ export default function TaxPage() {
   const { start, end, label }               = getCurrentTaxYear()
   const taxYearStart = start.getFullYear()
   const [taxPotTotal, setTaxPotTotal]       = useState(0)
-  const [taxPotEntries, setTaxPotEntries]   = useState<any[]>([])
+  const [taxPotEntries, setTaxPotEntries]   = useState<TaxPotEntry[]>([])
   const [potAmount, setPotAmount]           = useState('')
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
@@ -477,25 +454,25 @@ export default function TaxPage() {
               <button
                 onClick={downloadSAPack}
                 disabled={exportLoading || loading}
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
               >
-                <Download className="w-3.5 h-3.5" />
+                <DownloadSimple weight="regular" className="w-3.5 h-3.5" />
                 {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
               </button>
             ) : (
               <Link
                 href="/settings?tab=billing"
                 title="Export is available on the Solo plan and above. Upgrade to unlock."
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-200"
+                className="flex items-center gap-1.5 px-3 py-2 bg-surface-sunken text-text-secondary rounded-xl text-sm font-medium hover:bg-surface-sunken"
               >
-                <Lock className="w-3.5 h-3.5" />
+                <Lock weight="regular" className="w-3.5 h-3.5" />
                 Download {label} SA pack
               </Link>
             )}
 
             <button onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }} disabled={narrativeLoading || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
-              {narrativeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50">
+              {narrativeLoading ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Sparkle weight="regular" className="w-3.5 h-3.5" />}
               SA Summary
             </button>
           </div>
@@ -505,10 +482,10 @@ export default function TaxPage() {
       <NotTaxAdviceDisclaimer />
 
       {(narrative || narrativeLoading) && (
-        <div className="bg-slate-900 rounded-xl p-5 text-white">
+        <div className="bg-forest-900 rounded-xl p-5 text-white">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-slate-600" />
-            <span className="text-sm font-medium text-slate-500">Self Assessment Summary</span>
+            <Sparkle weight="regular" className="w-4 h-4 text-text-secondary" />
+            <span className="text-sm font-medium text-text-secondary">Self Assessment Summary</span>
             <div className="ml-auto flex items-center gap-2">
               {narrative && !narrativeLoading && <AIFlag />}
               {!narrativeLoading && (
@@ -517,17 +494,17 @@ export default function TaxPage() {
                     <button
                       onClick={() => generateNarrative(true)}
                       title="Refresh"
-                      className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                      className="p-1 rounded text-text-secondary hover:text-white hover:bg-forest-800 transition-colors"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
+                      <ArrowCounterClockwise weight="regular" className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button
                     onClick={() => { setNarrative(null); try { sessionStorage.setItem(`fd_sa_narrative_${taxYearStart}_dismissed`, '1') } catch {} }}
                     title="Dismiss"
-                    className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                    className="p-1 rounded text-text-secondary hover:text-white hover:bg-forest-800 transition-colors"
                   >
-                    <X className="w-4 h-4" />
+                    <X weight="regular" className="w-4 h-4" />
                   </button>
                 </>
               )}
@@ -535,15 +512,15 @@ export default function TaxPage() {
           </div>
           {narrativeLoading ? (
             <div className="space-y-2">
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-full" />
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-5/6" />
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-4/6" />
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-11/12 mt-3" />
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-4/5" />
-              <div className="h-3 bg-slate-700 rounded animate-pulse w-3/5" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-full" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-5/6" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-4/6" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-11/12 mt-3" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-4/5" />
+              <div className="h-3 bg-forest-800 rounded animate-pulse w-3/5" />
             </div>
           ) : (
-            <div className="text-sm text-slate-100 leading-relaxed">
+            <div className="text-sm text-text-on-dark leading-relaxed">
               {(() => {
                 const sections = parseNarrativeSections(narrative ?? '')
                 if (!sections.length) return <p>{narrative}</p>
@@ -555,27 +532,22 @@ export default function TaxPage() {
                       return (
                         <div key={header}>
                           {i > 0 && (
-                            <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
+                            <div className="h-px my-3.5 bg-white/[0.08]" />
                           )}
-                          <p style={{
-                            fontSize: 10, fontWeight: 600,
-                            color: 'rgba(255,255,255,0.7)',
-                            textTransform: 'uppercase', letterSpacing: '0.1em',
-                            marginBottom: 6,
-                          }}>
+                          <p className="font-semibold mb-1.5 text-white/70">
                             {header}
                           </p>
                           {isBullet ? (
                             <ul className="space-y-1.5">
                               {lines.map((l, j) => (
                                 <li key={j} className="flex gap-2">
-                                  <span style={{ color: 'rgba(255,255,255,0.35)', flexShrink: 0 }}>•</span>
+                                  <span className="shrink-0 text-white/35">•</span>
                                   <span>{l.replace(/^[-•]\s*/, '')}</span>
                                 </li>
                               ))}
                             </ul>
                           ) : (
-                            <p style={{ lineHeight: 1.65 }}>{content}</p>
+                            <p className="leading-[1.65]">{content}</p>
                           )}
                         </div>
                       )
@@ -590,15 +562,15 @@ export default function TaxPage() {
 
       {loading || !pageData ? (
         <div className="space-y-4">
-          {[1,2,3].map(i => <div key={i} className="h-40 bg-white rounded-xl border border-slate-200 fd-skeleton" />)}
+          {[1,2,3].map(i => <div key={i} className="h-40 bg-surface-card rounded-xl border border-border-default fd-skeleton" />)}
         </div>
       ) : (
         <>
           {/* Tax profile nudge */}
           {!pageData.hasTaxProfile && (
-            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-              <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-              <p className="text-sm text-amber-800">
+            <div className="flex items-start gap-3 bg-warning-50 border border-warning-200 rounded-xl px-4 py-3">
+              <Info weight="regular" className="w-4 h-4 text-warning-600 mt-0.5 shrink-0" />
+              <p className="text-sm text-warning-800">
                 For a precise take-home figure, add your student loan plan and pension contributions in{' '}
                 <a href="/settings" className="underline font-medium">Settings → Tax Profile</a>.
               </p>
@@ -608,15 +580,15 @@ export default function TaxPage() {
 
           {/* Empty state — no income data yet */}
           {pageData.taxDetail.grossIncome === 0 && pageData.taxDetail.totalExpenses === 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-              <h2 className="text-base font-semibold text-slate-900 mb-2">
+            <div className="bg-surface-card rounded-xl border border-border-default p-8 text-center">
+              <h2 className="text-base font-semibold text-text-primary mb-2">
                 Your tax summary will appear here
               </h2>
-              <p className="text-sm text-slate-500 mb-5 max-w-md mx-auto">
+              <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
                 Log some invoices and expenses and we'll calculate your estimated Income Tax, National Insurance, and Corporation Tax — broken down clearly, with every deduction shown.
               </p>
               <Link href="/invoices/new"
-                className="inline-block bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
+                className="inline-block bg-forest-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-forest-800">
                 Send your first invoice →
               </Link>
             </div>
@@ -694,7 +666,7 @@ export default function TaxPage() {
 
             return (
               <>
-                <div className="fd-stat-grid" style={{ marginBottom: 0 }}>
+                <div className="fd-stat-grid mb-0">
                   <StatCard
                     tone="cream"
                     label="Tax owed"
@@ -723,7 +695,7 @@ export default function TaxPage() {
                     value={
                       <>
                         {daysToDue}
-                        <span style={{ fontSize: '0.5em', fontWeight: 500, color: '#475569', marginLeft: 6 }}>
+                        <span className="text-[0.5em] font-medium text-text-secondary ml-1.5">
                           days
                         </span>
                       </>
@@ -746,11 +718,11 @@ export default function TaxPage() {
                 <div className="space-y-4">
 
                   {t.paAlert && (
-                    <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                      <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
+                    <div className="flex items-start gap-3 bg-danger-50 border border-danger-200 rounded-xl px-4 py-3">
+                      <Warning weight="regular" className="w-4 h-4 text-danger-600 mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-sm font-semibold text-red-800">Personal Allowance is being tapered</p>
-                        <p className="text-xs text-red-700 mt-1">Your income exceeds £100,000. You lose £1 of Personal Allowance for every £2 above £100k, creating an effective 60% tax rate between £100,000–£125,140. Pension contributions can reduce this significantly.</p>
+                        <p className="text-sm font-semibold text-danger-700">Personal Allowance is being tapered</p>
+                        <p className="text-xs text-danger-700 mt-1">Your income exceeds £100,000. You lose £1 of Personal Allowance for every £2 above £100k, creating an effective 60% tax rate between £100,000–£125,140. Pension contributions can reduce this significantly.</p>
                       </div>
                     </div>
                   )}
@@ -774,8 +746,8 @@ export default function TaxPage() {
                     {t.otherIncome > 0 && (
                       <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
-                    <p className="text-xs text-slate-600 mt-1">
-                      <a href="/settings?tab=Personal+tax+inputs" className="text-slate-500 hover:underline">Edit in Settings →</a>
+                    <p className="text-xs text-text-secondary mt-1">
+                      <a href="/settings?tab=Personal+tax+inputs" className="text-text-secondary hover:underline">Edit in Settings →</a>
                     </p>
                     <Row label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
                       hint={t.paAlert ? 'Reduced — income over £100k' : undefined} />
@@ -816,13 +788,13 @@ export default function TaxPage() {
 
                   {/* Payments on account */}
                   {t.paymentsOnAccount > 0 && (
-                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-amber-50">
-                      <div className="py-2 text-xs text-amber-800 leading-relaxed">
+                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                      <div className="py-2 text-xs text-warning-800 leading-relaxed">
                         Your tax bill exceeds £1,000 so HMRC requires advance payments. Many freelancers are caught off guard by these.
                       </div>
                       <Row label={`31 Jan ${endYear + 1} (balancing + 1st POA)`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
                       <Row label={`31 Jul ${endYear + 1} (2nd POA)`}              value={formatCurrency(t.julyPayment)} red />
-                      <p className="text-xs text-slate-600 py-2 leading-relaxed">
+                      <p className="text-xs text-text-secondary py-2 leading-relaxed">
                         Each payment on account = 50% of this year's bill, credited against next year's liability.
                       </p>
                     </Card>
@@ -875,14 +847,14 @@ export default function TaxPage() {
 
                 <div className="space-y-4" id="tax-pot">
                   {/* Ltd summary: compact inline stat row — complements KPI row above */}
-                  <Card title="Company summary" accent="bg-slate-50">
+                  <Card title="Company summary" accent="bg-surface-sunken">
                     <Row label="Corp tax + employer NI" value={formatCurrency(t.totalCompanyTax)} red />
                     <Row label="Retained in company"    value={formatCurrency(t.retainedProfit)} green bold />
                   </Card>
 
                   {t.paymentsOnAccount > 0 && (
-                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-amber-50">
-                      <div className="py-2 text-xs text-amber-800">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
+                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                      <div className="py-2 text-xs text-warning-800">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
                       <Row label={`31 Jan ${endYear + 1}`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
                       <Row label={`31 Jul ${endYear + 1}`} value={formatCurrency(t.julyPayment)} red />
                     </Card>
@@ -900,15 +872,15 @@ export default function TaxPage() {
                   />
 
                   <Card title="Optimisation note">
-                    <div className="py-3 text-xs text-slate-500 space-y-1.5 leading-relaxed">
+                    <div className="py-3 text-xs text-text-secondary space-y-1.5 leading-relaxed">
                       <p>The most tax-efficient structure for a Ltd director is typically:</p>
-                      <ul className="list-disc list-inside space-y-1 text-slate-600 ml-1">
+                      <ul className="list-disc list-inside space-y-1 text-text-secondary ml-1">
                         <li>Salary at the Personal Allowance (£12,570)</li>
                         <li>Remaining income as dividends (10.75% basic rate)</li>
                         <li>Surplus retained in the company (19–25% corp tax)</li>
                         <li>Pension via the company — no NI, and CT-deductible</li>
                       </ul>
-                      <p className="text-slate-600 mt-2">Talk to an accountant to optimise your structure.</p>
+                      <p className="text-text-secondary mt-2">Talk to an accountant to optimise your structure.</p>
                     </div>
                   </Card>
                 </div>
@@ -917,8 +889,8 @@ export default function TaxPage() {
           })()}
 
           {/* Important dates */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 className="font-semibold text-slate-900 mb-4">Important dates</h2>
+          <div className="bg-surface-card rounded-xl border border-border-default p-6">
+            <h2 className="font-semibold text-text-primary mb-4">Important dates</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Tax year end',            date: `5 April ${endYear}` },
@@ -927,25 +899,25 @@ export default function TaxPage() {
                 { label: 'Payments on account',      date: `31 July ${endYear + 1}` },
               ].map(d => (
                 <div key={d.label}>
-                  <p className="text-xs text-slate-600">{d.label}</p>
-                  <p className="text-sm font-medium text-slate-800 mt-0.5">{d.date}</p>
+                  <p className="text-xs text-text-secondary">{d.label}</p>
+                  <p className="text-sm font-medium text-text-primary mt-0.5">{d.date}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Making Tax Digital — quarterly obligations */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="bg-surface-card rounded-xl border border-border-default p-6">
             <div className="flex items-start justify-between mb-1">
-              <h2 className="font-semibold text-slate-900">Making Tax Digital — {label}</h2>
+              <h2 className="font-semibold text-text-primary">Making Tax Digital — {label}</h2>
               <Link
                 href="/settings?tab=HMRC"
-                className="text-xs text-slate-600 hover:text-slate-600 flex items-center gap-1 shrink-0 ml-4 mt-0.5"
+                className="text-xs text-text-secondary hover:text-text-secondary flex items-center gap-1 shrink-0 ml-4 mt-0.5"
               >
-                Connect HMRC <ArrowRight className="w-3 h-3" />
+                Connect HMRC <ArrowRight weight="regular" className="w-3 h-3" />
               </Link>
             </div>
-            <p className="text-xs text-slate-600 mb-5">
+            <p className="text-xs text-text-secondary mb-5">
               ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
             </p>
 
@@ -956,10 +928,10 @@ export default function TaxPage() {
                 const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
                 const { badgeBg, badgeText, cardBorder } =
-                  q.status === 'current'  ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-800',  cardBorder: 'border-amber-200' } :
-                  q.status === 'upcoming' ? { badgeBg: 'bg-amber-50',  badgeText: 'text-amber-800',  cardBorder: 'border-amber-100' } :
-                  q.status === 'overdue'  ? { badgeBg: 'bg-red-50',    badgeText: 'text-red-600',    cardBorder: 'border-red-200'   } :
-                                            { badgeBg: 'bg-slate-50',  badgeText: 'text-slate-500',  cardBorder: 'border-slate-100' }
+                  q.status === 'current'  ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
+                  q.status === 'upcoming' ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
+                  q.status === 'overdue'  ? { badgeBg: 'bg-danger-50',    badgeText: 'text-danger-600',    cardBorder: 'border-danger-200'   } :
+                                            { badgeBg: 'bg-surface-sunken',  badgeText: 'text-text-secondary',  cardBorder: 'border-border-subtle' }
 
                 const statusLabel =
                   q.status === 'current'  ? 'Open now' :
@@ -970,39 +942,39 @@ export default function TaxPage() {
                 return (
                   <div
                     key={q.quarter}
-                    className={`rounded-lg border p-4 ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
+                    className={`rounded-xl border p-4 ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-2.5">
-                      <span className="text-sm font-semibold text-slate-800">Q{q.quarter}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeBg} ${badgeText}`}>
+                      <span className="text-sm font-semibold text-text-primary">Q{q.quarter}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${badgeBg} ${badgeText}`}>
                         {statusLabel}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-xs text-text-secondary leading-relaxed">
                       {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
                     </p>
-                    <p className="text-xs text-slate-600 mt-1.5">
+                    <p className="text-xs text-text-secondary mt-1.5">
                       Deadline: {fmt(q.deadline)}
                     </p>
-                    <p className="text-xs text-slate-500 mt-2 font-medium">Not Started</p>
+                    <p className="text-xs text-text-secondary mt-2 font-medium">Not Started</p>
                   </div>
                 )
               })}
             </div>
 
-            <p className="text-xs text-slate-500 mt-4">
+            <p className="text-xs text-text-secondary mt-4">
               Connect your HMRC account in{' '}
-              <Link href="/settings?tab=HMRC" className="underline hover:text-slate-600">Settings → HMRC</Link>
+              <Link href="/settings?tab=HMRC" className="underline hover:text-text-secondary">Settings → HMRC</Link>
               {' '}to enable submissions.
             </p>
           </div>
 
           {/* VAT — only shown for VAT registered users */}
-          {pageData.vatRegistered && <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 className="font-semibold text-slate-900 mb-4">VAT position — {label}</h2>
+          {pageData.vatRegistered && <div className="bg-surface-card rounded-xl border border-border-default p-6">
+            <h2 className="font-semibold text-text-primary mb-4">VAT position — {label}</h2>
             {pageData.vatWarning && (
-              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-sm text-amber-800">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 bg-warning-50 border border-warning-200 rounded-xl p-3 mb-4 text-sm text-warning-800">
+                <Warning weight="regular" className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{pageData.vatWarning}</span>
               </div>
             )}
@@ -1014,56 +986,56 @@ export default function TaxPage() {
           </div>}
 
           {/* Paid invoices */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
+            <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-slate-900">Paid invoices</h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <h2 className="font-semibold text-text-primary">Paid invoices</h2>
+                <p className="text-xs text-text-secondary mt-0.5">
                   {pageData.paidInvoices?.length ?? 0} invoices · {formatCurrency(pageData.totalIncomeExVat)} ex-VAT
                 </p>
               </div>
               {canExport ? (
-                <button onClick={() => exportCSV('income')} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">
-                  <Download className="w-3 h-3" /> CSV
+                <button onClick={() => exportCSV('income')} className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary border border-border-default rounded-lg px-2.5 py-1.5 hover:bg-surface-sunken">
+                  <DownloadSimple weight="regular" className="w-3 h-3" /> CSV
                 </button>
               ) : (
                 <Link
                   href="/settings?tab=billing"
                   title="Export is available on the Solo plan and above. Upgrade to unlock."
-                  className="flex items-center gap-1.5 text-xs text-slate-500 border border-slate-100 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
+                  className="flex items-center gap-1.5 text-xs text-text-secondary border border-border-subtle rounded-xl px-2.5 py-1.5 hover:bg-surface-sunken"
                 >
-                  <Lock className="w-3 h-3" /> CSV
+                  <Lock weight="regular" className="w-3 h-3" /> CSV
                 </Link>
               )}
             </div>
             {pageData.paidInvoices?.length ? (
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
+                <thead className="bg-surface-sunken border-b border-border-default">
                   <tr>
                     {['Invoice','Client','Paid','Ex-VAT','VAT','Total'].map((h, i) => (
-                      <th key={h} className={`px-4 py-3 font-medium text-slate-600 ${i >= 3 ? 'text-right' : 'text-left'}`}>{h}</th>
+                      <th key={h} className={`px-4 py-3 font-medium text-text-secondary ${i >= 3 ? 'text-right' : 'text-left'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border-subtle">
                   {pageData.paidInvoices.map((inv: PaidInvoiceRow) => (
                     <tr key={inv.id} className="fd-table-row">
-                      <td className="px-4 py-3 font-medium text-slate-800">{inv.invoice_number}</td>
-                      <td className="px-4 py-3 text-slate-600">{(Array.isArray(inv.clients) ? inv.clients[0]?.name : inv.clients?.name) ?? '—'}</td>
-                      <td className="px-4 py-3 text-slate-500">{inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('en-GB') : '—'}</td>
+                      <td className="px-4 py-3 font-medium text-text-primary">{inv.invoice_number}</td>
+                      <td className="px-4 py-3 text-text-secondary">{(Array.isArray(inv.clients) ? inv.clients[0]?.name : inv.clients?.name) ?? '—'}</td>
+                      <td className="px-4 py-3 text-text-secondary">{inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('en-GB') : '—'}</td>
                       <td className="px-4 py-3 text-right">{formatCurrency(Number(inv.total) - Number(inv.vat_amount))}</td>
-                      <td className="px-4 py-3 text-right text-slate-500">{formatCurrency(inv.vat_amount)}</td>
+                      <td className="px-4 py-3 text-right text-text-secondary">{formatCurrency(inv.vat_amount)}</td>
                       <td className="px-4 py-3 text-right font-medium">{formatCurrency(inv.total)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p className="px-6 py-8 text-sm text-slate-600 text-center">No paid invoices in this tax year.</p>
+              <p className="px-6 py-8 text-sm text-text-secondary text-center">No paid invoices in this tax year.</p>
             )}
           </div>
 
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-text-secondary">
             Estimates only — based on information you have entered. Confirm all figures with a qualified UK accountant before filing your Self Assessment return.
           </p>
         </>

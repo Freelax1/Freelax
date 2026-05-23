@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
+import { cn } from '@/lib/utils'
 
 interface Props {
   earnedThisYear:   number
@@ -15,26 +16,10 @@ interface Props {
   isNewUser?:       boolean
 }
 
-const LABEL_STYLE: React.CSSProperties = {
-  fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)',
-  textTransform: 'uppercase', letterSpacing: '0.12em',
-  marginBottom: 12,
-}
-const HERO_STYLE: React.CSSProperties = {
-  fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 400, color: 'var(--text-primary)',
-  letterSpacing: '-0.025em', lineHeight: 1,
-  fontFamily: 'var(--font-serif)',
-  fontVariantNumeric: 'tabular-nums',
-}
-const SUB_STYLE: React.CSSProperties = {
-  fontSize: 12, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5,
-}
-const CARD: React.CSSProperties = {
-  borderRadius: 'var(--radius-lg)', padding: '32px 32px 28px',
-  border: '1px solid var(--border-subtle)',
-  display: 'flex', flexDirection: 'column', gap: 0,
-  flex: 1,
-}
+const LABEL_CN = 'text-caption font-medium text-text-secondary mb-3'
+const HERO_CN  = 'text-[clamp(28px,5vw,40px)] font-normal text-text-primary tracking-tight leading-none font-serif [font-variant-numeric:tabular-nums]'
+const SUB_CN   = 'text-xs text-text-muted mt-2 leading-relaxed'
+const CARD_CN  = 'rounded-xl p-6 border border-border-default flex flex-col gap-0 flex-1'
 
 function ProgressBar({ pct, color }: { pct: number; color: string }) {
   const [width, setWidth] = useState(0)
@@ -43,7 +28,7 @@ function ProgressBar({ pct, color }: { pct: number; color: string }) {
     return () => clearTimeout(t)
   }, [pct])
   return (
-    <div style={{ height: 5, background: 'var(--border-subtle)', borderRadius: 'var(--radius-full)', overflow: 'hidden', marginTop: 14 }}>
+    <div className="h-[5px] bg-border-subtle rounded-[var(--radius-full)] overflow-hidden mt-3.5">
       <div style={{
         height: '100%', borderRadius: 'var(--radius-full)', background: color,
         width: `${width}%`,
@@ -67,79 +52,47 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
   }, [open])
 
   return (
-    <div ref={ref} style={{ position: 'relative', display: 'inline-flex' }}>
+    <div ref={ref} className="relative inline-flex">
       <button
         onClick={() => setOpen(o => !o)}
         onMouseEnter={() => setOpen(true)}
-        style={{
-          width: 18, height: 18,
-          borderRadius: '50%',
-          border: `1.5px solid ${open ? 'var(--border-focus)' : 'var(--border-default)'}`,
-          background: open ? 'var(--forest-50)' : 'transparent',
-          color: open ? 'var(--brand-primary)' : 'var(--text-secondary)',
-          fontSize: 10, fontWeight: 700,
-          cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 150ms var(--ease-out)',
-          flexShrink: 0, lineHeight: 1, padding: 0,
-        }}
+        className={cn(
+          'w-[18px] h-[18px] rounded-full font-semibold cursor-pointer flex items-center justify-center shrink-0 leading-none p-0 transition-all duration-[150ms] border-[1.5px]',
+          open
+            ? 'border-border-focus bg-forest-50 text-brand-primary'
+            : 'border-border-default bg-transparent text-text-secondary'
+        )}
         aria-label="How is Safe to Spend calculated?"
       >
         i
       </button>
 
       {open && (
-        <div style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 10px)',
-          right: 0,
-          width: 264,
-          background: 'var(--forest-900)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 18px',
-          boxShadow: 'var(--shadow-lg)',
-          zIndex: 50,
-          animation: 'tooltipIn 150ms var(--ease-out)',
-        }}>
-          <style>{`@keyframes tooltipIn { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }`}</style>
+        <div className="absolute bottom-[calc(100%+10px)] right-0 w-[264px] bg-forest-900 rounded-[var(--radius-lg)] px-[18px] py-4 z-50 shadow-lg animate-tooltip-in">
 
-          <div style={{
-            position: 'absolute', bottom: -6, right: 7,
-            width: 12, height: 12,
-            background: 'var(--forest-900)',
-            transform: 'rotate(45deg)',
-            borderRadius: 2,
-          }} />
+          <div className="absolute -bottom-1.5 right-[7px] w-3 h-3 bg-forest-900 rotate-45 rounded-sm" />
 
-          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--forest-300)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
+          <p className="text-caption font-semibold text-forest-300 mb-3">
             How this is calculated
           </p>
 
           {[
-            { label: 'Net income this month',  value: '+', color: 'var(--success-500)', note: 'Your typical monthly net profit (income minus expenses)' },
-            { label: 'Tax still to save',      value: '−', color: 'var(--danger-500)',  note: 'Remaining tax liability ÷ months until January deadline' },
-            { label: 'Personal outgoings',     value: '−', color: 'var(--danger-500)',  note: 'Rent, food, bills — your cost of living each month' },
+            { label: 'Net income this month',  value: '+', dotClass: 'bg-success-500', note: 'Your typical monthly net profit (income minus expenses)' },
+            { label: 'Tax still to save',      value: '−', dotClass: 'bg-danger-500',  note: 'Remaining tax liability ÷ months until January deadline' },
+            { label: 'Personal outgoings',     value: '−', dotClass: 'bg-danger-500',  note: 'Rent, food, bills — your cost of living each month' },
           ].map((row, i) => (
-            <div key={i} style={{
-              display: 'flex', gap: 10, alignItems: 'flex-start',
-              paddingTop: i > 0 ? 10 : 0,
-              borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: row.color, flexShrink: 0, marginTop: 5 }} />
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-on-dark)' }}>{row.label}</p>
-                <p style={{ fontSize: 11, color: 'var(--forest-300)', marginTop: 2, lineHeight: 1.4 }}>{row.note}</p>
+            <div key={i} className={cn('flex gap-2.5 items-start', i > 0 && 'pt-[10px] border-t border-t-white/[0.06]')}>
+              <div className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-[5px]', row.dotClass)} />
+              <div className="flex-1">
+                <p className="text-xs font-medium text-text-on-dark">{row.label}</p>
+                <p className="text-caption text-forest-300 mt-px leading-[1.4]">{row.note}</p>
               </div>
             </div>
           ))}
 
-          <div style={{
-            marginTop: 12, paddingTop: 12,
-            borderTop: '1px solid rgba(255,255,255,0.1)',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--forest-400)', flexShrink: 0 }} />
-            <p style={{ fontSize: 11, color: 'var(--forest-400)', lineHeight: 1.4 }}>
+          <div className="mt-3 pt-3 flex items-center gap-1.5 border-t border-t-white/10">
+            <div className="w-1.5 h-1.5 rounded-full bg-forest-400 shrink-0" />
+            <p className="text-caption text-forest-400 leading-[1.4]">
               = What's genuinely yours to spend this month
             </p>
           </div>
@@ -167,10 +120,10 @@ export default function ThreePots({
     <div className="fd-cards-grid">
 
       {/* Pot 1 — Earned this year */}
-      <div style={{ ...CARD, background: 'var(--surface-sunken)', flex: 1 }}>
-        <p style={LABEL_STYLE}>Earned this year</p>
-        <p style={HERO_STYLE}>{isNewUser ? '—' : formatCurrency(earnedThisYear)}</p>
-        <p style={SUB_STYLE}>
+      <div className={`${CARD_CN} bg-surface-sunken`}>
+        <p className={LABEL_CN}>Earned this year</p>
+        <p className={HERO_CN}>{isNewUser ? '—' : formatCurrency(earnedThisYear)}</p>
+        <p className={SUB_CN}>
           {isNewUser
             ? "As you log invoices and they're paid, your total earnings for the year will appear here."
             : 'Income minus expenses · across the tax year'}
@@ -178,56 +131,56 @@ export default function ThreePots({
       </div>
 
       {/* Pot 2 — Tax set aside */}
-      <Link href="/tax" style={{ textDecoration: 'none', flex: 1 }}>
-        <div style={{ ...CARD, background: 'var(--surface-card)', cursor: 'pointer', height: '100%' }}>
-          <p style={LABEL_STYLE}>Tax set aside</p>
-          <p style={HERO_STYLE}>{isNewUser ? '—' : formatCurrency(taxSetAside)}</p>
+      <Link href="/tax" className="no-underline flex-1">
+        <div className={`${CARD_CN} bg-surface-card cursor-pointer h-full`}>
+          <p className={LABEL_CN}>Tax set aside</p>
+          <p className={HERO_CN}>{isNewUser ? '—' : formatCurrency(taxSetAside)}</p>
           {!isNewUser && (
             <>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>
+              <p className="text-sm text-text-secondary mt-1.5">
                 of {formatCurrency(taxTarget)} needed by {taxDeadline.label}
               </p>
               <ProgressBar pct={taxPct} color={barColor} />
-              <p style={{ fontSize: 11, marginTop: 8, color: onTrack ? 'var(--success-700)' : 'var(--warning-700)', fontWeight: 500 }}>
+              <p className={cn('text-caption mt-2 font-medium', onTrack ? 'text-success-700' : 'text-warning-700')}>
                 {onTrack ? '✓ On track for January' : `Save ${formatCurrency(weeklySaveNeeded)}/week to stay on track`}
               </p>
             </>
           )}
           {isNewUser && (
-            <p style={SUB_STYLE}>We'll calculate exactly what to save for your January tax bill as you earn. Start by sending an invoice.</p>
+            <p className={SUB_CN}>We'll calculate exactly what to save for your January tax bill as you earn. Start by sending an invoice.</p>
           )}
         </div>
       </Link>
 
       {/* Pot 3 — Safe to spend */}
-      <div style={{ ...CARD, background: 'var(--surface-card)', flex: 1, position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <p style={{ ...LABEL_STYLE, marginBottom: 0 }}>Safe to spend</p>
+      <div className={`${CARD_CN} bg-surface-card relative`}>
+        <div className="flex items-center justify-between mb-3">
+          <p className={`${LABEL_CN} !mb-0`}>Safe to spend</p>
           {showInfo && <SafeToSpendInfo safeToSpend={safeToSpend} monthlyAvg={monthlyAvg} />}
         </div>
 
         {isNewUser ? (
           <>
-            <p style={HERO_STYLE}>—</p>
-            <p style={SUB_STYLE}>Once you've logged some income and told us your typical monthly outgoings, we'll show what's genuinely safe to spend each month.</p>
+            <p className={HERO_CN}>—</p>
+            <p className={SUB_CN}>Once you've logged some income and told us your typical monthly outgoings, we'll show what's genuinely safe to spend each month.</p>
           </>
         ) : safeToSpendMissingInput ? (
-          <Link href="/settings?tab=Personal%20tax%20inputs" style={{ textDecoration: 'none' }}>
-            <p style={{ ...HERO_STYLE, fontSize: 22, lineHeight: 1.3 }}>Set up needed</p>
-            <p style={{ ...SUB_STYLE, marginTop: 8 }}>
+          <Link href="/settings?tab=Personal%20tax%20inputs" className="no-underline">
+            <p className={`${HERO_CN} !text-xl !leading-[1.3]`}>Set up needed</p>
+            <p className={`${SUB_CN} !mt-2`}>
               Tell us your monthly personal outgoings (rent, food, bills) and we'll show you what's truly safe to spend.{' '}
-              <span style={{ color: 'var(--brand-primary)', fontWeight: 500 }}>Set it up →</span>
+              <span className="text-brand-primary font-medium">Set it up →</span>
             </p>
           </Link>
         ) : safeToSpend !== null && safeToSpend <= 0 ? (
           <>
-            <p style={{ ...HERO_STYLE, color: 'var(--danger-500)' }}>{formatCurrency(0)}</p>
-            <p style={SUB_STYLE}>Spending is tight this month — hold off on big purchases.</p>
+            <p className={`${HERO_CN} !text-danger-500`}>{formatCurrency(0)}</p>
+            <p className={SUB_CN}>Spending is tight this month — hold off on big purchases.</p>
           </>
         ) : (
           <>
-            <p style={HERO_STYLE}>{formatCurrency(safeToSpend ?? 0)}</p>
-            <p style={SUB_STYLE}>After tax and your typical monthly outgoings — what's genuinely available to spend this month.</p>
+            <p className={HERO_CN}>{formatCurrency(safeToSpend ?? 0)}</p>
+            <p className={SUB_CN}>After tax and your typical monthly outgoings — what's genuinely available to spend this month.</p>
           </>
         )}
       </div>

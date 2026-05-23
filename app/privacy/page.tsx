@@ -52,14 +52,14 @@ export default function PrivacyPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
 
         <Section id="who-we-are" title="1. Who we are">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. Our registered address is 89 Brassett Point, London, E15 3LB. We are registered with the Information Commissioner&rsquo;s Office (ICO) — registration number ZC142915. You can reach us at{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
 
         <Section id="what-we-collect" title="2. What data we collect">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We collect the following categories of personal data:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
@@ -74,13 +74,13 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="how-we-use" title="3. How we use your data">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We use your data to provide and improve the Freelax by Britnova service, calculate tax estimates based on the information you supply, send transactional emails (invoice confirmations, payment notifications, account alerts), and respond to support requests. <strong>We do not use your data for advertising or sell it to third parties under any circumstances.</strong>
           </p>
         </Section>
 
         <Section id="legal-basis" title="4. Legal basis for processing">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We process your data on the following legal bases under UK GDPR:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
@@ -92,26 +92,26 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="automated-decisions" title="4a. Automated decision making">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We use automated processing to generate tax estimates and IR35 assessments. These outputs are indicative only and do not constitute legally binding decisions. You should always verify figures with a qualified accountant before filing a tax return.
           </p>
         </Section>
 
         <Section id="storage-security" title="5. Storage and security">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Your data is stored on servers located in the United Kingdom via Supabase. All data is encrypted at rest and in transit using industry-standard encryption. We implement access controls, audit logging, and regular security reviews. For more detail see our{' '}
             <Link href="/security" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Security page</Link>.
           </p>
         </Section>
 
         <Section id="retention" title="6. Data retention">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We retain your account data for as long as your account is active. If you delete your account, we will erase your personal data within <strong>30 days</strong>, except where we are required to retain it for legal or regulatory purposes. Certain financial records may be retained for up to 6 years where required by UK law, including the Companies Act 2006, even after account deletion.
           </p>
         </Section>
 
         <Section id="sharing" title="7. Sharing your data">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We share data only with the following third-party processors who are necessary to operate the service:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="your-rights" title="8. Your rights">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Under UK GDPR you have the right to:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
@@ -146,25 +146,25 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="cookies" title="9. Cookies">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova uses <strong>strictly necessary cookies</strong> to maintain your login session. We do not use advertising or tracking cookies. You can delete cookies at any time through your browser settings, though this will log you out of your account.
           </p>
         </Section>
 
         <Section id="children" title="10. Children">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova is not intended for anyone under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with their data, please contact us and we will delete it promptly.
           </p>
         </Section>
 
         <Section id="changes" title="11. Changes to this policy">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We may update this policy to reflect changes in our practices or applicable law. We will notify you of material changes by email. Continued use of the service after notification constitutes acceptance. In the event of a data breach affecting your personal data, we will notify you and the ICO without undue delay and within 72 hours as required by UK GDPR.
           </p>
         </Section>
 
         <Section id="complaints" title="12. Complaints">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             If you are unhappy with how we handle your data, you have the right to lodge a complaint with the Information Commissioner&rsquo;s Office (ICO) at{' '}
             <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>ico.org.uk</a>.
           </p>

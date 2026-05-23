@@ -9,7 +9,7 @@ import { fetchCurrentUser } from '@/lib/api/users'
 import { createClientRecord } from '@/lib/api/clients'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@phosphor-icons/react'
 
 export default function NewClientPage() {
   const router = useRouter()
@@ -62,19 +62,19 @@ export default function NewClientPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <div>
-        <Link href="/clients" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
-          <ArrowLeft className="w-4 h-4" /> Back to clients
+        <Link href="/clients" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
+          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to clients
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">New client</h1>
+        <h1 className="text-2xl font-serif font-semibold text-text-primary">New client</h1>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
+        <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800">Client details</h2>
+        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
+          <h2 className="font-semibold text-text-primary">Client details</h2>
 
           <Field label="Business name" required error={errors.name}>
             <Input value={form.name} onChange={e => set('name', e.target.value)}
@@ -103,8 +103,8 @@ export default function NewClientPage() {
           </Field>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800">Address</h2>
+        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
+          <h2 className="font-semibold text-text-primary">Address</h2>
 
           <Field label="Address line 1">
             <Input value={form.address_line1} onChange={e => set('address_line1', e.target.value)} placeholder="10 Example Street" />
@@ -123,14 +123,14 @@ export default function NewClientPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="bg-surface-card rounded-xl border border-border-default p-6">
           <Field label="Notes">
             <Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} placeholder="Any notes about this client..." />
           </Field>
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link href="/clients" className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
+          <Link href="/clients" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
             Cancel
           </Link>
           <SaveButton loading={saving} label="Add client" />

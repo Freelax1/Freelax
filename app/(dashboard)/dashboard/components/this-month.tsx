@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { BarChart, Bar, Cell, XAxis, ResponsiveContainer, Tooltip, ReferenceLine } from 'recharts'
-import { Sparkles, Loader2, X } from 'lucide-react'
+import { Sparkle, CircleNotch, X } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface MonthData { month: string; income: number }
@@ -106,35 +107,21 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
   const showInsightPanel = insight && insightVisible
 
   return (
-    <div style={{
-      background: '#fff', borderRadius: 14,
-      border: '1px solid rgba(0,0,0,0.06)', padding: '24px 28px 24px',
-    }}>
+    <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
       {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <p style={{ fontSize: 11, fontWeight: 500, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+      <div className="flex justify-between items-center mb-3">
+        <p className="text-caption font-medium text-text-secondary">
           This month
         </p>
         {!isNewUser && monthlyAvg > 0 && (
           <button
             onClick={() => generateInsight(!!showInsightPanel)}
             disabled={insightLoading}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              fontSize: 11, fontWeight: 600,
-              color: '#fff',
-              background: '#1D6B35',
-              border: 'none',
-              borderRadius: 6,
-              padding: '4px 10px',
-              cursor: insightLoading ? 'default' : 'pointer',
-              opacity: insightLoading ? 0.7 : 1,
-              transition: 'opacity 150ms',
-            }}
+            className={cn('flex items-center gap-[5px] text-caption font-semibold text-text-on-dark bg-brand-primary border-none rounded-[6px] px-2.5 py-1 transition-opacity duration-150', insightLoading ? 'cursor-default opacity-70' : 'cursor-pointer')}
           >
             {insightLoading
-              ? <Loader2 style={{ width: 11, height: 11, animation: 'spin 1s linear infinite' }} />
-              : <Sparkles style={{ width: 11, height: 11 }} />
+              ? <CircleNotch weight="regular" className="w-[11px] h-[11px] animate-spin" />
+              : <Sparkle weight="regular" className="w-[11px] h-[11px]" />
             }
             {insightLoading ? 'Thinking…' : showInsightPanel ? 'Refresh' : 'AI insight'}
           </button>
@@ -143,51 +130,47 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
 
       {/* AI insight panel */}
       {showInsightPanel && (
-        <div style={{
-          background: '#F0FDF4', border: '1px solid rgba(29,107,53,0.15)',
-          borderRadius: 10, padding: '12px 14px', marginBottom: 14,
-          fontSize: 13, color: '#334155', lineHeight: 1.6,
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Sparkles style={{ width: 11, height: 11, color: '#1D6B35' }} />
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#1D6B35', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <div className="bg-success-50 border border-success-200 rounded-xl px-[14px] py-3 mb-[14px] text-sm text-text-primary leading-relaxed">
+          <div className="flex justify-between items-center mb-1.5">
+            <div className="flex items-center gap-[5px]">
+              <Sparkle weight="regular" className="w-[11px] h-[11px] text-brand-primary" />
+              <span className="text-micro font-semibold text-brand-primary">
                 AI insight · {monthName}
               </span>
             </div>
             <button
               onClick={dismissInsight}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#475569', display: 'flex', alignItems: 'center' }}
+              className="bg-transparent border-none cursor-pointer p-px text-text-secondary flex items-center"
               title="Dismiss"
             >
-              <X style={{ width: 13, height: 13 }} />
+              <X weight="regular" className="w-[13px] h-[13px]" />
             </button>
           </div>
           {insight}
-          <div style={{ marginTop: 10 }}>
+          <div className="mt-2.5">
             <NotTaxAdviceDisclaimer />
           </div>
         </div>
       )}
 
       {insightError && (
-        <p style={{ fontSize: 12, color: '#C0392B', marginBottom: 10 }}>
+        <p className="text-xs text-danger-500 mb-2.5">
           Couldn't generate insight — try again.
         </p>
       )}
 
       {/* Summary sentence */}
-      <p style={{ fontSize: 16, fontWeight: 500, color: '#334155', letterSpacing: '-0.01em', lineHeight: 1.5 }}>
+      <p className="text-base font-medium text-text-primary tracking-tight leading-normal">
         {sentence}
       </p>
 
       {/* Bar chart */}
       {!isNewUser && (
-        <div style={{ marginTop: 20 }}>
+        <div className="mt-5">
           <ResponsiveContainer width="100%" height={100}>
             <BarChart data={barData} barSize={24} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
               {monthlyAvg > 0 && (
-                <ReferenceLine y={monthlyAvg} stroke="#CBD5E1" strokeWidth={1} strokeDasharray="3 3" />
+                <ReferenceLine y={monthlyAvg} stroke="var(--border-default)" strokeWidth={1} strokeDasharray="3 3" />
               )}
               <XAxis
                 dataKey="month"
@@ -199,7 +182,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
                     textAnchor="middle"
                     fontSize={9}
                     fontWeight={barData[index]?.isCurrent ? 600 : 400}
-                    fill={barData[index]?.isCurrent ? '#64748B' : '#CBD5E1'}
+                    fill={barData[index]?.isCurrent ? 'var(--text-secondary)' : 'var(--border-default)'}
                   >
                     {payload.value}
                   </text>
@@ -207,7 +190,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
               />
               <Tooltip
                 cursor={{ fill: 'rgba(0,0,0,0.03)' }}
-                contentStyle={{ fontSize: 11, border: '1px solid rgba(0,0,0,0.06)', borderRadius: 8, background: '#fff', boxShadow: 'none' }}
+                contentStyle={{ fontSize: 11, border: '1px solid var(--border-subtle)', borderRadius: 8, background: 'var(--surface-card)', boxShadow: 'none' }}
                 formatter={(v: number, _: any, props: any) =>
                   props.payload?.isFuture ? ['—', 'Not yet'] : [`£${v.toLocaleString('en-GB')}`, 'Income']
                 }
@@ -217,16 +200,16 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
                 {barData.map((entry, i) => (
                   <Cell
                     key={i}
-                    fill={entry.isFuture ? 'rgba(0,0,0,0.04)' : entry.isCurrent ? '#1D6B35' : '#C8E0CF'}
+                    fill={entry.isFuture ? 'var(--border-subtle)' : entry.isCurrent ? 'var(--brand-primary)' : 'var(--success-200)'}
                   />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
           {monthlyAvg > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <div style={{ width: 14, borderTop: '1px dashed #CBD5E1' }} />
-              <p style={{ fontSize: 11, color: '#475569' }}>Typical month</p>
+            <div className="flex justify-end items-center gap-1 mt-1">
+              <div className="w-3.5 border-t border-dashed border-border-default" />
+              <p className="text-caption text-text-secondary">Typical month</p>
             </div>
           )}
         </div>

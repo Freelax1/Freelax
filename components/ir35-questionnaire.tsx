@@ -88,34 +88,34 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {!aiResult && <NotTaxAdviceDisclaimer />}
       <div className="space-y-3">
         {IR35_QUESTIONS.map(q => (
-          <div key={q.number} className="bg-slate-50 rounded-lg p-4">
+          <div key={q.number} className="bg-surface-sunken rounded-xl p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
                     {q.importance}
                   </span>
-                  <span className="text-xs text-slate-500">{q.label}</span>
+                  <span className="text-xs text-text-secondary">{q.label}</span>
                 </div>
-                <p className="text-sm text-slate-700">{q.text}</p>
+                <p className="text-sm text-text-primary">{q.text}</p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: true }))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                     answers[q.number] === true
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-forest-600 text-white'
+                      : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                   }`}
                 >
                   Yes
                 </button>
                 <button
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: false }))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                     answers[q.number] === false && answers[q.number] !== undefined
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-forest-600 text-white'
+                      : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                   }`}
                 >
                   No
@@ -129,7 +129,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {allAnswered && calculatedStatus && (
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-600">Calculated status:</span>
+            <span className="text-sm text-text-secondary">Calculated status:</span>
             <Badge status={calculatedStatus} />
           </div>
           <div className="flex gap-2">
@@ -137,7 +137,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+                className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save assessment'}
               </button>
@@ -145,7 +145,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             <button
               onClick={handleAIAssess}
               disabled={aiLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50"
             >
               {aiLoading ? 'Analysing...' : 'Assess with AI'}
             </button>
@@ -154,35 +154,35 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       )}
 
       {aiResult && !aiResult.error && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-5">
+        <div className="bg-surface-card border border-border-default rounded-xl p-5 space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">IR35 Assessment</h3>
+            <h3 className="font-semibold text-text-primary">IR35 Assessment</h3>
             <AIFlag />
           </div>
 
           {/* Verdict */}
           <div>
-            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Verdict</p>
-            <p className="text-sm text-slate-800 leading-relaxed">{aiResult.verdict}</p>
+            <p className="text-xs font-semibold text-text-secondary mb-1.5">Verdict</p>
+            <p className="text-sm text-text-primary leading-relaxed">{aiResult.verdict}</p>
           </div>
 
           {/* Risk level */}
           {aiResult.risk_level && (
             <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Risk Level</p>
+              <p className="text-xs font-semibold text-text-secondary mb-2">Risk Level</p>
               <IR35RiskBar level={aiResult.risk_level} />
-              <p className="text-sm text-slate-600 mt-2">{aiResult.risk_level_explanation}</p>
+              <p className="text-sm text-text-secondary mt-2">{aiResult.risk_level_explanation}</p>
             </div>
           )}
 
           {/* Next steps */}
           {aiResult.next_steps?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">Next Steps</p>
+              <p className="text-xs font-semibold text-text-secondary mb-2.5">Next Steps</p>
               <ol className="space-y-2.5">
                 {aiResult.next_steps.map((step: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-forest-900 text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
                     {step}
                   </li>
                 ))}
@@ -190,15 +190,15 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             </div>
           )}
 
-          <div className="border-t border-slate-100 pt-3">
+          <div className="border-t border-border-subtle pt-3">
             <NotTaxAdviceDisclaimer />
           </div>
         </div>
       )}
 
       {aiResult?.error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-600">{aiResult.error}</p>
+        <div className="bg-danger-50 border border-danger-200 rounded-xl p-4">
+          <p className="text-sm text-danger-600">{aiResult.error}</p>
         </div>
       )}
     </div>

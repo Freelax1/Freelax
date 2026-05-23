@@ -13,41 +13,15 @@ import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
 import MileageForm from '@/components/mileage-form'
-import { Paperclip, Trash2, Car, MoreVertical, Pencil, CheckSquare, Square, Lock, ArrowRight } from 'lucide-react'
-import type { Expense } from '@/types/database'
+import { Paperclip, Trash, Car, DotsThreeVertical, PencilSimple, CheckSquare, Square, Lock, ArrowRight } from '@phosphor-icons/react'
+import type { Expense, MileageEntry } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 
 type Tab = 'expenses' | 'mileage'
-
-// ── Delete modal ──────────────────────────────────────────────────────
-function DeleteModal({ count, onConfirm, onCancel, loading }: {
-  count?: number; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600" />
-          </div>
-          <div>
-            <h2 className="font-bold text-slate-900">{count && count > 1 ? `Delete ${count} expenses?` : 'Delete expense?'}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">This will be permanently removed.</p>
-          </div>
-        </div>
-        <div className="flex gap-3 mt-5">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-            {loading ? 'Deleting...' : 'Delete'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
@@ -61,27 +35,22 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="relative">
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
         aria-label="Expense actions"
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
-        <MoreVertical className="w-4 h-4" />
+        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+        <DotsThreeVertical weight="regular" className="w-4 h-4" />
       </button>
       {open && (
-        <div style={{
-          position: 'absolute', right: 0, top: 'calc(100% + 4px)',
-          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 50,
-          minWidth: 130, overflow: 'hidden',
-        }}>
+        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[130px] overflow-hidden shadow-popover">
           <button onClick={() => { setOpen(false); onEdit() }}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
+            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
           </button>
-          <div style={{ borderTop: '1px solid #F1F5F9' }}>
+          <div className="border-t border-border-subtle">
             <button onClick={() => { setOpen(false); onDelete() }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
-              <Trash2 className="w-3.5 h-3.5" /> Delete
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
+              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
         </div>
@@ -95,20 +64,15 @@ function BulkBar({ count, onDelete, onClear }: {
   count: number; onDelete: () => void; onClear: () => void
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#0F172A', borderRadius: 10, padding: '10px 16px', marginBottom: 12 }}>
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', marginRight: 4 }}>{count} selected</span>
-      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
-      <button onClick={onDelete} style={{
-        fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
-        background: 'rgba(192,57,43,0.25)', border: '1px solid rgba(192,57,43,0.4)',
-        color: '#FF8A80', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-      }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.4)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.25)')}
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
+      <div className="w-px h-4 bg-white/15" />
+      <button onClick={onDelete}
+        className="text-xs font-medium px-2.5 py-1 rounded-[6px] text-danger-300 cursor-pointer flex items-center gap-[5px] bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40"
       >
-        <Trash2 style={{ width: 12, height: 12 }} /> Delete
+        <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
-      <button onClick={onClear} style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.7)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
+      <button onClick={onClear} className="ml-auto text-xs cursor-pointer bg-transparent border-none text-white/70">Clear</button>
     </div>
   )
 }
@@ -120,7 +84,7 @@ export default function ExpensesPage() {
 
   const [tab, setTab]               = useState<Tab>(initialTab as Tab)
   const [expenses, setExpenses]     = useState<Expense[]>([])
-  const [mileage, setMileage]       = useState<any[]>([])
+  const [mileage, setMileage]       = useState<MileageEntry[]>([])
   const [loading, setLoading]       = useState(true)
   const [slideOpen, setSlideOpen]   = useState(false)
   const [editExpense, setEditExpense] = useState<Partial<Expense> | undefined>()
@@ -175,8 +139,8 @@ export default function ExpensesPage() {
     load,
   )
   const { pendingIds: mileageDeletePending, scheduleDelete: scheduleMileageDelete } = useUndoDelete(
-    async (entry: any) => deleteMileageEntry(entry.id),
-    (entry: any) => String(entry.description ?? 'Journey'),
+    async (entry: MileageEntry) => deleteMileageEntry(entry.id),
+    (entry: MileageEntry) => String(entry.description ?? 'Journey'),
     load,
   )
 
@@ -228,7 +192,7 @@ export default function ExpensesPage() {
         }
         action={
           !(tab === 'mileage' && !canUseMileage) && (
-            <button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
+            <button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
               {tab === 'expenses' ? 'Add expense' : 'Log journey'}
             </button>
           )
@@ -236,11 +200,11 @@ export default function ExpensesPage() {
       />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200 mb-5">
+      <div className="flex gap-1 border-b border-border-default mb-5">
         {(['expenses', 'mileage'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors capitalize ${
-              tab === t ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'
+              tab === t ? 'border-forest-900 text-text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'
             }`}>
             {t}
           </button>
@@ -257,43 +221,39 @@ export default function ExpensesPage() {
               { label: 'VAT reclaimable',   value: formatCurrency(totalVatReclaimable),   sub: vatRegistered ? 'Registered for VAT' : 'Not VAT registered' },
               { label: 'Receipts uploaded', value: `${receiptsUploaded}/${expenses.length}`, sub: receiptsUploaded === expenses.length ? '✓ All uploaded' : `${expenses.length - receiptsUploaded} missing` },
             ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-5">
-                <p style={{ fontSize: 10, fontWeight: 600, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
-                <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{s.value}</p>
-                <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{s.sub}</p>
+              <div key={s.label} className="bg-surface-card rounded-xl border border-border-default p-5">
+                <p className="text-micro font-semibold text-text-body mb-1.5">{s.label}</p>
+                <p className="text-xl font-semibold text-text-primary tracking-tight mb-px">{s.value}</p>
+                <p className="text-caption font-medium text-text-secondary">{s.sub}</p>
               </div>
             ))}
           </div>
 
           {/* Category filter pills */}
           {categories.length > 1 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            <div className="flex gap-1.5 flex-wrap mb-3.5">
               {categories.map(cat => {
                 const isActive = categoryFilter === cat
                 const label = cat === 'all' ? 'All categories' : (CATEGORY_LABELS[cat] ?? cat)
                 return (
-                  <button key={cat} onClick={() => setCategoryFilter(cat === categoryFilter && cat !== 'all' ? 'all' : cat)} style={{
-                    padding: '5px 12px', borderRadius: 20, fontSize: 12, cursor: 'pointer',
-                    border: `1px solid ${isActive ? '#111' : '#E0E0E0'}`,
-                    background: isActive ? '#111' : '#fff',
-                    color: isActive ? '#fff' : '#666',
-                    fontWeight: isActive ? 600 : 400, transition: 'all 0.12s',
-                  }}>{label}</button>
+                  <button key={cat} onClick={() => setCategoryFilter(cat === categoryFilter && cat !== 'all' ? 'all' : cat)}
+                    className={cn('px-3 py-[5px] rounded-lg text-xs cursor-pointer transition-all duration-[120ms] border', isActive ? 'bg-forest-900 text-white border-forest-900 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal')}
+                  >{label}</button>
                 )
               })}
             </div>
           )}
 
           {/* Search */}
-          <div style={{ position: 'relative', marginBottom: 14, maxWidth: 360 }}>
-            <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <div className="relative mb-3.5 max-w-[360px]">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
             </svg>
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search expenses..."
-              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
+              className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
               onKeyDown={e => e.key === 'Escape' && setQuery('')}
             />
-            {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
+            {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
           </div>
 
           {/* Bulk bar */}
@@ -307,55 +267,68 @@ export default function ExpensesPage() {
       {tab === 'expenses' && (
         !loading && !expenses.length ? (
           <EmptyState icon="expense" title="No expenses yet" description="Every business cost you log reduces your tax bill. We handle the VAT split and keep your receipts in one place for Self Assessment."
-            action={<button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Log your first expense</button>}
+            action={<button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Log your first expense</button>}
           />
         ) : (
-          <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+          <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
+            <table className="w-full border-separate border-spacing-0">
+              <colgroup>
+                <col className="w-10" />
+                <col className="w-28" />
+                <col />
+                <col className="w-36" />
+                <col className="w-28" />
+                <col className="w-24" />
+                <col className="w-20" />
+                <col className="w-10" />
+              </colgroup>
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 w-10">
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
                     <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(e => e.id)))}
-                      className="flex items-center justify-center text-slate-600 hover:text-slate-700">
-                      {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
+                      className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                      {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                     </button>
                   </th>
-                  {['Date', 'Merchant', 'Category', 'Amount', 'VAT', 'Receipt', ''].map((h, i) => (
-                    <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === 'Amount' || h === 'VAT' ? 'text-right' : h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                  ))}
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Date</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Merchant</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Category</th>
+                  <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Amount</th>
+                  <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">VAT</th>
+                  <th className="px-4 py-2.5 text-center text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Receipt</th>
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {loading ? Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 bg-slate-100 rounded animate-pulse w-20" /></td>)}</tr>
+                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-4 bg-surface-sunken rounded animate-pulse w-20" /></td>)}</tr>
                 )) : filtered.map(exp => {
                   const isSelected = selected.has(exp.id)
                   return (
-                    <tr key={exp.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
-                      <td className="px-4 py-3">
-                        <button onClick={() => toggleSelect(exp.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
-                          {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
+                    <tr key={exp.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
+                      <td className="px-3 py-2.5 text-center">
+                        <button onClick={() => toggleSelect(exp.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                         </button>
                       </td>
-                      <td className="px-4 py-3 text-slate-500">{new Date(exp.date).toLocaleDateString('en-GB')}</td>
-                      <td className="px-4 py-3 font-medium text-slate-800">{exp.merchant}</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                          style={{ background: CATEGORY_COLORS[exp.category] ?? '#F0F0F0', color: '#333' }}>
+                      <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{new Date(exp.date).toLocaleDateString('en-GB')}</td>
+                      <td className="px-4 py-2.5 font-medium text-sm text-text-primary">{exp.merchant}</td>
+                      <td className="px-4 py-2.5">
+                        <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', CATEGORY_COLORS[exp.category] ?? 'bg-surface-sunken text-text-secondary')}>
                           {CATEGORY_LABELS[exp.category] ?? exp.category}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(exp.amount)}</td>
-                      <td className="px-4 py-3 text-right text-slate-500">
-                        {exp.vat_reclaimable ? <span className="text-green-700 font-medium">{formatCurrency(exp.vat_amount ?? 0)}</span> : '—'}
+                      <td className="px-4 py-2.5 text-right font-semibold text-sm text-text-primary tabular-nums">{formatCurrency(exp.amount)}</td>
+                      <td className="px-4 py-2.5 text-right text-sm text-text-secondary tabular-nums">
+                        {exp.vat_reclaimable ? <span className="text-success-700 font-medium">{formatCurrency(exp.vat_amount ?? 0)}</span> : '—'}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-4 py-2.5 text-center">
                         {exp.receipt_url
-                          ? <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700"><Paperclip className="w-3.5 h-3.5 inline" /></a>
-                          : <span className="text-slate-200"><Paperclip className="w-3.5 h-3.5 inline" /></span>
+                          ? <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-forest-600 hover:text-forest-700"><Paperclip weight="regular" className="w-3.5 h-3.5 inline" /></a>
+                          : <span className="text-text-muted"><Paperclip weight="regular" className="w-3.5 h-3.5 inline" /></span>
                         }
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-3 py-2.5 text-right">
                         <KebabMenu
                           onEdit={() => { setEditExpense(exp); setSlideOpen(true) }}
                           onDelete={() => scheduleExpenseDelete(exp)}
@@ -374,33 +347,32 @@ export default function ExpensesPage() {
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-24 mb-3" /><div className="h-3 fd-skeleton w-32" />
             </div>
           )) : filtered.map(exp => {
             const isSelected = selected.has(exp.id)
             return (
-              <div key={exp.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
+              <div key={exp.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button onClick={() => toggleSelect(exp.id)} aria-label={isSelected ? 'Deselect expense' : 'Select expense'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
+                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
                     </button>
-                    <span className="font-medium text-slate-800 truncate">{exp.merchant}</span>
+                    <span className="font-medium text-text-primary truncate">{exp.merchant}</span>
                   </div>
-                  <span className="font-semibold text-slate-900 flex-shrink-0">{formatCurrency(exp.amount)}</span>
+                  <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(exp.amount)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                    style={{ background: CATEGORY_COLORS[exp.category] ?? '#F0F0F0', color: '#333' }}>
+                  <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', CATEGORY_COLORS[exp.category] ?? 'bg-surface-sunken text-text-secondary')}>
                     {CATEGORY_LABELS[exp.category] ?? exp.category}
                   </span>
-                  {exp.vat_reclaimable && <span className="text-green-700 font-medium text-xs">VAT {formatCurrency(exp.vat_amount ?? 0)}</span>}
+                  {exp.vat_reclaimable && <span className="text-success-700 font-medium text-xs">VAT {formatCurrency(exp.vat_amount ?? 0)}</span>}
                 </div>
                 <div className="flex items-center justify-between pl-7">
-                  <span className="text-xs text-slate-600">{new Date(exp.date).toLocaleDateString('en-GB')}</span>
+                  <span className="text-xs text-text-secondary">{new Date(exp.date).toLocaleDateString('en-GB')}</span>
                   <div className="flex items-center gap-2">
-                    {exp.receipt_url && <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-blue-500"><Paperclip className="w-3.5 h-3.5" /></a>}
+                    {exp.receipt_url && <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-forest-600"><Paperclip weight="regular" className="w-3.5 h-3.5" /></a>}
                     <KebabMenu onEdit={() => { setEditExpense(exp); setSlideOpen(true) }} onDelete={() => scheduleExpenseDelete(exp)} />
                   </div>
                 </div>
@@ -418,17 +390,17 @@ export default function ExpensesPage() {
               { label: 'Tax relief',   value: formatCurrency(totalMileageRelief) },
               { label: 'Current rate', value: `${(calcMileageRate(totalMiles) * 100).toFixed(0)}p/mile` },
             ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-5">
-                <p style={{ fontSize: 10, fontWeight: 600, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
-                <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>{s.value}</p>
+              <div key={s.label} className="bg-surface-card rounded-xl border border-border-default p-5">
+                <p className="text-micro font-semibold text-text-body mb-1.5">{s.label}</p>
+                <p className="text-xl font-semibold text-text-primary tracking-tight">{s.value}</p>
               </div>
             ))}
           </div>
-          <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-500 mb-5">
-            HMRC approved mileage: <strong className="text-slate-700">{(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile</strong> first {HMRC_THRESHOLD.toLocaleString()} miles,
-            then <strong className="text-slate-700">{(HMRC_RATE_AFTER * 100).toFixed(0)}p/mile</strong>.
+          <div className="bg-surface-sunken border border-border-default rounded-xl px-4 py-3 text-xs text-text-secondary mb-5">
+            HMRC approved mileage: <strong className="text-text-primary">{(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile</strong> first {HMRC_THRESHOLD.toLocaleString()} miles,
+            then <strong className="text-text-primary">{(HMRC_RATE_AFTER * 100).toFixed(0)}p/mile</strong>.
             {totalMiles > 8000 && totalMiles < HMRC_THRESHOLD && (
-              <span className="ml-2 text-amber-800 font-medium">{(HMRC_THRESHOLD - totalMiles).toLocaleString()} miles from the rate change.</span>
+              <span className="ml-2 text-warning-800 font-medium">{(HMRC_THRESHOLD - totalMiles).toLocaleString()} miles from the rate change.</span>
             )}
           </div>
         </>
@@ -436,52 +408,63 @@ export default function ExpensesPage() {
 
       {tab === 'mileage' && canUseMileage && (
         !loading && !mileage.length ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-            <Car className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm font-medium mb-1">No journeys logged yet</p>
-            <p className="text-slate-600 text-xs">Business mileage at {(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile is tax-deductible.</p>
-            <button onClick={openAdd} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Log journey</button>
+          <div className="bg-surface-card rounded-xl border border-border-default p-12 text-center">
+            <Car weight="regular" className="w-10 h-10 text-text-muted mx-auto mb-3" />
+            <p className="text-text-secondary text-sm font-medium mb-1">No journeys logged yet</p>
+            <p className="text-text-secondary text-xs">Business mileage at {(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile is tax-deductible.</p>
+            <button onClick={openAdd} className="mt-4 bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Log journey</button>
           </div>
         ) : (
           <>
-            <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
+            <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
+              <table className="w-full border-separate border-spacing-0">
+                <colgroup>
+                  <col className="w-28" />
+                  <col />
+                  <col />
+                  <col className="w-28" />
+                  <col className="w-28" />
+                  <col className="w-10" />
+                </colgroup>
+                <thead>
                   <tr>
-                    {['Date', 'Description', 'Route', 'Miles', 'Relief', ''].map((h, i) => (
-                      <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === 'Miles' || h === 'Relief' ? 'text-right' : h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                    ))}
+                    <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default rounded-tl-xl">Date</th>
+                    <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Description</th>
+                    <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Route</th>
+                    <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Miles</th>
+                    <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Relief</th>
+                    <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {visibleMileage.map((e, idx) => {
                     const milesBefore = visibleMileage.slice(idx + 1).reduce((s, x) => s + Number(x.miles), 0)
                     const rate   = milesBefore >= HMRC_THRESHOLD ? HMRC_RATE_AFTER : HMRC_RATE_FIRST
                     const relief = Number(e.miles) * rate
                     return (
-                      <tr key={e.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{new Date(e.date).toLocaleDateString('en-GB')}</td>
-                        <td className="px-4 py-3 font-medium text-slate-800">{e.description}</td>
-                        <td className="px-4 py-3 text-slate-600 text-xs">
+                      <tr key={e.id} className="border-t border-border-subtle hover:bg-surface-sunken transition-colors">
+                        <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums whitespace-nowrap">{new Date(e.date).toLocaleDateString('en-GB')}</td>
+                        <td className="px-4 py-2.5 font-medium text-sm text-text-primary">{e.description}</td>
+                        <td className="px-4 py-2.5 text-sm text-text-secondary">
                           {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location || '—'}
                         </td>
-                        <td className="px-4 py-3 text-right font-medium">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
-                        <td className="px-4 py-3 text-right text-green-700 font-medium">£{relief.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-4 py-2.5 text-right font-medium text-sm tabular-nums">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
+                        <td className="px-4 py-2.5 text-right text-success-700 font-semibold text-sm tabular-nums">£{relief.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-right">
                           <button onClick={() => scheduleMileageDelete(e)}
-                            className="p-1.5 rounded hover:bg-red-50 text-slate-500 hover:text-red-500">
-                            <Trash2 className="w-3.5 h-3.5" />
+                            className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-500">
+                            <Trash weight="regular" className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>
                     )
                   })}
                 </tbody>
-                <tfoot className="bg-slate-50 border-t border-slate-200">
+                <tfoot className="bg-surface-sunken border-t border-border-default">
                   <tr>
-                    <td colSpan={3} className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Total</td>
-                    <td className="px-4 py-3 text-right font-bold text-slate-900">{totalMiles.toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</td>
-                    <td className="px-4 py-3 text-right font-bold text-green-700">£{totalMileageRelief.toFixed(2)}</td>
+                    <td colSpan={3} className="px-4 py-2.5 text-caption font-semibold text-text-secondary">Total</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-sm text-text-primary tabular-nums">{totalMiles.toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-sm text-success-700 tabular-nums">£{totalMileageRelief.toFixed(2)}</td>
                     <td />
                   </tr>
                 </tfoot>
@@ -495,22 +478,22 @@ export default function ExpensesPage() {
                 const relief = Number(e.miles) * rate
                 const hasRoute = e.from_location || e.to_location
                 return (
-                  <div key={e.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div key={e.id} className="bg-surface-card rounded-xl border border-border-default p-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <span className="font-medium text-slate-800">{e.description}</span>
-                      <span className="font-semibold text-slate-900 flex-shrink-0">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</span>
+                      <span className="font-medium text-text-primary">{e.description}</span>
+                      <span className="font-semibold text-text-primary flex-shrink-0">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })} mi</span>
                     </div>
-                    <p className="text-green-700 font-medium text-sm mb-2">{formatCurrency(relief)} tax relief</p>
+                    <p className="text-success-700 font-medium text-sm mb-2">{formatCurrency(relief)} tax relief</p>
                     {hasRoute && (
-                      <p className="text-xs text-slate-600 mb-2">
+                      <p className="text-xs text-text-secondary mb-2">
                         {e.from_location && e.to_location ? `${e.from_location} → ${e.to_location}` : e.from_location || e.to_location}
                       </p>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-600">{new Date(e.date).toLocaleDateString('en-GB')}</span>
+                      <span className="text-xs text-text-secondary">{new Date(e.date).toLocaleDateString('en-GB')}</span>
                       <button onClick={() => scheduleMileageDelete(e)}
-                        className="p-1.5 rounded hover:bg-red-50 text-slate-500 hover:text-red-500">
-                        <Trash2 className="w-3.5 h-3.5" />
+                        className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-500">
+                        <Trash weight="regular" className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -522,23 +505,32 @@ export default function ExpensesPage() {
       )}
 
       {tab === 'mileage' && !canUseMileage && !loading && (
-        <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-            <Lock className="w-5 h-5 text-slate-600" />
+        <div className="flex flex-col items-center justify-center py-10 rounded-xl bg-surface-sunken text-center">
+          <div className="w-10 h-10 rounded-full bg-surface-sunken flex items-center justify-center mb-3">
+            <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
           </div>
-          <p className="text-sm font-medium text-slate-700 mb-1">
+          <p className="text-sm font-medium text-text-primary mb-1">
             Mileage tracking is available on the Solo plan and above
           </p>
           <Link
             href="/settings?tab=billing"
-            className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800"
+            className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800"
           >
-            Upgrade to Solo <ArrowRight className="w-3.5 h-3.5" />
+            Upgrade to Solo <ArrowRight weight="regular" className="w-3.5 h-3.5" />
           </Link>
         </div>
       )}
 
-      {bulkDeleteOpen && <DeleteModal count={selected.size} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkDeleting} />}
+      {bulkDeleteOpen && (
+        <ConfirmDeleteModal
+          title={selected.size > 1 ? `Delete ${selected.size} expenses?` : 'Delete expense?'}
+          description="Selected items will be permanently removed."
+          confirmLabel="Delete"
+          onConfirm={handleBulkDelete}
+          onCancel={() => setBulkDeleteOpen(false)}
+          loading={bulkDeleting}
+        />
+      )}
 
       <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)}
         title={tab === 'expenses' ? (editExpense ? 'Edit expense' : 'Add expense') : 'Log journey'}>

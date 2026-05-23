@@ -10,7 +10,6 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Settings" />
       <Suspense fallback={<div />}>
         <SettingsForm profile={profile} email={user?.email ?? ''} />
       </Suspense>

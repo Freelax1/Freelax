@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { _registerToastListener, type ToastItem } from '@/lib/toast'
+import { cn } from '@/lib/utils'
 
 const AUTO_DISMISS_MS = 5000
 
@@ -21,85 +22,42 @@ export default function Toaster() {
   if (toasts.length === 0) return null
 
   return (
-    <div
-      style={{
-        position:      'fixed',
-        top:           72,
-        right:         20,
-        zIndex:        9999,
-        display:       'flex',
-        flexDirection: 'column',
-        gap:           8,
-        maxWidth:      360,
-        width:         'calc(100vw - 40px)',
-        pointerEvents: 'none',
-      }}
-    >
+    <div className="fixed top-[72px] right-5 z-[9999] flex flex-col gap-2 max-w-[360px] w-[calc(100vw-40px)] pointer-events-none">
       {toasts.map(t => (
         <div
           key={t.id}
-          style={{
-            display:       'flex',
-            alignItems:    'center',
-            gap:           10,
-            padding:       '12px 14px',
-            borderRadius:  10,
-            fontSize:      13,
-            fontWeight:    500,
-            fontFamily:    "'Plus Jakarta Sans', sans-serif",
-            boxShadow:     '0 4px 16px rgba(0,0,0,0.12)',
-            pointerEvents: 'auto',
-            animation:     'fd-toast-in 200ms cubic-bezier(0.22,1,0.36,1)',
-            ...(t.type === 'success' ? {
-              background: '#F0FDF4',
-              color:      '#166534',
-              border:     '1px solid #BBF7D0',
-            } : t.type === 'error' ? {
-              background: '#FEF2F2',
-              color:      '#991B1B',
-              border:     '1px solid #FECACA',
-            } : {
-              background: '#F8FAFC',
-              color:      '#475569',
-              border:     '1px solid #E2E8F0',
-            }),
-          }}
+          className={cn(
+            'flex items-center gap-2.5 px-3.5 py-3 rounded-[10px] text-sm font-medium pointer-events-auto shadow-[0_4px_16px_rgba(0,0,0,0.12)] animate-toast-in',
+            t.type === 'success' ? 'bg-success-50 text-success-700 border border-success-200'
+            : t.type === 'error'  ? 'bg-danger-50 text-danger-800 border border-danger-200'
+            : 'bg-surface-sunken text-text-secondary border border-border-subtle'
+          )}
         >
           {t.type === 'success' && (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
               <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           )}
           {t.type === 'error' && (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
               <path d="M8 5v3M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           )}
           {t.type === 'info' && (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
               <path d="M8 7v4M8 5.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           )}
 
-          <span style={{ flex: 1 }}>{t.message}</span>
+          <span className="flex-1">{t.message}</span>
 
           {t.action && (
             <button
               onClick={t.action.onClick}
-              style={{
-                flexShrink:    0,
-                padding:       '3px 9px',
-                borderRadius:  6,
-                fontSize:      12,
-                fontWeight:    600,
-                cursor:        'pointer',
-                background:    'rgba(0,0,0,0.08)',
-                border:        '1px solid rgba(0,0,0,0.10)',
-                color:         'inherit',
-                fontFamily:    'inherit',
-              }}
+              className="shrink-0 px-[9px] py-[3px] rounded-[6px] text-xs font-semibold cursor-pointer text-[inherit] font-[inherit]"
+              className="shrink-0 px-[9px] py-[3px] rounded-[6px] text-xs font-semibold cursor-pointer text-[inherit] font-[inherit] bg-black/[0.08] border border-black/10"
             >
               {t.action.label}
             </button>
@@ -107,12 +65,6 @@ export default function Toaster() {
         </div>
       ))}
 
-      <style>{`
-        @keyframes fd-toast-in {
-          from { opacity: 0; transform: translateX(12px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </div>
   )
 }

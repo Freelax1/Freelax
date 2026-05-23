@@ -1,5 +1,5 @@
 ﻿import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 import { createClient } from '@/lib/supabase/server'
 
 interface TocItem { id: string; label: string }
@@ -74,7 +74,7 @@ export default async function LegalLayout({
               textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 5,
             }}>
-              {ctaLabel} <ArrowRight style={{ width: 12, height: 12 }} />
+              {ctaLabel} <ArrowRight weight="regular" style={{ width: 12, height: 12 }} />
             </Link>
           </nav>
         </div>
@@ -90,7 +90,6 @@ export default async function LegalLayout({
           {eyebrow && (
             <p style={{
               fontSize: 11, fontWeight: 600, color: '#1D6B35',
-              textTransform: 'uppercase', letterSpacing: '0.14em',
               margin: '0 0 12px',
             }}>
               {eyebrow}
@@ -139,7 +138,6 @@ export default async function LegalLayout({
             }}>
               <p style={{
                 fontSize: 10, fontWeight: 700, color: '#475569',
-                textTransform: 'uppercase', letterSpacing: '0.12em',
                 margin: '0 0 12px',
               }}>
                 On this page

@@ -175,6 +175,14 @@ module.exports = {
         'btn-dark':     '0 2px 8px rgba(0,0,0,0.18)',
       },
 
+      letterSpacing: {
+        // ── 3 tracking values only ─────────────────────────────────────
+        'normal':   '0',
+        'tight':    '-0.015em',  // headings ≥18px
+        'tighter':  '-0.03em',   // display ≥28px, wordmark
+        'wide':     '0.025em',   // badges, labels (rare)
+      },
+
       transitionDuration: {
         'fast':    '120ms',
         'default': '200ms',

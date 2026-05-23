@@ -71,7 +71,7 @@ export default function SettingsModal({ open, onClose, initialTab }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-default flex-shrink-0">
-          <h2 className="text-[15px] font-bold text-text-primary tracking-[-0.01em]">Settings</h2>
+          <h2 className="text-base font-semibold text-text-primary tracking-tight">Settings</h2>
           <button
             onClick={onClose}
             aria-label="Close"
@@ -85,7 +85,7 @@ export default function SettingsModal({ open, onClose, initialTab }: Props) {
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {loading || !profile ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-[13px] text-text-secondary">Loading…</p>
+              <p className="text-sm text-text-secondary">Loading…</p>
             </div>
           ) : (
             <SettingsForm profile={profile} email={email} embedded initialTab={initialTab} />

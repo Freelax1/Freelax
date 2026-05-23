@@ -56,7 +56,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
       {/* Logo upload */}
       <div className="px-7 py-6">
         <label className={labelClass}>Business logo</label>
-        <p className="text-[12px] text-text-secondary mb-3">Appears on all invoices and quotes sent to clients.</p>
+        <p className="text-xs text-text-secondary mb-3">Appears on all invoices and quotes sent to clients.</p>
         <div className="flex items-start gap-5">
 
           {/* Preview */}
@@ -72,7 +72,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
                 </div>
               </>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                 {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -130,7 +130,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
         </Field>
         <Field label="Email">
           <input className={`${inputClass} bg-surface-sunken text-text-secondary cursor-not-allowed`} value={email} readOnly />
-          <p className="text-[11px] text-text-muted mt-1">Email cannot be changed here</p>
+          <p className="text-caption text-text-muted mt-1">Email cannot be changed here</p>
         </Field>
         <Field label="Phone">
           <input className={inputClass} value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />

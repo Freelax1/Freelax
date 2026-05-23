@@ -9,37 +9,12 @@ import PageHeader from '@/components/page-header'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
-import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
+import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
 import type { Project } from '@/types/database'
-
-// ── Delete modal ──────────────────────────────────────────────────────
-function DeleteModal({ title, count, onConfirm, onCancel, loading }: {
-  title: string; count?: number; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600" />
-          </div>
-          <div>
-            <h2 className="font-bold text-slate-900">{count && count > 1 ? `Delete ${count} projects?` : 'Delete project?'}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">{count && count > 1 ? `${count} projects` : title} will be permanently removed.</p>
-          </div>
-        </div>
-        <p className="text-sm text-slate-500 mt-3 mb-5">This action cannot be undone.</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-            {loading ? 'Deleting...' : 'Yes, delete'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { cn } from '@/lib/utils'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import SlideOver from '@/components/slide-over'
+import ProjectForm from '@/components/project-form'
 
 // ── Status modal ──────────────────────────────────────────────────────
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
@@ -53,19 +28,20 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   }
   const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#475569' }
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-bold text-slate-900 mb-1">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
+      onClick={onCancel}>
+      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-semibold text-text-primary mb-1">
           Change status to <span style={{ color }}>{label}</span>?
         </h2>
-        <p className="text-sm text-slate-500 mb-5">
+        <p className="text-sm text-text-secondary mb-5">
           {count} project{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
         </p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
           <button onClick={onConfirm} disabled={loading}
-            style={{ flex: 1, padding: '10px 16px', background: color, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
+            style={{ background: color }}>
             {loading ? 'Updating...' : `Mark as ${label}`}
           </button>
         </div>
@@ -75,10 +51,11 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
-function KebabMenu({ project, onDelete, onStatusChange }: {
+function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
   project: Project
   onDelete: (p: Project) => void
   onStatusChange: (p: Project, status: string) => void
+  onEdit: (p: Project) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -99,42 +76,37 @@ function KebabMenu({ project, onDelete, onStatusChange }: {
   const otherStatuses = allStatuses.filter(s => s.key !== project.status)
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="relative">
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
         aria-label="Project actions"
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
-        <MoreVertical className="w-4 h-4" />
+        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+        <DotsThreeVertical weight="regular" className="w-4 h-4" />
       </button>
       {open && (
-        <div style={{
-          position: 'absolute', right: 0, top: 'calc(100% + 4px)',
-          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 50,
-          minWidth: 160, overflow: 'hidden',
-        }}>
+        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
           <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
+            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
           </Link>
-          <Link href={`/projects/${project.id}/edit`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
-          </Link>
+          <button onClick={() => { setOpen(false); onEdit(project) }}
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
+            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
+          </button>
           {/* Status options */}
-          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
+          <div className="border-t border-border-subtle py-1.5">
+            <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
             {otherStatuses.map(s => (
               <button key={s.key} onClick={() => { setOpen(false); onStatusChange(project, s.key) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
+                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: s.dot }} />
                 {s.label}
               </button>
             ))}
           </div>
-          <div style={{ borderTop: '1px solid #F1F5F9' }}>
+          <div className="border-t border-border-subtle">
             <button onClick={() => { setOpen(false); onDelete(project) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
-              <Trash2 className="w-3.5 h-3.5" /> Delete
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
+              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
         </div>
@@ -148,35 +120,21 @@ function BulkBar({ count, onDelete, onStatusChange }: {
   count: number; onDelete: () => void; onStatusChange: (s: string) => void
 }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      background: '#0F172A', borderRadius: 10, padding: '10px 16px', marginBottom: 12,
-    }}>
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', marginRight: 4 }}>{count} selected</span>
-      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
+      <div className="w-px h-4 bg-white/15" />
       {['active', 'completed', 'on_hold'].map(s => (
-        <button key={s} onClick={() => onStatusChange(s)} style={{
-          fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          color: '#fff', cursor: 'pointer', transition: 'background 0.1s',
-          textTransform: 'capitalize',
-        }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+        <button key={s} onClick={() => onStatusChange(s)}
+          className="text-xs font-medium px-2.5 py-1 rounded-md capitalize text-white bg-white/[0.08] border border-white/[0.12] cursor-pointer transition-colors hover:bg-white/15"
         >
           Mark as {s.replace('_', ' ')}
         </button>
       ))}
-      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
-      <button onClick={onDelete} style={{
-        fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
-        background: 'rgba(192,57,43,0.25)', border: '1px solid rgba(192,57,43,0.4)',
-        color: '#FF8A80', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-      }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.4)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.25)')}
+      <div className="w-px h-4 bg-white/15" />
+      <button onClick={onDelete}
+        className="flex items-center gap-[5px] text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
       >
-        <Trash2 style={{ width: 12, height: 12 }} /> Delete
+        <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
     </div>
   )
@@ -187,10 +145,10 @@ function StatCard({ label, count, value, color, bg, border }: {
   label: string; count: number; value?: string; color: string; bg: string; border: string
 }) {
   return (
-    <div style={{ flex: 1, background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: '16px 20px' }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</p>
-      <p style={{ fontSize: 28, fontWeight: 700, color, letterSpacing: '-0.02em', lineHeight: 1 }}>{count}</p>
-      {value && <p style={{ fontSize: 12, color, opacity: 0.7, marginTop: 4 }}>{value}</p>}
+    <div className="flex-1 rounded-[12px] px-5 py-4" style={{ background: bg, border: `1px solid ${border}` }}>
+      <p className="text-caption font-semibold mb-1.5" style={{ color }}>{label}</p>
+      <p className="text-2xl font-semibold tracking-tight leading-none" style={{ color }}>{count}</p>
+      {value && <p className="text-xs mt-1 opacity-70" style={{ color }}>{value}</p>}
     </div>
   )
 }
@@ -198,17 +156,19 @@ function StatCard({ label, count, value, color, bg, border }: {
 export default function ProjectsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [projects, setProjects]           = useState<any[]>([])
+  const [projects, setProjects]           = useState<Project[]>([])
   const [loading, setLoading]             = useState(true)
   const [query, setQuery]                 = useState('')
   const [ir35Filter, setIr35Filter]       = useState<string>('all')
   const [statusFilter, setStatusFilter]     = useState<string>('all')
   const [selected, setSelected]           = useState<Set<string>>(new Set())
-  const [deleteTarget, setDeleteTarget]   = useState<any | null>(null)
+  const [deleteTarget, setDeleteTarget]   = useState<Project | null>(null)
   const [deleting, setDeleting]           = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkStatusTarget, setBulkStatusTarget] = useState<string | null>(null)
   const [bulkUpdating, setBulkUpdating]   = useState(false)
+  const [slideOpen, setSlideOpen]         = useState(false)
+  const [editProject, setEditProject]     = useState<Partial<Project> | undefined>()
 
   useEffect(() => {
     const f = searchParams.get('filter')
@@ -274,12 +234,12 @@ export default function ProjectsPage() {
       <PageHeader className="fd-page-enter"
         title="Projects"
         subtitle={loading ? '' : `${projects.length} project${projects.length !== 1 ? 's' : ''}`}
-        action={<button onClick={() => router.push('/projects/new')} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Add project</button>}
+        action={<button onClick={() => { setEditProject(undefined); setSlideOpen(true) }} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add project</button>}
       />
 
       {/* Stat cards */}
       {!loading && projects.length > 0 && (
-        <div className="fd-stat-grid" style={{ marginBottom: 24 }}>
+        <div className="fd-stat-grid mb-6">
           {[
             { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#0F5A28', bg: '#F0FDF4', activeBg: '#0F5A28', border: 'rgba(15,90,40,0.15)' },
             { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#0E4566', bg: '#EBF4FD', activeBg: '#0E4566', border: 'rgba(14,69,102,0.15)' },
@@ -289,57 +249,51 @@ export default function ProjectsPage() {
             return (
               <button key={key}
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
+                className="flex-1 rounded-[12px] px-5 py-4 text-left cursor-pointer transition-all duration-150"
                 style={{
-                  flex: 1, background: isActive ? '#111' : bg,
+                  background: isActive ? '#111' : bg,
                   border: `1px solid ${isActive ? '#111' : border}`,
-                  borderRadius: 12, padding: '16px 20px',
-                  textAlign: 'left' as const, cursor: 'pointer',
-                  transition: 'all 0.15s',
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : color, marginBottom: 6 }}>{label}</p>
-                <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : color, letterSpacing: '-0.02em', marginBottom: 2 }}>{count}</p>
-                {value && <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.85)' : color }}>{value}</p>}
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : color }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? '#fff' : color }}>{count}</p>
+                {value && <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : color }}>{value}</p>}
               </button>
             )
           })}
           {/* Total rate value — non-clickable */}
-          <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 12, padding: '16px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#475569', marginBottom: 6 }}>Total rate value</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
-            {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{formatCurrency(totalValue)}</p>}
+          <div className="flex-1 bg-surface-sunken rounded-xl px-5 py-4 border border-border-default">
+            <p className="text-micro font-semibold text-text-secondary mb-1.5">Total rate value</p>
+            <p className="text-xl font-semibold text-text-primary tracking-tight mb-px">{projects.length}</p>
+            {totalValue > 0 && <p className="text-caption font-medium text-text-secondary">{formatCurrency(totalValue)}</p>}
           </div>
         </div>
       )}
 
       {/* IR35 filters */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' as const }}>
+      <div className="flex gap-1.5 mb-4 flex-wrap">
         {[
           { key: 'all', label: 'All projects' },
           { key: 'outside_ir35', label: 'Outside IR35' },
           { key: 'inside_ir35', label: 'Inside IR35' },
           { key: 'needs_review', label: 'Needs review' },
         ].map(({ key, label }) => (
-          <button key={key} onClick={() => setIr35Filter(key)} style={{
-            padding: '5px 12px', borderRadius: 20, fontSize: 12, cursor: 'pointer',
-            border: `1px solid ${ir35Filter === key ? '#111' : '#E0E0E0'}`,
-            background: ir35Filter === key ? '#111' : '#fff',
-            color: ir35Filter === key ? '#fff' : '#666',
-            fontWeight: ir35Filter === key ? 600 : 400, transition: 'all 0.12s',
-          }}>{label}</button>
+          <button key={key} onClick={() => setIr35Filter(key)}
+            className={cn('px-3 py-[5px] rounded-[20px] text-xs cursor-pointer transition-all duration-[120ms] border', ir35Filter === key ? 'bg-forest-950 text-white border-forest-950 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal')}
+          >{label}</button>
         ))}
       </div>
 
       {/* Search */}
-      <div style={{ position: 'relative', marginBottom: 16, maxWidth: 360 }}>
-        <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <div className="relative mb-4 max-w-[360px]">
+        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
         </svg>
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search projects..."
-          style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
+          className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
         />
-        {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
+        {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
       </div>
 
       {/* Bulk bar */}
@@ -350,53 +304,67 @@ export default function ProjectsPage() {
       {/* Table */}
       <div className="fd-page-enter">
         {!loading && !projects.length ? (
-          <EmptyState icon="📁" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
-            action={<button onClick={() => router.push('/projects/new')} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Create your first project</button>} />
+          <EmptyState icon="projects" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
+            action={<button onClick={() => { setEditProject(undefined); setSlideOpen(true) }} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Create your first project</button>} />
         ) : (
-          <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-visible">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+          <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
+            <table className="w-full border-separate border-spacing-0">
+              <colgroup>
+                <col className="w-10" />
+                <col />
+                <col className="w-36" />
+                <col className="w-32" />
+                <col className="w-28" />
+                <col className="w-28" />
+                <col className="w-28" />
+                <col className="w-10" />
+              </colgroup>
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 w-10">
-                    <button onClick={toggleAll} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
-                      {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
+                    <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                      {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                     </button>
                   </th>
-                  {['Title', 'Client', 'Rate', 'End date', 'Status', 'IR35', ''].map((h, i) => (
-                    <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                  ))}
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Title</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Client</th>
+                  <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Rate</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">End date</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
+                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">IR35</th>
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {loading ? Array.from({ length: 3 }).map((_, i) => (
                   <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
-                    <td key={j} className="px-4 py-3"><div className="h-4 bg-slate-100 rounded animate-pulse w-24" /></td>
+                    <td key={j} className="px-4 py-2.5"><div className="h-4 bg-surface-sunken rounded animate-pulse w-24" /></td>
                   ))}</tr>
                 )) : searched.map((p: Project) => {
                   const isSelected = selected.has(p.id)
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
-                      <td className="px-4 py-3">
-                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
-                          {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
+                    <tr key={p.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
+                      <td className="px-3 py-2.5 text-center">
+                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                         </button>
                       </td>
-                      <td className="px-4 py-3 font-medium">
-                        <Link href={`/projects/${p.id}`} className="hover:text-blue-600">{p.title}</Link>
+                      <td className="px-4 py-2.5 font-medium text-sm">
+                        <Link href={`/projects/${p.id}`} className="hover:text-forest-600">{p.title}</Link>
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-2.5 text-sm text-text-secondary">
                         {p.clients?.id
-                          ? <Link href={`/clients/${p.clients.id}`} className="hover:text-blue-600 hover:underline">{p.clients.name}</Link>
+                          ? <Link href={`/clients/${p.clients.id}`} className="hover:text-forest-600 hover:underline">{p.clients.name}</Link>
                           : '—'}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-2.5 text-right text-sm text-text-secondary tabular-nums">
                         {p.rate_amount ? `${formatCurrency(p.rate_amount)}${p.rate_type === 'day_rate' ? '/day' : p.rate_type === 'hourly' ? '/hr' : ''}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : '—'}</td>
-                      <td className="px-4 py-3"><Badge status={p.status} /></td>
-                      <td className="px-4 py-3"><Badge status={p.ir35_status} /></td>
-                      <td className="px-4 py-3 text-right">
-                        <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
+                      <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : '—'}</td>
+                      <td className="px-4 py-2.5"><Badge status={p.status} /></td>
+                      <td className="px-4 py-2.5"><Badge status={p.ir35_status} /></td>
+                      <td className="px-3 py-2.5 text-right">
+                        <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} onEdit={p => { setEditProject(p); setSlideOpen(true) }} />
                       </td>
                     </tr>
                   )
@@ -410,29 +378,29 @@ export default function ProjectsPage() {
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
           {loading ? Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
             </div>
           )) : searched.map((p: Project) => {
             const isSelected = selected.has(p.id)
             return (
-              <div key={p.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
+              <div key={p.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button onClick={() => toggleSelect(p.id)} aria-label={isSelected ? 'Deselect project' : 'Select project'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
+                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
                     </button>
-                    <Link href={`/projects/${p.id}`} className="font-medium text-slate-900 hover:text-blue-600 truncate">{p.title}</Link>
+                    <Link href={`/projects/${p.id}`} className="font-medium text-text-primary hover:text-forest-600 truncate">{p.title}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={p.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-slate-500 truncate">{p.clients?.name ?? '—'}</span>
+                  <span className="text-sm text-text-secondary truncate">{p.clients?.name ?? '—'}</span>
                   <div className="flex-shrink-0"><Badge status={p.ir35_status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className="text-xs text-slate-600">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
-                  <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
+                  <span className="text-xs text-text-secondary">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
+                  <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} onEdit={p => { setEditProject(p); setSlideOpen(true) }} />
                 </div>
               </div>
             )
@@ -441,23 +409,54 @@ export default function ProjectsPage() {
 
         {/* IR35 empty state */}
         {ir35Filter !== 'all' && searched.length === 0 && !loading && (
-          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-            <h3 className="text-base font-semibold text-slate-900 mb-2">
+          <div className="bg-surface-card rounded-xl border border-border-default p-8 text-center">
+            <h3 className="text-base font-semibold text-text-primary mb-2">
               IR35 assessment
             </h3>
-            <p className="text-sm text-slate-500 mb-5 max-w-md mx-auto">
+            <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
               For each project, we ask 8 questions based on UK case law and give you an Outside / Inside / Needs Review result. Add a project to get your first assessment.
             </p>
-            <button onClick={() => router.push('/projects/new')}
-              className="inline-block bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
+            <button onClick={() => { setEditProject(undefined); setSlideOpen(true) }}
+              className="inline-block bg-forest-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-forest-800">
               Add a project →
             </button>
           </div>
         )}
 
-      {deleteTarget && <DeleteModal title={deleteTarget.title} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}
-      {bulkDeleteOpen && <DeleteModal title="" count={selected.size} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkUpdating} />}
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          title="Delete project?"
+          description={`${deleteTarget.title} will be permanently removed.`}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+          loading={deleting}
+        />
+      )}
+      {bulkDeleteOpen && (
+        <ConfirmDeleteModal
+          title={selected.size > 1 ? `Delete ${selected.size} projects?` : 'Delete project?'}
+          description={`${selected.size} project${selected.size !== 1 ? 's' : ''} will be permanently removed.`}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setBulkDeleteOpen(false)}
+          loading={bulkUpdating}
+        />
+      )}
       {bulkStatusTarget && <StatusModal count={selected.size} newStatus={bulkStatusTarget} onConfirm={handleBulkStatus} onCancel={() => setBulkStatusTarget(null)} loading={bulkUpdating} />}
+
+      <SlideOver
+        open={slideOpen}
+        onClose={() => setSlideOpen(false)}
+        title={editProject ? 'Edit project' : 'Add project'}
+        width="lg"
+        footer={
+          <button form="project-form" type="submit"
+            className="w-full bg-forest-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-forest-800 transition-colors">
+            {editProject ? 'Save changes' : 'Add project'}
+          </button>
+        }
+      >
+        <ProjectForm project={editProject} onSuccess={() => { setSlideOpen(false); load() }} />
+      </SlideOver>
     </div>
   )
 }

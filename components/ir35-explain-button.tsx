@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Loader2, X, RotateCcw } from 'lucide-react'
+import { Sparkle, CircleNotch, X, ArrowCounterClockwise } from '@phosphor-icons/react'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface IR35ExplainButtonProps {
@@ -24,17 +24,16 @@ function RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
     { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
   ] as const
   return (
-    <div style={{ display: 'flex', gap: 8 }}>
+    <div className="flex gap-2">
       {segments.map(s => {
         const active = level === s.key
         return (
-          <div key={s.key} style={{
-            flex: 1, padding: '7px 0', borderRadius: 8, textAlign: 'center' as const,
+          <div key={s.key} className="flex-1 py-[7px] rounded-lg text-center" style={{
             border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
             background: active ? s.activeBg : '#F8FAFC',
             opacity: active ? 1 : 0.45,
           }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
+            <span className="text-caption font-semibold tracking-wide" style={{ color: active ? s.activeColor : '#94A3B8' }}>
               {s.key.toUpperCase()}
             </span>
           </div>
@@ -83,35 +82,35 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
       <button
         onClick={() => handleExplain()}
         disabled={loading || !answers?.length}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 disabled:opacity-40 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 transition-colors"
       >
         {loading
-          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          : <Sparkles className="w-3.5 h-3.5" />}
+          ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" />
+          : <Sparkle weight="regular" className="w-3.5 h-3.5" />}
         {loading ? 'Analysing...' : 'AI Explain'}
       </button>
 
       {error && (
-        <p className="text-xs text-red-500 mt-1">{error}</p>
+        <p className="text-xs text-danger-500 mt-1">{error}</p>
       )}
 
       {/* Result panel */}
       {open && result && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
+          <div className="bg-surface-card rounded-xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-xl">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle sticky top-0 bg-surface-card rounded-t-2xl">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-slate-500" />
-                <span className="font-semibold text-slate-900 text-sm">IR35 AI Analysis</span>
+                <Sparkle weight="regular" className="w-4 h-4 text-text-secondary" />
+                <span className="font-semibold text-text-primary text-sm">IR35 AI Analysis</span>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                  <RotateCcw className="w-4 h-4 text-slate-500" />
+                <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
+                  <ArrowCounterClockwise weight="regular" className="w-4 h-4 text-text-secondary" />
                 </button>
-                <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                  <X className="w-4 h-4 text-slate-500" />
+                <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
+                  <X weight="regular" className="w-4 h-4 text-text-secondary" />
                 </button>
               </div>
             </div>
@@ -119,25 +118,25 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
             <div className="p-5 space-y-5">
               {/* Verdict */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Verdict</p>
-                <p className="text-sm text-slate-800 leading-relaxed">{result.verdict}</p>
+                <p className="text-xs font-semibold text-text-secondary mb-1.5">Verdict</p>
+                <p className="text-sm text-text-primary leading-relaxed">{result.verdict}</p>
               </div>
 
               {/* Risk level */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Risk Level</p>
+                <p className="text-xs font-semibold text-text-secondary mb-2">Risk Level</p>
                 <RiskBar level={result.risk_level} />
-                <p className="text-sm text-slate-600 mt-2">{result.risk_level_explanation}</p>
+                <p className="text-sm text-text-secondary mt-2">{result.risk_level_explanation}</p>
               </div>
 
               {/* Next steps */}
               {result.next_steps?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">Next Steps</p>
+                  <p className="text-xs font-semibold text-text-secondary mb-2.5">Next Steps</p>
                   <ol className="space-y-2.5">
                     {result.next_steps.map((step, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                      <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-forest-900 text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
                         {step}
                       </li>
                     ))}
@@ -145,7 +144,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 </div>
               )}
 
-              <div className="border-t border-slate-100 pt-3">
+              <div className="border-t border-border-subtle pt-3">
                 <NotTaxAdviceDisclaimer />
               </div>
             </div>

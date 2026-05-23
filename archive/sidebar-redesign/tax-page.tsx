@@ -974,7 +974,7 @@ export default function TaxPage() {
                   >
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="text-sm font-semibold text-slate-800">Q{q.quarter}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeBg} ${badgeText}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${badgeBg} ${badgeText}`}>
                         {statusLabel}
                       </span>
                     </div>

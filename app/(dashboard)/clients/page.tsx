@@ -11,45 +11,14 @@ import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ClientForm from '@/components/client-form'
 import Link from 'next/link'
-import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
+import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import type { Client } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
+import { cn } from '@/lib/utils'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 
 interface ClientWithStats extends Client { outstanding: number }
-
-// ── Delete confirm modal ──────────────────────────────────────────────
-function DeleteModal({ clientName, onConfirm, onCancel, loading, count }: {
-  clientName: string; onConfirm: () => void; onCancel: () => void; loading: boolean; count?: number
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600" />
-          </div>
-          <div>
-            <h2 className="font-bold text-slate-900">
-              {count && count > 1 ? `Delete ${count} clients?` : 'Delete client?'}
-            </h2>
-            <p className="text-sm text-slate-500 mt-0.5">
-              {count && count > 1 ? `${count} clients` : clientName} will be permanently removed.
-            </p>
-          </div>
-        </div>
-        <p className="text-sm text-slate-500 mt-3 mb-5">This action cannot be undone.</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-            {loading ? 'Deleting...' : 'Yes, delete'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ── Status change confirm modal ───────────────────────────────────────
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
@@ -59,20 +28,21 @@ function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   const color = newStatus === 'active' ? '#0F5A28' : newStatus === 'paused' ? '#5C480C' : '#475569'
   const bg    = newStatus === 'active' ? '#F0FDF4' : newStatus === 'paused' ? '#FEFCE8' : '#F8FAFC'
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-bold text-slate-900 mb-1">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
+      onClick={onCancel}>
+      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-semibold text-text-primary mb-1">
           Change status to <span style={{ color }}>{label}</span>?
         </h2>
-        <p className="text-sm text-slate-500 mb-5">
+        <p className="text-sm text-text-secondary mb-5">
           {count} client{count !== 1 ? 's' : ''} will be marked as{' '}
           <span style={{ fontWeight: 600, color }}>{label}</span>.
         </p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
           <button onClick={onConfirm} disabled={loading}
-            style={{ flex: 1, padding: '10px 16px', background: color, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
+            style={{ background: color }}>
             {loading ? 'Updating...' : `Mark as ${label}`}
           </button>
         </div>
@@ -101,30 +71,25 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
   const otherStatuses = ['active', 'paused', 'archived'].filter(s => s !== client.status)
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="relative">
       <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
         aria-label="Client actions"
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-700 transition-colors">
-        <MoreVertical className="w-4 h-4" />
+        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+        <DotsThreeVertical weight="regular" className="w-4 h-4" />
       </button>
       {open && (
-        <div style={{
-          position: 'absolute', right: 0, top: 'calc(100% + 4px)',
-          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 50,
-          minWidth: 160, overflow: 'hidden',
-        }}>
+        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
           <Link href={`/clients/${client.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
-            <Eye className="w-3.5 h-3.5 text-slate-600" /> View
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
+            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
           </Link>
           <button onClick={() => { setOpen(false); onEdit(client) }}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-            <Pencil className="w-3.5 h-3.5 text-slate-600" /> Edit
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
+            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
           </button>
           {/* Status change options */}
-          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
+          <div className="border-t border-border-subtle py-1.5">
+            <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
             {otherStatuses.map(s => {
               const cfg = {
                 active:   { label: 'Active',   dot: '#0F5A28' },
@@ -133,17 +98,17 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
               }[s] ?? { label: s, dot: '#94A3B8' }
               return (
                 <button key={s} onClick={() => { setOpen(false); onStatusChange(client, s) }}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot, flexShrink: 0, display: 'inline-block' }} />
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: cfg.dot }} />
                   {cfg.label}
                 </button>
               )
             })}
           </div>
-          <div style={{ borderTop: '1px solid #F1F5F9' }}>
+          <div className="border-t border-border-subtle">
             <button onClick={() => { setOpen(false); onDelete(client) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
-              <Trash2 className="w-3.5 h-3.5" /> Delete
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
+              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
         </div>
@@ -159,38 +124,23 @@ function BulkBar({ count, onDelete, onStatusChange }: {
   onStatusChange: (status: string) => void
 }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      background: '#0F172A', borderRadius: 10, padding: '10px 16px',
-      marginBottom: 12,
-    }}>
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', marginRight: 4 }}>
+    <div className="flex items-center gap-2.5 bg-forest-950 rounded-[10px] px-4 py-2.5 mb-3">
+      <span className="text-sm font-medium text-white mr-1">
         {count} selected
       </span>
-      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
+      <div className="w-px h-4 bg-white/15" />
       {['active', 'paused', 'archived'].map(s => (
-        <button key={s} onClick={() => onStatusChange(s)} style={{
-          fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          color: '#fff', cursor: 'pointer', textTransform: 'capitalize',
-          transition: 'background 0.1s',
-        }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+        <button key={s} onClick={() => onStatusChange(s)}
+          className="text-xs font-medium px-2.5 py-1 rounded-[6px] text-white cursor-pointer capitalize bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
         >
           Mark as {s}
         </button>
       ))}
-      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
-      <button onClick={onDelete} style={{
-        fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
-        background: 'rgba(192,57,43,0.25)', border: '1px solid rgba(192,57,43,0.4)',
-        color: '#FF8A80', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-      }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.4)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.25)')}
+      <div className="w-px h-4 bg-white/15" />
+      <button onClick={onDelete}
+        className="text-xs font-medium px-2.5 py-1 rounded-[6px] text-danger-300 cursor-pointer flex items-center gap-[5px] bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
       >
-        <Trash2 style={{ width: 12, height: 12 }} /> Delete
+        <Trash weight="regular" className="w-3 h-3" /> Delete
       </button>
     </div>
   )
@@ -213,7 +163,7 @@ export default function ClientsPage() {
 
   async function load() {
     const raw = await fetchClients()
-    setClients(raw.map((c: any) => ({ ...c, outstanding: calcOutstanding(c.invoices ?? []) })))
+    setClients(raw.map((c: Client) => ({ ...c, outstanding: calcOutstanding(c.invoices ?? []) })))
     setLoading(false)
   }
   useEffect(() => { load() }, [])
@@ -271,7 +221,7 @@ export default function ClientsPage() {
     else setSelected(new Set(filtered.map(c => c.id)))
   }
 
-  function openAdd()  { router.push('/clients/new') }
+  function openAdd()  { setEditClient(undefined); setSlideOpen(true) }
   function openEdit(c: Client) { setEditClient(c); setSlideOpen(true) }
 
   const activeCount   = clients.filter(c => c.status === 'active').length
@@ -306,12 +256,12 @@ export default function ClientsPage() {
       <PageHeader className="fd-page-enter"
         title="Clients"
         subtitle={loading ? '' : `${clients.length} clients`}
-        action={<button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Add client</button>}
+        action={<button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add client</button>}
       />
 
       {/* Stat / filter cards */}
       {!loading && clients.length > 0 && (
-        <div className="fd-page-enter" style={{ display: 'flex', gap: 12, marginTop: 16, marginBottom: 20 }}>
+        <div className="fd-page-enter flex gap-3 mt-4 mb-5">
           {CARDS.map(({ key, label, count, outstanding, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
             const isActive = statusFilter === key
             return (
@@ -319,16 +269,15 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
                 onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = hoverColor }}
                 onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
+                className="flex-1 rounded-xl px-5 py-4 cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  flex: 1, background: isActive ? '#111' : bgColor,
+                  background: isActive ? '#111' : bgColor,
                   border: `1px solid ${isActive ? '#111' : borderColor}`,
-                  borderRadius: 12, padding: '16px 20px', cursor: 'pointer',
-                  textAlign: 'left' as const, transition: 'background 0.15s',
                 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : labelColor, marginBottom: 6 }}>{label}</p>
-                <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : valueColor, letterSpacing: '-0.02em', marginBottom: 2 }}>{count}</p>
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? '#fff' : valueColor }}>{count}</p>
                 {outstanding > 0 && (
-                  <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>
+                  <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>
                     {formatCurrency(outstanding)} outstanding
                   </p>
                 )}
@@ -336,39 +285,28 @@ export default function ClientsPage() {
             )
           })}
           {/* Total outstanding card */}
-          <div style={{
-            flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)',
-            borderRadius: 12, padding: '16px 20px', textAlign: 'left' as const,
-          }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#475569', marginBottom: 6 }}>Total outstanding</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: totalOutstanding > 0 ? '#8B1E15' : '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>
+          <div className="flex-1 bg-surface-sunken rounded-xl px-5 py-4 text-left border border-border-default">
+            <p className="text-micro font-semibold text-text-secondary mb-1.5">Total outstanding</p>
+            <p className={cn('text-xl font-semibold tracking-tight mb-px', totalOutstanding > 0 ? 'text-danger-700' : 'text-text-primary')}>
               {totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—'}
             </p>
-            <p style={{ fontSize: 11, fontWeight: 500, color: '#475569' }}>{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
+            <p className="text-caption font-medium text-text-secondary">{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
           </div>
         </div>
       )}
 
       {/* Search */}
-      <div className="fd-page-enter" style={{ position: 'relative', marginBottom: 16, maxWidth: 360 }}>
-        <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <div className="fd-page-enter mb-4 max-w-[360px]">
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
           </svg>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search clients..."
-            style={{
-              width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9,
-              border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13,
-              background: '#fff', outline: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-              fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const,
-            }}
+            className="w-full pl-9 pr-3 py-[9px] border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
             onKeyDown={e => e.key === 'Escape' && setQuery('')}
           />
           {query && (
-            <button onClick={() => setQuery('')} style={{
-              position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-              background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16, lineHeight: 1,
-            }}>×</button>
+            <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-text-muted text-base leading-none">×</button>
           )}
         </div>
       </div>
@@ -383,60 +321,72 @@ export default function ClientsPage() {
       )}
 
       {!loading && !clients.length ? (
-        <EmptyState icon="👥" title="No clients yet" description="Clients connect to your projects, invoices, and IR35 assessments. Add one to start tracking work."
-          action={<button onClick={openAdd} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Add your first client</button>} />
+        <EmptyState icon="clients" title="No clients yet" description="Clients connect to your projects, invoices, and IR35 assessments. Add one to start tracking work."
+          action={<button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add your first client</button>} />
       ) : (
-        <div className="hidden md:block fd-page-enter bg-white rounded-xl border border-slate-200 overflow-visible">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
+        <div className="hidden md:block fd-page-enter bg-surface-card rounded-xl border border-border-default">
+          <table className="w-full border-separate border-spacing-0">
+            <colgroup>
+              <col className="w-10" />
+              <col />
+              <col className="w-36" />
+              <col className="w-48" />
+              <col className="w-32" />
+              <col className="w-28" />
+              <col className="w-10" />
+            </colgroup>
+            <thead>
               <tr>
-                <th className="px-4 py-3 w-10">
-                  <button onClick={toggleAll} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
+                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
+                  <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                     {allSelected
-                      ? <CheckSquare className="w-4 h-4 text-slate-900" />
-                      : <Square className="w-4 h-4" />}
+                      ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
+                      : <Square weight="regular" className="w-4 h-4" />}
                   </button>
                 </th>
-                {['Name', 'Contact', 'Email', 'Outstanding', 'Status', ''].map((h, i) => (
-                  <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
-                ))}
+                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Name</th>
+                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Contact</th>
+                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Email</th>
+                <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Outstanding</th>
+                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
+                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {loading ? Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i}>{Array.from({ length: 7 }).map((_, j) => (
-                  <td key={j} className="px-4 py-3"><div className="h-4 bg-slate-100 rounded animate-pulse w-24" /></td>
+                  <td key={j} className="px-4 py-2.5"><div className="h-4 bg-surface-sunken rounded animate-pulse w-24" /></td>
                 ))}</tr>
               )) : filtered.map(c => {
                 const isSelected = selected.has(c.id)
                 return (
-                  <tr key={c.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
-                    <td className="px-4 py-3">
-                      <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-slate-600 hover:text-slate-700">
+                  <tr key={c.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
+                    <td className="px-3 py-2.5 text-center">
+                      <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                         {isSelected
-                          ? <CheckSquare className="w-4 h-4 text-slate-900" />
-                          : <Square className="w-4 h-4" />}
+                          ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
+                          : <Square weight="regular" className="w-4 h-4" />}
                       </button>
                     </td>
-                    <td className="px-4 py-3 font-medium">
-                      <Link href={`/clients/${c.id}`} className="hover:text-blue-600">{c.name}</Link>
+                    <td className="px-4 py-2.5 font-medium text-sm">
+                      <Link href={`/clients/${c.id}`} className="hover:text-forest-600">{c.name}</Link>
                     </td>
-                    <td className="px-4 py-3 text-slate-500">{c.contact_name ?? '—'}</td>
-                    <td className="px-4 py-3 text-slate-500">{c.email ?? '—'}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5 text-sm text-text-secondary">{c.contact_name ?? '—'}</td>
+                    <td className="px-4 py-2.5 text-sm text-text-secondary">{c.email ?? '—'}</td>
+                    <td className="px-4 py-2.5 text-right">
                       {c.outstanding > 0
-                        ? <span className="text-red-600 font-medium">{formatCurrency(c.outstanding)}</span>
-                        : <span className="text-slate-500">—</span>}
+                        ? <span className="text-danger-600 font-semibold text-sm tabular-nums">{formatCurrency(c.outstanding)}</span>
+                        : <span className="text-text-secondary text-sm">—</span>}
                     </td>
-                    <td className="px-4 py-3"><Badge status={c.status} /></td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-2.5"><Badge status={c.status} /></td>
+                    <td className="px-3 py-2.5 text-right">
                       <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />
                     </td>
                   </tr>
                 )
               })}
               {!loading && filtered.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-600 text-sm">No clients match your search.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-text-secondary text-sm border-t border-border-subtle">No clients match your search.</td></tr>
               )}
             </tbody>
           </table>
@@ -447,27 +397,27 @@ export default function ClientsPage() {
         {/* Mobile cards */}
         <div className="md:hidden fd-page-enter space-y-2">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
             </div>
           )) : filtered.map(c => {
             const isSelected = selected.has(c.id)
             return (
-              <div key={c.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
+              <div key={c.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-600" />}
+                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
                     </button>
-                    <Link href={`/clients/${c.id}`} className="font-medium text-slate-900 hover:text-blue-700 truncate">{c.name}</Link>
+                    <Link href={`/clients/${c.id}`} className="font-medium text-text-primary hover:text-forest-700 truncate">{c.name}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={c.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-slate-600 truncate">{c.email ?? c.contact_name ?? '—'}</span>
+                  <span className="text-sm text-text-secondary truncate">{c.email ?? c.contact_name ?? '—'}</span>
                   {c.outstanding > 0
-                    ? <span className="text-red-700 font-medium text-sm flex-shrink-0">{formatCurrency(c.outstanding)}</span>
-                    : <span className="text-slate-600 text-sm flex-shrink-0">—</span>}
+                    ? <span className="text-danger-700 font-medium text-sm flex-shrink-0">{formatCurrency(c.outstanding)}</span>
+                    : <span className="text-text-secondary text-sm flex-shrink-0">—</span>}
                 </div>
                 <div className="flex justify-end pl-7">
                   <KebabMenu client={c} onEdit={openEdit} onDelete={scheduleDelete} onStatusChange={handleStatusChange} />
@@ -477,15 +427,15 @@ export default function ClientsPage() {
           })}
         </div>
 
-      <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)} title="Edit client">
+      <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)} title={editClient ? 'Edit client' : 'Add client'}>
         <ClientForm client={editClient} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
 
       {/* Bulk delete modal */}
       {bulkDeleteOpen && (
-        <DeleteModal
-          clientName=""
-          count={selected.size}
+        <ConfirmDeleteModal
+          title={selected.size > 1 ? `Delete ${selected.size} clients?` : 'Delete client?'}
+          description={`${selected.size} client${selected.size !== 1 ? 's' : ''} will be permanently removed.`}
           onConfirm={handleBulkDelete}
           onCancel={() => setBulkDeleteOpen(false)}
           loading={bulkUpdating}

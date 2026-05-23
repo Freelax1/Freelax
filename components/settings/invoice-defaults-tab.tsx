@@ -31,10 +31,10 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
     <div className="space-y-4">
 
       {/* Address */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <h2 className="font-semibold text-slate-900">Invoice address</h2>
-          <p className="text-sm text-slate-500 mt-1">This address appears on all invoices sent to clients.</p>
+          <h2 className="font-semibold text-text-primary">Invoice address</h2>
+          <p className="text-sm text-text-muted mt-1">This address appears on all invoices sent to clients.</p>
         </div>
         <Field label="Address line 1">
           <input className={inputClass} value={addr.address_line1} onChange={e => setAddr(p => ({ ...p, address_line1: e.target.value }))} />
@@ -56,10 +56,10 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Numbering + default notes */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <h2 className="font-semibold text-slate-900">Invoice numbering</h2>
-          <p className="text-sm text-slate-500 mt-1">Pre-filled on every new invoice you create.</p>
+          <h2 className="font-semibold text-text-primary">Invoice numbering</h2>
+          <p className="text-sm text-text-muted mt-1">Pre-filled on every new invoice you create.</p>
         </div>
         <Field label="Invoice prefix" hint="Prefix used for invoice numbers. Default is INV (e.g. INV-0001).">
           <input
@@ -85,16 +85,16 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Email template */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <h2 className="font-semibold text-slate-900">Invoice email message</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <h2 className="font-semibold text-text-primary">Invoice email message</h2>
+          <p className="text-sm text-text-muted mt-1">
             Customise the email sent when you send an invoice to a client.
-            Available variables: <code className="text-xs bg-slate-100 px-1 rounded">{'{{invoice_number}}'}</code>{' '}
-            <code className="text-xs bg-slate-100 px-1 rounded">{'{{client_name}}'}</code>{' '}
-            <code className="text-xs bg-slate-100 px-1 rounded">{'{{total}}'}</code>{' '}
-            <code className="text-xs bg-slate-100 px-1 rounded">{'{{due_date}}'}</code>{' '}
-            <code className="text-xs bg-slate-100 px-1 rounded">{'{{business_name}}'}</code>
+            Available variables: <code className="text-xs bg-surface-sunken px-1 rounded">{'{{invoice_number}}'}</code>{' '}
+            <code className="text-xs bg-surface-sunken px-1 rounded">{'{{client_name}}'}</code>{' '}
+            <code className="text-xs bg-surface-sunken px-1 rounded">{'{{total}}'}</code>{' '}
+            <code className="text-xs bg-surface-sunken px-1 rounded">{'{{due_date}}'}</code>{' '}
+            <code className="text-xs bg-surface-sunken px-1 rounded">{'{{business_name}}'}</code>
           </p>
         </div>
         <Field label="Email subject">

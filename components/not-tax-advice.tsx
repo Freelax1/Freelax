@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Info } from 'lucide-react'
+import { Info } from '@phosphor-icons/react'
 
 // Shared with app/api/tax/export-pack/route.ts — keep as plain string, no JSX.
 export const DISCLAIMER_FOOTER_TEXT =
@@ -17,16 +17,16 @@ interface Props {
 export default function NotTaxAdviceDisclaimer({ variant = 'inline' }: Props) {
   if (variant === 'footer') {
     return (
-      <p className="text-xs text-slate-600 text-center mt-8 max-w-2xl mx-auto leading-relaxed">
+      <p className="text-xs text-text-secondary text-center mt-8 max-w-2xl mx-auto leading-relaxed">
         {DISCLAIMER_FOOTER_TEXT}{' '}
-        <Link href="/terms" className="underline hover:text-slate-600">Learn more</Link>.
+        <Link href="/terms" className="underline hover:text-text-secondary">Learn more</Link>.
       </p>
     )
   }
 
   return (
-    <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-900">
-      <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" strokeWidth={2} />
+    <div className="flex items-start gap-2 bg-warning-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-warning-900">
+      <Info weight="regular" className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
       <p>{DISCLAIMER_INLINE_TEXT}</p>
     </div>
   )

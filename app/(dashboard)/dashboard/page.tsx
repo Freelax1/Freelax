@@ -18,7 +18,8 @@ import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
 import Link from 'next/link'
-import { Zap, ArrowRight, Plus, HelpCircle } from 'lucide-react'
+import { Lightning, ArrowRight, Plus, Question } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 
 // ── Local types ────────────────────────────────────────────────────────
 type ComingItem = {
@@ -90,9 +91,9 @@ function LoadingBar({ active }: { active: boolean }) {
 
   if (!visible) return null
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999, height: 2, background: 'rgba(0,0,0,0.04)' }}>
+    <div className="fixed top-0 left-0 right-0 z-[999] h-[2px] bg-black/[0.04]">
       <div style={{
-        height: '100%', background: '#1D6B35',
+        height: '100%', background: 'var(--brand-primary)',
         width: `${width}%`,
         transition: active ? 'width 800ms cubic-bezier(0.22,1,0.36,1)' : 'width 250ms cubic-bezier(0.22,1,0.36,1)',
       }} />
@@ -104,24 +105,24 @@ function LoadingBar({ active }: { active: boolean }) {
 function ShortcutHint() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fd-shortcut-hint" style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 100 }}>
+    <div className="fd-shortcut-hint fixed bottom-5 right-5 z-[100]">
       <button onClick={() => setOpen(o => !o)}
-        style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        className="w-7 h-7 rounded-full border-none cursor-pointer flex items-center justify-center bg-black/[0.06]"
         title="Keyboard shortcuts"
         aria-label="Keyboard shortcuts">
-        <HelpCircle style={{ width: 13, height: 13, color: '#475569' }} strokeWidth={1.75} />
+        <Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />
       </button>
       {open && (
-        <div style={{ position: 'absolute', bottom: 36, right: 0, background: '#1A1A1A', borderRadius: 10, padding: '10px 14px', minWidth: 200, boxShadow: '0 8px 32px rgba(0,0,0,0.25)' }}>
+        <div className="absolute bottom-9 right-0 bg-forest-900 rounded-[10px] px-3.5 py-2.5 min-w-[200px] shadow-lg">
           {[
             ['N', 'New invoice'],
             ['T', 'Tax page'],
             ['E', 'Expenses'],
             ['⌘K', 'Command menu'],
           ].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{v}</span>
-              <kbd style={{ fontSize: 10, color: '#fff', background: 'rgba(255,255,255,0.1)', borderRadius: 4, padding: '2px 6px' }}>{k}</kbd>
+            <div key={k} className="flex justify-between items-center py-[5px] border-b border-b-white/[0.06]">
+              <span className="text-xs text-white/60">{v}</span>
+              <kbd className="text-micro text-white rounded-[4px] px-1.5 py-px bg-white/10">{k}</kbd>
             </div>
           ))}
         </div>
@@ -323,8 +324,12 @@ export default function DashboardPage() {
     }
     load()
 
+    let lastLoadAt = Date.now()
     function onVisible() {
-      if (document.visibilityState === 'visible') load()
+      if (document.visibilityState === 'visible' && Date.now() - lastLoadAt > 30_000) {
+        lastLoadAt = Date.now()
+        load()
+      }
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => {
@@ -349,37 +354,35 @@ export default function DashboardPage() {
       <ShortcutHint />
 
       {/* Header row — New invoice button sits here, no overlap */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: 8 }}>
+      <div className="flex justify-end pb-2">
         <Link href="/invoices/new"
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#111', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.18)', transition: 'background 150ms' }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#000')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#111')}
+          className="flex items-center gap-1.5 bg-forest-950 hover:bg-forest-900 text-white rounded-lg px-3.5 py-[7px] text-xs font-semibold no-underline transition-colors shadow-btn-dark"
         >
-          <Plus style={{ width: 13, height: 13 }} strokeWidth={2.5} />
+          <Plus weight="regular" className="w-[13px] h-[13px]" />
           New invoice
         </Link>
       </div>
 
       {loading || !data ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingTop: 60 }}>
+        <div className="flex flex-col gap-8 pt-[60px]">
           {/* Line skeleton */}
-          <div style={{ height: 28, background: 'rgba(0,0,0,0.05)', borderRadius: 6, width: '50%' }} />
+          <div className="h-7 rounded w-1/2 bg-black/[0.05]" />
           {/* Three pots — no shimmer per spec, just muted placeholders */}
           <div className="fd-cards-grid">
             {[1,2,3].map(i => (
-              <div key={i} style={{ flex: 1, height: 160, background: i === 1 ? '#F5F4EE' : '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)', padding: '32px 32px 28px' }}>
-                <div style={{ height: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 4, width: 80, marginBottom: 16 }} />
-                <div style={{ height: 36, background: 'rgba(0,0,0,0.05)', borderRadius: 4, width: '60%' }} />
+              <div key={i} className="flex-1 h-[160px] rounded-xl p-6 border border-border-default bg-surface-card">
+                <div className="h-[10px] rounded w-[80px] mb-4 bg-black/[0.05]" />
+                <div className="h-9 rounded w-3/5 bg-black/[0.05]" />
               </div>
             ))}
           </div>
           {/* Lower placeholders */}
           {[100, 80, 40].map((h, i) => (
-            <div key={i} style={{ height: h, background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)' }} />
+            <div key={i} className="bg-surface-card rounded-xl border border-border-default" style={{ height: h }} />
           ))}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 56 }}>
+        <div className="flex flex-col gap-8 pb-14">
 
           {/* Onboarding checklist — top of page for brand new users */}
           {data.isNewUser && (
@@ -403,7 +406,7 @@ export default function DashboardPage() {
               isNewUser={data.isNewUser}
               taxTotal={data.taxTotal}
             />
-            <p style={{ fontSize: 12.5, color: '#64748B', marginTop: 6, marginLeft: 23 }}>
+            <p className="text-xs text-text-secondary mt-1.5 ml-[23px]">
               {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
               {' · '}Tax year {data.taxYearLabel}
             </p>
@@ -411,27 +414,23 @@ export default function DashboardPage() {
 
           {/* B. Do This Now — hidden when empty */}
           {data.actions.length > 0 && (
-            <div style={{
-              background: '#FFFDF5', borderRadius: 14,
-              border: '1px solid rgba(245,226,155,0.6)',
-              padding: '18px 22px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-                <Zap style={{ width: 12, height: 12, color: '#6B5410' }} strokeWidth={2} />
-                <p style={{ fontSize: 11, fontWeight: 500, color: '#6B5410', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <div className="rounded-xl p-5 bg-warning-50 border border-warning-200">
+              <div className="flex items-center gap-[7px] mb-3.5">
+                <Lightning weight="regular" className="w-3 h-3 text-warning-700" />
+                <p className="text-caption font-medium text-warning-700">
                   Do this now
                 </p>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="flex flex-col gap-3">
                 {data.actions.map((action: DashboardAction, i: number) => (
                   <Link key={i} href={action.href}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: action.priority === 'red' ? '#C0392B' : '#9A7B0A' }} />
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B' }}>{action.title}</p>
-                      {action.sub && <p style={{ fontSize: 11, color: '#475569', marginTop: 1 }}>{action.sub}</p>}
+                    className="flex items-center gap-3 no-underline">
+                    <div className={cn('w-1.5 h-1.5 rounded-full shrink-0', action.priority === 'red' ? 'bg-danger-600' : 'bg-warning-600')} />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-text-primary">{action.title}</p>
+                      {action.sub && <p className="text-caption text-text-secondary mt-px">{action.sub}</p>}
                     </div>
-                    <ArrowRight style={{ width: 12, height: 12, color: '#CBD5E1', flexShrink: 0 }} strokeWidth={1.75} />
+                    <ArrowRight weight="regular" className="w-3 h-3 text-text-muted shrink-0" />
                   </Link>
                 ))}
               </div>
@@ -451,23 +450,24 @@ export default function DashboardPage() {
             isNewUser={data.isNewUser}
           />
 
-          {/* D. This Month
-              Slice: take up to 6 months ending at the current month in the tax year array.
-              thisMonthIdx=0 means April (start of tax year), so slice(0,1) = just April.
-              By June (idx=2) it becomes slice(0,3) — enough for the chart to render. */}
-          <ThisMonth
-            thisMonthIncome={data.thisMonthIncome}
-            monthlyAvg={data.monthlyAvg}
-            chartData={data.monthlyChart.slice(
-              Math.max(0, data.thisMonthIdx - 5),
-              data.thisMonthIdx + 1
-            )}
-            expensesThisMonth={data.expensesThisMonth}
-            isNewUser={data.isNewUser}
-          />
-
-          {/* E. What's Coming */}
-          <WhatsComing items={data.comingItems} />
+          {/* D+E. This Month + What's Coming — 2/3 + 1/3 */}
+          <div className="flex gap-4 items-stretch">
+            <div className="flex-[2] min-w-0">
+              <ThisMonth
+                thisMonthIncome={data.thisMonthIncome}
+                monthlyAvg={data.monthlyAvg}
+                chartData={data.monthlyChart.slice(
+                  Math.max(0, data.thisMonthIdx - 5),
+                  data.thisMonthIdx + 1
+                )}
+                expensesThisMonth={data.expensesThisMonth}
+                isNewUser={data.isNewUser}
+              />
+            </div>
+            <div className="flex-[1] min-w-0">
+              <WhatsComing items={data.comingItems} />
+            </div>
+          </div>
 
           {/* F. The Quiet Row */}
           <QuietRow
@@ -490,8 +490,8 @@ export default function DashboardPage() {
           )}
 
           {/* "Synced" footer */}
-          <p style={{ fontSize: 11.5, color: '#475569', textAlign: 'center', paddingTop: 8 }}>
-            {syncedLabel()} · Built in the UK · <Link href="/security" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Your data is encrypted</Link>
+          <p className="text-caption text-text-secondary text-center pt-2">
+            {syncedLabel()} · Built in the UK · <Link href="/security" className="text-text-secondary no-underline font-medium">Your data is encrypted</Link>
           </p>
 
           <NotTaxAdviceDisclaimer variant="footer" />

@@ -78,7 +78,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         <div className="space-y-6">
           {TAB_GROUPS.map(group => (
             <div key={group.label}>
-              <p className="text-[10px] font-semibold text-text-muted px-2 mb-1.5 tracking-wide">
+              <p className="text-micro font-semibold text-text-muted px-2 mb-1.5 tracking-wide">
                 {group.label}
               </p>
               <div className="space-y-px">
@@ -86,7 +86,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
                   <button
                     key={t}
                     onClick={() => setTab(t)}
-                    className={`relative w-full text-left pl-3 pr-2 py-1.5 text-[13px] transition-colors ${
+                    className={`relative w-full text-left pl-3 pr-2 py-1.5 text-sm transition-colors ${
                       tab === t
                         ? t === 'Danger Zone'
                           ? 'text-danger-600 font-semibold'
@@ -125,8 +125,8 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         <div className={embedded ? '' : 'bg-surface-card border border-border-default rounded-2xl overflow-hidden'}>
           {/* Tab header */}
           <div className={embedded ? 'pb-4 mb-2 border-b border-border-subtle' : 'px-7 py-5 border-b border-border-subtle'}>
-            <h1 className="text-[15px] font-bold text-text-primary tracking-[-0.01em]">{tab}</h1>
-            <p className="text-[12px] text-text-secondary mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
+            <h1 className="text-base font-semibold text-text-primary tracking-tight">{tab}</h1>
+            <p className="text-xs text-text-secondary mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
           </div>
 
           <div className={embedded ? 'pt-4' : 'px-7 py-6'}>

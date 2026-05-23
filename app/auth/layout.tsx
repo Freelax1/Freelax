@@ -26,97 +26,39 @@ function RightPanel() {
 
   return (
     <div
-      className="auth-right"
-      style={{
-        flex: '0 0 40%',
-        minHeight: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-        overflowY: 'hidden',
-        backgroundImage: "url('/left-panel-bg.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="auth-right flex-[0_0_40%] bg-cover bg-center"
+      style={{ backgroundImage: "url('/left-panel-bg.png')" }}
     >
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        overflowY: 'hidden',
-        padding: '80px 40px 24px',
-      }}>
-        <div style={{ width: '100%', maxWidth: 420, marginTop: 32 }}>
-          <div style={{
-            fontSize: 17,
-            fontWeight: 800,
-            color: '#0F172A',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.2,
-            marginBottom: 12,
-            opacity: taglineVisible ? 1 : 0,
-            transition: 'opacity 400ms ease',
-            minHeight: 44,
-          }}>
+      <div className="relative z-[1] h-screen flex flex-col justify-center overflow-y-hidden pt-[80px] px-10 pb-6">
+        <div className="w-full mt-8 max-w-[420px]">
+          <div
+            className="text-lg font-semibold text-text-primary leading-tight mb-3 min-h-11 tracking-tight transition-opacity duration-[400ms] ease-[ease]"
+            style={{ opacity: taglineVisible ? 1 : 0 }}
+          >
             {taglines[taglineIdx]}
           </div>
 
-          <p style={{
-            fontSize: 13,
-            color: '#64748B',
-            lineHeight: 1.5,
-            marginBottom: 16,
-            marginTop: -4,
-          }}>
+          <p className="text-sm text-text-secondary leading-normal mb-4 -mt-1">
             Freelax shows your real income after tax — so you're never surprised again.
           </p>
 
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+          <div className="flex gap-2 flex-wrap mb-3.5">
             {['✓ Real-time tax calculations', '✓ IR35 status clarity', '✓ Self Assessment ready'].map(pill => (
-              <div key={pill} style={{
-                background: '#fff',
-                border: '0.5px solid #E2E8F0',
-                borderRadius: 20,
-                padding: '4px 10px',
-                fontSize: 10,
-                fontWeight: 600,
-                color: '#1D6B35',
-              }}>{pill}</div>
+              <div key={pill} className="bg-surface-card border-[0.5px] border-border-default rounded-lg px-[10px] py-1 text-micro font-semibold text-brand-primary">{pill}</div>
             ))}
           </div>
 
           <img
             src="/dashboard-mockup.svg"
             alt="Freelax dashboard preview"
-            style={{
-              width: '100%',
-              maxWidth: 360,
-              maxHeight: 200,
-              objectFit: 'cover',
-              objectPosition: 'top',
-              borderRadius: 12,
-              opacity: 0.92,
-              marginBottom: 24,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            }}
+            className="w-full max-w-[360px] max-h-[200px] object-cover object-top rounded-xl opacity-[0.92] mb-6 shadow-overlay"
           />
 
-<div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+          <div className="flex items-center">
             {['A', 'J', 'S'].map((initial, i) => (
-              <div key={i} style={{
-                width: 24, height: 24, borderRadius: '50%',
-                background: '#1D6B35',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700, color: '#fff',
-                marginRight: -6,
-                border: '2px solid #f0ede4',
-                zIndex: 3 - i,
-                position: 'relative',
-              }}>{initial}</div>
+              <div key={i} className="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-micro font-semibold relative -mr-1.5 text-text-on-dark border-2 border-cream-100" style={{ zIndex: 3 - i }}>{initial}</div>
             ))}
-            <span style={{ fontSize: 11, color: '#64748B', marginLeft: 18 }}>
+            <span className="text-caption text-text-secondary ml-[18px]">
               Join UK freelancers who actually know their tax bill
             </span>
           </div>
@@ -132,7 +74,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
   if (!isSplitPanel) {
     return (
-      <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <div className="font-sans">
         {children}
       </div>
     )
@@ -141,8 +83,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       <style>{`
-        @keyframes fd-spin { to { transform: rotate(360deg) } }
-        @keyframes auth-form-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .auth-left input::placeholder { color: rgba(255,255,255,0.35) !important; }
         @media (max-width: 768px) {
           .auth-right { display: none !important; }
@@ -156,63 +96,36 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         }
       `}</style>
 
-      <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', position: 'relative' }}>
+      <div className="h-screen overflow-hidden flex relative">
 
         <div
-          className="auth-split-wordmark"
-          style={{
-            position: 'absolute',
-            top: 48,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            justifyContent: 'flex-start',
-            paddingLeft: 'calc(60% - 124px)',
-            alignItems: 'baseline',
-            zIndex: 10,
-            pointerEvents: 'none',
-            fontSize: 64,
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1,
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-          }}
+          className="auth-split-wordmark absolute top-12 left-0 right-0 justify-start items-baseline z-10 pointer-events-none text-3xl font-serif leading-none  tracking-tighter pl-[calc(60%-124px)]"
         >
-          <span style={{ color: '#FFFFFF' }}>Free</span>
-          <span style={{ color: '#0F172A' }}>lax</span>
-          <span style={{ color: '#1D6B35' }}>.</span>
+          <span className="text-white">Free</span>
+          <span className="text-text-primary">lax</span>
+          <span className="text-brand-primary">.</span>
         </div>
 
-        <div className="auth-left" style={{
-          flex: '0 0 60%',
-          height: '100vh',
-          backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '140px 32px 48px',
-        }}>
-          <div style={{ width: '100%', maxWidth: 420 }}>
-            <div key={pathname} style={{ animation: 'auth-form-in 220ms ease' }}>
+        <div className="auth-left h-screen flex-[0_0_60%] flex flex-col items-center justify-center pt-[140px] px-8 pb-12 bg-cover bg-center"
+          style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')" }}>
+          <div className="w-full max-w-[420px]">
+            <div key={pathname} className="animate-auth-in">
               {children}
             </div>
 
-            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 28, marginBottom: 4, lineHeight: 1.7 }}>
+            <p className="text-center text-xs mt-7 mb-1 leading-[1.7] text-white/35">
               Built in the UK · Your data is encrypted and never sold.
             </p>
-            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: 0 }}>
-              <Link href="/security" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Security</Link>
+            <p className="text-center text-xs m-0 text-white/35">
+              <Link href="/security" className="no-underline text-white/50">Security</Link>
               {' · '}
-              <Link href="/privacy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Privacy</Link>
+              <Link href="/privacy" className="no-underline text-white/50">Privacy</Link>
               {' · '}
-              <Link href="/terms" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms</Link>
+              <Link href="/terms" className="no-underline text-white/50">Terms</Link>
             </p>
-            <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '6px 0 0', lineHeight: 1.5 }}>
+            <p className="text-center text-caption mt-1.5 mb-0 leading-normal text-white/25">
               We use strictly necessary cookies to keep you signed in. No tracking or advertising cookies.{' '}
-              <Link href="/privacy#cookies" style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>Learn more</Link>
+              <Link href="/privacy#cookies" className="underline text-white/35">Learn more</Link>
             </p>
           </div>
         </div>

@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Check, ChevronRight } from 'lucide-react'
+import { Check, CaretRight } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 
 interface Step {
   label: string
@@ -64,26 +65,21 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
   if (allDone) return null
 
   return (
-    <div id="getting-started" className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+    <div id="getting-started" className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
+      <div className="px-5 py-4 border-b border-border-subtle flex items-center justify-between">
         <div>
-          <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 600, color: '#111' }}>
+          <h2 className="text-sm font-semibold font-sans text-text-primary">
             Get started with Freelax
           </h2>
-          <p style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
+          <p className="text-caption mt-0.5 text-text-secondary">
             {completedCount} of {steps.length} complete
           </p>
         </div>
         {/* Progress bar */}
-        <div style={{ width: 100, height: 6, background: '#F0F0F0', borderRadius: 99, overflow: 'hidden' }}>
+        <div className="w-[100px] h-1.5 rounded-full overflow-hidden bg-surface-sunken">
           <div
-            style={{
-              height: '100%',
-              background: '#111',
-              borderRadius: 99,
-              width: `${(completedCount / steps.length) * 100}%`,
-              transition: 'width 0.4s ease',
-            }}
+            className="h-full rounded-full transition-all bg-forest-950"
+            style={{ width: `${(completedCount / steps.length) * 100}%` }}
           />
         </div>
       </div>
@@ -91,49 +87,35 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
         {steps.map((s, i) => (
           <div
             key={s.label}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '12px 20px',
-              borderBottom: i < steps.length - 1 ? '1px solid #F7F7F7' : 'none',
-              background: s.done ? '#FAFAFA' : '#fff',
-            }}
+            className={cn(
+              'flex items-center gap-3 px-5 py-3',
+              i < steps.length - 1 && 'border-b border-b-[#F7F7F7]',
+              s.done ? 'bg-surface-sunken' : 'bg-white'
+            )}
           >
             {/* Tick */}
-            <div style={{
-              width: 22, height: 22, borderRadius: '50%',
-              background: s.done ? '#111' : '#F0F0F0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
+            <div className={cn('w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0', s.done ? 'bg-forest-950' : 'bg-surface-sunken')}>
               {s.done
-                ? <Check style={{ width: 12, height: 12, color: '#fff' }} />
-                : <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#CCC', display: 'block' }} />
+                ? <Check weight="regular" className="w-3 h-3 text-white" />
+                : <span className="w-2 h-2 rounded-full block bg-border-default" />
               }
             </div>
 
             {/* Text */}
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: s.done ? '#AAA' : '#111', textDecoration: s.done ? 'line-through' : 'none' }}>
+            <div className="flex-1">
+              <p className={cn('text-sm font-medium', s.done ? 'text-text-muted line-through' : 'text-text-primary')}>
                 {s.label}
               </p>
-              {!s.done && <p style={{ fontSize: 11, color: '#888', marginTop: 1 }}>{s.desc}</p>}
+              {!s.done && <p className="text-caption mt-px text-text-secondary">{s.desc}</p>}
             </div>
 
             {/* CTA */}
             {!s.done && (
               <Link
                 href={s.href}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 3,
-                  fontSize: 11, fontWeight: 600, color: '#111',
-                  background: '#F3F3F3', borderRadius: 6,
-                  padding: '5px 10px', textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                }}
+                className="flex items-center gap-[3px] text-caption font-semibold rounded-md px-[10px] py-[5px] no-underline whitespace-nowrap text-text-primary bg-surface-sunken"
               >
-                {s.cta} <ChevronRight style={{ width: 11, height: 11 }} />
+                {s.cta} <CaretRight weight="regular" className="w-[11px] h-[11px]" />
               </Link>
             )}
           </div>

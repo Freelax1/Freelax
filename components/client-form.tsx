@@ -65,7 +65,7 @@ export default function ClientForm({ client, onSuccess }: ClientFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errors._}</p>}
+      {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
 
       <Field label="Business name" required error={errors.name}>
         <Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Acme Ltd" error={!!errors.name} />

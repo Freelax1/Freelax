@@ -16,9 +16,9 @@ import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import {
-  ArrowLeft, Send, CheckCircle, XCircle, ExternalLink,
-  Pencil, Trash2, FileText, Link2, X, Clock, ArrowRight,
-} from 'lucide-react'
+  ArrowLeft, PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
+  PencilSimple, Trash, FileText, LinkSimple, X, Clock, ArrowRight,
+} from '@phosphor-icons/react'
 import type { Quote, QuoteLineItem, QuoteActivity } from '@/types/database'
 
 // ── Activity log config ────────────────────────────────────────────────
@@ -29,7 +29,7 @@ function activityConfig(entry: QuoteActivity): {
   switch (entry.action) {
     case 'sent':
       return {
-        Icon: Send, bg: 'bg-blue-50', iconColor: 'text-blue-500',
+        Icon: PaperPlaneTilt, bg: 'bg-forest-50', iconColor: 'text-forest-600',
         label: m.wasResend
           ? (m.emailSent ? `Resent to ${m.clientEmail}` : 'Marked as resent')
           : (m.emailSent ? `Sent to ${m.clientEmail}`   : 'Marked as sent'),
@@ -37,31 +37,31 @@ function activityConfig(entry: QuoteActivity): {
       }
     case 'accepted':
       return {
-        Icon: CheckCircle, bg: 'bg-green-50', iconColor: 'text-green-600',
+        Icon: CheckCircle, bg: 'bg-success-50', iconColor: 'text-success-600',
         label: 'Marked as accepted',
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
     case 'declined':
       return {
-        Icon: XCircle, bg: 'bg-red-50', iconColor: 'text-red-500',
+        Icon: XCircle, bg: 'bg-danger-50', iconColor: 'text-danger-500',
         label: 'Marked as declined',
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
     case 'expired':
       return {
-        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-600',
+        Icon: Clock, bg: 'bg-surface-sunken', iconColor: 'text-text-secondary',
         label: 'Expired',
         sub:   'Quote passed its validity date',
       }
     case 'status_changed':
       return {
-        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-600',
+        Icon: ArrowRight, bg: 'bg-surface-sunken', iconColor: 'text-text-secondary',
         label: `Status changed to ${m.to ? (m.to as string).charAt(0).toUpperCase() + (m.to as string).slice(1) : m.to}`,
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
     default:
       return {
-        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-600',
+        Icon: Clock, bg: 'bg-surface-sunken', iconColor: 'text-text-secondary',
         label: entry.action,
       }
   }
@@ -75,21 +75,21 @@ function DeleteModal({ onConfirm, onCancel, loading }: {
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600" />
+          <div className="w-10 h-10 bg-danger-100 rounded-full flex items-center justify-center shrink-0">
+            <Trash weight="regular" className="w-5 h-5 text-danger-600" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">Delete quote?</h2>
-            <p className="text-sm text-slate-500 mt-0.5">This cannot be undone.</p>
+            <h2 className="font-semibold text-text-primary">Delete quote?</h2>
+            <p className="text-sm text-text-muted mt-0.5">This cannot be undone.</p>
           </div>
         </div>
         <div className="flex gap-3 mt-6">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
+          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
             Cancel
           </button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2 bg-danger-600 text-white rounded-lg text-sm font-medium hover:bg-danger-700 disabled:opacity-50">
             {loading ? 'Deleting...' : 'Yes, delete'}
           </button>
         </div>
@@ -231,10 +231,10 @@ export default function QuoteDetailPage() {
 
   if (loading) return (
     <div className="space-y-4 max-w-3xl">
-      {[1,2,3].map(i => <div key={i} className="h-16 bg-slate-100 rounded-xl animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse" />)}
     </div>
   )
-  if (!quote) return <p className="text-slate-500">Quote not found.</p>
+  if (!quote) return <p className="text-text-muted">Quote not found.</p>
 
   const client    = quote.clients
   const sender    = quote.users
@@ -252,66 +252,66 @@ export default function QuoteDetailPage() {
     <div className="max-w-3xl space-y-6">
       {/* Header */}
       <div>
-        <Link href="/quotes" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
-          <ArrowLeft className="w-4 h-4" /> Back to quotes
+        <Link href="/quotes" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
+          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quotes
         </Link>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-slate-900">{quote.quote_number}</h1>
+            <h1 className="text-2xl font-serif font-semibold text-text-primary">{quote.quote_number}</h1>
             <Badge status={quote.status} />
             {expired && quote.status === 'sent' && (
-              <span className="text-xs text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">Expired</span>
+              <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
             )}
             {!expired && days <= 3 && days >= 0 && quote.status === 'sent' && (
-              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">{days}d left</span>
+              <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
             {canEdit && (
               <Link href={`/quotes/${quote.id}/edit`}
-                className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
-                <Pencil className="w-3.5 h-3.5" /> Edit
+                className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+                <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
               </Link>
             )}
             {canSend && (
               <button onClick={handleSend} disabled={sending}
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 disabled:opacity-50">
-                <Send className="w-3.5 h-3.5" />
+                className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+                <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
                 {sending ? 'Sending...' : quote.status === 'draft' ? 'Send quote' : 'Resend'}
               </button>
             )}
             {canAccept && (
               <button onClick={() => handleStatusChange('accepted')}
-                className="flex items-center gap-1.5 px-3 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">
-                <CheckCircle className="w-3.5 h-3.5" /> Mark accepted
+                className="flex items-center gap-1.5 px-3 py-2 bg-success-700 text-white rounded-xl text-sm font-medium hover:bg-success-800">
+                <CheckCircle weight="regular" className="w-3.5 h-3.5" /> Mark accepted
               </button>
             )}
             {canDecline && (
               <button onClick={() => handleStatusChange('declined')}
-                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100">
-                <XCircle className="w-3.5 h-3.5" /> Mark declined
+                className="flex items-center gap-1.5 px-3 py-2 bg-danger-50 border border-danger-200 text-danger-700 rounded-xl text-sm font-medium hover:bg-danger-100">
+                <XCircle weight="regular" className="w-3.5 h-3.5" /> Mark declined
               </button>
             )}
             {canConvert && (
               <button onClick={handleConvertToInvoice} disabled={converting}
-                className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-                <FileText className="w-3.5 h-3.5" />
+                className="flex items-center gap-1.5 px-3 py-2 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50">
+                <FileText weight="regular" className="w-3.5 h-3.5" />
                 {converting ? 'Creating...' : 'Create invoice'}
               </button>
             )}
             <button onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
-              <Link2 className="w-3.5 h-3.5" />
+              className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+              <LinkSimple weight="regular" className="w-3.5 h-3.5" />
               {linkCopied ? 'Copied!' : 'Client link'}
             </button>
             <a href={`/api/quotes/pdf?id=${quote.id}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
-              <ExternalLink className="w-3.5 h-3.5" /> PDF
+              className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+              <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
             </a>
             <button onClick={() => setShowDelete(true)}
               aria-label="Delete quote"
-              className="flex items-center gap-1.5 px-3 py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50">
-              <Trash2 className="w-3.5 h-3.5" />
+              className="flex items-center gap-1.5 px-3 py-2 border border-danger-200 text-danger-600 rounded-xl text-sm hover:bg-danger-50">
+              <Trash weight="regular" className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -321,26 +321,26 @@ export default function QuoteDetailPage() {
       {msg && (
         <>
           {msg.type === 'error' && msg.text.toLowerCase().includes('plan') ? (
-            <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-amber-200 bg-amber-50">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600">
+            <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-warning-200 bg-warning-50">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 4.8H15l-4 2.9 1.5 4.8L8 10.4 3.5 13.5l1.5-4.8L1 5.8h5.2L8 1z" fill="currentColor"/></svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-amber-900 mb-0.5">Upgrade required</p>
-                <p className="text-sm text-amber-800">{msg.text}</p>
+                <p className="text-sm font-semibold text-warning-900 mb-0.5">Upgrade required</p>
+                <p className="text-sm text-warning-800">{msg.text}</p>
               </div>
-              <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
+              <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <button onClick={() => setMsg(null)} className="flex-shrink-0 text-amber-400 hover:text-amber-600 transition-colors">
-                <X className="w-4 h-4" />
+              <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
+                <X weight="regular" className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium border ${
               msg.type === 'success'
-                ? 'bg-green-50 text-green-800 border-green-200'
-                : 'bg-red-50 text-red-700 border-red-200'
+                ? 'bg-success-50 text-success-800 border-success-200'
+                : 'bg-danger-50 text-danger-700 border-danger-200'
             }`}>
               {msg.type === 'success' ? (
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -349,7 +349,7 @@ export default function QuoteDetailPage() {
               )}
               <span className="flex-1">{msg.text}</span>
               <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="opacity-50 hover:opacity-100 transition-opacity">
-                <X className="w-4 h-4" />
+                <X weight="regular" className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -358,21 +358,21 @@ export default function QuoteDetailPage() {
 
       {/* Accepted banner with convert CTA */}
       {quote.status === 'accepted' && (
-        <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-4 flex items-center justify-between">
+        <div className="bg-success-50 border border-success-200 rounded-xl px-5 py-4 flex items-center justify-between">
           <div>
-            <p className="font-semibold text-green-800 text-sm">Quote accepted</p>
-            <p className="text-xs text-green-600 mt-0.5">Ready to convert into a draft invoice with one click.</p>
+            <p className="font-semibold text-success-800 text-sm">Quote accepted</p>
+            <p className="text-xs text-success-600 mt-0.5">Ready to convert into a draft invoice with one click.</p>
           </div>
           <button onClick={handleConvertToInvoice} disabled={converting}
-            className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 disabled:opacity-50 shrink-0">
-            <FileText className="w-4 h-4" />
+            className="flex items-center gap-2 px-4 py-2 bg-success-700 text-white rounded-xl text-sm font-medium hover:bg-success-800 disabled:opacity-50 shrink-0">
+            <FileText weight="regular" className="w-4 h-4" />
             {converting ? 'Creating invoice...' : 'Create invoice from quote'}
           </button>
         </div>
       )}
 
       {/* Quote — Letterhead design */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-surface-card rounded-xl border border-border-default shadow-sm overflow-hidden">
         <style>{`
           @media (max-width: 640px) {
             .q-header { flex-direction: column !important; gap: 12px !important; }
@@ -395,8 +395,8 @@ export default function QuoteDetailPage() {
               {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{sender.email}</p>}
               {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Quote</p>
+            <div className="text-right">
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>Quote</p>
               <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{quote.quote_number}</p>
             </div>
           </div>
@@ -406,25 +406,25 @@ export default function QuoteDetailPage() {
         <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
           <div className="q-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Prepared for</p>
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>Prepared for</p>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
               {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
               {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
             </div>
             <div className="q-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Issue date</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Issue date</p>
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Valid until</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Valid until</p>
                 <p style={{ fontSize: 13, fontWeight: 600, color: expired ? '#dc2626' : '#0f172a' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
               <div style={{ marginTop: 4 }}>
-                {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accepted</span>}
-                {quote.status === 'declined' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Declined</span>}
-                {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Expired</span>}
-                {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
+                {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px' }}>Accepted</span>}
+                {quote.status === 'declined' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px' }}>Declined</span>}
+                {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Expired</span>}
+                {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -435,11 +435,11 @@ export default function QuoteDetailPage() {
           <table className="w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
               <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
@@ -458,7 +458,7 @@ export default function QuoteDetailPage() {
           {/* Footer: validity + totals */}
           <div className="q-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
             <div>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Validity</p>
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>Validity</p>
               <p style={{ fontSize: 11.5, color: '#64748b', lineHeight: 1.6 }}>
                 {quote.expiry_date
                   ? <>Valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.</>
@@ -488,21 +488,21 @@ export default function QuoteDetailPage() {
       </div>
 
       {/* Activity log */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-slate-600" />
-          <h2 className="text-sm font-semibold text-slate-800">Activity</h2>
+      <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
+        <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
+          <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
+          <h2 className="text-sm font-semibold text-text-primary">Activity</h2>
           {activity.length > 0 && (
-            <span className="ml-auto text-xs text-slate-600">
+            <span className="ml-auto text-xs text-text-secondary">
               {activity.length} event{activity.length !== 1 ? 's' : ''}
             </span>
           )}
         </div>
         {activity.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <Clock className="w-6 h-6 text-slate-200 mx-auto mb-2" />
-            <p className="text-sm text-slate-600">No activity recorded yet.</p>
-            <p className="text-xs text-slate-500 mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
+            <Clock weight="regular" className="w-6 h-6 text-text-muted mx-auto mb-2" />
+            <p className="text-sm text-text-secondary">No activity recorded yet.</p>
+            <p className="text-xs text-text-muted mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-50">
@@ -511,13 +511,13 @@ export default function QuoteDetailPage() {
               return (
                 <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
-                    <cfg.Icon className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
+                    <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-700 font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-slate-600 mt-0.5">{cfg.sub}</p>}
+                    <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
+                    {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
                   </div>
-                  <p className="text-xs text-slate-600 shrink-0 pt-0.5">
+                  <p className="text-xs text-text-secondary shrink-0 pt-0.5">
                     {new Date(entry.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'short', year: 'numeric',
                     })}

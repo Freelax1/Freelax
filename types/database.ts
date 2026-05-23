@@ -108,6 +108,8 @@ export interface Client {
   notes: string | null
   created_at: string
   updated_at: string
+  // joined
+  invoices?: { total: number; status: string }[]
 }
 
 export interface Project {

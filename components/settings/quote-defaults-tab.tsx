@@ -22,9 +22,9 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
     <div className="space-y-4">
 
       {/* Quote defaults */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <p className="text-sm text-slate-500">Pre-filled on every new quote you create.</p>
+          <p className="text-sm text-text-muted">Pre-filled on every new quote you create.</p>
         </div>
         <Field label="Default validity period (days)" hint="How many days a quote stays open. 30 days is standard.">
           <input
@@ -62,10 +62,10 @@ export default function QuoteDefaultsTab({ profile, save, saving }: Props) {
       </div>
 
       {/* Email message */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <h2 className="font-semibold text-slate-900">Quote email message</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <h2 className="font-semibold text-text-primary">Quote email message</h2>
+          <p className="text-sm text-text-muted mt-1">
             Add a personal message to include in the email when you send a quote.
             The quote number, amount, expiry date and a link to view the quote are added automatically.
           </p>

@@ -4,29 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
 
-const INPUT_STYLE: React.CSSProperties = {
-  width: '100%',
-  padding: '11px 14px',
-  fontSize: 16,
-  lineHeight: 1.4,
-  color: '#FFFFFF',
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 8,
-  outline: 'none',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box',
-  transition: 'border-color 150ms, box-shadow 150ms',
-}
-
-const LABEL_STYLE: React.CSSProperties = {
-  display: 'block',
-  fontSize: 12,
-  fontWeight: 500,
-  color: 'rgba(255,255,255,0.6)',
-  marginBottom: 6,
-}
+const INPUT_CLS = 'w-full px-[14px] py-[11px] text-base leading-[1.4] text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
+const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
 
 function Spinner() {
   return (
@@ -34,7 +15,7 @@ function Spinner() {
       width="16" height="16"
       viewBox="0 0 16 16"
       fill="none"
-      style={{ animation: 'fd-spin 0.7s linear infinite', flexShrink: 0 }}
+      className="animate-fd-spin shrink-0"
     >
       <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
       <path d="M8 2a6 6 0 0 1 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
@@ -48,24 +29,21 @@ function PasswordStrength({ password }: { password: string }) {
 
   const met = len >= 8
   return (
-    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+    <div className="mt-2 flex items-center gap-2">
+      <div className="flex gap-[3px] flex-1">
         {[1, 2, 3].map(i => (
           <div
             key={i}
+            className="h-[3px] flex-1 rounded-full transition-colors"
             style={{
-              height: 3,
-              flex: 1,
-              borderRadius: 99,
               background: met
-                ? i === 1 ? '#1D6B35' : i === 2 ? '#1D6B35' : len >= 12 ? '#1D6B35' : '#E2E8F0'
-                : i === 1 ? '#F59E0B' : '#E2E8F0',
-              transition: 'background 200ms',
+                ? i === 1 ? 'var(--success-500)' : i === 2 ? 'var(--success-500)' : len >= 12 ? 'var(--success-500)' : 'var(--border-default)'
+                : i === 1 ? 'var(--warning-500)' : 'var(--border-default)',
             }}
           />
         ))}
       </div>
-      <span style={{ fontSize: 11, color: met ? '#4ADE80' : '#F59E0B', fontWeight: 500, whiteSpace: 'nowrap' }}>
+      <span className={cn('text-caption font-medium whitespace-nowrap', met ? 'text-[color:var(--success-400)]' : 'text-[color:var(--warning-400)]')}>
         {!met ? 'Too short' : len >= 12 ? 'Strong' : 'Good'}
       </span>
     </div>
@@ -171,38 +149,19 @@ export default function ResetPasswordPage() {
 
   if (done) {
     return (
-      <div style={{ textAlign: 'center', padding: '12px 0' }}>
-        <style>{`@keyframes fd-spin { to { transform: rotate(360deg) } }`}</style>
-        <div style={{
-          width: 48, height: 48,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.12)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 16,
-        }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <div className="text-center py-3">
+        <div className="w-12 h-12 rounded-full inline-flex items-center justify-center mb-4 bg-white/[0.12]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
+        <h2 className="text-xl font-semibold text-white mb-2 tracking-tight">
           Password updated
         </h2>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+        <p className="text-sm leading-relaxed m-0 text-white/60">
           Redirecting you to sign in…
         </p>
-        <Link
-          href="/auth/login"
-          style={{
-            display: 'inline-block',
-            marginTop: 24,
-            fontSize: 13,
-            color: '#FFFFFF',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
-        >
+        <Link href="/auth/login" className="inline-block mt-6 text-sm text-white font-semibold no-underline">
           Sign in now →
         </Link>
       </div>
@@ -211,39 +170,21 @@ export default function ResetPasswordPage() {
 
   if (linkInvalid) {
     return (
-      <div style={{ textAlign: 'center', padding: '12px 0' }}>
-        <div style={{
-          width: 48, height: 48,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.12)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 16,
-        }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <div className="text-center py-3">
+        <div className="w-12 h-12 rounded-full inline-flex items-center justify-center mb-4 bg-white/[0.12]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--danger-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', marginBottom: 8, letterSpacing: '-0.01em' }}>
+        <h2 className="text-xl font-semibold text-white mb-2 tracking-tight">
           Link invalid or expired
         </h2>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+        <p className="text-sm leading-relaxed m-0 text-white/60">
           Reset links expire after a short window. Request a new one to continue.
         </p>
-        <Link
-          href="/auth/forgot-password"
-          style={{
-            display: 'inline-block',
-            marginTop: 24,
-            fontSize: 13,
-            color: '#FFFFFF',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
-        >
+        <Link href="/auth/forgot-password" className="inline-block mt-6 text-sm text-white font-semibold no-underline">
           Request new link →
         </Link>
       </div>
@@ -252,24 +193,22 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <style>{`@keyframes fd-spin { to { transform: rotate(360deg) } }`}</style>
-
-      <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
-        <span style={{ color: '#FFFFFF' }}>Free</span>
-        <span style={{ color: 'rgba(255,255,255,0.7)' }}>lax</span>
-        <span style={{ color: '#1D6B35' }}>.</span>
+      <div className="auth-wordmark-mobile text-xl font-semibold mb-8 tracking-tighter">
+        <span className="text-white">Free</span>
+        <span className="text-white/70">lax</span>
+        <span className="text-brand-primary">.</span>
       </div>
 
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 8 }}>
+      <h2 className="text-xl font-semibold text-white tracking-tight mb-2">
         Set a new password
       </h2>
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 0, marginBottom: 24, lineHeight: 1.5 }}>
+      <p className="text-sm mt-0 mb-6 leading-normal text-white/60">
         Choose a strong password — at least 8 characters.
       </p>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label style={LABEL_STYLE}>New password</label>
+          <label className={LABEL_CLS}>New password</label>
           <input
             type="password"
             autoComplete="new-password"
@@ -277,7 +216,7 @@ export default function ResetPasswordPage() {
             minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            style={INPUT_STYLE}
+            className={INPUT_CLS}
             onFocus={focusInput}
             onBlur={blurInput}
           />
@@ -285,7 +224,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <div>
-          <label style={LABEL_STYLE}>Confirm password</label>
+          <label className={LABEL_CLS}>Confirm password</label>
           <input
             type="password"
             autoComplete="new-password"
@@ -293,47 +232,31 @@ export default function ResetPasswordPage() {
             minLength={8}
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
-            style={INPUT_STYLE}
+            className={INPUT_CLS}
             onFocus={focusInput}
             onBlur={blurInput}
           />
         </div>
 
         {error && (
-          <p style={{ fontSize: 13, color: '#F87171', marginTop: -4 }}>{error}</p>
+          <p className="text-sm -mt-1 text-[color:var(--danger-400)]">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading || !ready}
-          style={{
-            width: '100%',
-            marginTop: 4,
-            padding: '12px 16px',
-            background: loading || !ready ? '#4A7A5C' : '#1D6B35',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: loading || !ready ? 'default' : 'pointer',
-            transition: 'background 150ms',
-            fontFamily: 'inherit',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-          onMouseEnter={e => { if (!loading && ready) e.currentTarget.style.background = '#17582B' }}
-          onMouseLeave={e => { if (!loading && ready) e.currentTarget.style.background = '#1D6B35' }}
+          className="w-full mt-1 px-4 py-3 text-base font-semibold text-white border-none rounded-lg font-[inherit] flex items-center justify-center gap-2 transition-colors duration-[150ms] disabled:cursor-default"
+          style={{ background: loading || !ready ? 'var(--forest-600)' : 'var(--brand-primary)' }}
+          onMouseEnter={e => { if (!loading && ready) e.currentTarget.style.background = 'var(--forest-700)' }}
+          onMouseLeave={e => { if (!loading && ready) e.currentTarget.style.background = 'var(--brand-primary)' }}
         >
           {loading && <Spinner />}
           {loading ? 'Updating…' : ready ? 'Update password' : 'Verifying link…'}
         </button>
       </form>
 
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginTop: 22, marginBottom: 0 }}>
-        <Link href="/auth/login" style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none' }}>
+      <p className="text-sm text-center mt-[22px] mb-0 text-white/50">
+        <Link href="/auth/login" className="text-white font-semibold no-underline">
           Back to sign in
         </Link>
       </p>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { CreditCard, CheckCircle } from 'lucide-react'
+import { CreditCard, CheckCircle } from '@phosphor-icons/react/dist/ssr'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +49,7 @@ export default async function PublicInvoicePage({
         {/* Status banners */}
         {isPaid && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 18px', marginBottom: 20 }}>
-            <CheckCircle style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
+            <CheckCircle weight="regular" style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
             <span style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>Payment received – thank you!</span>
           </div>
         )}
@@ -75,7 +75,7 @@ export default async function PublicInvoicePage({
                 {sender?.vat_number && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Invoice</p>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', marginBottom: 6 }}>Invoice</p>
                 <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
               </div>
             </div>
@@ -85,23 +85,23 @@ export default async function PublicInvoicePage({
           <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
             <div className="pub-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Bill to</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 8 }}>Bill to</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name}</p>
                 {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
                 {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
               </div>
               <div className="pub-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Issue date</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 3 }}>Issue date</p>
                   <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Due date</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 3 }}>Due date</p>
                   <p style={{ fontSize: 13, fontWeight: 600, color: isOverdue ? '#dc2626' : '#0f172a' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 {isPaid && (
                   <div style={{ marginTop: 4 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Paid</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px' }}>Paid</span>
                   </div>
                 )}
               </div>
@@ -113,11 +113,11 @@ export default async function PublicInvoicePage({
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
               <thead>
                 <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                  <th className="pub-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                  <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -138,7 +138,7 @@ export default async function PublicInvoicePage({
               <div>
                 {hasBankDetails && (
                   <>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 10 }}>Payment details</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', marginBottom: 10 }}>Payment details</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                       {[
                         { label: 'Account name',   value: sender.bank_account_name || sender.business_name || sender.full_name },
@@ -187,7 +187,7 @@ export default async function PublicInvoicePage({
                       transition: 'background 0.15s', letterSpacing: '-0.01em',
                     }}
                   >
-                    <CreditCard style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely
+                    <CreditCard weight="regular" style={{ width: 16, height: 16 }} /> Pay {formatCurrency(invoice.total)} securely
                   </button>
                 </form>
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#cbd5e1', marginTop: 10 }}>

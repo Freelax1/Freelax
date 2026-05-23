@@ -9,8 +9,8 @@ interface Props {
   onSuccess?: () => void
 }
 
-const inputClass = 'w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white'
-const labelClass = 'block text-xs font-medium text-slate-500 mb-1'
+const inputClass = 'w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 bg-surface-card'
+const labelClass = 'block text-xs font-medium text-text-secondary mb-1'
 
 export default function MileageForm({ userId, taxYearStart, onSuccess }: Props) {
   const [form, setForm] = useState({
@@ -49,21 +49,21 @@ export default function MileageForm({ userId, taxYearStart, onSuccess }: Props) 
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger-600">{error}</p>}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>Date <span className="text-red-400">*</span></label>
+          <label className={labelClass}>Date <span className="text-danger-400">*</span></label>
           <input aria-label="Date" type="date" className={inputClass} value={form.date}
             onChange={e => setForm(p => ({ ...p, date: e.target.value }))} />
         </div>
         <div>
-          <label className={labelClass}>Miles <span className="text-red-400">*</span></label>
+          <label className={labelClass}>Miles <span className="text-danger-400">*</span></label>
           <input aria-label="Miles" type="number" step="0.1" min="0.1" className={inputClass} placeholder="e.g. 24.5"
             value={form.miles} onChange={e => setForm(p => ({ ...p, miles: e.target.value }))} />
         </div>
       </div>
       <div>
-        <label className={labelClass}>Purpose / description <span className="text-red-400">*</span></label>
+        <label className={labelClass}>Purpose / description <span className="text-danger-400">*</span></label>
         <input aria-label="Purpose / description" className={inputClass} placeholder="e.g. Client meeting — Acme Ltd"
           value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </div>
@@ -83,7 +83,7 @@ export default function MileageForm({ userId, taxYearStart, onSuccess }: Props) 
         <button
           onClick={handleSubmit}
           disabled={saving || !form.description || !form.miles}
-          className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+          className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save journey'}
         </button>

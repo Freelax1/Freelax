@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, Toggle, SaveButton } from '@/components/form-fields'
-import { ScanLine, Upload, Loader2, Camera } from 'lucide-react'
+import { Scan, UploadSimple, CircleNotch, Camera } from '@phosphor-icons/react'
 import type { Expense } from '@/types/database'
 
 const CATEGORIES = [
@@ -158,20 +158,20 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errors._}</p>}
+      {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
 
       {/* Scan receipt button */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <p className="text-sm font-medium text-blue-800 mb-2">Scan receipt with AI</p>
-        <p className="text-xs text-blue-600 mb-3">Upload a receipt image and AI will auto-fill the fields below.</p>
+      <div className="bg-forest-50 border border-forest-200 rounded-xl p-4">
+        <p className="text-sm font-medium text-forest-800 mb-2">Scan receipt with AI</p>
+        <p className="text-xs text-forest-600 mb-3">Upload a receipt image and AI will auto-fill the fields below.</p>
 
         <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} {...(isMobile ? { capture: "environment" as const } : {})} />
 
         {receiptPreview && receiptFile && (
           <div className="mb-3">
-            <img src={receiptPreview} alt="Receipt preview" className="max-h-32 rounded-lg border border-blue-200 object-contain" />
+            <img src={receiptPreview} alt="Receipt preview" className="max-h-32 rounded-xl border border-forest-200 object-contain" />
             {scanConfidence && (
-              <p className="text-xs mt-1 text-blue-600">
+              <p className="text-xs mt-1 text-forest-600">
                 Scan confidence: <span className="font-medium capitalize">{scanConfidence}</span>
               </p>
             )}
@@ -182,9 +182,9 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-300 bg-white text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-forest-300 bg-surface-card text-forest-700 rounded-xl text-xs font-medium hover:bg-forest-50"
           >
-            {isMobile ? <Camera className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
+            {isMobile ? <Camera weight="regular" className="w-3.5 h-3.5" /> : <UploadSimple weight="regular" className="w-3.5 h-3.5" />}
             {receiptFile ? 'Change image' : isMobile ? 'Take photo' : 'Upload receipt'}
           </button>
           {receiptFile && (
@@ -192,9 +192,9 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
               type="button"
               onClick={handleScanReceipt}
               disabled={scanning}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-forest-600 text-white rounded-xl text-xs font-medium hover:bg-forest-700 disabled:opacity-50"
             >
-              {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ScanLine className="w-3.5 h-3.5" />}
+              {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
               {scanning ? 'Reading receipt...' : 'Scan with AI'}
             </button>
           )}

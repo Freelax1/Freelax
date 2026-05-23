@@ -221,7 +221,7 @@ export default function Sidebar() {
         {/* Logo + search */}
         <div style={{ padding: '20px 14px 14px', flexShrink: 0 }}>
           <div style={{ marginBottom: 14 }}>
-            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+            <span style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
               Freelax
             </span>
           </div>
@@ -231,7 +231,7 @@ export default function Sidebar() {
               width: '100%', display: 'flex', alignItems: 'center', gap: 8,
               padding: '7px 12px', borderRadius: 'var(--radius-full)',
               background: 'transparent', border: '1px solid var(--border-default)',
-              color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12,
+              color: 'var(--text-muted)', cursor: 'pointer', fontSize: 'var(--text-xs)',
               fontFamily: 'var(--font-sans)', transition: 'background 150ms',
             }}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
@@ -239,7 +239,7 @@ export default function Sidebar() {
           >
             <MagnifyingGlass weight="regular" style={{ width: 13, height: 13, flexShrink: 0 }} />
             <span style={{ flex: 1, textAlign: 'left' }}>Search…</span>
-            <kbd style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
+            <kbd style={{ fontSize: 'var(--text-micro)', padding: '1px 5px', borderRadius: 4, background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
               {typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}
             </kbd>
           </button>
@@ -250,7 +250,7 @@ export default function Sidebar() {
           {NAV_GROUPS.map((group, idx) => (
             <div key={group.label} style={{ marginBottom: 4 }}>
               <p style={{
-                fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+                fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-muted)',
                 padding: idx === 0 ? '4px 8px 4px' : '14px 8px 4px',
                 letterSpacing: '0.01em',
               }}>
@@ -270,7 +270,7 @@ export default function Sidebar() {
                       background: active ? 'var(--surface-sunken)' : 'transparent',
                       color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                       fontWeight: active ? 600 : 400,
-                      fontSize: 13, transition: 'background 100ms, color 100ms',
+                      fontSize: 'var(--text-sm)', transition: 'background 100ms, color 100ms',
                     }}
                     onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
@@ -293,8 +293,8 @@ export default function Sidebar() {
                 background: 'var(--surface-sunken)', border: '1px solid var(--border-default)',
                 textDecoration: 'none',
               }}>
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Getting started</span>
-                <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>Getting started</span>
+                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 700, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
                   {completedSteps}/5
                 </span>
               </Link>
@@ -313,7 +313,7 @@ export default function Sidebar() {
               textDecoration: 'none', marginBottom: 1,
               color: pathname.startsWith('/notifications') ? 'var(--text-primary)' : 'var(--text-secondary)',
               background: pathname.startsWith('/notifications') ? 'var(--surface-sunken)' : 'transparent',
-              fontSize: 13, transition: 'background 100ms',
+              fontSize: 'var(--text-sm)', transition: 'background 100ms',
             }}
             onMouseEnter={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
             onMouseLeave={e => { if (!pathname.startsWith('/notifications')) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
@@ -321,7 +321,7 @@ export default function Sidebar() {
             <Bell weight="regular" style={{ width: 17, height: 17, color: pathname.startsWith('/notifications') ? 'var(--brand-primary)' : 'var(--text-muted)', flexShrink: 0 }} />
             <span style={{ flex: 1 }}>Notifications</span>
             {unreadCount > 0 && (
-              <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
+              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 700, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -338,7 +338,7 @@ export default function Sidebar() {
               }}>
                 {/* Email header */}
                 <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border-subtle)' }}>
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {userEmail ?? '…'}
                   </p>
                 </div>
@@ -349,7 +349,7 @@ export default function Sidebar() {
                     style={{
                       width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                       padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'var(--brand-primary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                      color: 'var(--brand-primary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
                       fontWeight: 500, transition: 'background 80ms',
                     }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
@@ -366,7 +366,7 @@ export default function Sidebar() {
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--text-secondary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                    color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
                     transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
@@ -383,7 +383,7 @@ export default function Sidebar() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', textDecoration: 'none',
-                    color: 'var(--text-secondary)', fontSize: 13,
+                    color: 'var(--text-secondary)', fontSize: 'var(--text-sm)',
                     transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
@@ -398,7 +398,7 @@ export default function Sidebar() {
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--danger-500)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                    color: 'var(--danger-500)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)',
                     transition: 'background 80ms',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
@@ -426,16 +426,16 @@ export default function Sidebar() {
                 width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                 background: 'var(--brand-primary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, color: '#fff',
+                fontSize: 'var(--text-caption)', fontWeight: 700, color: '#fff',
               }}>
                 {initial}
               </div>
               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, lineHeight: 1.3 }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, lineHeight: 1.3 }}>
                   {userName ?? userEmail ?? '…'}
                 </div>
                 {userPlan && (
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, textTransform: 'capitalize', lineHeight: 1 }}>
+                  <div style={{ fontSize: 'var(--text-micro)', color: 'var(--text-muted)', marginTop: 3, textTransform: 'capitalize', lineHeight: 1 }}>
                     {userPlan} plan
                   </div>
                 )}
@@ -485,7 +485,7 @@ export default function Sidebar() {
         <button onClick={() => setMobileOpen(true)} aria-label="Open menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
           <List weight="regular" style={{ width: 20, height: 20 }} />
         </button>
-        <span style={{ flex: 1, fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+        <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
           Freelax
         </span>
         <button onClick={() => setCmdOpen(true)} aria-label="Search" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
@@ -516,7 +516,7 @@ export default function Sidebar() {
             display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 0', flexShrink: 0 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>Freelax</span>
+              <span style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>Freelax</span>
               <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
                 <X weight="regular" style={{ width: 18, height: 18 }} />
               </button>

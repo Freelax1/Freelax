@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       const bankHtml = hasBankDetails
         ? `
           <div style="background:#f8f9fa;border-radius:8px;padding:16px 20px;margin:24px 0;border:1px solid #e9ecef;">
-            <p style="font-size:12px;font-weight:600;color:#6c757d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Payment details</p>
+            <p style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:10px;">Payment details</p>
             <table style="border-collapse:collapse;width:100%;">
               <tr><td style="color:#6c757d;font-size:13px;padding:3px 0;width:140px;">Account name</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_account_name || businessName)}</td></tr>
               <tr><td style="color:#6c757d;font-size:13px;padding:3px 0;">Sort code</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_sort_code)}</td></tr>

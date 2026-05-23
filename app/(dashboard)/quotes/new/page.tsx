@@ -14,7 +14,8 @@ import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/quotes'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } from '@/lib/logic/quotes'
 import Link from 'next/link'
-import { ArrowLeft, Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
+import type { Client, Project } from '@/types/database'
 
 interface LineItem {
   description: string
@@ -28,8 +29,8 @@ export default function NewQuotePage() {
   const searchParams = useSearchParams()
   const defaultClient = searchParams.get('client') ?? ''
 
-  const [clients, setClients]   = useState<any[]>([])
-  const [projects, setProjects] = useState<any[]>([])
+  const [clients, setClients]   = useState<Pick<Client, 'id' | 'name' | 'status'>[]>([])
+  const [projects, setProjects] = useState<Pick<Project, 'id' | 'title'>[]>([])
   const [clientId, setClientId]   = useState(defaultClient)
   const [projectId, setProjectId] = useState('')
   const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10))
@@ -187,20 +188,20 @@ export default function NewQuotePage() {
   return (
     <div className="max-w-3xl space-y-6 pb-12">
       <div>
-        <Link href="/quotes" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
-          <ArrowLeft className="w-4 h-4" /> Back to quotes
+        <Link href="/quotes" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
+          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quotes
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">New quote</h1>
+        <h1 className="text-2xl font-serif font-semibold text-text-primary">New quote</h1>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>}
+      {error && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
 
       {/* Quote details */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-        <h2 className="font-semibold text-slate-800">Quote details</h2>
+      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
+        <h2 className="font-semibold text-text-primary">Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Client</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Client</label>
             <select
               aria-label="Client"
               value={clientId}
@@ -208,28 +209,28 @@ export default function NewQuotePage() {
                 if (e.target.value === '__new__') { setShowNewClient(true) }
                 else { setClientId(e.target.value); setShowNewClient(false) }
               }}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+              className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
             >
               <option value="">Select client...</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               <option value="__new__">+ Create new client</option>
             </select>
             {showNewClient && (
-              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
-                <p className="text-xs font-semibold text-slate-700 mb-1">New client</p>
+              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
+                <p className="text-xs font-semibold text-text-secondary mb-1">New client</p>
                 <input
                   aria-label="New client name"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Company / client name *"
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <input
                   aria-label="New client contact name"
                   value={newClientContact}
                   onChange={e => setNewClientContact(e.target.value)}
                   placeholder="Contact name"
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <input
                   aria-label="New client email"
@@ -237,21 +238,21 @@ export default function NewQuotePage() {
                   onChange={e => setNewClientEmail(e.target.value)}
                   placeholder="Email"
                   type="email"
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <div className="flex gap-2 pt-1">
                   <button
                     type="button"
                     onClick={handleCreateClient}
                     disabled={!newClientName.trim() || creatingClient}
-                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
                   >
                     {creatingClient ? 'Saving...' : 'Save client'}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
-                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
                   >
                     Cancel
                   </button>
@@ -260,7 +261,7 @@ export default function NewQuotePage() {
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Project</label>
             <select
               aria-label="Project"
               value={projectId}
@@ -268,35 +269,35 @@ export default function NewQuotePage() {
                 if (e.target.value === '__new_project__') { setShowNewProject(true) }
                 else { setProjectId(e.target.value); setShowNewProject(false) }
               }}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+              className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
             >
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
               {clientId && <option value="__new_project__">+ Add project</option>}
             </select>
             {showNewProject && (
-              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
-                <p className="text-xs font-semibold text-slate-700 mb-1">New project</p>
+              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
+                <p className="text-xs font-semibold text-text-secondary mb-1">New project</p>
                 <input
                   aria-label="New project name"
                   value={newProjectTitle}
                   onChange={e => setNewProjectTitle(e.target.value)}
                   placeholder="Project name *"
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <div className="flex gap-2 pt-1">
                   <button
                     type="button"
                     onClick={handleCreateProject}
                     disabled={!newProjectTitle.trim() || creatingProject}
-                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
                   >
                     {creatingProject ? 'Saving...' : 'Save project'}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}
-                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
                   >
                     Cancel
                   </button>
@@ -305,29 +306,29 @@ export default function NewQuotePage() {
             )}
           </div>
           {clientWarning && (
-            <div className="col-span-2 px-4 py-3 rounded-lg text-sm font-medium"
+            <div className="col-span-2 px-4 py-3 rounded-xl text-sm font-medium"
               style={{ background: selectedClient?.status === 'archived' ? '#FDECEA' : '#FEF9E7', color: selectedClient?.status === 'archived' ? '#C0392B' : '#9A7B0A', border: `1px solid ${selectedClient?.status === 'archived' ? '#F5C0BB' : '#F5E29B'}` }}>
               {clientWarning}
             </div>
           )}
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Issue date</label>
-            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            <label className="block text-xs font-medium text-text-muted mb-1">Issue date</label>
+            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Valid until</label>
-            <input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
+            <label className="block text-xs font-medium text-text-muted mb-1">Valid until</label>
+            <input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
           </div>
         </div>
       </div>
 
       {/* Line items */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-3">
-        <h2 className="font-semibold text-slate-800">Line items</h2>
+      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
+        <h2 className="font-semibold text-text-primary">Line items</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+              <tr className="text-left text-xs text-text-muted border-b border-border-subtle">
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
@@ -339,11 +340,11 @@ export default function NewQuotePage() {
             <tbody>
               {lineItems.map((item, i) => (
                 <tr key={i}>
-                  <td className="py-1 pr-2"><input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
-                  <td className="py-1 pr-2"><input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
-                  <td className="py-1 pr-2"><input aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
+                  <td className="py-1 pr-2"><input aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
                   <td className="py-1 pr-2">
-                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20">
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
@@ -352,8 +353,8 @@ export default function NewQuotePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-slate-500 hover:text-red-500">
-                        <X className="w-4 h-4" />
+                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
+                        <X weight="regular" className="w-4 h-4" />
                       </button>
                     )}
                   </td>
@@ -362,25 +363,25 @@ export default function NewQuotePage() {
             </tbody>
           </table>
         </div>
-        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
-          <Plus className="w-4 h-4" /> Add line item
+        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-forest-600 hover:text-forest-700">
+          <Plus weight="regular" className="w-4 h-4" /> Add line item
         </button>
-        <div className="border-t border-slate-100 pt-3 space-y-1 max-w-xs ml-auto text-sm">
-          <div className="flex justify-between"><span className="text-slate-500">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
-          <div className="flex justify-between border-t border-slate-100 pt-1"><span className="font-semibold text-slate-700">Total</span><span className="font-bold text-slate-900 text-base">{formatCurrency(total)}</span></div>
+        <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
+          <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
+          <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
+          <div className="flex justify-between border-t border-border-subtle pt-1"><span className="font-semibold text-text-secondary">Total</span><span className="font-semibold text-text-primary text-base">{formatCurrency(total)}</span></div>
         </div>
       </div>
 
       {/* Notes */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
-        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none" />
+      <div className="bg-surface-card rounded-xl border border-border-default p-6">
+        <label className="block text-xs font-medium text-text-muted mb-1">Notes</label>
+        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 resize-none" />
       </div>
 
       <div className="flex justify-end gap-3">
-        <Link href="/quotes" className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">Cancel</Link>
-        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
+        <Link href="/quotes" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
+        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save quote'}
         </button>
       </div>

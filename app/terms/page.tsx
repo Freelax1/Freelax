@@ -51,19 +51,19 @@ export default function TermsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
 
         <Section id="about" title="1. About Freelax by Britnova">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova is a financial management tool for UK freelancers and sole traders. It helps you track invoices, expenses, and tax obligations. Freelax by Britnova is <strong>not a regulated financial adviser, accountant, or tax professional</strong>. Nothing in this service constitutes financial, tax, or legal advice.
           </p>
         </Section>
 
         <Section id="eligibility" title="2. Eligibility">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             You must be at least 18 years old and resident in the United Kingdom to use Freelax by Britnova. By creating an account you confirm that the information you provide is accurate and that you have the legal capacity to enter into these terms.
           </p>
         </Section>
 
         <Section id="account" title="3. Your account">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Notify us immediately at{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>{' '}
             if you suspect unauthorised access. We reserve the right to suspend or terminate accounts that violate these terms.
@@ -71,7 +71,7 @@ export default function TermsPage() {
         </Section>
 
         <Section id="acceptable-use" title="4. Acceptable use">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             You agree not to use Freelax by Britnova to:
           </p>
           <ul style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.8 }}>
@@ -87,7 +87,7 @@ export default function TermsPage() {
         </Section>
 
         <Section id="payments" title="5. Payments and subscriptions">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova offers a free tier and paid subscription plans. Paid plans are billed monthly or annually via <strong>Stripe</strong>. You may cancel your subscription at any time; cancellation takes effect at the end of your current billing period. We do not offer refunds for partial periods except where required by UK consumer law.
           </p>
           <p style={{ margin: '12px 0 0' }}>
@@ -99,7 +99,7 @@ export default function TermsPage() {
         </Section>
 
         <Section id="privacy" title="6. Data and privacy">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We collect and process personal data in accordance with our{' '}
             <a href="/privacy" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Privacy Policy</a>{' '}
             and the UK GDPR. Your financial data is encrypted at rest and in transit. We do not sell your data to third parties or use it for advertising purposes.
@@ -107,19 +107,19 @@ export default function TermsPage() {
         </Section>
 
         <Section id="tax" title="7. Tax calculations">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Freelax by Britnova&rsquo;s tax estimates are based on publicly available HMRC rates and general assumptions about your circumstances. They are <strong>indicative only</strong> and may not reflect your actual tax liability. Always verify your figures with a qualified accountant before filing a tax return.
           </p>
         </Section>
 
         <Section id="ip" title="8. Intellectual property">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             All content, design, and software in Freelax by Britnova is owned by or licensed to us. You may not copy, modify, or redistribute any part of the service without written permission.
           </p>
         </Section>
 
         <Section id="liability" title="9. Limitation of liability">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             To the maximum extent permitted by UK law, Freelax by Britnova&rsquo;s total liability for any claim arising out of or relating to this service is limited to <strong>the amount you paid us in the 12 months preceding the claim</strong>. We are not liable for indirect, incidental, or consequential losses, including lost profits or data.
           </p>
           <p style={{ margin: '12px 0 0' }}>
@@ -134,19 +134,19 @@ export default function TermsPage() {
         </Section>
 
         <Section id="force-majeure" title="9a. Force majeure">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We are not liable for any failure or delay in providing the service caused by circumstances beyond our reasonable control, including but not limited to third-party infrastructure outages, internet disruptions, acts of God, or government action. We will take reasonable steps to minimise the impact of any such event and resume normal service as soon as reasonably practicable.
           </p>
         </Section>
 
         <Section id="changes" title="10. Changes to these terms">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             We may update these terms from time to time. We will notify you of material changes by email or by displaying a notice in the app. Continued use of the service after notification constitutes acceptance of the updated terms.
           </p>
         </Section>
 
         <Section id="governing-law" title="11. Governing law">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             These terms are governed by the laws of <strong>England and Wales</strong>. Any disputes will be subject to the exclusive jurisdiction of the courts of England and Wales. Nothing in these terms affects your statutory rights as a consumer under UK law.
           </p>
           <p style={{ margin: '12px 0 0' }}>
@@ -155,7 +155,7 @@ export default function TermsPage() {
         </Section>
 
         <Section id="contact" title="12. Contact">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             Questions about these terms? Email{' '}
             <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>

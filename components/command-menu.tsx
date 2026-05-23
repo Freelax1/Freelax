@@ -1,16 +1,17 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, ClipboardList, DollarSign, Users, FolderOpen, ArrowRight, Calculator, Settings } from 'lucide-react'
+import { FileText, ClipboardText, CurrencyDollar, Users, FolderOpen, ArrowRight, Calculator, GearSix } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 
 const COMMANDS = [
   { id: 'new-invoice',  label: 'New invoice',   sub: 'Create a new invoice',      href: '/invoices/new',  icon: FileText,      shortcut: 'N' },
-  { id: 'new-quote',    label: 'New quote',      sub: 'Create a new quote',        href: '/quotes/new',    icon: ClipboardList, shortcut: null },
-  { id: 'log-expense',  label: 'Log an expense', sub: 'Record a business expense', href: '/expenses',      icon: DollarSign,    shortcut: 'E' },
+  { id: 'new-quote',    label: 'New quote',      sub: 'Create a new quote',        href: '/quotes/new',    icon: ClipboardText, shortcut: null },
+  { id: 'log-expense',  label: 'Log an expense', sub: 'Record a business expense', href: '/expenses',      icon: CurrencyDollar,    shortcut: 'E' },
   { id: 'new-client',   label: 'New client',     sub: 'Add a client',              href: '/clients/new',   icon: Users,         shortcut: null },
   { id: 'new-project',  label: 'New project',    sub: 'Start a project',           href: '/projects/new',  icon: FolderOpen,    shortcut: null },
   { id: 'tax-page',     label: 'Go to tax page', sub: 'View your tax summary',     href: '/tax',           icon: Calculator,    shortcut: 'T' },
-  { id: 'settings',     label: 'Settings',       sub: 'Manage your account',       href: '/settings',      icon: Settings,      shortcut: null },
+  { id: 'settings',     label: 'Settings',       sub: 'Manage your account',       href: '/settings',      icon: GearSix,      shortcut: null },
 ]
 
 interface Props { open: boolean; onClose: () => void }
@@ -47,81 +48,57 @@ export default function CommandMenu({ open, onClose }: Props) {
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 500,
-        background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(2px)',
-        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-        paddingTop: '15vh',
-        animation: 'cmdFadeIn 150ms cubic-bezier(0.22,1,0.36,1)',
-      }}
+      className="fixed inset-0 z-[500] flex items-start justify-center pt-[15vh] bg-black/35 backdrop-blur-[2px] animate-cmd-fade"
     >
-      <style>{`@keyframes cmdFadeIn { from { opacity:0 } to { opacity:1 } }`}</style>
       <div
         onClick={e => e.stopPropagation()}
-        style={{
-          background: '#fff', borderRadius: 14, width: '100%', maxWidth: 520,
-          border: '1px solid rgba(0,0,0,0.08)',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.18)',
-          overflow: 'hidden',
-          animation: 'cmdSlideIn 150ms cubic-bezier(0.22,1,0.36,1)',
-        }}
+        className="bg-white rounded-[14px] w-full max-w-[520px] overflow-hidden border border-black/[0.08] shadow-modal animate-cmd-slide"
       >
-        <style>{`@keyframes cmdSlideIn { from { transform:translateY(-8px);opacity:0 } to { transform:translateY(0);opacity:1 } }`}</style>
-
         {/* Search input */}
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <ArrowRight style={{ width: 14, height: 14, color: '#CBD5E1', flexShrink: 0 }} />
+        <div className="px-4 py-[14px] flex items-center gap-[10px] border-b border-b-black/[0.06]">
+          <ArrowRight weight="regular" className="w-[14px] h-[14px] shrink-0 text-text-muted" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => { setQuery(e.target.value); setCursor(0) }}
             placeholder="What do you want to do?"
-            style={{
-              flex: 1, border: 'none', outline: 'none', fontSize: 15,
-              color: '#1E293B', background: 'transparent',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-            }}
+            className="flex-1 border-none outline-none text-base bg-transparent text-text-primary font-sans"
           />
-          <kbd style={{ fontSize: 10, color: '#CBD5E1', background: 'rgba(0,0,0,0.04)', borderRadius: 4, padding: '2px 6px' }}>Esc</kbd>
+          <kbd className="text-micro rounded px-1.5 py-px text-text-muted bg-black/[0.04]">Esc</kbd>
         </div>
 
         {/* Results */}
-        <div style={{ maxHeight: 340, overflowY: 'auto', padding: '6px 0' }}>
+        <div className="max-h-[340px] overflow-y-auto py-1.5">
           {filtered.length === 0 && (
-            <p style={{ padding: '14px 16px', fontSize: 13, color: '#475569' }}>No results for "{query}"</p>
+            <p className="px-4 py-[14px] text-sm text-text-secondary">No results for "{query}"</p>
           )}
           {filtered.map((cmd, i) => {
             const Icon = cmd.icon
             return (
               <button key={cmd.id} onClick={() => go(cmd.href)}
-                style={{
-                  width: '100%', textAlign: 'left', background: i === cursor ? '#F8FAFC' : 'transparent',
-                  border: 'none', padding: '10px 16px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  transition: 'background 150ms',
-                }}
+                className={cn('w-full text-left border-none px-4 py-[10px] cursor-pointer flex items-center gap-3 transition-colors', i === cursor ? 'bg-surface-sunken' : 'bg-transparent')}
                 onMouseEnter={() => setCursor(i)}
               >
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: i === cursor ? '#fff' : '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon style={{ width: 14, height: 14, color: '#64748B' }} strokeWidth={1.75} />
+                <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-black/[0.06]', i === cursor ? 'bg-white' : 'bg-surface-sunken')}>
+                  <Icon weight="regular" className="w-[14px] h-[14px] text-text-secondary" />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B' }}>{cmd.label}</p>
-                  <p style={{ fontSize: 11, color: '#475569' }}>{cmd.sub}</p>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-text-primary">{cmd.label}</p>
+                  <p className="text-caption text-text-secondary">{cmd.sub}</p>
                 </div>
                 {cmd.shortcut && (
-                  <kbd style={{ fontSize: 10, color: '#CBD5E1', background: 'rgba(0,0,0,0.04)', borderRadius: 4, padding: '2px 6px', flexShrink: 0 }}>{cmd.shortcut}</kbd>
+                  <kbd className="text-micro rounded px-1.5 py-px shrink-0 text-text-muted bg-black/[0.04]">{cmd.shortcut}</kbd>
                 )}
               </button>
             )
           })}
         </div>
 
-        <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', gap: 16 }}>
+        <div className="px-4 py-2 flex gap-4 border-t border-t-black/[0.06]">
           {[['↑↓', 'Navigate'], ['↵', 'Open'], ['Esc', 'Close']].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <kbd style={{ fontSize: 9, color: '#CBD5E1', background: 'rgba(0,0,0,0.04)', borderRadius: 3, padding: '1px 4px' }}>{k}</kbd>
-              <span style={{ fontSize: 10, color: '#CBD5E1' }}>{v}</span>
+            <div key={k} className="flex items-center gap-1">
+              <kbd className="text-micro rounded-sm px-1 py-px text-text-muted bg-black/[0.04]">{k}</kbd>
+              <span className="text-micro text-text-muted">{v}</span>
             </div>
           ))}
         </div>

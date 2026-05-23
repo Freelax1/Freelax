@@ -31,14 +31,14 @@ export default function BusinessTab({ profile, save, saving }: Props) {
         <input className={inputClass} value={bf.business_name} onChange={e => setBf(p => ({ ...p, business_name: e.target.value }))} />
       </Field>
       <Field label="Business type">
-        <p className={inputClass + ' bg-slate-50 text-slate-700 cursor-default'}>
+        <p className={inputClass + ' bg-surface-sunken text-text-secondary cursor-default'}>
           {businessTypeLabels[bf.business_type] ?? bf.business_type}
         </p>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-text-muted mt-1">
           To change your business type, contact support@freelax.co.uk.{' '}
           <a
             href={`mailto:support@freelax.co.uk?subject=Business%20type%20change%20request&body=Hi%2C%20I%20would%20like%20to%20change%20my%20business%20type%20from%20${encodeURIComponent(bf.business_type)}%20to%20%5Bblank%5D.%20My%20account%20email%20is%20${encodeURIComponent(profile?.email ?? '')}.`}
-            className="text-indigo-600 hover:underline"
+            className="text-forest-600 hover:underline"
           >
             Request business type change
           </a>

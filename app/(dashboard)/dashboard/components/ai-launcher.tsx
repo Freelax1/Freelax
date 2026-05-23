@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, X } from 'lucide-react'
+import { Sparkle, X, Receipt, PenNib, ChatDots, ChartBar } from '@phosphor-icons/react'
+import type { Icon } from '@phosphor-icons/react'
 
 const DISMISS_KEY = 'freelax_ai_launcher_dismissed'
 
-const FEATURES = [
+const FEATURES: { id: string; icon: Icon; title: string; desc: string; href: string; cta: string }[] = [
   {
     id:    'receipt',
-    icon:  '📄',
+    icon:  Receipt,
     title: 'Scan a receipt',
     desc:  'Photo to logged expense in seconds',
     href:  '/expenses/new',
@@ -17,7 +18,7 @@ const FEATURES = [
   },
   {
     id:    'invoice',
-    icon:  '✍️',
+    icon:  PenNib,
     title: 'Invoice assistant',
     desc:  'Describe your work — we build the line items',
     href:  '/invoices/new',
@@ -25,7 +26,7 @@ const FEATURES = [
   },
   {
     id:    'tax',
-    icon:  '💬',
+    icon:  ChatDots,
     title: 'Tax Q&A',
     desc:  'Ask anything about UK tax, IR35, or VAT',
     href:  '/tax',
@@ -33,13 +34,13 @@ const FEATURES = [
   },
   {
     id:    'summary',
-    icon:  '📊',
+    icon:  ChartBar,
     title: 'SA narrative',
     desc:  'Plain-English Self Assessment summary',
     href:  '/tax',
     cta:   'View',
   },
-] as const
+]
 
 export default function AiLauncher() {
   const [visible, setVisible] = useState(false)
@@ -62,9 +63,9 @@ export default function AiLauncher() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-forest-100 bg-gradient-to-r from-forest-50 to-surface-card">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-forest-500" />
+          <Sparkle weight="regular" className="w-4 h-4 text-forest-500" />
           <p className="text-sm font-semibold text-text-primary">AI features in Freelax</p>
-          <span className="text-xs text-forest-700 bg-forest-100 px-2 py-0.5 rounded-full font-medium">4 tools</span>
+          <span className="text-xs text-forest-700 bg-forest-100 px-2 py-0.5 rounded-lg font-medium">4 tools</span>
         </div>
         <button
           onClick={dismiss}
@@ -72,7 +73,7 @@ export default function AiLauncher() {
           title="Dismiss"
           aria-label="Dismiss AI features panel"
         >
-          <X className="w-4 h-4" />
+          <X weight="regular" className="w-4 h-4" />
         </button>
       </div>
 
@@ -84,7 +85,7 @@ export default function AiLauncher() {
             onClick={() => router.push(f.href)}
             className="bg-surface-card text-left p-4 hover:bg-forest-50 transition-colors group"
           >
-            <span className="text-xl mb-2 block">{f.icon}</span>
+            <f.icon weight="regular" className="w-5 h-5 mb-2 text-forest-600" />
             <p className="text-xs font-semibold text-text-primary mb-0.5 group-hover:text-forest-700 transition-colors">
               {f.title}
             </p>

@@ -11,7 +11,7 @@ import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fi
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { ArrowLeft, Lock, ArrowRight } from 'lucide-react'
+import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
 import type { Client, IR35Answer } from '@/types/database'
 
 export default function NewProjectPage() {
@@ -19,7 +19,7 @@ export default function NewProjectPage() {
   const searchParams = useSearchParams()
   const defaultClientId = searchParams.get('client') ?? ''
 
-  const [clients, setClients] = useState<any[]>([])
+  const [clients, setClients] = useState<Pick<Client, 'id' | 'name' | 'status'>[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showNewClient, setShowNewClient] = useState(false)
@@ -127,19 +127,19 @@ export default function NewProjectPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <div>
-        <Link href="/projects" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
-          <ArrowLeft className="w-4 h-4" /> Back to projects
+        <Link href="/projects" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
+          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to projects
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">New project</h1>
+        <h1 className="text-2xl font-serif font-semibold text-text-primary">New project</h1>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
+        <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800">Project details</h2>
+        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
+          <h2 className="font-semibold text-text-primary">Project details</h2>
 
           <Field label="Project title" required>
             <Input
@@ -164,28 +164,28 @@ export default function NewProjectPage() {
               ]}
             />
             {showNewClient && (
-              <div className="mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-2">
-                <p className="text-xs font-semibold text-slate-700">New client</p>
+              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
+                <p className="text-xs font-semibold text-text-secondary">New client</p>
                 <input
                   aria-label="New client name"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Client name *"
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <div className="flex gap-2 pt-1">
                   <button
                     type="button"
                     onClick={handleCreateClient}
                     disabled={!newClientName.trim() || creatingClient}
-                    className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:opacity-50"
+                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
                   >
                     {creatingClient ? 'Saving...' : 'Create client'}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setShowNewClient(false); setNewClientName('') }}
-                    className="px-3 py-1.5 border border-slate-200 rounded text-xs text-slate-600 hover:bg-white"
+                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
                   >
                     Cancel
                   </button>
@@ -234,11 +234,11 @@ export default function NewProjectPage() {
         </div>
 
         {/* IR35 */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-semibold text-slate-800">IR35 questionnaire</h2>
-              {canUseIR35 && <p className="text-xs text-slate-600 mt-0.5">Answer all 8 questions to get a calculated status</p>}
+              <h2 className="font-semibold text-text-primary">IR35 questionnaire</h2>
+              {canUseIR35 && <p className="text-xs text-text-secondary mt-0.5">Answer all 8 questions to get a calculated status</p>}
             </div>
             {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
           </div>
@@ -246,16 +246,16 @@ export default function NewProjectPage() {
           {canUseIR35 ? (
             <div className="space-y-3">
               {IR35_QUESTIONS.map(q => (
-                <div key={q.number} className="bg-slate-50 rounded-lg p-4">
+                <div key={q.number} className="bg-surface-sunken rounded-xl p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
                           {q.importance}
                         </span>
-                        <span className="text-xs text-slate-500">{q.label}</span>
+                        <span className="text-xs text-text-muted">{q.label}</span>
                       </div>
-                      <p className="text-sm text-slate-700">{q.text}</p>
+                      <p className="text-sm text-text-secondary">{q.text}</p>
                     </div>
                     <div className="flex gap-2 shrink-0">
                       {[true, false].map(val => (
@@ -263,10 +263,10 @@ export default function NewProjectPage() {
                           key={String(val)}
                           type="button"
                           onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                             ir35Answers[q.number] === val
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-forest-600 text-white'
+                              : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                           }`}
                         >
                           {val ? 'Yes' : 'No'}
@@ -278,20 +278,20 @@ export default function NewProjectPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-10 rounded-lg bg-slate-50 text-center">
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-                <Lock className="w-5 h-5 text-slate-600" />
+            <div className="flex flex-col items-center justify-center py-10 rounded-xl bg-surface-sunken text-center">
+              <div className="w-10 h-10 rounded-full bg-surface-sunken flex items-center justify-center mb-3">
+                <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
               </div>
-              <p className="text-sm font-medium text-slate-700 mb-1">IR35 assessment is available on the Pro plan</p>
-              <Link href="/settings?tab=billing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">
-                Upgrade to Pro <ArrowRight className="w-3.5 h-3.5" />
+              <p className="text-sm font-medium text-text-secondary mb-1">IR35 assessment is available on the Pro plan</p>
+              <Link href="/settings?tab=billing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900">
+                Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link href="/projects" className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
+          <Link href="/projects" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
             Cancel
           </Link>
           <SaveButton loading={saving} label="Add project" />

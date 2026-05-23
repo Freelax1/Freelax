@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2 } from 'lucide-react'
+import { CircleNotch } from '@phosphor-icons/react'
 
 const SANDBOX_MODE = process.env.NEXT_PUBLIC_HMRC_SANDBOX_MODE === 'true'
 
@@ -80,37 +80,37 @@ export default function HmrcTab() {
     <div className="space-y-5">
 
       {/* Header card */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
         <div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-text-muted">
             Connect your HMRC account to submit Making Tax Digital (MTD) returns directly from Freelax.
           </p>
         </div>
 
         {/* Callback message banner */}
         {message && (
-          <div className={`text-sm px-4 py-3 rounded-lg border ${
+          <div className={`text-sm px-4 py-3 rounded-xl border ${
             message.type === 'success'
-              ? 'bg-green-50 border-green-200 text-green-700'
-              : 'bg-red-50 border-red-200 text-red-700'
+              ? 'bg-success-50 border-success-200 text-success-700'
+              : 'bg-danger-50 border-danger-200 text-danger-700'
           }`}>
             {message.text}
           </div>
         )}
 
         {/* Connection status */}
-        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+        <div className="flex items-center justify-between p-4 bg-surface-sunken rounded-xl border border-border-subtle">
           <div>
-            <p className="text-sm text-slate-500 mb-0.5">Connection status</p>
+            <p className="text-sm text-text-muted mb-0.5">Connection status</p>
             {loading ? (
               <div className="flex items-center gap-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-600" />
-                <span className="text-sm text-slate-600">Checking…</span>
+                <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin text-text-secondary" />
+                <span className="text-sm text-text-secondary">Checking…</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-slate-300'}`} />
-                <span className={`text-sm font-medium ${connected ? 'text-green-700' : 'text-slate-600'}`}>
+                <span className={`w-2 h-2 rounded-full ${connected ? 'bg-success-500' : 'bg-border-strong'}`} />
+                <span className={`text-sm font-medium ${connected ? 'text-success-700' : 'text-text-secondary'}`}>
                   {connected ? 'Connected to HMRC' : 'Not connected'}
                 </span>
               </div>
@@ -121,14 +121,14 @@ export default function HmrcTab() {
             <button
               onClick={handleDisconnect}
               disabled={disconnecting}
-              className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 border border-danger-200 text-danger-600 rounded-xl text-sm font-medium hover:bg-danger-50 disabled:opacity-50 transition-colors"
             >
               {disconnecting ? 'Disconnecting…' : 'Disconnect'}
             </button>
           ) : (
             <a
               href="/api/auth/hmrc"
-              className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 transition-colors"
             >
               Connect to HMRC
             </a>
@@ -142,13 +142,13 @@ export default function HmrcTab() {
             <button
               onClick={handleTestConnection}
               disabled={testLoading}
-              className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 border border-border-default text-text-secondary rounded-xl text-sm font-medium hover:bg-surface-sunken disabled:opacity-50 transition-colors"
             >
-              {testLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {testLoading && <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" />}
               {testLoading ? 'Testing…' : 'Test connection (sandbox)'}
             </button>
             {testResult && (
-              <pre className="text-xs bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
+              <pre className="text-xs bg-forest-900 text-text-on-dark rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
                 {testResult}
               </pre>
             )}
@@ -157,9 +157,9 @@ export default function HmrcTab() {
       </div>
 
       {/* What is MTD explainer */}
-      <div className="space-y-5 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
-        <h3 className="font-semibold text-slate-900">What is Making Tax Digital?</h3>
-        <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <div className="space-y-5 pb-6 border-b border-border-subtle last:border-0 last:pb-0">
+        <h3 className="font-semibold text-text-primary">What is Making Tax Digital?</h3>
+        <div className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <p>
             Making Tax Digital (MTD) is HMRC's programme to move UK tax records and submissions entirely online. Since April 2026, sole traders and landlords earning over £50,000 are legally required to submit quarterly income and expense updates to HMRC using approved software.
           </p>
@@ -169,34 +169,34 @@ export default function HmrcTab() {
         </div>
 
         {/* MTD timeline */}
-        <div className="border border-slate-100 rounded-lg overflow-hidden">
-          <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">MTD rollout</p>
+        <div className="border border-border-subtle rounded-xl overflow-hidden">
+          <div className="bg-surface-sunken px-4 py-2.5 border-b border-border-subtle">
+            <p className="text-xs font-semibold text-text-muted">MTD rollout</p>
           </div>
           {[
             { date: 'April 2026', desc: 'Sole traders / landlords with income over £50,000', status: 'live' },
             { date: 'April 2027', desc: 'Sole traders / landlords with income over £30,000', status: 'upcoming' },
             { date: 'TBC',        desc: 'Income over £20,000 (threshold under review)',        status: 'tbc' },
           ].map((row, i) => (
-            <div key={i} className="flex items-start gap-4 px-4 py-3 border-b border-slate-100 last:border-0">
+            <div key={i} className="flex items-start gap-4 px-4 py-3 border-b border-border-subtle last:border-0">
               <div className="shrink-0 pt-0.5">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
-                  row.status === 'live'     ? 'bg-green-100 text-green-700' :
-                  row.status === 'upcoming' ? 'bg-amber-100 text-amber-800' :
-                                              'bg-slate-100 text-slate-700'
+                  row.status === 'live'     ? 'bg-success-100 text-success-700' :
+                  row.status === 'upcoming' ? 'bg-warning-100 text-warning-800' :
+                                              'bg-surface-sunken text-text-secondary'
                 }`}>
                   {row.date}
                 </span>
               </div>
-              <p className="text-sm text-slate-600">{row.desc}</p>
+              <p className="text-sm text-text-secondary">{row.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* What you'll be able to do */}
-      <div className="bg-slate-50 rounded-xl border border-slate-100 p-5">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Once connected, Freelax will</p>
+      <div className="bg-surface-sunken rounded-xl border border-border-subtle p-5">
+        <p className="text-xs font-semibold text-text-muted mb-3">Once connected, Freelax will</p>
         <ul className="space-y-2">
           {[
             'Submit your quarterly income and expense updates to HMRC automatically',
@@ -204,8 +204,8 @@ export default function HmrcTab() {
             'Track submission status — draft, submitted, accepted, or amendment required',
             'Send you deadline reminders 7 days and 1 day before each quarter closes',
           ].map((item, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-              <span className="text-slate-600 mt-0.5 shrink-0">•</span>
+            <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
+              <span className="text-text-secondary mt-0.5 shrink-0">•</span>
               {item}
             </li>
           ))}

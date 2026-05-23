@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { HelpCircle } from 'lucide-react'
+import { Question } from '@phosphor-icons/react'
 
 interface Props {
   children: React.ReactNode
@@ -29,49 +29,21 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
   }, [open])
 
   return (
-    <span ref={ref} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+    <span ref={ref} className="relative inline-flex items-center">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-label="More information"
-        style={{
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          marginLeft: 4,
-          cursor: 'pointer',
-          color: '#475569',
-          display: 'inline-flex',
-          alignItems: 'center',
-          transition: 'color 150ms',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#1D6B35')}
-        onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}
+        className="bg-transparent border-none p-0 ml-1 cursor-pointer inline-flex items-center transition-colors text-slate-500 hover:text-brand-primary"
       >
-        <HelpCircle size={13} strokeWidth={2} />
+        <Question weight="regular" size={13} />
       </button>
 
       {open && (
         <span
           role="tooltip"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 6px)',
-            left: 0,
-            zIndex: 50,
-            width,
-            maxWidth: 'calc(100vw - 32px)',
-            background: '#0F172A',
-            color: '#FFFFFF',
-            fontSize: 12,
-            lineHeight: 1.6,
-            padding: '10px 12px',
-            borderRadius: 8,
-            boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-            fontWeight: 400,
-            textTransform: 'none',
-            letterSpacing: 0,
-          }}
+          className="absolute top-[calc(100%+6px)] left-0 z-50 text-white text-xs leading-relaxed px-3 py-[10px] rounded-lg font-normal bg-forest-950 shadow-tooltip"
+          style={{ width, maxWidth: 'calc(100vw - 32px)' }}
           onClick={e => e.stopPropagation()}
         >
           {children}

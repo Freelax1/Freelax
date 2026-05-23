@@ -2,9 +2,9 @@
 
 import React from 'react'
 
-export const inputClass = 'w-full px-3 py-2.5 border border-border-default rounded-lg text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/10 focus:border-border-focus bg-surface-card text-text-primary transition-colors'
-export const labelClass = 'block text-[12px] font-semibold text-text-primary mb-1.5'
-export const btnClass   = 'inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg text-[13px] font-medium hover:bg-forest-700 disabled:opacity-50 transition-colors w-auto'
+export const inputClass = 'w-full px-3 py-2.5 border border-border-default rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/10 focus:border-border-focus bg-surface-card text-text-primary transition-colors'
+export const labelClass = 'block text-xs font-semibold text-text-primary mb-1.5'
+export const btnClass   = 'inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-medium hover:bg-forest-700 disabled:opacity-50 transition-colors w-auto'
 
 export const TABS = [
   'Profile',

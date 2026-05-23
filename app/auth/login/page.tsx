@@ -5,28 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
-const INPUT_STYLE: React.CSSProperties = {
-  width: '100%',
-  padding: '11px 14px',
-  fontSize: 16,
-  lineHeight: 1.4,
-  color: '#FFFFFF',
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 8,
-  outline: 'none',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box',
-  transition: 'border-color 150ms, box-shadow 150ms',
-}
-
-const LABEL_STYLE: React.CSSProperties = {
-  display: 'block',
-  fontSize: 12,
-  fontWeight: 500,
-  color: 'rgba(255,255,255,0.6)',
-  marginBottom: 6,
-}
+const INPUT_CLS = 'w-full px-[14px] py-[11px] text-base leading-[1.4] text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
+const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
 
 function Spinner() {
   return (
@@ -34,7 +14,7 @@ function Spinner() {
       width="16" height="16"
       viewBox="0 0 16 16"
       fill="none"
-      style={{ animation: 'fd-spin 0.7s linear infinite', flexShrink: 0 }}
+      className="animate-fd-spin shrink-0"
     >
       <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
       <path d="M8 2a6 6 0 0 1 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
@@ -43,7 +23,7 @@ function Spinner() {
 }
 
 function LoginFallback() {
-  return <div style={{ height: 200 }} />
+  return <div className="h-[200px]" />
 }
 
 function LoginForm() {
@@ -82,26 +62,26 @@ function LoginForm() {
 
   return (
     <>
-      <div className="auth-wordmark-mobile" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
-        <span style={{ color: '#FFFFFF' }}>Free</span>
-        <span style={{ color: 'rgba(255,255,255,0.7)' }}>lax</span>
-        <span style={{ color: '#1D6B35' }}>.</span>
+      <div className="auth-wordmark-mobile text-xl font-semibold mb-8 tracking-tighter">
+        <span className="text-white">Free</span>
+        <span className="text-white/70">lax</span>
+        <span className="text-brand-primary">.</span>
       </div>
 
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', marginBottom: 24 }}>
+      <h2 className="text-xl font-semibold text-white tracking-tight mb-6">
         Welcome back.
       </h2>
 
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <div>
-          <label style={LABEL_STYLE}>Email</label>
+          <label className={LABEL_CLS}>Email</label>
           <input
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            style={INPUT_STYLE}
+            className={INPUT_CLS}
             placeholder="you@example.com"
             onFocus={focusInput}
             onBlur={blurInput}
@@ -109,11 +89,11 @@ function LoginForm() {
         </div>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <label style={{ ...LABEL_STYLE, marginBottom: 0 }}>Password</label>
+          <div className="flex justify-between items-center mb-1.5">
+            <label className="block text-xs font-medium text-white/60">Password</label>
             <Link
               href="/auth/forgot-password"
-              style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontWeight: 500 }}
+              className="text-xs text-white/60 font-medium no-underline"
             >
               Forgot password?
             </Link>
@@ -124,48 +104,32 @@ function LoginForm() {
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            style={INPUT_STYLE}
+            className={INPUT_CLS}
             onFocus={focusInput}
             onBlur={blurInput}
           />
         </div>
 
         {error && (
-          <p style={{ fontSize: 13, color: '#F87171', marginTop: -4 }}>{error}</p>
+          <p className="text-sm -mt-1 text-[color:var(--danger-400)]">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%',
-            marginTop: 4,
-            padding: '12px 16px',
-            background: loading ? '#4A7A5C' : '#1D6B35',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: loading ? 'default' : 'pointer',
-            transition: 'background 150ms',
-            fontFamily: 'inherit',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#17582B' }}
-          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#1D6B35' }}
+          className="w-full mt-1 px-4 py-3 text-base font-semibold text-white border-none rounded-lg font-[inherit] flex items-center justify-center gap-2 transition-colors duration-[150ms] disabled:cursor-default"
+          style={{ background: loading ? 'var(--forest-600)' : 'var(--brand-primary)' }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--forest-700)' }}
+          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = 'var(--brand-primary)' }}
         >
           {loading && <Spinner />}
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
 
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginTop: 22, marginBottom: 0 }}>
+      <p className="text-sm text-center mt-[22px] mb-0 text-white/50">
         No account?{' '}
-        <Link href="/auth/signup" style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/auth/signup" className="text-white font-semibold no-underline">
           Sign up free
         </Link>
       </p>

@@ -25,8 +25,8 @@ export default function TaxTab({ profile, save, saving }: Props) {
     <div className="space-y-4">
       <div className="space-y-5">
         <div>
-          <h2 className="font-semibold text-slate-900">Tax profile</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <h2 className="font-semibold text-text-primary">Tax profile</h2>
+          <p className="text-sm text-text-muted mt-1">
             These details make your tax estimates accurate. None of this is sent to HMRC — it's used only to calculate your take-home and tax pot.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function TaxTab({ profile, save, saving }: Props) {
 
         {profile?.business_type === 'limited_company' && (
           <>
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-700">
+            <div className="bg-forest-50 border border-blue-100 rounded-xl p-3 text-xs text-forest-700">
               As a limited company director, enter the salary and dividends you actually draw. This gives you an accurate personal tax calculation separate from your company's corporation tax.
             </div>
             <Field
@@ -157,8 +157,8 @@ export default function TaxTab({ profile, save, saving }: Props) {
         </button>
       </div>
 
-      <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 text-xs text-slate-500 leading-relaxed">
-        <p className="font-medium text-slate-600 mb-1">Why does this matter?</p>
+      <div className="bg-surface-sunken rounded-xl border border-border-subtle p-4 text-xs text-text-muted leading-relaxed">
+        <p className="font-medium text-text-secondary mb-1">Why does this matter?</p>
         <p>Without these details, Freelax can only estimate basic Income Tax and NI. With them, it calculates your actual take-home after student loan, pension, and for Ltd company directors — the difference between salary and dividend tax. The more accurate your profile, the better your cash flow planning.</p>
       </div>
     </div>
