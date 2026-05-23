@@ -26,17 +26,17 @@ export default function QuoteViewerError({
         <h2 className="text-base font-semibold text-text-primary mb-1.5">
           Unable to load quote
         </h2>
-        <p className="text-[13px] text-text-secondary leading-relaxed mb-5">
+        <p className="text-sm text-text-secondary leading-relaxed mb-5">
           This quote could not be loaded. The link may be invalid or expired.
         </p>
         <button
           onClick={reset}
-          className="px-5 py-2 bg-brand-primary text-white border-none rounded-lg text-[13px] font-medium cursor-pointer"
+          className="px-5 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
         >
           Try again
         </button>
         {error.digest && (
-          <p className="text-[11px] text-text-muted mt-4 font-mono">
+          <p className="text-xs text-text-muted mt-4 font-sans">
             Ref: {error.digest}
           </p>
         )}
