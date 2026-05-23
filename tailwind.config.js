@@ -244,6 +244,16 @@ module.exports = {
         'slow':    '400ms',
       },
 
+      zIndex: {
+        'sticky':   '40',   // sticky headers, desktop sidebar
+        'overlay':  '50',   // mobile backdrop / slide-over overlay
+        'dropdown': '100',  // dropdowns, profile menus
+        'modal':    '200',  // settings modal
+        'command':  '500',  // command palette
+        'progress': '999',  // page-load progress bar (above all overlays)
+        'toast':    '9999', // toasts, cookie notice
+      },
+
       keyframes: {
         "accordion-down": {
           from: { height: 0 },

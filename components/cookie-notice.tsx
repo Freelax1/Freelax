@@ -19,7 +19,7 @@ export default function CookieNotice() {
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-forest-950 rounded-xl px-4 py-3 flex items-center gap-4 max-w-[520px] w-[calc(100vw-48px)] border border-white/[0.08] shadow-overlay-dark">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-toast bg-forest-950 rounded-xl px-4 py-3 flex items-center gap-4 max-w-[520px] w-[calc(100vw-48px)] border border-white/[0.08] shadow-overlay-dark">
       <p className="text-sm leading-relaxed flex-1 text-white/70">
         We use strictly necessary cookies to keep you signed in. No tracking or advertising.{' '}
         <Link href="/privacy#cookies" className="text-white underline">

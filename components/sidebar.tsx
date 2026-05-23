@@ -335,7 +335,7 @@ export default function Sidebar() {
               <div className="rounded-lg shadow-overlay" style={{
                 position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0,
                 background: 'var(--surface-card)', border: '1px solid var(--border-default)',
-                overflow: 'hidden', zIndex: 100,
+                overflow: 'hidden', zIndex: 100, // z-dropdown
               }}>
                 {/* Email header */}
                 <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -463,7 +463,7 @@ export default function Sidebar() {
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           border: '1px solid rgba(0,0,0,0.07)',
           boxShadow: '0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-          zIndex: 40,
+          zIndex: 40, // z-sticky
           overflow: 'hidden',
         }}
       >
@@ -474,7 +474,7 @@ export default function Sidebar() {
       <header
         className="flex items-center lg:hidden"
         style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 52, zIndex: 40,
+          position: 'fixed', top: 0, left: 0, right: 0, height: 52, zIndex: 40, // z-sticky
           background: 'rgba(255,255,255,0.82)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
@@ -507,7 +507,7 @@ export default function Sidebar() {
 
       {/* ── Mobile drawer ────────────────────────────────────────────── */}
       {mobileOpen && (
-        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
+        <div className="lg:hidden z-overlay" style={{ position: 'fixed', inset: 0 }}>
           <div
             className="absolute inset-0 bg-black/[0.35]"
             onClick={() => setMobileOpen(false)}

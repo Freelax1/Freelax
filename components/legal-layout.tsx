@@ -33,7 +33,7 @@ export default async function LegalLayout({
 
       {/* Top header */}
       <header style={{
-        position: 'sticky', top: 0, zIndex: 40,
+        position: 'sticky', top: 0, zIndex: 40, // z-sticky
         background: 'rgba(255,255,255,0.88)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',

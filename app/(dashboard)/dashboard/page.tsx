@@ -91,7 +91,7 @@ function LoadingBar({ active }: { active: boolean }) {
 
   if (!visible) return null
   return (
-    <div className="fixed top-0 left-0 right-0 z-[999] h-[2px] bg-black/[0.04]">
+    <div className="fixed top-0 left-0 right-0 z-progress h-[2px] bg-black/[0.04]">
       <div style={{
         height: '100%', background: 'var(--brand-primary)',
         width: `${width}%`,
@@ -105,7 +105,7 @@ function LoadingBar({ active }: { active: boolean }) {
 function ShortcutHint() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fd-shortcut-hint fixed bottom-5 right-5 z-[100]">
+    <div className="fd-shortcut-hint fixed bottom-5 right-5 z-dropdown">
       <button onClick={() => setOpen(o => !o)}
         className="w-7 h-7 rounded-full border-none cursor-pointer flex items-center justify-center bg-black/[0.06]"
         title="Keyboard shortcuts"

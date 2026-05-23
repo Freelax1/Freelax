@@ -48,7 +48,7 @@ export default function CommandMenu({ open, onClose }: Props) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[500] flex items-start justify-center pt-[15vh] bg-black/35 backdrop-blur-[2px] animate-cmd-fade"
+      className="fixed inset-0 z-command flex items-start justify-center pt-[15vh] bg-black/35 backdrop-blur-[2px] animate-cmd-fade"
     >
       <div
         onClick={e => e.stopPropagation()}

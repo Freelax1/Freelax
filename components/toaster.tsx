@@ -22,7 +22,7 @@ export default function Toaster() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed top-[72px] right-5 z-[9999] flex flex-col gap-2 max-w-[360px] w-[calc(100vw-40px)] pointer-events-none">
+    <div className="fixed top-[72px] right-5 z-toast flex flex-col gap-2 max-w-[360px] w-[calc(100vw-40px)] pointer-events-none">
       {toasts.map(t => (
         <div
           key={t.id}
