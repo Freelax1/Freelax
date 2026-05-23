@@ -31,7 +31,7 @@ function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
             background: active ? s.activeBg : '#F8FAFC',
             opacity: active ? 1 : 0.45,
           }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
+            <span style={{ fontSize: 'var(--text-caption)', fontWeight: 600, letterSpacing: '0', color: active ? s.activeColor : '#94A3B8' }}>
               {s.key.toUpperCase()}
             </span>
           </div>

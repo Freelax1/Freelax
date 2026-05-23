@@ -547,7 +547,7 @@ export default function TaxPage() {
                               ))}
                             </ul>
                           ) : (
-                            <p className="leading-[1.65]">{content}</p>
+                            <p className="leading-relaxed">{content}</p>
                           )}
                         </div>
                       )

@@ -390,14 +390,14 @@ export default function QuoteDetailPage() {
             <div>
               {sender?.logo_url
                 ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 8, display: 'block' }} />
-                : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
+                : <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{sender.email}</p>}
-              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+              {sender?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
             </div>
             <div className="text-right">
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>Quote</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{quote.quote_number}</p>
+              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>Quote</p>
+              <p style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>{quote.quote_number}</p>
             </div>
           </div>
         </div>
@@ -406,25 +406,25 @@ export default function QuoteDetailPage() {
         <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
           <div className="q-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>Prepared for</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
-              {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
-              {client?.email && <p style={{ fontSize: 12, color: '#475569' }}>{client.email}</p>}
+              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Prepared for</p>
+              <p style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
+              {client?.contact_name && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 2 }}>{client.contact_name}</p>}
+              {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.email}</p>}
             </div>
             <div className="q-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Issue date</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Issue date</p>
+                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(quote.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Valid until</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: expired ? '#dc2626' : '#0f172a' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
+                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Valid until</p>
+                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: expired ? '#dc2626' : '#0f172a' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
               <div style={{ marginTop: 4 }}>
-                {quote.status === 'accepted' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px' }}>Accepted</span>}
-                {quote.status === 'declined' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px' }}>Declined</span>}
-                {expired && quote.status === 'sent' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Expired</span>}
-                {quote.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Draft</span>}
+                {quote.status === 'accepted' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Accepted</span>}
+                {quote.status === 'declined' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Declined</span>}
+                {expired && quote.status === 'sent' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Expired</span>}
+                {quote.status === 'draft' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -435,21 +435,21 @@ export default function QuoteDetailPage() {
           <table className="w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
               <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="q-hide" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((item: QuoteLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
-                  <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.vat_rate}%</td>
-                  <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
+                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="q-hide" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -458,22 +458,22 @@ export default function QuoteDetailPage() {
           {/* Footer: validity + totals */}
           <div className="q-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
             <div>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>Validity</p>
-              <p style={{ fontSize: 11.5, color: '#64748b', lineHeight: 1.6 }}>
+              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Validity</p>
+              <p style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                 {quote.expiry_date
                   ? <>Valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.</>
                   : 'No expiry date set.'}
               </p>
-              {quote.notes && <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 8 }}>{quote.notes}</p>}
+              {quote.notes && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 8 }}>{quote.notes}</p>}
             </div>
             <div className="q-totals" style={{ width: 220, flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
-                <span>Subtotal</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(quote.subtotal)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9' }}>
+                <span>Subtotal</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
-                <span>VAT</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(quote.vat_amount)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9' }}>
+                <span>VAT</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(quote.vat_amount)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 15, fontWeight: 800, color: '#0f172a', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
                 <span>Total</span><span>{formatCurrency(quote.total)}</span>
               </div>
             </div>
@@ -481,8 +481,8 @@ export default function QuoteDetailPage() {
 
           {/* Doc footer */}
           <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: '#475569' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 10, color: '#475569' }}>Powered by Freelax</span>
+            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{quote.quote_number} · {sender?.business_name || sender?.full_name || ''}</span>
+            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>

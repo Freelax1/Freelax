@@ -190,7 +190,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
               />
               <Tooltip
                 cursor={{ fill: 'rgba(0,0,0,0.03)' }}
-                contentStyle={{ fontSize: 11, border: '1px solid var(--border-subtle)', borderRadius: 8, background: 'var(--surface-card)', boxShadow: 'none' }}
+                contentStyle={{ fontSize: 'var(--text-caption)', border: '1px solid var(--border-subtle)', borderRadius: 8, background: 'var(--surface-card)', boxShadow: 'none' }}
                 formatter={(v: number, _: any, props: any) =>
                   props.payload?.isFuture ? ['—', 'Not yet'] : [`£${v.toLocaleString('en-GB')}`, 'Income']
                 }

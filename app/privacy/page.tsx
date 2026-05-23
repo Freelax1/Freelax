@@ -28,12 +28,12 @@ function Section({ id, title, children }: { id: string; title: string; children:
   return (
     <section id={id} style={{ scrollMarginTop: 80 }}>
       <h2 style={{
-        fontSize: 19, fontWeight: 700, color: '#0F172A',
+        fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',
         letterSpacing: '-0.015em', margin: '0 0 12px',
       }}>
         {title}
       </h2>
-      <div style={{ fontSize: 15, color: '#334155', lineHeight: 1.75 }}>
+      <div style={{ fontSize: 'var(--text-base)', color: 'var(--text-body)', lineHeight: 1.65 }}>
         {children}
       </div>
     </section>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         <Section id="who-we-are" title="1. Who we are">
           <p className="m-0">
             Freelax by Britnova is a financial management tool for UK freelancers, operated from the United Kingdom. For the purposes of UK GDPR, we are the data controller. Our registered address is 89 Brassett Point, London, E15 3LB. We are registered with the Information Commissioner&rsquo;s Office (ICO) — registration number ZC142915. You can reach us at{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
         </Section>
 
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
         <Section id="storage-security" title="5. Storage and security">
           <p className="m-0">
             Your data is stored on servers located in the United Kingdom via Supabase. All data is encrypted at rest and in transit using industry-standard encryption. We implement access controls, audit logging, and regular security reviews. For more detail see our{' '}
-            <Link href="/security" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Security page</Link>.
+            <Link href="/security" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>Security page</Link>.
           </p>
         </Section>
 
@@ -140,8 +140,8 @@ export default function PrivacyPage() {
           </ul>
           <p style={{ margin: '12px 0 0' }}>
             You can download a complete copy of your data at any time from <strong>Settings → Export your data</strong>. To exercise any other rights, email{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days. Where we rely on your consent to process data, you may withdraw it at any time by contacting{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a> — withdrawal does not affect the lawfulness of processing carried out before withdrawal.
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will respond within 30 days. Where we rely on your consent to process data, you may withdraw it at any time by contacting{' '}
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a> — withdrawal does not affect the lawfulness of processing carried out before withdrawal.
           </p>
         </Section>
 
@@ -166,7 +166,7 @@ export default function PrivacyPage() {
         <Section id="complaints" title="12. Complaints">
           <p className="m-0">
             If you are unhappy with how we handle your data, you have the right to lodge a complaint with the Information Commissioner&rsquo;s Office (ICO) at{' '}
-            <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>ico.org.uk</a>.
+            <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>ico.org.uk</a>.
           </p>
         </Section>
 

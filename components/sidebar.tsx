@@ -221,7 +221,7 @@ export default function Sidebar() {
         {/* Logo + search */}
         <div style={{ padding: '20px 14px 14px', flexShrink: 0 }}>
           <div style={{ marginBottom: 14 }}>
-            <span style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+            <span style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
               Freelax
             </span>
           </div>
@@ -252,7 +252,7 @@ export default function Sidebar() {
               <p style={{
                 fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-muted)',
                 padding: idx === 0 ? '4px 8px 4px' : '14px 8px 4px',
-                letterSpacing: '0.01em',
+                letterSpacing: '0',
               }}>
                 {group.label}
               </p>
@@ -294,7 +294,7 @@ export default function Sidebar() {
                 textDecoration: 'none',
               }}>
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>Getting started</span>
-                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 700, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
+                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
                   {completedSteps}/5
                 </span>
               </Link>
@@ -321,7 +321,7 @@ export default function Sidebar() {
             <Bell weight="regular" style={{ width: 17, height: 17, color: pathname.startsWith('/notifications') ? 'var(--brand-primary)' : 'var(--text-muted)', flexShrink: 0 }} />
             <span style={{ flex: 1 }}>Notifications</span>
             {unreadCount > 0 && (
-              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 700, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
+              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -426,7 +426,7 @@ export default function Sidebar() {
                 width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                 background: 'var(--brand-primary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 'var(--text-caption)', fontWeight: 700, color: '#fff',
+                fontSize: 'var(--text-caption)', fontWeight: 600, color: '#fff',
               }}>
                 {initial}
               </div>
@@ -485,7 +485,7 @@ export default function Sidebar() {
         <button onClick={() => setMobileOpen(true)} aria-label="Open menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
           <List weight="regular" style={{ width: 20, height: 20 }} />
         </button>
-        <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>
+        <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
           Freelax
         </span>
         <button onClick={() => setCmdOpen(true)} aria-label="Search" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
@@ -516,7 +516,7 @@ export default function Sidebar() {
             display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 0', flexShrink: 0 }}>
-              <span style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontFamily: 'var(--font-serif)' }}>Freelax</span>
+              <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>Freelax</span>
               <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-secondary)', display: 'flex' }}>
                 <X weight="regular" style={{ width: 18, height: 18 }} />
               </button>

@@ -113,7 +113,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               {children}
             </div>
 
-            <p className="text-center text-xs mt-7 mb-1 leading-[1.7] text-white/35">
+            <p className="text-center text-xs mt-7 mb-1 leading-relaxed text-white/35">
               Built in the UK · Your data is encrypted and never sold.
             </p>
             <p className="text-center text-xs m-0 text-white/35">

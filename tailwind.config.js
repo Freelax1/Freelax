@@ -175,6 +175,14 @@ module.exports = {
         'btn-dark':     '0 2px 8px rgba(0,0,0,0.18)',
       },
 
+      lineHeight: {
+        // ── 4 leading values only ──────────────────────────────────────
+        'display': '1.15',
+        'heading': '1.3',
+        'body':    '1.5',
+        'relaxed': '1.65',
+      },
+
       letterSpacing: {
         // ── 3 tracking values only ─────────────────────────────────────
         'normal':   '0',

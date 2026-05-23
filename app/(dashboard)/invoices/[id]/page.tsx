@@ -159,14 +159,14 @@ function ChaseModal({
                       transition: 'all 0.15s',
                     }}
                   >
-                    <p style={{ fontSize: 9, fontWeight: 700, color: isActive ? meta.badgeColor : '#AAA', marginBottom: 2 }}>
+                    <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : '#AAA', marginBottom: 2 }}>
                       {meta.badge}{locked ? <Lock weight="regular" className="inline w-2.5 h-2.5 ml-0.5 align-middle" /> : ''}
                     </p>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: isActive ? meta.badgeColor : '#666' }}>
+                    <p style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: isActive ? meta.badgeColor : '#666' }}>
                       {meta.label}
                     </p>
                     {locked && (
-                      <p style={{ fontSize: 9, color: '#475569', marginTop: 2 }}>{lockReason}</p>
+                      <p style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)', marginTop: 2 }}>{lockReason}</p>
                     )}
                   </button>
                 )
@@ -540,15 +540,15 @@ export default function InvoiceDetailPage() {
             <div>
               {sender?.logo_url
                 ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 10, display: 'block' }} />
-                : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
+                : <p style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{sender.email}</p>}
-              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#475569' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
-              {sender?.vat_number && <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
+              {sender?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+              {sender?.vat_number && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
             </div>
             <div className="text-right">
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>Invoice</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
+              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>Invoice</p>
+              <p style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
             </div>
           </div>
         </div>
@@ -557,32 +557,32 @@ export default function InvoiceDetailPage() {
         <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
           <div className="inv-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>Bill to</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
-              {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
-              {client?.email && <p style={{ fontSize: 12, color: '#64748b' }}>{client.email}</p>}
-              {client?.address_line1 && <p style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{client.address_line1}</p>}
-              {client?.city && <p style={{ fontSize: 12, color: '#475569' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
+              <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Bill to</p>
+              <p style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
+              {client?.contact_name && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 2 }}>{client.contact_name}</p>}
+              {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{client.email}</p>}
+              {client?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 4 }}>{client.address_line1}</p>}
+              {client?.city && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
             </div>
             <div className="inv-bill-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Issue date</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Issue date</p>
+                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Due date</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: invoice.status === 'overdue' ? '#dc2626' : '#0f172a' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Due date</p>
+                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: invoice.status === 'overdue' ? '#dc2626' : '#0f172a' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               {invoice.paid_date && (
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 3 }}>Paid on</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#15803d' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 3 }}>Paid on</p>
+                  <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-600)' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
               )}
               <div style={{ marginTop: 4 }}>
-                {invoice.status === 'paid' && <span style={{ fontSize: 10, fontWeight: 700, color: '#15803d', border: '1.5px solid #15803d', padding: '3px 10px' }}>Paid</span>}
-                {invoice.status === 'overdue' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px' }}>Overdue</span>}
-                {invoice.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', border: '1.5px solid #e2e8f0', padding: '3px 10px' }}>Draft</span>}
+                {invoice.status === 'paid' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Paid</span>}
+                {invoice.status === 'overdue' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Overdue</span>}
+                {invoice.status === 'draft' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -593,21 +593,21 @@ export default function InvoiceDetailPage() {
           <table className="inv-table w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
               <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 9, fontWeight: 700, color: '#475569', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((item: InvoiceLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
-                  <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#475569', textAlign: 'right' }}>{item.vat_rate}%</td>
-                  <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
+                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td style={{ padding: '12px 0', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -619,7 +619,7 @@ export default function InvoiceDetailPage() {
             {/* Payment details */}
             {hasBankDetails ? (
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', marginBottom: 10 }}>Payment details</p>
+                <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10 }}>Payment details</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {[
                     { label: 'Account name',   value: sender.bank_account_name || sender.business_name || sender.full_name },
@@ -628,29 +628,29 @@ export default function InvoiceDetailPage() {
                     { label: 'Reference',      value: sender.bank_reference_note || invoice.invoice_number },
                   ].map(r => (
                     <div key={r.label} style={{ display: 'flex', gap: 16 }}>
-                      <span style={{ fontSize: 11.5, color: '#64748b', width: 110, flexShrink: 0 }}>{r.label}</span>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: '#334155' }}>{r.value}</span>
+                      <span style={{ fontSize: 11.5, color: 'var(--text-muted)', width: 110, flexShrink: 0 }}>{r.label}</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--text-body)' }}>{r.value}</span>
                     </div>
                   ))}
                 </div>
-                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#475569', marginTop: 12 }}>{invoice.payment_terms}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', marginTop: 12 }}>{invoice.payment_terms}</p>}
               </div>
             ) : (
               <div>
-                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#475569' }}>{invoice.payment_terms}</p>}
-                {invoice.notes && <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 4 }}>{invoice.notes}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)' }}>{invoice.payment_terms}</p>}
+                {invoice.notes && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 4 }}>{invoice.notes}</p>}
               </div>
             )}
 
             {/* Totals */}
             <div className="inv-totals" style={{ width: 220, flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
-                <span>Subtotal</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9' }}>
+                <span>Subtotal</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
-                <span>VAT</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9' }}>
+                <span>VAT</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 15, fontWeight: 800, color: '#0f172a', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
                 <span>Total due</span><span>{formatCurrency(invoice.total)}</span>
               </div>
             </div>
@@ -658,13 +658,13 @@ export default function InvoiceDetailPage() {
 
           {/* Notes if bank details shown */}
           {hasBankDetails && invoice.notes && (
-            <p style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginTop: 20 }}>{invoice.notes}</p>
+            <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 20 }}>{invoice.notes}</p>
           )}
 
           {/* Doc footer */}
           <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: '#475569' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 10, color: '#475569' }}>Powered by Freelax</span>
+            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
+            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>

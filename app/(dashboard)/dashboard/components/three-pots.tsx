@@ -85,14 +85,14 @@ function SafeToSpendInfo({ safeToSpend, monthlyAvg }: { safeToSpend: number | nu
               <div className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-[5px]', row.dotClass)} />
               <div className="flex-1">
                 <p className="text-xs font-medium text-text-on-dark">{row.label}</p>
-                <p className="text-caption text-forest-300 mt-px leading-[1.4]">{row.note}</p>
+                <p className="text-caption text-forest-300 mt-px leading-body">{row.note}</p>
               </div>
             </div>
           ))}
 
           <div className="mt-3 pt-3 flex items-center gap-1.5 border-t border-t-white/10">
             <div className="w-1.5 h-1.5 rounded-full bg-forest-400 shrink-0" />
-            <p className="text-caption text-forest-400 leading-[1.4]">
+            <p className="text-caption text-forest-400 leading-body">
               = What's genuinely yours to spend this month
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function ThreePots({
           </>
         ) : safeToSpendMissingInput ? (
           <Link href="/settings?tab=Personal%20tax%20inputs" className="no-underline">
-            <p className={`${HERO_CN} !text-xl !leading-[1.3]`}>Set up needed</p>
+            <p className={`${HERO_CN} !text-xl !leading-heading`}>Set up needed</p>
             <p className={`${SUB_CN} !mt-2`}>
               Tell us your monthly personal outgoings (rent, food, bills) and we'll show you what's truly safe to spend.{' '}
               <span className="text-brand-primary font-medium">Set it up →</span>

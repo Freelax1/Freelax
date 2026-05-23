@@ -50,13 +50,13 @@ export default function FinancialOverviewChart({ userId, taxYearStart, taxYearEn
   return (
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={data} barSize={8} barGap={2}>
-        <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+        <XAxis dataKey="month" tick={{ fontSize: 'var(--text-caption)' }} axisLine={false} tickLine={false} />
         <YAxis hide />
         <Tooltip
           formatter={(v: number) => `£${v.toLocaleString('en-GB')}`}
-          contentStyle={{ fontSize: 12, border: '1px solid #e2e8f0', borderRadius: 8 }}
+          contentStyle={{ fontSize: 'var(--text-xs)', border: '1px solid #e2e8f0', borderRadius: 8 }}
         />
-        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 'var(--text-xs)' }} />
         <Bar dataKey="income" fill="#22c55e" radius={[2,2,0,0]} name="Income" />
         <Bar dataKey="expenses" fill="#ef4444" radius={[2,2,0,0]} name="Expenses" />
       </BarChart>

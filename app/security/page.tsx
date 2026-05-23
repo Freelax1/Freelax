@@ -33,17 +33,17 @@ function TrustBadge({ Icon, title, sub }: { Icon: React.ElementType; title: stri
     }}>
       <div style={{
         width: 32, height: 32, flexShrink: 0,
-        background: '#EAFAF0', color: '#1D6B35',
+        background: '#EAFAF0', color: 'var(--brand-primary)',
         borderRadius: 8,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <Icon weight="regular" style={{ width: 16, height: 16 }} />
       </div>
       <div>
-        <p style={{ fontSize: 13.5, fontWeight: 600, color: '#0F172A', margin: 0, letterSpacing: '-0.005em' }}>
+        <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', margin: 0, letterSpacing: '0' }}>
           {title}
         </p>
-        <p style={{ fontSize: 12.5, color: '#64748B', margin: '2px 0 0', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: '2px 0 0', lineHeight: 1.5 }}>
           {sub}
         </p>
       </div>
@@ -59,21 +59,21 @@ function Section({ id, Icon, title, children }: {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
         <div style={{
           width: 28, height: 28, flexShrink: 0,
-          background: '#F1F5F9', color: '#0F172A',
+          background: '#F1F5F9', color: 'var(--text-primary)',
           borderRadius: 7,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Icon weight="regular" style={{ width: 15, height: 15 }} />
         </div>
         <h2 style={{
-          fontSize: 19, fontWeight: 700, color: '#0F172A',
+          fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)',
           letterSpacing: '-0.015em', margin: 0,
         }}>
           {title}
         </h2>
       </div>
       <div style={{
-        fontSize: 15, color: '#334155', lineHeight: 1.75,
+        fontSize: 'var(--text-base)', color: 'var(--text-body)', lineHeight: 1.65,
         paddingLeft: 38,
       }}>
         {children}
@@ -140,7 +140,7 @@ export default function SecurityPage() {
             Freelax by Britnova is built for UK users and complies with the <strong>UK General Data Protection Regulation (UK GDPR)</strong> and the Data Protection Act 2018. Your data is processed lawfully, stored only as long as necessary, and <strong>never sold or shared with advertisers</strong>.
           </p>
           <p className="m-0">
-            Under UK GDPR you have the right to access, correct, port, restrict, and delete your personal data. See the <a href="/privacy" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>Privacy Policy</a> for full details on your rights.
+            Under UK GDPR you have the right to access, correct, port, restrict, and delete your personal data. See the <a href="/privacy" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>Privacy Policy</a> for full details on your rights.
           </p>
         </Section>
 
@@ -153,7 +153,7 @@ export default function SecurityPage() {
         <Section id="export" Icon={Database} title="Export & deletion">
           <p style={{ margin: '0 0 12px' }}>
             You can export your full data at any time from <strong>Settings</strong>, or request a machine-readable copy by emailing{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>.
           </p>
           <p className="m-0">
             Account deletion is a self-service action in <strong>Settings → Danger Zone</strong>. Deleted accounts and all associated personal data are erased within <strong>30 days</strong>, aligned with UK GDPR requirements.
@@ -175,11 +175,11 @@ export default function SecurityPage() {
         <Section id="contact" Icon={Envelope} title="Contact">
           <p className="m-0">
             Questions about security, compliance, or data protection? Email{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We aim to respond within two business days.
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We aim to respond within two business days.
           </p>
           <p style={{ margin: '12px 0 0' }}>
             If you discover a security vulnerability in Freelax, please report it responsibly to{' '}
-            <a href="mailto:support@freelax.co.uk" style={{ color: '#1D6B35', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will acknowledge receipt within two business days and work to resolve confirmed issues promptly. We ask that you do not publicly disclose vulnerabilities until we have had a reasonable opportunity to address them.
+            <a href="mailto:support@freelax.co.uk" style={{ color: 'var(--brand-primary)', textDecoration: 'none', fontWeight: 500 }}>support@freelax.co.uk</a>. We will acknowledge receipt within two business days and work to resolve confirmed issues promptly. We ask that you do not publicly disclose vulnerabilities until we have had a reasonable opportunity to address them.
           </p>
         </Section>
       </div>
