@@ -25,9 +25,9 @@ export function calcInvoiceStatusData(invoices: { status: string }[], overdueCol
   const counts = { paid: 0, sent: 0, draft: 0, overdue: 0 }
   invoices.forEach(i => { if (i.status in counts) counts[i.status as keyof typeof counts]++ })
   return [
-    { name: 'Paid',    value: counts.paid,    color: '#111111' },
-    { name: 'Sent',    value: counts.sent,    color: '#888888' },
-    { name: 'Draft',   value: counts.draft,   color: '#CCCCCC' },
+    { name: 'Paid',    value: counts.paid,    color: 'var(--success-500)' },
+    { name: 'Sent',    value: counts.sent,    color: 'var(--info-500)'    },
+    { name: 'Draft',   value: counts.draft,   color: 'var(--text-disabled)' },
     { name: 'Overdue', value: counts.overdue, color: overdueColor },
   ].filter(d => d.value > 0)
 }
