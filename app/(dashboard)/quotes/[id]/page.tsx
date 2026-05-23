@@ -14,6 +14,7 @@ import { generateInvoiceNumber } from '@/lib/logic/invoices'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
+import Tooltip from '@/components/tooltip'
 import Link from 'next/link'
 import {
   ArrowLeft, PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
@@ -332,9 +333,11 @@ export default function QuoteDetailPage() {
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
-                <X weight="regular" className="w-4 h-4" />
-              </button>
+              <Tooltip label="Dismiss">
+                <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
+                  <X weight="regular" className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           ) : (
             <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium border ${
@@ -348,9 +351,11 @@ export default function QuoteDetailPage() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <button onClick={() => setMsg(null)} aria-label="Dismiss message" className="opacity-50 hover:opacity-100 transition-opacity">
-                <X weight="regular" className="w-4 h-4" />
-              </button>
+              <Tooltip label="Dismiss">
+                <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+                  <X weight="regular" className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           )}
         </>

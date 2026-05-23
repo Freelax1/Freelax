@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
 import type { Client, Project, QuoteLineItem } from '@/types/database'
 import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import Tooltip from '@/components/tooltip'
 
 interface LineItem {
   description: string
@@ -185,9 +186,11 @@ export default function EditQuotePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} aria-label="Remove line item" className="text-text-muted hover:text-danger-500">
-                        <X weight="regular" className="w-4 h-4" />
-                      </button>
+                      <Tooltip label="Remove line item">
+                        <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
+                          <X weight="regular" className="w-4 h-4" />
+                        </button>
+                      </Tooltip>
                     )}
                   </td>
                 </tr>

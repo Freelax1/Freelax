@@ -14,6 +14,7 @@ import type { Invoice } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import Tooltip from '@/components/tooltip'
 
 // ── Status modal ──────────────────────────────────────────────────────
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
@@ -83,11 +84,12 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        aria-label="Invoice actions"
-        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-        <DotsThreeVertical weight="regular" className="w-4 h-4" />
-      </button>
+      <Tooltip label="Invoice actions">
+        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+          <DotsThreeVertical weight="regular" className="w-4 h-4" />
+        </button>
+      </Tooltip>
       {open && (
         <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
           <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}

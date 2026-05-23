@@ -13,6 +13,7 @@ import CommandMenu from '@/components/command-menu'
 import SettingsModal from '@/components/settings-modal'
 import { buildNotifications, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
+import Tooltip from '@/components/tooltip'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -490,9 +491,11 @@ export default function Sidebar() {
         <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
           Freelax
         </span>
-        <button onClick={() => setCmdOpen(true)} aria-label="Search" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-          <MagnifyingGlass weight="regular" style={{ width: 18, height: 18 }} />
-        </button>
+        <Tooltip label="Search" align="right">
+          <button onClick={() => setCmdOpen(true)} className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+            <MagnifyingGlass weight="regular" style={{ width: 18, height: 18 }} />
+          </button>
+        </Tooltip>
         <Link
           href="/notifications"
           className="p-1 flex relative"
@@ -520,9 +523,11 @@ export default function Sidebar() {
           }}>
             <div className="flex items-center justify-between pt-4 px-4 shrink-0">
               <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>Freelax</span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                <X weight="regular" style={{ width: 18, height: 18 }} />
-              </button>
+              <Tooltip label="Close menu" align="right">
+                <button onClick={() => setMobileOpen(false)} className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                  <X weight="regular" style={{ width: 18, height: 18 }} />
+                </button>
+              </Tooltip>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <SidebarContent onNavClick={() => setMobileOpen(false)} />

@@ -14,6 +14,7 @@ import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from
 import type { Quote } from '@/types/database'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import Tooltip from '@/components/tooltip'
 
 // ── Status modal ──────────────────────────────────────────────────────
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
@@ -68,11 +69,12 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        aria-label="Quote actions"
-        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-        <DotsThreeVertical weight="regular" className="w-4 h-4" />
-      </button>
+      <Tooltip label="Quote actions">
+        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+          <DotsThreeVertical weight="regular" className="w-4 h-4" />
+        </button>
+      </Tooltip>
       {open && (
         <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
           <Link href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}
@@ -447,9 +449,11 @@ export default function QuotesPage() {
               <div key={q.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(q.id)} aria-label={isSelected ? 'Deselect quote' : 'Select quote'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                    </button>
+                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
+                      <button onClick={() => toggleSelect(q.id)} className="flex items-center flex-shrink-0">
+                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
+                      </button>
+                    </Tooltip>
                     <Link href={`/quotes/${q.id}`} className="font-medium text-forest-700 hover:underline truncate">{q.quote_number}</Link>
                   </div>
                   <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(q.total)}</span>

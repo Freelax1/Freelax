@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import Tooltip from '@/components/tooltip'
 
 type Tab = 'expenses' | 'mileage'
 
@@ -356,9 +357,11 @@ export default function ExpensesPage() {
               <div key={exp.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(exp.id)} aria-label={isSelected ? 'Deselect expense' : 'Select expense'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                    </button>
+                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
+                      <button onClick={() => toggleSelect(exp.id)} className="flex items-center flex-shrink-0">
+                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
+                      </button>
+                    </Tooltip>
                     <span className="font-medium text-text-primary truncate">{exp.merchant}</span>
                   </div>
                   <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(exp.amount)}</span>

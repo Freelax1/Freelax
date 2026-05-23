@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Sparkle, CircleNotch, X, ArrowCounterClockwise } from '@phosphor-icons/react'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import Tooltip from '@/components/tooltip'
 
 interface IR35ExplainButtonProps {
   projectId: string
@@ -116,9 +117,11 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
                   <ArrowCounterClockwise weight="regular" className="w-4 h-4 text-text-secondary" />
                 </button>
-                <button onClick={() => setOpen(false)} aria-label="Close" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
-                  <X weight="regular" className="w-4 h-4 text-text-secondary" />
-                </button>
+                <Tooltip label="Close">
+                  <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
+                    <X weight="regular" className="w-4 h-4 text-text-secondary" />
+                  </button>
+                </Tooltip>
               </div>
             </div>
 

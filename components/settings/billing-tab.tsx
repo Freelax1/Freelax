@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Tooltip from '@/components/tooltip'
 
 interface Props {
   profile: any
@@ -112,11 +113,13 @@ export default function BillingTab({ profile }: Props) {
             <path d="M3.5 9l4 4 7-7" stroke="var(--success-500)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <p className="text-sm font-medium text-success-800">You're all set — your plan has been upgraded successfully.</p>
-          <button onClick={() => setUpgraded(false)} aria-label="Dismiss" className="ml-auto text-success-500 hover:text-success-700">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <Tooltip label="Dismiss" align="right">
+            <button onClick={() => setUpgraded(false)} className="ml-auto text-success-500 hover:text-success-700">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </Tooltip>
         </div>
       )}
 

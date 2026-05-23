@@ -16,6 +16,7 @@ import AIFlag from '@/components/ai-flag'
 import { Sparkle, Plus, X, CaretDown } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
 import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import Tooltip from '@/components/tooltip'
 
 interface LineItem {
   description: string
@@ -484,9 +485,11 @@ export default function NewInvoicePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <button onClick={() => removeLine(i)} aria-label="Remove line item" className="text-text-muted hover:text-danger-500 transition-colors">
-                        <X weight="regular" className="w-4 h-4" />
-                      </button>
+                      <Tooltip label="Remove line item">
+                        <button onClick={() => removeLine(i)} className="text-text-muted hover:text-danger-500 transition-colors">
+                          <X weight="regular" className="w-4 h-4" />
+                        </button>
+                      </Tooltip>
                     )}
                   </td>
                 </tr>

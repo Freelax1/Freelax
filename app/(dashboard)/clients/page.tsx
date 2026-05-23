@@ -18,6 +18,7 @@ import type { Client } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import Tooltip from '@/components/tooltip'
 
 interface ClientWithStats extends Client { outstanding: number }
 
@@ -75,11 +76,12 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        aria-label="Client actions"
-        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-        <DotsThreeVertical weight="regular" className="w-4 h-4" />
-      </button>
+      <Tooltip label="Client actions">
+        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+          <DotsThreeVertical weight="regular" className="w-4 h-4" />
+        </button>
+      </Tooltip>
       {open && (
         <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
           <Link href={`/clients/${client.id}`} onClick={() => setOpen(false)}
@@ -338,11 +340,13 @@ export default function ClientsPage() {
             <thead>
               <tr>
                 <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                  <button onClick={toggleAll} aria-label={allSelected ? 'Deselect all clients' : 'Select all clients'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                    {allSelected
-                      ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
-                      : <Square weight="regular" className="w-4 h-4" />}
-                  </button>
+                  <Tooltip label={allSelected ? 'Deselect all' : 'Select all'}>
+                    <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                      {allSelected
+                        ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
+                        : <Square weight="regular" className="w-4 h-4" />}
+                    </button>
+                  </Tooltip>
                 </th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Name</th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Contact</th>
@@ -362,11 +366,13 @@ export default function ClientsPage() {
                 return (
                   <tr key={c.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                     <td className="px-3 py-2.5 text-center">
-                      <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                        {isSelected
-                          ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
-                          : <Square weight="regular" className="w-4 h-4" />}
-                      </button>
+                      <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
+                        <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                          {isSelected
+                            ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
+                            : <Square weight="regular" className="w-4 h-4" />}
+                        </button>
+                      </Tooltip>
                     </td>
                     <td className="px-4 py-2.5 font-medium text-sm">
                       <Link href={`/clients/${c.id}`} className="hover:text-forest-600">{c.name}</Link>
@@ -406,9 +412,11 @@ export default function ClientsPage() {
               <div key={c.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button onClick={() => toggleSelect(c.id)} aria-label={isSelected ? 'Deselect client' : 'Select client'} className="flex items-center flex-shrink-0">
-                      {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                    </button>
+                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
+                      <button onClick={() => toggleSelect(c.id)} className="flex items-center flex-shrink-0">
+                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
+                      </button>
+                    </Tooltip>
                     <Link href={`/clients/${c.id}`} className="font-medium text-text-primary hover:text-forest-700 truncate">{c.name}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={c.status} /></div>

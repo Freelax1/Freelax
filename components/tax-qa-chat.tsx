@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ChatCircle, X, PaperPlaneTilt, CircleNotch, ArrowCounterClockwise } from '@phosphor-icons/react'
 import Link from 'next/link'
+import Tooltip from '@/components/tooltip'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -75,12 +76,16 @@ export default function TaxQAChat() {
               <p className="text-xs text-white">Ask anything about your taxes</p>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={handleReset} aria-label="New question" title="New question" className="p-1 hover:bg-forest-700 rounded-full">
-                <ArrowCounterClockwise weight="regular" className="w-4 h-4" />
-              </button>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="p-1 hover:bg-forest-700 rounded-full">
-                <X weight="regular" className="w-4 h-4" />
-              </button>
+              <Tooltip label="New question">
+                <button onClick={handleReset} className="p-1 hover:bg-forest-700 rounded-full">
+                  <ArrowCounterClockwise weight="regular" className="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <Tooltip label="Close">
+                <button onClick={() => setOpen(false)} className="p-1 hover:bg-forest-700 rounded-full">
+                  <X weight="regular" className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
 
