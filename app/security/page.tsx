@@ -27,13 +27,13 @@ const TOC = [
 function TrustBadge({ Icon, title, sub }: { Icon: React.ElementType; title: string; sub: string }) {
   return (
     <div style={{
-      background: '#fff', border: '1px solid rgba(0,0,0,0.07)',
+      background: 'var(--surface-card)', border: '1px solid rgba(0,0,0,0.07)',
       borderRadius: 12, padding: '16px 18px',
       display: 'flex', alignItems: 'flex-start', gap: 12,
     }}>
       <div style={{
         width: 32, height: 32, flexShrink: 0,
-        background: '#EAFAF0', color: 'var(--brand-primary)',
+        background: 'var(--success-50)', color: 'var(--brand-primary)',
         borderRadius: 8,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
@@ -59,7 +59,7 @@ function Section({ id, Icon, title, children }: {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
         <div style={{
           width: 28, height: 28, flexShrink: 0,
-          background: '#F1F5F9', color: 'var(--text-primary)',
+          background: 'var(--surface-sunken)', color: 'var(--text-primary)',
           borderRadius: 7,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>

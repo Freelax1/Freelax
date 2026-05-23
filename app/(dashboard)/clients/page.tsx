@@ -271,11 +271,11 @@ export default function ClientsPage() {
                 onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
                 className="flex-1 rounded-xl px-5 py-4 cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  background: isActive ? '#111' : bgColor,
-                  border: `1px solid ${isActive ? '#111' : borderColor}`,
+                  background: isActive ? 'var(--text-primary)' : bgColor,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : borderColor}`,
                 }}>
                 <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? '#fff' : valueColor }}>{count}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : valueColor }}>{count}</p>
                 {outstanding > 0 && (
                   <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>
                     {formatCurrency(outstanding)} outstanding

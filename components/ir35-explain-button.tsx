@@ -18,22 +18,29 @@ interface ExplainResult {
 }
 
 function RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
-  const segments = [
-    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
-    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
-    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
-  ] as const
+  const segments: { key: 'Low' | 'Medium' | 'High'; tone: import('@/lib/status-palette').StatusTone }[] = [
+    { key: 'Low',    tone: 'success' },
+    { key: 'Medium', tone: 'warning' },
+    { key: 'High',   tone: 'danger'  },
+  ]
   return (
     <div className="flex gap-2">
       {segments.map(s => {
         const active = level === s.key
+        const t = active ? {
+          success: { bg: 'var(--success-50)', border: 'var(--success-200)', color: 'var(--success-600)' },
+          warning: { bg: 'var(--warning-50)', border: 'var(--warning-200)', color: 'var(--warning-600)' },
+          danger:  { bg: 'var(--danger-50)',  border: 'var(--danger-200)',  color: 'var(--danger-600)'  },
+          info:    { bg: 'var(--info-50)',     border: 'var(--info-200)',    color: 'var(--info-600)'    },
+          neutral: { bg: 'var(--surface-sunken)', border: 'var(--border-default)', color: 'var(--text-secondary)' },
+        }[s.tone] : null
         return (
           <div key={s.key} className="flex-1 py-[7px] rounded-lg text-center" style={{
-            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
-            background: active ? s.activeBg : '#F8FAFC',
+            border: `1px solid ${active ? t!.border : 'var(--border-default)'}`,
+            background: active ? t!.bg : 'var(--surface-sunken)',
             opacity: active ? 1 : 0.45,
           }}>
-            <span className="text-caption font-semibold tracking-wide" style={{ color: active ? s.activeColor : '#94A3B8' }}>
+            <span className="text-caption font-semibold tracking-wide" style={{ color: active ? t!.color : 'var(--text-muted)' }}>
               {s.key.toUpperCase()}
             </span>
           </div>

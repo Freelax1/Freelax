@@ -307,7 +307,7 @@ export default function NewQuotePage() {
           </div>
           {clientWarning && (
             <div className="col-span-2 px-4 py-3 rounded-xl text-sm font-medium"
-              style={{ background: selectedClient?.status === 'archived' ? '#FDECEA' : '#FEF9E7', color: selectedClient?.status === 'archived' ? '#C0392B' : '#9A7B0A', border: `1px solid ${selectedClient?.status === 'archived' ? '#F5C0BB' : '#F5E29B'}` }}>
+              style={{ background: selectedClient?.status === 'archived' ? 'var(--danger-50)' : 'var(--warning-50)', color: selectedClient?.status === 'archived' ? 'var(--danger-600)' : 'var(--warning-600)', border: `1px solid ${selectedClient?.status === 'archived' ? 'var(--danger-200)' : 'var(--warning-200)'}` }}>
               {clientWarning}
             </div>
           )}

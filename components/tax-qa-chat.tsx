@@ -107,7 +107,7 @@ export default function TaxQAChat() {
                       ? 'rounded-br-sm'
                       : 'bg-surface-sunken text-text-secondary rounded-bl-sm'
                   }`}
-                  style={m.role === 'user' ? { backgroundColor: '#1D6B35', color: '#FFFFFF' } : undefined}
+                  style={m.role === 'user' ? { backgroundColor: 'var(--brand-primary)', color: 'var(--text-on-dark)' } : undefined}
                 >
                   {m.text}
                 </div>

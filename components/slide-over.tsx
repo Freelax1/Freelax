@@ -58,7 +58,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-[10px] pb-[14px] shrink-0 border-b border-b-[#E8E8E8]">
+          <div className="flex items-center justify-between px-5 pt-[10px] pb-[14px] shrink-0 border-b border-b-border-subtle">
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
             <button
               onClick={onClose}
@@ -75,7 +75,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
 
           {/* Footer */}
           {footer && (
-            <div className="shrink-0 bg-white border-t border-t-slate-100" style={{ padding: `12px 20px max(env(safe-area-inset-bottom), 16px)` }}>
+            <div className="shrink-0 bg-surface-card border-t border-t-border-subtle" style={{ padding: `12px 20px max(env(safe-area-inset-bottom), 16px)` }}>
               {footer}
             </div>
           )}
@@ -83,7 +83,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
       ) : (
         /* ── Desktop: right-side panel ── */
         <div
-          className="fixed top-0 right-0 bg-white flex flex-col"
+          className="fixed top-0 right-0 bg-surface-card flex flex-col"
           style={{
             height: availableHeight,
             width: panelWidth,
@@ -92,7 +92,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 shrink-0 border-b border-b-[#EBEBEB]">
+          <div className="flex items-center justify-between px-6 py-4 shrink-0 border-b border-b-border-subtle">
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
             <button
               onClick={onClose}
@@ -109,7 +109,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
 
           {/* Footer */}
           {footer && (
-            <div className="shrink-0 px-6 pt-3 pb-5 bg-white border-t border-t-[#EBEBEB]">
+            <div className="shrink-0 px-6 pt-3 pb-5 bg-surface-card border-t border-t-border-subtle">
               {footer}
             </div>
           )}

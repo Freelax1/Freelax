@@ -54,11 +54,11 @@ export default function FinancialOverviewChart({ userId, taxYearStart, taxYearEn
         <YAxis hide />
         <Tooltip
           formatter={(v: number) => `£${v.toLocaleString('en-GB')}`}
-          contentStyle={{ fontSize: 'var(--text-xs)', border: '1px solid #e2e8f0', borderRadius: 8 }}
+          contentStyle={{ fontSize: 'var(--text-xs)', border: '1px solid var(--border-default)', borderRadius: 8 }}
         />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 'var(--text-xs)' }} />
-        <Bar dataKey="income" fill="#22c55e" radius={[2,2,0,0]} name="Income" />
-        <Bar dataKey="expenses" fill="#ef4444" radius={[2,2,0,0]} name="Expenses" />
+        <Bar dataKey="income" fill="var(--success-500)" radius={[2,2,0,0]} name="Income" />
+        <Bar dataKey="expenses" fill="var(--danger-500)" radius={[2,2,0,0]} name="Expenses" />
       </BarChart>
     </ResponsiveContainer>
   )

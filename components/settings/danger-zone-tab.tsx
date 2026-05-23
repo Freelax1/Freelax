@@ -57,7 +57,7 @@ export default function DangerZoneTab() {
                   className="inline-flex items-center gap-1 text-xs font-medium bg-surface-sunken border border-border-default text-text-secondary px-2.5 py-1 rounded-lg"
                 >
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#1D6B35" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="var(--success-500)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   {label}
                 </span>

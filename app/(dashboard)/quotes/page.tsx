@@ -313,12 +313,12 @@ export default function QuotesPage() {
                 onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
                 className="rounded-[12px] px-4 py-[14px] cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  background: isActive ? '#111' : bgColor,
-                  border: `1px solid ${isActive ? '#111' : borderColor}`,
+                  background: isActive ? 'var(--text-primary)' : bgColor,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : borderColor}`,
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
                 }}>
                 <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? '#fff' : valueColor }}>{stats[key]}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : valueColor }}>{stats[key]}</p>
                 <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>{formatCurrency(totals[key])}</p>
               </button>
             )

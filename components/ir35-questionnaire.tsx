@@ -15,11 +15,11 @@ interface Props {
 }
 
 function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
-  const segments = [
-    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
-    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
-    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
-  ] as const
+  const segments: { key: 'Low' | 'Medium' | 'High'; bg: string; border: string; color: string }[] = [
+    { key: 'Low',    bg: 'var(--success-50)', border: 'var(--success-200)', color: 'var(--success-600)' },
+    { key: 'Medium', bg: 'var(--warning-50)', border: 'var(--warning-200)', color: 'var(--warning-600)' },
+    { key: 'High',   bg: 'var(--danger-50)',  border: 'var(--danger-200)',  color: 'var(--danger-600)'  },
+  ]
   return (
     <div className="flex gap-2">
       {segments.map(s => {
@@ -27,11 +27,11 @@ function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
         return (
           <div key={s.key} style={{
             flex: 1, padding: '6px 0', borderRadius: 8, textAlign: 'center',
-            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
-            background: active ? s.activeBg : '#F8FAFC',
+            border: `1px solid ${active ? s.border : 'var(--border-default)'}`,
+            background: active ? s.bg : 'var(--surface-sunken)',
             opacity: active ? 1 : 0.45,
           }}>
-            <span style={{ fontSize: 'var(--text-caption)', fontWeight: 600, letterSpacing: '0', color: active ? s.activeColor : '#94A3B8' }}>
+            <span style={{ fontSize: 'var(--text-caption)', fontWeight: 600, letterSpacing: '0', color: active ? s.color : 'var(--text-muted)' }}>
               {s.key.toUpperCase()}
             </span>
           </div>

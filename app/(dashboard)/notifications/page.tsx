@@ -81,7 +81,7 @@ export default function NotificationsPage() {
                 className="absolute top-0.5 transition-all duration-200"
                 style={{
                   width: 12, height: 12, borderRadius: '50%',
-                  background: '#fff',
+                  background: 'var(--surface-card)',
                   left: unreadOnly ? 14 : 2,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                 }}

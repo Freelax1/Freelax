@@ -251,12 +251,12 @@ export default function ProjectsPage() {
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
                 className="flex-1 rounded-[12px] px-5 py-4 text-left cursor-pointer transition-all duration-150"
                 style={{
-                  background: isActive ? '#111' : bg,
-                  border: `1px solid ${isActive ? '#111' : border}`,
+                  background: isActive ? 'var(--text-primary)' : bg,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : border}`,
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                 }}>
                 <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : color }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? '#fff' : color }}>{count}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : color }}>{count}</p>
                 {value && <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : color }}>{value}</p>}
               </button>
             )

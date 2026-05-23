@@ -89,8 +89,8 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
             key={s.label}
             className={cn(
               'flex items-center gap-3 px-5 py-3',
-              i < steps.length - 1 && 'border-b border-b-[#F7F7F7]',
-              s.done ? 'bg-surface-sunken' : 'bg-white'
+              i < steps.length - 1 && 'border-b border-b-border-subtle',
+              s.done ? 'bg-surface-sunken' : 'bg-surface-card'
             )}
           >
             {/* Tick */}

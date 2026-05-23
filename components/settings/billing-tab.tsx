@@ -109,7 +109,7 @@ export default function BillingTab({ profile }: Props) {
       {upgraded && (
         <div className="flex items-center gap-3 bg-success-50 border border-success-200 rounded-xl px-5 py-4">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="flex-shrink-0">
-            <path d="M3.5 9l4 4 7-7" stroke="#16A34A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3.5 9l4 4 7-7" stroke="var(--success-500)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <p className="text-sm font-medium text-success-800">You're all set — your plan has been upgraded successfully.</p>
           <button onClick={() => setUpgraded(false)} className="ml-auto text-success-500 hover:text-success-700">
@@ -285,7 +285,7 @@ export default function BillingTab({ profile }: Props) {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M3.5 9l4 4 7-7" stroke="#16A34A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3.5 9l4 4 7-7" stroke="var(--success-500)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div>

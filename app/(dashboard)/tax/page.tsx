@@ -200,7 +200,7 @@ function TaxPotCard({
         <div className="h-[5px] rounded-[99px] overflow-hidden mb-2.5 bg-black/[0.06]">
           <div style={{
             height: '100%', borderRadius: 99,
-            background: totalSaved >= totalTarget ? '#1D6B35' : totalSaved / totalTarget > 0.6 ? '#9A7B0A' : '#C0392B',
+            background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',
             width: `${Math.min(100, Math.round((totalSaved / totalTarget) * 100))}%`,
             transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
           }} />
@@ -600,14 +600,14 @@ export default function TaxPage() {
             const taxTotal = t.kind === 'sole_trader' ? t.totalTax : t.totalPersonalTax
             const potPct   = taxTotal > 0 ? Math.min(100, Math.round((taxPotTotal / taxTotal) * 100)) : 100
             const remaining= Math.max(0, taxTotal - taxPotTotal)
-            const potBar   = potPct >= 100 ? '#1D6B35' : potPct >= 60 ? '#9A7B0A' : '#C0392B'
+            const potBar   = potPct >= 100 ? 'var(--success-500)' : potPct >= 60 ? 'var(--warning-500)' : 'var(--danger-500)'
 
             const today      = new Date()
             const deadline   = new Date(endYear + 1, 0, 31)
             const daysToDue  = Math.max(0, Math.ceil((deadline.getTime() - today.getTime()) / 86400000))
             const weeksLeft  = Math.max(1, Math.round(daysToDue / 7))
             const weeklyNeed = remaining > 0 ? remaining / weeksLeft : 0
-            const daysColor  = daysToDue < 30 ? '#C0392B' : daysToDue < 90 ? '#9A7B0A' : '#0F172A'
+            const daysColor  = daysToDue < 30 ? 'var(--danger-500)' : daysToDue < 90 ? 'var(--warning-500)' : 'var(--text-primary)'
 
             // Build prioritised action list
             const actions: TaxAction[] = []
@@ -676,7 +676,7 @@ export default function TaxPage() {
                   <StatCard
                     label="Set aside"
                     value={formatCurrency(taxPotTotal)}
-                    valueColor={potPct >= 100 ? '#1D6B35' : '#0F172A'}
+                    valueColor={potPct >= 100 ? 'var(--success-500)' : 'var(--text-primary)'}
                     progressBar={{ pct: potPct, color: potBar }}
                     sub={
                       remaining > 0

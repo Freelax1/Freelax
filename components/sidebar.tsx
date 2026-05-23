@@ -294,7 +294,7 @@ export default function Sidebar() {
                 textDecoration: 'none',
               }}>
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>Getting started</span>
-                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--brand-primary)', color: '#fff', borderRadius: 99, padding: '1px 7px' }}>
+                <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--brand-primary)', color: 'var(--text-on-dark)', borderRadius: 99, padding: '1px 7px' }}>
                   {completedSteps}/5
                 </span>
               </Link>
@@ -321,7 +321,7 @@ export default function Sidebar() {
             <Bell weight="regular" style={{ width: 17, height: 17, color: pathname.startsWith('/notifications') ? 'var(--brand-primary)' : 'var(--text-muted)', flexShrink: 0 }} />
             <span style={{ flex: 1 }}>Notifications</span>
             {unreadCount > 0 && (
-              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--danger-500)', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>
+              <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, background: 'var(--danger-500)', color: 'var(--text-on-dark)', borderRadius: 99, padding: '1px 6px' }}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -426,7 +426,7 @@ export default function Sidebar() {
                 width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                 background: 'var(--brand-primary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 'var(--text-caption)', fontWeight: 600, color: '#fff',
+                fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--text-on-dark)',
               }}>
                 {initial}
               </div>
