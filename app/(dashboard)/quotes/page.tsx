@@ -1,5 +1,6 @@
 'use client'
 
+import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
@@ -18,13 +19,11 @@ import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
-  const cfg: Record<string, { label: string; color: string }> = {
-    draft:    { label: 'Draft',    color: '#64748B' },
-    sent:     { label: 'Sent',     color: '#1A5E8A' },
-    accepted: { label: 'Accepted', color: '#1D6B35' },
-    declined: { label: 'Declined', color: '#C0392B' },
+  const STATUS_LABELS: Record<string, string> = {
+    draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined',
   }
-  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
+  const label = STATUS_LABELS[newStatus] ?? newStatus
+  const color = tonePalette(newStatus).text
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
       onClick={onCancel}>
@@ -64,13 +63,8 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
   }, [])
 
   const isDraft = quote.status === 'draft'
-  const allStatuses = [
-    { key: 'draft',    label: 'Draft',    dot: '#94A3B8', bg: '#F8FAFC', border: 'rgba(0,0,0,0.08)',     text: '#64748B' },
-    { key: 'sent',     label: 'Sent',     dot: '#1A5E8A', bg: '#EBF4FD', border: 'rgba(26,94,138,0.2)',  text: '#1A5E8A' },
-    { key: 'accepted', label: 'Accepted', dot: '#1D6B35', bg: '#F0FDF4', border: 'rgba(29,107,53,0.2)',  text: '#1D6B35' },
-    { key: 'declined', label: 'Declined', dot: '#C0392B', bg: '#FEF2F2', border: 'rgba(192,57,43,0.2)',  text: '#C0392B' },
-  ]
-  const statusOptions = allStatuses.filter(s => s.key !== quote.status)
+  const allStatuses = ['draft', 'sent', 'accepted', 'declined']
+  const statusOptions = allStatuses.filter(s => s !== quote.status)
 
   return (
     <div ref={ref} className="relative">
@@ -95,10 +89,10 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
           <div className="border-t border-border-subtle py-1.5">
             <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
             {statusOptions.map(s => (
-              <button key={s.key} onClick={() => { setOpen(false); onStatusChange(quote, s.key) }}
+              <button key={s} onClick={() => { setOpen(false); onStatusChange(quote, s) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: s.dot }} />
-                {s.label}
+                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
+                {s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
             ))}
           </div>
@@ -300,26 +294,23 @@ export default function QuotesPage() {
       {/* Status cards */}
       {!loading && quotes.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
-          {([
-            { key: 'draft',    label: 'Draft',    bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
-            { key: 'sent',     label: 'Sent',     bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#0E4566', valueColor: '#0E4566' },
-            { key: 'accepted', label: 'Accepted', bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
-            { key: 'expired',  label: 'Expired',  bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#8B1E15', valueColor: '#8B1E15' },
-          ] as const).map(({ key, label, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
+          {(['draft', 'sent', 'accepted', 'expired'] as const).map(key => {
+            const t = tonePalette(key)
+            const label = key.charAt(0).toUpperCase() + key.slice(1)
             const isActive = statusFilter === key
             return (
               <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = hoverColor }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
+                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
+                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
                 className="rounded-[12px] px-4 py-[14px] cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  background: isActive ? 'var(--text-primary)' : bgColor,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : borderColor}`,
+                  background: isActive ? 'var(--text-primary)' : t.bg,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
                 }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : valueColor }}>{stats[key]}</p>
-                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>{formatCurrency(totals[key])}</p>
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{stats[key]}</p>
+                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{formatCurrency(totals[key])}</p>
               </button>
             )
           })}

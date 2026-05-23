@@ -1,5 +1,6 @@
 'use client'
 
+import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchClients } from '@/lib/api/clients'
@@ -24,9 +25,11 @@ interface ClientWithStats extends Client { outstanding: number }
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
-  const label = newStatus === 'active' ? 'Active' : newStatus === 'paused' ? 'Paused' : 'Archived'
-  const color = newStatus === 'active' ? '#0F5A28' : newStatus === 'paused' ? '#5C480C' : '#475569'
-  const bg    = newStatus === 'active' ? '#F0FDF4' : newStatus === 'paused' ? '#FEFCE8' : '#F8FAFC'
+  const STATUS_LABELS: Record<string, string> = { active: 'Active', paused: 'Paused', archived: 'Archived' }
+  const label = STATUS_LABELS[newStatus] ?? newStatus
+  const t     = tonePalette(newStatus)
+  const color = t.text
+  const bg    = t.bg
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
       onClick={onCancel}>
@@ -91,16 +94,12 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
           <div className="border-t border-border-subtle py-1.5">
             <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
             {otherStatuses.map(s => {
-              const cfg = {
-                active:   { label: 'Active',   dot: '#0F5A28' },
-                paused:   { label: 'Paused',   dot: '#5C480C' },
-                archived: { label: 'Archived', dot: '#94A3B8' },
-              }[s] ?? { label: s, dot: '#94A3B8' }
+              const STATUS_LABELS: Record<string, string> = { active: 'Active', paused: 'Paused', archived: 'Archived' }
               return (
                 <button key={s} onClick={() => { setOpen(false); onStatusChange(client, s) }}
                   className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: cfg.dot }} />
-                  {cfg.label}
+                  <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
+                  {STATUS_LABELS[s] ?? s}
                 </button>
               )
             })}
@@ -246,9 +245,9 @@ export default function ClientsPage() {
   const someSelected = selected.size > 0
 
   const CARDS = [
-    { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding, bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
-    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding, bgColor: '#FEF9E7', hoverColor: '#FDF0C0', borderColor: '#F5E29B', labelColor: '#5C480C', valueColor: '#5C480C' },
-    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0,                 bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
+    { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding },
+    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding },
+    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0                 },
   ] as const
 
   return (
@@ -262,22 +261,23 @@ export default function ClientsPage() {
       {/* Stat / filter cards */}
       {!loading && clients.length > 0 && (
         <div className="fd-page-enter flex gap-3 mt-4 mb-5">
-          {CARDS.map(({ key, label, count, outstanding, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
+          {CARDS.map(({ key, label, count, outstanding }) => {
+            const t = tonePalette(key)
             const isActive = statusFilter === key
             return (
               <button key={key}
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = hoverColor }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
+                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
+                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
                 className="flex-1 rounded-xl px-5 py-4 cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  background: isActive ? 'var(--text-primary)' : bgColor,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : borderColor}`,
+                  background: isActive ? 'var(--text-primary)' : t.bg,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
                 }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : valueColor }}>{count}</p>
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{count}</p>
                 {outstanding > 0 && (
-                  <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>
+                  <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>
                     {formatCurrency(outstanding)} outstanding
                   </p>
                 )}

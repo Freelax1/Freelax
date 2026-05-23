@@ -1,6 +1,7 @@
 'use client'
 export const dynamic = 'force-dynamic'
 
+import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchProjects, deleteProject, updateProject } from '@/lib/api/projects'
@@ -20,13 +21,11 @@ import ProjectForm from '@/components/project-form'
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
-  const cfg: Record<string, { label: string; color: string }> = {
-    active:    { label: 'Active',    color: '#0F5A28' },
-    completed: { label: 'Completed', color: '#0E4566' },
-    on_hold:   { label: 'On Hold',   color: '#5C480C' },
-    cancelled: { label: 'Cancelled', color: '#8B1E15' },
+  const STATUS_LABELS: Record<string, string> = {
+    active: 'Active', completed: 'Completed', on_hold: 'On Hold', cancelled: 'Cancelled',
   }
-  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#475569' }
+  const label = STATUS_LABELS[newStatus] ?? newStatus
+  const color = tonePalette(newStatus).text
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
       onClick={onCancel}>
@@ -67,13 +66,8 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const allStatuses = [
-    { key: 'active',    label: 'Active',    dot: '#1D6B35' },
-    { key: 'completed', label: 'Completed', dot: '#1A5E8A' },
-    { key: 'on_hold',   label: 'On Hold',   dot: '#9A7B0A' },
-    { key: 'cancelled', label: 'Cancelled', dot: '#C0392B' },
-  ]
-  const otherStatuses = allStatuses.filter(s => s.key !== project.status)
+  const allStatuses = ['active', 'completed', 'on_hold', 'cancelled']
+  const otherStatuses = allStatuses.filter(s => s !== project.status)
 
   return (
     <div ref={ref} className="relative">
@@ -96,10 +90,10 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
           <div className="border-t border-border-subtle py-1.5">
             <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
             {otherStatuses.map(s => (
-              <button key={s.key} onClick={() => { setOpen(false); onStatusChange(project, s.key) }}
+              <button key={s} onClick={() => { setOpen(false); onStatusChange(project, s) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: s.dot }} />
-                {s.label}
+                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
+                {s === 'on_hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
             ))}
           </div>
@@ -240,24 +234,25 @@ export default function ProjectsPage() {
       {/* Stat cards */}
       {!loading && projects.length > 0 && (
         <div className="fd-stat-grid mb-6">
-          {[
-            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#0F5A28', bg: '#F0FDF4', activeBg: '#0F5A28', border: 'rgba(15,90,40,0.15)' },
-            { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#0E4566', bg: '#EBF4FD', activeBg: '#0E4566', border: 'rgba(14,69,102,0.15)' },
-            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#5C480C', bg: '#FEFCE8', activeBg: '#5C480C', border: 'rgba(92,72,12,0.15)' },
-          ].map(({ key, label, count, value, color, bg, activeBg, border }) => {
+          {([
+            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined },
+            { key: 'completed', label: 'Completed', count: completed.length, value: undefined },
+            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined },
+          ] as const).map(({ key, label, count, value }) => {
+            const t = tonePalette(key)
             const isActive = statusFilter === key
             return (
               <button key={key}
                 onClick={() => setStatusFilter(isActive ? 'all' : key)}
                 className="flex-1 rounded-[12px] px-5 py-4 text-left cursor-pointer transition-all duration-150"
                 style={{
-                  background: isActive ? 'var(--text-primary)' : bg,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : border}`,
+                  background: isActive ? 'var(--text-primary)' : t.bg,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                 }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : color }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : color }}>{count}</p>
-                {value && <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : color }}>{value}</p>}
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{count}</p>
+                {value && <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{value}</p>}
               </button>
             )
           })}

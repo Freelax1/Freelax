@@ -1,5 +1,6 @@
 'use client'
 
+import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchInvoices, deleteInvoice } from '@/lib/api/invoices'
@@ -18,13 +19,11 @@ import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
   count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
 }) {
-  const cfg: Record<string, { label: string; color: string }> = {
-    sent:      { label: 'Sent',      color: '#1A5E8A' },
-    paid:      { label: 'Paid',      color: '#1D6B35' },
-    cancelled: { label: 'Cancelled', color: '#C0392B' },
-    draft:     { label: 'Draft',     color: '#64748B' },
+  const STATUS_LABELS: Record<string, string> = {
+    sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
   }
-  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
+  const label = STATUS_LABELS[newStatus] ?? newStatus
+  const color = tonePalette(newStatus).text
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
       onClick={onCancel}>
@@ -69,10 +68,10 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
 
   // Status options — never show paid for already-paid invoices
   const allStatuses = [
-    { key: 'sent',      label: 'Mark as Sent', dot: '#1A5E8A' },
-    { key: 'paid',      label: 'Paid',         dot: '#1D6B35' },
-    { key: 'cancelled', label: 'Cancelled',    dot: '#C0392B' },
-    { key: 'draft',     label: 'Draft',        dot: '#94A3B8' },
+    { key: 'sent',      label: 'Mark as Sent' },
+    { key: 'paid',      label: 'Paid'         },
+    { key: 'cancelled', label: 'Cancelled'    },
+    { key: 'draft',     label: 'Draft'        },
   ]
   const statusOptions = allStatuses.filter(s => {
     if (s.key === invoice.status) return false   // hide current status
@@ -109,7 +108,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
                 <button key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}
                   className="flex items-center gap-2.5 px-4 py-2 text-sm text-text-primary hover:bg-surface-sunken w-full text-left border-none cursor-pointer bg-transparent"
                 >
-                  <span className="inline-block w-[7px] h-[7px] rounded-full shrink-0" style={{ background: s.dot }} />
+                  <span className="inline-block w-[7px] h-[7px] rounded-full shrink-0" style={{ background: tonePalette(s.key).dot }} />
                   {s.label}
                 </button>
               ))}
@@ -370,26 +369,23 @@ export default function InvoicesPage() {
       {/* Status cards */}
       {!loading && invoices.length > 0 && (
         <div className="fd-stat-grid fd-page-enter">
-          {([
-            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#475569', valueColor: '#0F172A' },
-            { key: 'sent',    label: 'Sent',    bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#0E4566', valueColor: '#0E4566' },
-            { key: 'overdue', label: 'Overdue', bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#8B1E15', valueColor: '#8B1E15' },
-            { key: 'paid',    label: 'Paid',    bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#0F5A28', valueColor: '#0F5A28' },
-          ] as const).map(({ key, label, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
+          {(['draft', 'sent', 'overdue', 'paid'] as const).map(key => {
+            const t = tonePalette(key)
+            const label = key.charAt(0).toUpperCase() + key.slice(1)
             const isActive = statusFilter === key
             return (
               <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = hoverColor }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
+                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
+                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
                 className="rounded-[12px] px-4 py-[14px] cursor-pointer text-left transition-[background] duration-150"
                 style={{
-                  background: isActive ? 'var(--text-primary)' : bgColor,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : borderColor}`,
+                  background: isActive ? 'var(--text-primary)' : t.bg,
+                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
                   boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
                 }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : labelColor }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : valueColor }}>{stats[key].count}</p>
-                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : valueColor }}>{formatCurrency(stats[key].total)}</p>
+                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
+                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{stats[key].count}</p>
+                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{formatCurrency(stats[key].total)}</p>
               </button>
             )
           })}
