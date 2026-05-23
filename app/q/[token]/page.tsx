@@ -59,18 +59,18 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
 
         {/* Status banners */}
         {accepted && (
-          <div className="flex items-center gap-2.5 mb-5 rounded-md" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)', padding: '12px 18px' }}>
+          <div className="flex items-center gap-2.5 mb-5 rounded-md py-3 px-4" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="var(--success-600)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-700)' }}>This quote has been accepted</span>
           </div>
         )}
         {declined && (
-          <div className="mb-5 rounded-md" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)', padding: '12px 18px' }}>
+          <div className="mb-5 rounded-md py-3 px-4" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)' }}>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--danger-600)' }}>This quote was declined</span>
           </div>
         )}
         {expired && !accepted && !declined && (
-          <div className="mb-5 rounded-md" style={{ background: 'var(--warning-50)', border: '1px solid var(--warning-200)', padding: '12px 18px' }}>
+          <div className="mb-5 rounded-md py-3 px-4" style={{ background: 'var(--warning-50)', border: '1px solid var(--warning-200)' }}>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--warning-800)' }}>This quote has expired</span>
           </div>
         )}
@@ -115,9 +115,9 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                   <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: expired ? 'var(--danger-600)' : 'var(--text-primary)' }}>{new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div className="mt-1">
-                  {accepted && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Accepted</span>}
-                  {declined && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Declined</span>}
-                  {expired && !accepted && !declined && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Expired</span>}
+                  {accepted && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)' }}>Accepted</span>}
+                  {declined && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)' }}>Declined</span>}
+                  {expired && !accepted && !declined && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)' }}>Expired</span>}
                 </div>
               </div>
             </div>
@@ -128,11 +128,11 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
             <table className="mb-6" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
-                  <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                  <th className="qpub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                  <th className="qpub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                  <th className="qpub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                  <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                  <th className="py-2 text-left text-micro font-semibold text-text-secondary">Description</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Qty</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Unit price</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">VAT</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,12 +175,12 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                 </p>
                 <div className="qpub-cta flex gap-2.5">
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} style={{ flex: 1 }}>
-                    <button type="submit" style={{ width: '100%', padding: '13px 20px', background: 'var(--text-primary)', color: 'var(--text-on-dark)', border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
+                    <button type="submit" className="w-full py-3 px-5" style={{ background: 'var(--text-primary)', color: 'var(--text-on-dark)', border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
                       Accept quote →
                     </button>
                   </form>
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} style={{ flex: 1 }}>
-                    <button type="submit" style={{ width: '100%', padding: '13px 20px', background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+                    <button type="submit" className="w-full py-3 px-5" style={{ background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                       Decline
                     </button>
                   </form>

@@ -421,10 +421,10 @@ export default function QuoteDetailPage() {
                 <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: expired ? 'var(--danger-600)' : 'var(--text-primary)' }}>{quote.expiry_date ? new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</p>
               </div>
               <div className="mt-1">
-                {quote.status === 'accepted' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Accepted</span>}
-                {quote.status === 'declined' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Declined</span>}
-                {expired && quote.status === 'sent' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Expired</span>}
-                {quote.status === 'draft' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Draft</span>}
+                {quote.status === 'accepted' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)' }}>Accepted</span>}
+                {quote.status === 'declined' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)' }}>Declined</span>}
+                {expired && quote.status === 'sent' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)' }}>Expired</span>}
+                {quote.status === 'draft' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -435,11 +435,11 @@ export default function QuoteDetailPage() {
           <table className="w-full mb-6" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
-                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="q-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th className="py-2 text-left text-micro font-semibold text-text-secondary">Description</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Qty</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Unit price</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">VAT</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Total</th>
               </tr>
             </thead>
             <tbody>

@@ -48,13 +48,13 @@ export default async function PublicInvoicePage({
 
         {/* Status banners */}
         {isPaid && (
-          <div className="flex items-center gap-2.5 mb-5 rounded-md" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)', padding: '12px 18px' }}>
+          <div className="flex items-center gap-2.5 mb-5 rounded-md py-3 px-4" style={{ background: 'var(--success-50)', border: '1px solid var(--success-200)' }}>
             <CheckCircle weight="regular" style={{ width: 16, height: 16, color: 'var(--success-600)', flexShrink: 0 }} />
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-700)' }}>Payment received – thank you!</span>
           </div>
         )}
         {isOverdue && !isPaid && (
-          <div className="mb-5 rounded-md" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)', padding: '12px 18px' }}>
+          <div className="mb-5 rounded-md py-3 px-4" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)' }}>
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--danger-800)' }}>This invoice is overdue. Please arrange payment as soon as possible.</span>
           </div>
         )}
@@ -101,7 +101,7 @@ export default async function PublicInvoicePage({
                 </div>
                 {isPaid && (
                   <div className="mt-1">
-                    <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Paid</span>
+                    <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)' }}>Paid</span>
                   </div>
                 )}
               </div>
@@ -113,11 +113,11 @@ export default async function PublicInvoicePage({
             <table className="mb-6" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
-                  <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                  <th className="pub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                  <th className="pub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                  <th className="pub-hide" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                  <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                  <th className="py-2 text-left text-micro font-semibold text-text-secondary">Description</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Qty</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Unit price</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">VAT</th>
+                  <th className="py-2 text-right text-micro font-semibold text-text-secondary">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,9 +178,8 @@ export default async function PublicInvoicePage({
                   <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
-                    className="flex items-center justify-center gap-2.5"
-                  style={{
-                      width: '100%', padding: '15px 24px',
+                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6"
+                    style={{
                       background: 'var(--text-primary)', color: 'var(--text-on-dark)',
                       border: 'none', borderRadius: 6, fontSize: 'var(--text-sm)', fontWeight: 600,
                       cursor: 'pointer',

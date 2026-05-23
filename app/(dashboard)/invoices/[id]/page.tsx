@@ -150,8 +150,9 @@ function ChaseModal({
                     onClick={() => { if (!locked) handleTierChange(t) }}
                     disabled={locked}
                     title={lockReason || undefined}
+                    className="py-2 px-1"
                     style={{
-                      flex: 1, padding: '8px 4px', borderRadius: 8,
+                      flex: 1, borderRadius: 8,
                       cursor: locked ? 'not-allowed' : 'pointer',
                       border: `1.5px solid ${isActive ? meta.badgeColor : 'var(--border-default)'}`,
                       background: isActive ? meta.badgeBg : 'var(--surface-card)',
@@ -159,14 +160,14 @@ function ChaseModal({
                       transition: 'all 0.15s',
                     }}
                   >
-                    <p style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-muted)', marginBottom: 2 }}>
+                    <p className="mb-0.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-muted)' }}>
                       {meta.badge}{locked ? <Lock weight="regular" className="inline w-2.5 h-2.5 ml-0.5 align-middle" /> : ''}
                     </p>
                     <p style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-secondary)' }}>
                       {meta.label}
                     </p>
                     {locked && (
-                      <p style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)', marginTop: 2 }}>{lockReason}</p>
+                      <p className="mt-0.5" style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{lockReason}</p>
                     )}
                   </button>
                 )
@@ -580,9 +581,9 @@ export default function InvoiceDetailPage() {
                 </div>
               )}
               <div className="mt-1">
-                {invoice.status === 'paid' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)', padding: '3px 10px' }}>Paid</span>}
-                {invoice.status === 'overdue' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)', padding: '3px 10px' }}>Overdue</span>}
-                {invoice.status === 'draft' && <span style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', padding: '3px 10px' }}>Draft</span>}
+                {invoice.status === 'paid' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)' }}>Paid</span>}
+                {invoice.status === 'overdue' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)' }}>Overdue</span>}
+                {invoice.status === 'draft' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)' }}>Draft</span>}
               </div>
             </div>
           </div>
@@ -593,11 +594,11 @@ export default function InvoiceDetailPage() {
           <table className="inv-table w-full mb-6" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
-                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'left' }}>Description</th>
-                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Qty</th>
-                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
-                <th className="hide-sm" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>VAT</th>
-                <th style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', padding: '9px 0', textAlign: 'right' }}>Total</th>
+                <th className="py-2 text-left text-micro font-semibold text-text-secondary">Description</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Qty</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Unit price</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">VAT</th>
+                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Total</th>
               </tr>
             </thead>
             <tbody>
