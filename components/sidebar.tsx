@@ -263,10 +263,11 @@ export default function Sidebar() {
                     key={href}
                     href={href}
                     onClick={onNavClick}
+                    className="mb-px"
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '7px 10px', borderRadius: 'var(--radius-xl)',
-                      marginBottom: 1, textDecoration: 'none',
+                      textDecoration: 'none',
                       background: active ? 'var(--surface-sunken)' : 'transparent',
                       color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                       fontWeight: active ? 600 : 400,
@@ -310,7 +311,7 @@ export default function Sidebar() {
             style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '8px 10px', borderRadius: 'var(--radius-xl)',
-              textDecoration: 'none', marginBottom: 1,
+              textDecoration: 'none',
               color: pathname.startsWith('/notifications') ? 'var(--text-primary)' : 'var(--text-secondary)',
               background: pathname.startsWith('/notifications') ? 'var(--surface-sunken)' : 'transparent',
               fontSize: 'var(--text-sm)', transition: 'background 100ms',
@@ -435,7 +436,7 @@ export default function Sidebar() {
                   {userName ?? userEmail ?? '…'}
                 </div>
                 {userPlan && (
-                  <div style={{ fontSize: 'var(--text-micro)', color: 'var(--text-muted)', marginTop: 3, textTransform: 'capitalize', lineHeight: 1 }}>
+                  <div className="mt-0.5" style={{ fontSize: 'var(--text-micro)', color: 'var(--text-muted)', textTransform: 'capitalize', lineHeight: 1 }}>
                     {userPlan} plan
                   </div>
                 )}

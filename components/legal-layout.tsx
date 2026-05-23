@@ -39,11 +39,8 @@ export default async function LegalLayout({
         WebkitBackdropFilter: 'blur(10px)',
         borderBottom: '1px solid var(--border-subtle)',
       }}>
-        <div style={{
+        <div className="flex items-center justify-between gap-4 py-3.5 px-6" style={{
           maxWidth: 1200, margin: '0 auto',
-          padding: '14px 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: 16,
         }}>
           <Link href="/" style={{
             fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)',
@@ -62,11 +59,10 @@ export default async function LegalLayout({
             <Link href="/terms" className="fd-legal-link" style={{
               fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
             }}>Terms</Link>
-            <Link href={ctaHref} style={{
+            <Link href={ctaHref} className="inline-flex items-center gap-1.5 py-2 px-3.5" style={{
               fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-on-dark)',
-              background: 'var(--brand-primary)', padding: '8px 14px', borderRadius: 8,
+              background: 'var(--brand-primary)', borderRadius: 8,
               textDecoration: 'none',
-              display: 'inline-flex', alignItems: 'center', gap: 5,
             }}>
               {ctaLabel} <ArrowRight weight="regular" style={{ width: 12, height: 12 }} />
             </Link>
@@ -84,11 +80,11 @@ export default async function LegalLayout({
               {eyebrow}
             </p>
           )}
-          <h1 style={{
+          <h1 className="m-0" style={{
             fontSize: 'clamp(32px, 5vw, 44px)',
             fontWeight: 600, color: 'var(--text-primary)',
             letterSpacing: '-0.03em', lineHeight: 1.1,
-            margin: 0, fontFamily: 'var(--font-serif)',
+            fontFamily: 'var(--font-serif)',
           }}>
             {title}
           </h1>
@@ -119,21 +115,17 @@ export default async function LegalLayout({
               <p className="mb-3" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>
                 On this page
               </p>
-              <ul style={{
-                listStyle: 'none', padding: 0, margin: 0,
-                display: 'flex', flexDirection: 'column', gap: 2,
+              <ul className="list-none p-0 m-0 flex flex-col gap-0.5" style={{
                 borderLeft: '1px solid var(--border-subtle)',
               }}>
                 {toc.map(t => (
                   <li key={t.id}>
                     <a
                       href={`#${t.id}`}
+                      className="block py-1.5 px-3.5 -ml-px"
                       style={{
-                        display: 'block',
                         fontSize: 'var(--text-sm)', color: 'var(--text-secondary)',
                         textDecoration: 'none', lineHeight: 1.5,
-                        padding: '6px 14px',
-                        marginLeft: -1,
                         borderLeft: '2px solid transparent',
                         transition: 'color 120ms, border-color 120ms',
                       }}
