@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
+import { Input, Select, Textarea, Label } from '@/components/form-fields'
 
 type ClientOption = { id: string; name: string }
 type ProjectOption = { id: string; title: string }
@@ -128,30 +129,30 @@ export default function InvoiceEditPage() {
         <h2 className="font-semibold text-text-primary">Invoice Details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Client</label>
-            <select value={clientId} onChange={e => setClientId(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20">
+            <Label>Client</Label>
+            <Select value={clientId} onChange={e => setClientId(e.target.value)}>
               <option value="">No client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            </Select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Project</label>
-            <select value={projectId} onChange={e => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20">
+            <Label>Project</Label>
+            <Select value={projectId} onChange={e => setProjectId(e.target.value)}>
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-            </select>
+            </Select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Issue date</label>
-            <input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Issue date</Label>
+            <Input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Due date</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Due date</Label>
+            <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-medium text-text-muted mb-1">Payment terms</label>
-            <input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Payment terms</Label>
+            <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
           </div>
         </div>
       </div>
@@ -173,15 +174,15 @@ export default function InvoiceEditPage() {
             <tbody>
               {lineItems.map((item, i) => (
                 <tr key={i}>
-                  <td className="py-1 pr-2"><input value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
-                  <td className="py-1 pr-2"><input type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
-                  <td className="py-1 pr-2"><input type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
                   <td className="py-1 pr-2">
-                    <select value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20">
+                    <Select variant="inline" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
-                    </select>
+                    </Select>
                   </td>
                   <td className="py-1 text-right font-medium">{formatCurrency(Number(item.quantity) * Number(item.unit_price))}</td>
                   <td className="py-1 pl-2">
@@ -207,8 +208,8 @@ export default function InvoiceEditPage() {
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <label className="block text-xs font-medium text-text-muted mb-1">Notes</label>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 resize-none" />
+        <Label>Notes</Label>
+        <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
       </div>
 
       <div className="flex justify-end gap-3">

@@ -16,6 +16,7 @@ import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } 
 import Link from 'next/link'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
+import { Input, Select, Textarea, Label } from '@/components/form-fields'
 
 interface LineItem {
   description: string
@@ -201,45 +202,25 @@ export default function NewQuotePage() {
         <h2 className="font-semibold text-text-primary">Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Client</label>
-            <select
+            <Label>Client</Label>
+            <Select
               aria-label="Client"
               value={clientId}
               onChange={e => {
                 if (e.target.value === '__new__') { setShowNewClient(true) }
                 else { setClientId(e.target.value); setShowNewClient(false) }
               }}
-              className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
             >
               <option value="">Select client...</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               <option value="__new__">+ Create new client</option>
-            </select>
+            </Select>
             {showNewClient && (
               <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
                 <p className="text-xs font-semibold text-text-secondary mb-1">New client</p>
-                <input
-                  aria-label="New client name"
-                  value={newClientName}
-                  onChange={e => setNewClientName(e.target.value)}
-                  placeholder="Company / client name *"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
-                <input
-                  aria-label="New client contact name"
-                  value={newClientContact}
-                  onChange={e => setNewClientContact(e.target.value)}
-                  placeholder="Contact name"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
-                <input
-                  aria-label="New client email"
-                  value={newClientEmail}
-                  onChange={e => setNewClientEmail(e.target.value)}
-                  placeholder="Email"
-                  type="email"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
+                <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
+                <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
+                <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
                 <div className="flex gap-2 pt-1">
                   <button
                     type="button"
@@ -261,30 +242,23 @@ export default function NewQuotePage() {
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Project</label>
-            <select
+            <Label>Project</Label>
+            <Select
               aria-label="Project"
               value={projectId}
               onChange={e => {
                 if (e.target.value === '__new_project__') { setShowNewProject(true) }
                 else { setProjectId(e.target.value); setShowNewProject(false) }
               }}
-              className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
             >
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
               {clientId && <option value="__new_project__">+ Add project</option>}
-            </select>
+            </Select>
             {showNewProject && (
               <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
                 <p className="text-xs font-semibold text-text-secondary mb-1">New project</p>
-                <input
-                  aria-label="New project name"
-                  value={newProjectTitle}
-                  onChange={e => setNewProjectTitle(e.target.value)}
-                  placeholder="Project name *"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
+                <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
                 <div className="flex gap-2 pt-1">
                   <button
                     type="button"
@@ -312,12 +286,12 @@ export default function NewQuotePage() {
             </div>
           )}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Issue date</label>
-            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Issue date</Label>
+            <Input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Valid until</label>
-            <input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Valid until</Label>
+            <Input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
           </div>
         </div>
       </div>
@@ -340,15 +314,15 @@ export default function NewQuotePage() {
             <tbody>
               {lineItems.map((item, i) => (
                 <tr key={i}>
-                  <td className="py-1 pr-2"><input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
-                  <td className="py-1 pr-2"><input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
-                  <td className="py-1 pr-2"><input aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
+                  <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
                   <td className="py-1 pr-2">
-                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20">
+                    <Select variant="inline" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
-                    </select>
+                    </Select>
                   </td>
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
@@ -375,8 +349,8 @@ export default function NewQuotePage() {
 
       {/* Notes */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <label className="block text-xs font-medium text-text-muted mb-1">Notes</label>
-        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 resize-none" />
+        <Label>Notes</Label>
+        <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
       </div>
 
       <div className="flex justify-end gap-3">

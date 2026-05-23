@@ -15,6 +15,7 @@ import { calcSubtotal, calcVatAmount, calcTotal, generateInvoiceNumber } from '@
 import AIFlag from '@/components/ai-flag'
 import { Sparkle, Plus, X, CaretDown } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
+import { Input, Select, Textarea, Label } from '@/components/form-fields'
 
 interface LineItem {
   description: string
@@ -342,48 +343,29 @@ export default function NewInvoicePage() {
         <div className="grid grid-cols-2 gap-4">
           {/* Client with inline create */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Client</label>
+            <Label>Client</Label>
             <div className="relative">
-              <select
+              <Select
                 aria-label="Client"
                 value={clientId}
                 onChange={e => {
                   if (e.target.value === '__new__') { setShowNewClient(true) }
                   else { setClientId(e.target.value); setShowNewClient(false) }
                 }}
-                className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 appearance-none"
+                className="appearance-none"
               >
                 <option value="">Select client...</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 <option value="__new__">+ Create new client</option>
-              </select>
+              </Select>
               <CaretDown weight="regular" className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             {showNewClient && (
               <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
                 <p className="text-xs font-semibold text-forest-700 mb-1">New client</p>
-                <input
-                  aria-label="New client name"
-                  value={newClientName}
-                  onChange={e => setNewClientName(e.target.value)}
-                  placeholder="Company / client name *"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
-                <input
-                  aria-label="New client contact name"
-                  value={newClientContact}
-                  onChange={e => setNewClientContact(e.target.value)}
-                  placeholder="Contact name"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
-                <input
-                  aria-label="New client email"
-                  value={newClientEmail}
-                  onChange={e => setNewClientEmail(e.target.value)}
-                  placeholder="Email"
-                  type="email"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
+                <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
+                <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
+                <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={handleCreateClient}
@@ -403,33 +385,27 @@ export default function NewInvoicePage() {
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Project</label>
+            <Label>Project</Label>
             <div className="relative">
-              <select
+              <Select
                 aria-label="Project"
                 value={projectId}
                 onChange={e => {
                   if (e.target.value === '__new_project__') { setShowNewProject(true) }
                   else { setProjectId(e.target.value); setShowNewProject(false) }
                 }}
-                className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 appearance-none"
+                className="appearance-none"
               >
                 <option value="">Select project...</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                 {clientId && <option value="__new_project__">+ Add project</option>}
-              </select>
+              </Select>
               <CaretDown weight="regular" className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             {showNewProject && (
               <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
                 <p className="text-xs font-semibold text-forest-700 mb-1">New project</p>
-                <input
-                  aria-label="New project name"
-                  value={newProjectTitle}
-                  onChange={e => setNewProjectTitle(e.target.value)}
-                  placeholder="Project name *"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
-                />
+                <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={handleCreateProject}
@@ -454,16 +430,16 @@ export default function NewInvoicePage() {
             </div>
           )}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Issue date</label>
-            <input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Issue date</Label>
+            <Input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Due date</label>
-            <input aria-label="Due date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Due date</Label>
+            <Input aria-label="Due date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-medium text-text-muted mb-1">Payment terms</label>
-            <input aria-label="Payment terms" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+            <Label>Payment terms</Label>
+            <Input aria-label="Payment terms" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
           </div>
         </div>
       </div>
@@ -490,20 +466,20 @@ export default function NewInvoicePage() {
               {lineItems.map((item, i) => (
                 <tr key={i}>
                   <td className="py-1 pr-2">
-                    <input aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" />
+                    <Input variant="inline" aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" />
                   </td>
                   <td className="py-1 pr-2">
-                    <input aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" />
+                    <Input variant="inline" aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} />
                   </td>
                   <td className="py-1 pr-2">
-                    <input aria-label="Line item unit price" type="number" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20" />
+                    <Input variant="inline" aria-label="Line item unit price" type="number" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} />
                   </td>
                   <td className="py-1 pr-2">
-                    <select aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20">
+                    <Select variant="inline" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
-                    </select>
+                    </Select>
                   </td>
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
@@ -532,8 +508,8 @@ export default function NewInvoicePage() {
 
       {/* Notes */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <label className="block text-xs font-medium text-text-muted mb-1">Notes</label>
-        <textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 resize-none" />
+        <Label>Notes</Label>
+        <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
       </div>
 
       {/* Actions */}
