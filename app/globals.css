@@ -62,24 +62,37 @@
     --brand-accent-active:  var(--cream-500);
 
     /* ── Status colour tokens ──────────────────────────────────────── */
-    --success-50:  #EDFAF1;
-    --success-200: #A7DFB5;
-    --success-500: #2D6B3F;
-    --success-600: #256035;
-    --success-700: #1F4D2D;
-    --success-800: #183E25;
-    --warning-50:  #FFFBEB;
-    --warning-200: #FDE68A;
-    --warning-500: #D97706;
-    --warning-600: #B45309;
-    --warning-700: #92400E;
-    --warning-800: #78350F;
-    --danger-50:   #FEF2F2;
-    --danger-200:  #FECACA;
-    --danger-500:  #EF4444;
-    --danger-600:  #DC2626;
-    --danger-700:  #B91C1C;
-    --danger-800:  #991B1B;
+    /* Realigned to deeper brand-tone palette used by status badges.   */
+    /* -100 stops added for hover states. Use the helpers in           */
+    /* lib/status-palette.ts rather than referencing raw stops in JSX. */
+    --success-50:  #EAFAF0;
+    --success-100: #D4F5E2;
+    --success-200: #B8DFC3;
+    --success-500: #1D6B35;
+    --success-600: #0F5A28;
+    --success-700: #0A4520;
+    --success-800: #06321A;
+    --warning-50:  #FEFCE8;
+    --warning-100: #FDF0C0;
+    --warning-200: #F5E29B;
+    --warning-500: #9A7B0A;
+    --warning-600: #5C480C;
+    --warning-700: #3F3208;
+    --warning-800: #2A2105;
+    --danger-50:   #FDECEA;
+    --danger-100:  #FAD7D4;
+    --danger-200:  #F5C0BB;
+    --danger-500:  #C0392B;
+    --danger-600:  #8B1E15;
+    --danger-700:  #6B1410;
+    --danger-800:  #4A0D0B;
+    --info-50:     #EBF4FD;
+    --info-100:    #D6ECFB;
+    --info-200:    #B8D9F0;
+    --info-500:    #1A5E8A;
+    --info-600:    #0E4566;
+    --info-700:    #093550;
+    --info-800:    #06243A;
 
     /* ── Typography tokens ─────────────────────────────────────────── */
     /* Two fonts only: Outfit (UI) · DM Serif Display (display/wordmark) */
@@ -220,23 +233,33 @@
     --brand-accent-active:  #1F3D2D;
 
     --success-50:  #0D2914;
+    --success-100: #14391C;
     --success-200: #1F5C2E;
     --success-500: #8FB59C;
     --success-600: #A8CBAF;
     --success-700: #DEEBE2;
     --success-800: #EEF5F0;
     --warning-50:  #2A1A0A;
+    --warning-100: #3A2510;
     --warning-200: #4A3010;
     --warning-500: #E89B6F;
     --warning-600: #F0AE87;
     --warning-700: #F8C9A2;
     --warning-800: #FDE8D0;
     --danger-50:   #2E0F0F;
+    --danger-100:  #421515;
     --danger-200:  #5C1A1A;
     --danger-500:  #E59082;
     --danger-600:  #EDA89F;
     --danger-700:  #F5D3CD;
     --danger-800:  #FAE8E5;
+    --info-50:     #0A2238;
+    --info-100:    #102E48;
+    --info-200:    #1A4569;
+    --info-500:    #6FA8D6;
+    --info-600:    #93BFE0;
+    --info-700:    #C6DCEE;
+    --info-800:    #E5EFF7;
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
