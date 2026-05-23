@@ -25,7 +25,7 @@ export default function NotTaxAdviceDisclaimer({ variant = 'inline' }: Props) {
   }
 
   return (
-    <div className="flex items-start gap-2 bg-warning-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-warning-900">
+    <div className="flex items-start gap-2 bg-warning-50 border border-warning-200 rounded-xl px-3 py-2 text-xs text-warning-900">
       <Info weight="regular" className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
       <p>{DISCLAIMER_INLINE_TEXT}</p>
     </div>

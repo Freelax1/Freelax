@@ -74,7 +74,7 @@ export default function TaxTab({ profile, save, saving }: Props) {
 
         {profile?.business_type === 'limited_company' && (
           <>
-            <div className="bg-forest-50 border border-blue-100 rounded-xl p-3 text-xs text-forest-700">
+            <div className="bg-forest-50 border border-info-200 rounded-xl p-3 text-xs text-forest-700">
               As a limited company director, enter the salary and dividends you actually draw. This gives you an accurate personal tax calculation separate from your company's corporation tax.
             </div>
             <Field

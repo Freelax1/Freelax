@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { escapeHtml } from '@/lib/escape-html'
+import { EMAIL_TEXT_MUTED, EMAIL_CTA_BG, EMAIL_CTA_TEXT } from '@/lib/email-colours'
 
 export async function POST(req: NextRequest) {
   const resendKey = process.env.RESEND_API_KEY
@@ -49,8 +50,8 @@ export async function POST(req: NextRequest) {
       subject: `${senderName} has invited you to view their Freelax account`,
       html:    `<p>Hi,</p>
                <p><strong>${escapeHtml(senderName)}</strong> has invited you to view their Freelax financial data as a read-only accountant.</p>
-               <p><a href="${escapeHtml(acceptUrl)}" style="background:#111;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
-               <p style="color:#888;font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
+               <p><a href="${escapeHtml(acceptUrl)}" style="background:${EMAIL_CTA_BG};color:${EMAIL_CTA_TEXT};padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
+               <p style="color:${EMAIL_TEXT_MUTED};font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
     })
   } catch (e) {
     console.error('Email send failed:', e)

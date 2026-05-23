@@ -172,7 +172,7 @@ export default function ProjectDetailPage() {
                 <th className="pb-2 font-medium">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-border-subtle">
               {invoices.map(inv => (
                 <tr key={inv.id}>
                   <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-forest-600 hover:underline font-medium">{inv.invoice_number}</Link></td>

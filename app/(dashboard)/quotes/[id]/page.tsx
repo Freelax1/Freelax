@@ -505,7 +505,7 @@ export default function QuoteDetailPage() {
             <p className="text-xs text-text-muted mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-border-subtle">
             {[...activity].reverse().map((entry: QuoteActivity) => {
               const cfg = activityConfig(entry)
               return (

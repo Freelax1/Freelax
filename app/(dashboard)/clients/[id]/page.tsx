@@ -94,7 +94,7 @@ export default function ClientDetailPage() {
           <th className="py-2 text-xs font-medium text-text-secondary text-right">Status</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-slate-50">
+      <tbody className="divide-y divide-border-subtle">
         {projects.map(p => (
           <tr key={p.id}>
             <td className="py-2">
@@ -208,7 +208,7 @@ export default function ClientDetailPage() {
                   <th className="pb-2 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-border-subtle">
                 {quotes.map(q => {
                   const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
                   return (
@@ -253,7 +253,7 @@ export default function ClientDetailPage() {
                   <th className="pb-2 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-border-subtle">
                 {invoices.map(inv => (
                   <tr key={inv.id}>
                     <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-forest-600 hover:underline font-medium">{inv.invoice_number}</Link></td>

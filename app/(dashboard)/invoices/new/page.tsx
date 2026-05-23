@@ -321,7 +321,7 @@ export default function NewInvoicePage() {
             value={aiInput}
             onChange={e => setAiInput(e.target.value)}
             placeholder="e.g. 3 days of React development at £600/day, plus a half day for code review"
-            className="w-full px-3 py-2 border border-forest-200 rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 h-20 resize-none"
+            className="w-full px-3 py-2 border border-forest-200 rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary h-20 resize-none"
           />
           <div className="flex justify-end gap-2 mt-2">
             <button onClick={() => setShowAI(false)} className="px-3 py-1.5 text-sm text-text-muted hover:text-text-secondary">Cancel</button>

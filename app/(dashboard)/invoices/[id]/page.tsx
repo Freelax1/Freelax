@@ -28,9 +28,9 @@ function Badge({ status }: { status: string }) {
 type ChaseTier = 'friendly' | 'formal' | 'legal'
 
 const TIER_META: Record<ChaseTier, { label: string; badge: string; badgeColor: string; badgeBg: string }> = {
-  friendly: { label: 'Friendly Reminder',  badge: '1st',  badgeColor: '#1A5E8A', badgeBg: '#EBF4FD' },
-  formal:   { label: 'Formal Notice',      badge: '2nd',  badgeColor: '#9A7B0A', badgeBg: '#FEF9E7' },
-  legal:    { label: 'Legal Notice',       badge: '3rd+', badgeColor: '#C0392B', badgeBg: '#FDECEA' },
+  friendly: { label: 'Friendly Reminder',  badge: '1st',  badgeColor: 'var(--info-600)',    badgeBg: 'var(--info-50)'    },
+  formal:   { label: 'Formal Notice',      badge: '2nd',  badgeColor: 'var(--warning-600)', badgeBg: 'var(--warning-50)' },
+  legal:    { label: 'Legal Notice',       badge: '3rd+', badgeColor: 'var(--danger-600)',  badgeBg: 'var(--danger-50)'  },
 }
 
 function getTierMessages(invoice: Invoice, businessName: string, dueDate: string, overdueDays: number): Record<ChaseTier, string> {
@@ -251,7 +251,7 @@ function ChaseModal({
             onClick={handleSend}
             disabled={sending || !message.trim() || onCooldown}
             style={{
-              background: tier === 'legal' ? '#C0392B' : tier === 'formal' ? '#9A7B0A' : '#111',
+              background: tier === 'legal' ? 'var(--danger-600)' : tier === 'formal' ? 'var(--warning-600)' : 'var(--text-primary)',
               opacity: (sending || !message.trim() || onCooldown) ? 0.5 : 1,
             }}
             className="flex items-center gap-2 px-5 py-2 text-white rounded-xl text-sm font-medium disabled:opacity-50 transition-colors"
@@ -687,7 +687,7 @@ export default function InvoiceDetailPage() {
             <p className="text-xs text-text-muted mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-border-subtle">
             {[...activity].reverse().map((entry: InvoiceActivity) => {
               const cfg = activityConfig(entry)
               return (

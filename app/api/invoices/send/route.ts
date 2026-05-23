@@ -7,6 +7,7 @@ import { logActivity } from '@/lib/api/invoice-activity'
 import { canSendByEmail } from '@/lib/plan-limits'
 import { generateInvoicePdfBuffer } from '@/lib/pdf/generate-invoice-pdf'
 import { escapeHtml } from '@/lib/escape-html'
+import { EMAIL_TEXT_SECONDARY, EMAIL_TEXT_BODY, EMAIL_TEXT_PRIMARY, EMAIL_BORDER_DEFAULT } from '@/lib/email-colours'
 import type { Invoice } from '@/types/database'
 
 function applyTemplate(template: string, vars: Record<string, string>): string {
@@ -88,17 +89,17 @@ export async function POST(req: NextRequest) {
           content:  pdfBuffer,
         }] : [],
         html: `
-          <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#1e293b;">
+          <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:${EMAIL_TEXT_PRIMARY};">
             ${sender?.logo_url ? `<img src="${escapeHtml(sender.logo_url)}" alt="${escapeHtml(businessName)}" style="height:40px;object-fit:contain;margin-bottom:20px;display:block;" />` : ''}
             <h2 style="font-size:20px;margin-bottom:4px;">Invoice ${escapeHtml(invoice.invoice_number)}</h2>
-            <p style="color:#64748b;font-size:13px;margin-bottom:20px;">${escapeHtml(businessName)}</p>
-            <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:#334155;margin-bottom:8px;">${bodyText.replace(/\n/g, '<br/>')}</div>
+            <p style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;margin-bottom:20px;">${escapeHtml(businessName)}</p>
+            <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:${EMAIL_TEXT_BODY};margin-bottom:8px;">${bodyText.replace(/\n/g, '<br/>')}</div>
             <table style="width:100%;border-collapse:collapse;margin:24px 0;">
-              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Invoice</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(invoice.invoice_number)}</td></tr>
-              <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Amount</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(formatCurrency(invoice.total))}</td></tr>
-              <tr><td style="padding:8px 0;color:#64748b;">Due</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(dueDate)}</td></tr>
+              <tr><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};color:${EMAIL_TEXT_SECONDARY};">Invoice</td><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};font-weight:600;">${escapeHtml(invoice.invoice_number)}</td></tr>
+              <tr><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};color:${EMAIL_TEXT_SECONDARY};">Amount</td><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};font-weight:600;">${escapeHtml(formatCurrency(invoice.total))}</td></tr>
+              <tr><td style="padding:8px 0;color:${EMAIL_TEXT_SECONDARY};">Due</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(dueDate)}</td></tr>
             </table>
-            <p style="margin-top:24px;color:#64748b;font-size:13px;">${escapeHtml(businessName)}<br/>${escapeHtml(sender?.email || '')}</p>
+            <p style="margin-top:24px;color:${EMAIL_TEXT_SECONDARY};font-size:13px;">${escapeHtml(businessName)}<br/>${escapeHtml(sender?.email || '')}</p>
           </div>
         `,
       })

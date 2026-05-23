@@ -168,7 +168,7 @@ export default function RecurringInvoicesPage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border-default">
               {templates.map(t => (
                 <tr key={t.id} className="hover:bg-surface-sunken">
                   <td className="px-4 py-3 font-medium text-text-primary">{t.clients?.name ?? '—'}</td>

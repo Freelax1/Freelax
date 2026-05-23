@@ -34,7 +34,7 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-label="More information"
-        className="bg-transparent border-none p-0 ml-1 cursor-pointer inline-flex items-center transition-colors text-slate-500 hover:text-brand-primary"
+        className="bg-transparent border-none p-0 ml-1 cursor-pointer inline-flex items-center transition-colors text-text-secondary hover:text-brand-primary"
       >
         <Question weight="regular" size={13} />
       </button>
