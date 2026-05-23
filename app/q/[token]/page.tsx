@@ -139,9 +139,9 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                 {lineItems.map((item: any) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                     <td className="py-3" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
-                    <td className="qpub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
-                    <td className="qpub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                    <td className="qpub-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                    <td className="qpub-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                    <td className="qpub-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                    <td className="qpub-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'right' }}>{item.vat_rate}%</td>
                     <td className="py-3" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                   </tr>
                 ))}

@@ -446,9 +446,9 @@ export default function QuoteDetailPage() {
               {lineItems.map((item: QuoteLineItem) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td className="py-3" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
-                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="q-hide" className="py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td className="q-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="q-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="q-hide py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
                   <td className="py-3" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
