@@ -74,7 +74,7 @@ function DeleteModal({ onConfirm, onCancel, loading }: {
   loading:   boolean
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45" onClick={onCancel}>
       <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-danger-100 rounded-full flex items-center justify-center shrink-0">

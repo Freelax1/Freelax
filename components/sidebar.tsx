@@ -507,7 +507,7 @@ export default function Sidebar() {
       {mobileOpen && (
         <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
           <div
-            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }}
+            className="absolute inset-0 bg-black/[0.35]"
             onClick={() => setMobileOpen(false)}
           />
           <aside style={{

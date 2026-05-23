@@ -105,8 +105,7 @@ function ChaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
       onClick={onClose}
     >
       <div

@@ -51,9 +51,8 @@ export default function SettingsModal({ open, onClose, initialTab }: Props) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/45"
       style={{
-        background: 'rgba(0,0,0,0.45)',
         backdropFilter: 'blur(4px)',
         WebkitBackdropFilter: 'blur(4px)',
       }}
