@@ -184,66 +184,68 @@ function TaxPotCard({
 }) {
   return (
     <Card title="Tax Pot">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-xs text-text-secondary">Target</span>
-        <span className="text-sm font-semibold">{formatCurrency(totalTarget)}</span>
-      </div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-text-secondary">Already set aside</span>
-        <span className={`text-sm font-semibold ${totalSaved >= totalTarget ? 'text-success-700' : 'text-text-primary'}`}>
-          {formatCurrency(totalSaved)}
-          {totalSaved >= totalTarget && <span className="text-xs font-normal ml-1">✓ On track</span>}
-        </span>
-      </div>
-      {/* Progress bar */}
-      {totalTarget > 0 && (
-        <div className="h-[5px] rounded-full overflow-hidden mb-2.5 bg-black/[0.06]">
-          <div style={{
-            height: '100%',
-            background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',
-            width: `${Math.min(100, Math.round((totalSaved / totalTarget) * 100))}%`,
-            transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
-          }} />
+      <div className="py-4">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-text-secondary">Target</span>
+          <span className="text-sm font-semibold">{formatCurrency(totalTarget)}</span>
         </div>
-      )}
-      {entries.map((e: TaxPotEntry) => (
-        <div key={e.id} className="flex justify-between items-center text-xs text-text-secondary mb-1 group">
-          <span>{e.note || 'Contribution'} · {new Date(e.date).toLocaleDateString('en-GB')}</span>
-          <div className="flex items-center gap-2">
-            <span>+{formatCurrency(e.amount)}</span>
-            <button
-              onClick={() => onDelete(e.id)}
-              title="Remove this entry"
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-danger-50 hover:text-danger-500 text-text-secondary"
-            >
-              <X weight="regular" className="w-3 h-3" />
-            </button>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-text-secondary">Already set aside</span>
+          <span className={`text-sm font-semibold ${totalSaved >= totalTarget ? 'text-success-700' : 'text-text-primary'}`}>
+            {formatCurrency(totalSaved)}
+            {totalSaved >= totalTarget && <span className="text-xs font-normal ml-1">✓ On track</span>}
+          </span>
+        </div>
+        {/* Progress bar */}
+        {totalTarget > 0 && (
+          <div className="h-[5px] rounded-full overflow-hidden mb-3 bg-black/[0.06]">
+            <div style={{
+              height: '100%',
+              background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',
+              width: `${Math.min(100, Math.round((totalSaved / totalTarget) * 100))}%`,
+              transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
+            }} />
           </div>
+        )}
+        {entries.map((e: TaxPotEntry) => (
+          <div key={e.id} className="flex justify-between items-center text-xs text-text-secondary mb-1.5 group">
+            <span>{e.note || 'Contribution'} · {new Date(e.date).toLocaleDateString('en-GB')}</span>
+            <div className="flex items-center gap-2">
+              <span>+{formatCurrency(e.amount)}</span>
+              <button
+                onClick={() => onDelete(e.id)}
+                title="Remove this entry"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-danger-50 hover:text-danger-500 text-text-secondary"
+              >
+                <X weight="regular" className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {totalTarget > totalSaved && (
+          <p className="text-xs text-warning-800 mt-2">
+            {formatCurrency(totalTarget - totalSaved)} still to set aside
+          </p>
+        )}
+        <div className="grid grid-cols-[1fr_1fr_auto] gap-2 mt-4">
+          <input
+            type="number" min="0" placeholder="Add amount (£)"
+            value={potAmount} onChange={e => setPotAmount(e.target.value)}
+            className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
+          />
+          <input
+            placeholder="Note (optional)"
+            value={potNote} onChange={e => setPotNote(e.target.value)}
+            className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
+          />
+          <button
+            onClick={onAdd}
+            disabled={savingPot || !potAmount || Number(potAmount) <= 0}
+            className="px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 whitespace-nowrap"
+          >
+            {savingPot ? '…' : '+ Save'}
+          </button>
         </div>
-      ))}
-      {totalTarget > totalSaved && (
-        <p className="text-xs text-warning-800 mt-1">
-          {formatCurrency(totalTarget - totalSaved)} still to set aside
-        </p>
-      )}
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-2 mt-3">
-        <input
-          type="number" min="0" placeholder="Add amount (£)"
-          value={potAmount} onChange={e => setPotAmount(e.target.value)}
-          className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
-        />
-        <input
-          placeholder="Note (optional)"
-          value={potNote} onChange={e => setPotNote(e.target.value)}
-          className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
-        />
-        <button
-          onClick={onAdd}
-          disabled={savingPot || !potAmount || Number(potAmount) <= 0}
-          className="px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 whitespace-nowrap"
-        >
-          {savingPot ? '…' : '+ Save'}
-        </button>
       </div>
     </Card>
   )
