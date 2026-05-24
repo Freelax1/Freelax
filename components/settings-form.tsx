@@ -19,6 +19,7 @@ import BillingTab          from './settings/billing-tab'
 import AccountantTab       from './settings/accountant-tab'
 import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
+import { sectionTitle } from '@/lib/typography'
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   free:   { label: 'Free',   color: 'bg-surface-sunken text-text-primary' },
@@ -72,7 +73,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 pt-2">
+    <div className="flex flex-col lg:flex-row gap-10">
       {/* Sidebar nav */}
       <nav className="w-full lg:w-44 flex-shrink-0">
         <div className="space-y-6">
@@ -125,8 +126,8 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         <div className={embedded ? '' : 'bg-surface-card border border-border-default rounded-2xl overflow-hidden'}>
           {/* Tab header */}
           <div className={embedded ? 'pb-4 mb-2 border-b border-border-subtle' : 'px-7 py-5 border-b border-border-subtle'}>
-            <h1 className="text-base font-semibold text-text-primary tracking-tight">{tab}</h1>
-            <p className="text-xs text-text-secondary mt-0.5">{TAB_DESCRIPTIONS[tab]}</p>
+            <h2 className={sectionTitle}>{tab}</h2>
+            <p className="text-xs text-text-secondary mt-1">{TAB_DESCRIPTIONS[tab]}</p>
           </div>
 
           <div className={embedded ? 'pt-4' : 'px-7 py-6'}>

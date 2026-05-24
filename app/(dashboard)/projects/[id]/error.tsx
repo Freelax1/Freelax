@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Button from '@/components/ui/button'
 
 export default function DetailError({
   error,
@@ -15,7 +16,7 @@ export default function DetailError({
 
   return (
     <div className="px-6 py-16 flex flex-col items-center text-center gap-3">
-      <div className="w-10 h-10 rounded-full inline-flex items-center justify-center" style={{ background: 'var(--danger-50)', border: '1px solid var(--danger-200)' }}>
+      <div className="w-10 h-10 rounded-full inline-flex items-center justify-center bg-danger-50 border border-[color:var(--danger-200)]">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
@@ -24,12 +25,9 @@ export default function DetailError({
       </div>
       <p className="text-sm font-medium text-text-primary m-0">Failed to load</p>
       <p className="text-sm text-text-secondary m-0">Something went wrong loading this page.</p>
-      <button
-        onClick={reset}
-        className="mt-1 px-4 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
-      >
+      <Button type="button" intent="primary" size="md" className="mt-1" onClick={reset}>
         Try again
-      </button>
+      </Button>
       {error.digest && (
         <p className="text-caption text-text-muted m-0 font-sans">Ref: {error.digest}</p>
       )}

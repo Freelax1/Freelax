@@ -78,7 +78,7 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
         {/* Progress bar */}
         <div className="w-[100px] h-1.5 rounded-full overflow-hidden bg-surface-sunken">
           <div
-            className="h-full rounded-full transition-all bg-forest-950"
+            className="h-full rounded-full transition-all bg-brand-primary"
             style={{ width: `${(completedCount / steps.length) * 100}%` }}
           />
         </div>
@@ -94,7 +94,7 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
             )}
           >
             {/* Tick */}
-            <div className={cn('w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0', s.done ? 'bg-forest-950' : 'bg-surface-sunken')}>
+            <div className={cn('w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0', s.done ? 'bg-brand-primary' : 'bg-surface-sunken')}>
               {s.done
                 ? <Check weight="regular" className="w-3 h-3 text-white" />
                 : <span className="w-2 h-2 rounded-full block bg-border-default" />

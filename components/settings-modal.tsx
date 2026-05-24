@@ -52,10 +52,6 @@ export default function SettingsModal({ open, onClose, initialTab }: Props) {
     <div
       onClick={onClose}
       className="fixed inset-0 z-modal flex items-center justify-center p-6 bg-black/45"
-      style={{
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)',
-      }}
     >
       <div
         onClick={e => e.stopPropagation()}

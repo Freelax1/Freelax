@@ -2,7 +2,7 @@
  * Re-exports from components/ui/ for backward compatibility.
  * New code should import directly from '@/components/ui'.
  */
-export { Field, Input, Textarea, Select } from '@/components/ui/input'
+export { Field, Input, Textarea, Select, Label } from '@/components/ui/input'
 export { default as Button } from '@/components/ui/button'
 
 import { cn } from '@/lib/utils'

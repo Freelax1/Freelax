@@ -32,12 +32,10 @@ export default async function LegalLayout({
     <div style={{ minHeight: '100vh', background: 'var(--surface-paper)', color: 'var(--text-primary)' }}>
 
       {/* Top header */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 40, // z-sticky
+      <header className="sticky top-0 z-sticky border-b border-border-subtle" style={{
         background: 'rgba(255,255,255,0.88)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        borderBottom: '1px solid var(--border-subtle)',
       }}>
         <div className="flex items-center justify-between gap-4 py-3.5 px-6" style={{
           maxWidth: 1200, margin: '0 auto',

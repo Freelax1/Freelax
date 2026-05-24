@@ -13,19 +13,19 @@ interface Props {
 export default function QuietRow({ activeClients, openInvoices, openInvoicesTotal, expensesThisMonth, liveProjects }: Props) {
   const stats = [
     { label: 'Active clients',       value: String(activeClients),            href: '/clients' },
-    { label: 'Waiting to be paid',   value: openInvoices > 0 ? `${openInvoices} (${formatCurrency(openInvoicesTotal)})` : 'None', href: '/invoices' },
+    { label: 'Waiting to be paid',   value: openInvoices > 0 ? `${openInvoices} · ${formatCurrency(openInvoicesTotal)}` : 'None', href: '/invoices' },
     { label: 'Money out this month', value: formatCurrency(expensesThisMonth), href: '/expenses' },
     { label: 'Live projects',        value: String(liveProjects),             href: '/projects' },
   ]
 
   return (
-    <div className="pt-5 grid grid-cols-4 gap-4 border-t border-border-default">
-      {stats.map((s, i) => (
-        <Link key={s.label} href={s.href} className="no-underline">
-          <p className="text-caption text-text-secondary font-semibold mb-1">
+    <div className="pt-5 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 border-t border-border-default">
+      {stats.map(s => (
+        <Link key={s.label} href={s.href} className="no-underline group">
+          <p className="text-caption text-text-secondary font-medium mb-1">
             {s.label}
           </p>
-          <p className="text-base font-semibold text-text-secondary [font-variant-numeric:tabular-nums]">
+          <p className="text-sm font-medium text-text-primary tabular-nums group-hover:text-brand-primary transition-colors">
             {s.value}
           </p>
         </Link>

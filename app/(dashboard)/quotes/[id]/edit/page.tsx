@@ -12,7 +12,9 @@ import { fetchClientsForDropdown } from '@/lib/api/clients'
 import { fetchProjectsForClient } from '@/lib/api/projects'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal } from '@/lib/logic/quotes'
 import Link from 'next/link'
+import Button from '@/components/ui/button'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
+import { sectionTitle } from '@/lib/typography'
 import type { Client, Project, QuoteLineItem } from '@/types/database'
 import { Input, Select, Textarea, Label } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
@@ -121,14 +123,14 @@ export default function EditQuotePage() {
         <Link href={`/quotes/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quote
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">Edit quote</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit quote</h1>
       </div>
 
       {error && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
 
       {/* Quote details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className="font-semibold text-text-primary">Quote details</h2>
+        <h2 className={sectionTitle}>Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Client</Label>
@@ -157,7 +159,7 @@ export default function EditQuotePage() {
 
       {/* Line items */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <h2 className="font-semibold text-text-primary">Line items</h2>
+        <h2 className={sectionTitle}>Line items</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -198,9 +200,15 @@ export default function EditQuotePage() {
             </tbody>
           </table>
         </div>
-        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-forest-600 hover:text-forest-700">
-          <Plus weight="regular" className="w-4 h-4" /> Add line item
-        </button>
+        <Button
+          type="button"
+          intent="ghost"
+          size="sm"
+          className="-ml-2"
+          onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
+        >
+          <Plus weight="regular" className="w-3.5 h-3.5" /> Add line item
+        </Button>
         <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
           <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
           <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
@@ -216,9 +224,9 @@ export default function EditQuotePage() {
 
       <div className="flex justify-end gap-3">
         <Link href={`/quotes/${params.id}`} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
-        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+        <Button type="button" intent="primary" size="md" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
-        </button>
+        </Button>
       </div>
     </div>
   )

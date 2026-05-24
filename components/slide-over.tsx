@@ -42,7 +42,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
   const panelWidth = width === 'lg' ? 640 : 440
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-overlay">
       {/* Backdrop */}
       <div
         onClick={onClose}

@@ -4,14 +4,26 @@
 import { createClient } from '@/lib/supabase/client'
 import type { IR35Answer, IR35Status } from '@/types/database'
 
-export async function fetchProjects() {
+export type ProjectListRow = {
+  id: string
+  title: string
+  status: string
+  rate_type: string | null
+  rate_amount: number | null
+  end_date: string | null
+  ir35_status: IR35Status | null
+  client_id: string | null
+  clients: { id: string; name: string } | null
+}
+
+export async function fetchProjects(): Promise<ProjectListRow[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('projects')
     .select('id, title, status, rate_type, rate_amount, end_date, ir35_status, client_id, clients(id, name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as unknown as ProjectListRow[]
 }
 
 export async function fetchProjectById(id: string) {

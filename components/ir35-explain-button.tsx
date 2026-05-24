@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Sparkle, CircleNotch, X, ArrowCounterClockwise } from '@phosphor-icons/react'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import Button from '@/components/ui/button'
 import Tooltip from '@/components/tooltip'
 
 interface IR35ExplainButtonProps {
@@ -87,16 +88,12 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
 
   return (
     <>
-      <button
-        onClick={() => handleExplain()}
-        disabled={loading || !answers?.length}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 transition-colors"
-      >
+      <Button type="button" intent="primary" size="xs" onClick={() => handleExplain()} disabled={loading || !answers?.length}>
         {loading
           ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" />
           : <Sparkle weight="regular" className="w-3.5 h-3.5" />}
         {loading ? 'Analysing...' : 'AI Explain'}
-      </button>
+      </Button>
 
       {error && (
         <p className="text-xs text-danger-500 mt-1">{error}</p>
@@ -104,7 +101,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
 
       {/* Result panel */}
       {open && result && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
+        <div className="fixed inset-0 z-modal flex items-end sm:items-center justify-center p-4 bg-black/40">
           <div className="bg-surface-card rounded-xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-xl">
 
             {/* Header */}
@@ -146,7 +143,7 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                   <ol className="space-y-2.5">
                     {result.next_steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-forest-900 text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
                         {step}
                       </li>
                     ))}

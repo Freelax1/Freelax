@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import Button, { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export default function DashboardError({
   error,
@@ -33,16 +35,10 @@ export default function DashboardError({
         </p>
 
         <div className="flex gap-2 justify-center">
-          <button
-            onClick={reset}
-            className="px-4 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
-          >
+          <Button type="button" intent="primary" size="md" onClick={reset}>
             Try again
-          </button>
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 bg-surface-card text-text-secondary border border-border-default rounded-lg text-sm font-medium no-underline inline-block"
-          >
+          </Button>
+          <Link href="/dashboard" className={cn(buttonVariants({ intent: 'secondary', size: 'md' }), 'no-underline')}>
             Go to dashboard
           </Link>
         </div>

@@ -11,9 +11,11 @@ import { calcOutstanding, calcTotalInvoiced, calcTotalPaid } from '@/lib/logic/c
 import Badge from '@/components/badge'
 import ClientForm from '@/components/client-form'
 import SlideOver from '@/components/slide-over'
+import Button from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { serifStat, sectionTitle } from '@/lib/typography'
 import type { Client, Project, Invoice, Quote } from '@/types/database'
 
 type ClientProject = Pick<Project, 'id' | 'title' | 'status' | 'ir35_status' | 'rate_type' | 'rate_amount'>
@@ -116,7 +118,7 @@ export default function ClientDetailPage() {
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-serif font-semibold text-text-primary">{client.name}</h1>
+            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{client.name}</h1>
             <div className="flex items-center gap-3 mt-1 text-sm text-text-muted">
               {client.contact_name && <span>{client.contact_name}</span>}
               {client.email && <a href={`mailto:${client.email}`} className="text-forest-600 hover:underline">{client.email}</a>}
@@ -125,9 +127,9 @@ export default function ClientDetailPage() {
           </div>
           <div className="flex gap-2 items-center">
             <Badge status={client.status} />
-            <button onClick={() => setEditOpen(true)} className="px-3 py-1.5 border border-border-default rounded-lg text-sm hover:bg-surface-sunken">
+            <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -135,26 +137,26 @@ export default function ClientDetailPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-xs text-text-muted">Total invoiced</p>
-          <p className="text-2xl font-serif font-semibold text-text-primary mt-1">{formatCurrency(totalInvoiced)}</p>
+          <p className="text-caption text-text-muted">Total invoiced</p>
+          <p className={cn('text-2xl text-text-primary mt-1', serifStat)}>{formatCurrency(totalInvoiced)}</p>
         </div>
         <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-xs text-text-muted">Total paid</p>
-          <p className="text-2xl font-serif font-semibold text-success-700 mt-1">{formatCurrency(totalPaid)}</p>
+          <p className="text-caption text-text-muted">Total paid</p>
+          <p className={cn('text-2xl text-success-700 mt-1', serifStat)}>{formatCurrency(totalPaid)}</p>
         </div>
         <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-xs text-text-muted">Outstanding</p>
-          <p className={`text-2xl font-serif font-semibold mt-1 ${outstanding > 0 ? 'text-danger-600' : 'text-text-primary'}`}>{formatCurrency(outstanding)}</p>
+          <p className="text-caption text-text-muted">Outstanding</p>
+          <p className={cn('text-2xl mt-1', serifStat, outstanding > 0 ? 'text-danger-600' : 'text-text-primary')}>{formatCurrency(outstanding)}</p>
         </div>
         <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-xs text-text-muted">Quotes pipeline</p>
-          <p className="text-2xl font-serif font-semibold mt-1 text-text-primary">{formatCurrency(quotesPipeline)}</p>
+          <p className="text-caption text-text-muted">Quotes pipeline</p>
+          <p className={cn('text-2xl text-text-primary mt-1', serifStat)}>{formatCurrency(quotesPipeline)}</p>
         </div>
       </div>
 
       {(client.address_line1 || client.notes) && (
         <div className="bg-surface-card rounded-xl border border-border-default p-6">
-          <h2 className="font-semibold text-text-primary mb-3">Details</h2>
+          <h2 className={cn(sectionTitle, 'mb-3')}>Details</h2>
           {client.address_line1 && (
             <div className="text-sm text-text-secondary mb-3">
               <p>{client.address_line1}</p>
@@ -171,7 +173,7 @@ export default function ClientDetailPage() {
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
         <div className={cn('flex items-center justify-between cursor-pointer', projectsOpen && 'mb-4')}
           onClick={() => setProjectsOpen(o => !o)}>
-          <h2 className="font-semibold text-text-primary">Projects{sectionCount(projects.length)}</h2>
+          <h2 className={sectionTitle}>Projects{sectionCount(projects.length)}</h2>
           <div className="flex items-center gap-4">
             <Link href={`/projects/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-forest-600 hover:underline">Add project</Link>
@@ -189,7 +191,7 @@ export default function ClientDetailPage() {
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
         <div className={cn('flex items-center justify-between cursor-pointer', quotesOpen && 'mb-4')}
           onClick={() => setQuotesOpen(o => !o)}>
-          <h2 className="font-semibold text-text-primary">Quotes{sectionCount(quotes.length)}</h2>
+          <h2 className={sectionTitle}>Quotes{sectionCount(quotes.length)}</h2>
           <div className="flex items-center gap-4">
             <Link href={`/quotes/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-forest-600 hover:underline">New quote</Link>
@@ -210,12 +212,12 @@ export default function ClientDetailPage() {
               </thead>
               <tbody className="divide-y divide-border-subtle">
                 {quotes.map(q => {
-                  const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
+                  const expired = q.status === 'sent' && q.expiry_date != null && new Date(q.expiry_date) < new Date()
                   return (
                     <tr key={q.id}>
                       <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-forest-600 hover:underline font-medium">{q.quote_number}</Link></td>
                       <td className="py-2 text-text-muted">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
-                      <td className={`py-2 ${expired ? 'text-danger-600 font-medium' : 'text-text-muted'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
+                      <td className={`py-2 ${expired ? 'text-danger-600 font-medium' : 'text-text-muted'}`}>{q.expiry_date ? new Date(q.expiry_date).toLocaleDateString('en-GB') : '—'}</td>
                       <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
                       <td className="py-2"><Badge status={q.status} /></td>
                     </tr>
@@ -234,7 +236,7 @@ export default function ClientDetailPage() {
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
         <div className={cn('flex items-center justify-between cursor-pointer', invoicesOpen && 'mb-4')}
           onClick={() => setInvoicesOpen(o => !o)}>
-          <h2 className="font-semibold text-text-primary">Invoices{sectionCount(invoices.length)}</h2>
+          <h2 className={sectionTitle}>Invoices{sectionCount(invoices.length)}</h2>
           <div className="flex items-center gap-4">
             <Link href={`/invoices/new?client=${client.id}`} onClick={e => e.stopPropagation()}
               className="text-sm text-forest-600 hover:underline">New invoice</Link>
@@ -273,7 +275,11 @@ export default function ClientDetailPage() {
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit client"
-        footer={<button type="submit" form="client-form" className="w-full bg-forest-900 text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-forest-900">Update client</button>}
+        footer={
+          <Button type="submit" form="client-form" intent="primary" size="md" fullWidth>
+            Update client
+          </Button>
+        }
       >
         <ClientForm client={client} onSuccess={() => { setEditOpen(false); load() }} />
       </SlideOver>

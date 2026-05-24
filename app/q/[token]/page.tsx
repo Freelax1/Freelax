@@ -4,6 +4,8 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { notFound } from 'next/navigation'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export default async function PublicQuotePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
@@ -174,13 +176,19 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                   This quote is valid until {new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.
                 </p>
                 <div className="qpub-cta flex gap-2.5">
-                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} style={{ flex: 1 }}>
-                    <button type="submit" className="w-full py-3 px-5 rounded cursor-pointer" style={{ background: 'var(--text-primary)', color: 'var(--text-on-dark)', border: 'none', fontSize: 'var(--text-sm)', fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
+                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} className="flex-1">
+                    <button
+                      type="submit"
+                      className={cn(buttonVariants({ intent: 'primary', size: 'md', fullWidth: true }), 'py-3 cursor-pointer')}
+                    >
                       Accept quote →
                     </button>
                   </form>
-                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} style={{ flex: 1 }}>
-                    <button type="submit" className="w-full py-3 px-5 rounded cursor-pointer" style={{ background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)', fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>
+                  <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} className="flex-1">
+                    <button
+                      type="submit"
+                      className={cn(buttonVariants({ intent: 'secondary', size: 'md', fullWidth: true }), 'py-3 cursor-pointer')}
+                    >
                       Decline
                     </button>
                   </form>

@@ -3,56 +3,29 @@
 import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchInvoices, deleteInvoice } from '@/lib/api/invoices'
+import { fetchInvoices, deleteInvoice, type InvoiceListRow } from '@/lib/api/invoices'
 import { calcDaysOverdue, isPastDue } from '@/lib/logic/invoices'
-import PageHeader from '@/components/page-header'
+import { groupByMonth } from '@/lib/logic/list-display'
+import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import Button, { buttonVariants } from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { DotsThreeVertical, Eye, PencilSimple, Trash, Envelope } from '@phosphor-icons/react'
-import type { Invoice } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import StatusConfirmModal from '@/components/status-confirm-modal'
 import Tooltip from '@/components/tooltip'
 
-// ── Status modal ──────────────────────────────────────────────────────
-function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
-  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  const STATUS_LABELS: Record<string, string> = {
-    sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
-  }
-  const label = STATUS_LABELS[newStatus] ?? newStatus
-  const color = tonePalette(newStatus).text
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
-      onClick={onCancel}>
-      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-semibold text-text-primary mb-1">
-          Mark as <span style={{ color }}>{label}</span>?
-        </h2>
-        <p className="text-sm text-text-secondary mb-5">
-          {count} invoice{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
-          {newStatus === 'paid' && <span className="block mt-1 text-warning-800 text-xs">Paid date will be set to today for any unpaid invoices.</span>}
-        </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
-          <button onClick={onConfirm} disabled={loading}
-            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
-            style={{ background: color }}>
-            {loading ? 'Updating...' : `Mark as ${label}`}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+const INVOICE_STATUS_LABELS: Record<string, string> = {
+  sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
-  invoice: Invoice; onDelete: (inv: Invoice) => void
-  onStatusChange: (inv: Invoice, status: string) => void; onSendByEmail: (inv: Invoice) => void
+  invoice: InvoiceListRow; onDelete: (inv: InvoiceListRow) => void
+  onStatusChange: (inv: InvoiceListRow, status: string) => void; onSendByEmail: (inv: InvoiceListRow) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -91,7 +64,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
         </button>
       </Tooltip>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
+        <DropdownPanel>
           <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -132,7 +105,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   )
@@ -145,23 +118,16 @@ function BulkBar({ count, unpaidCount, onMarkPaid, onDelete, onClear, marking, d
   marking: boolean; deleting: boolean
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
-      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
-      <div className="w-px h-4 bg-white/15" />
+    <ListBulkBar count={count} onClear={onClear}>
       {unpaidCount > 0 && (
-        <button onClick={onMarkPaid} disabled={marking}
-          className={cn('text-xs font-medium px-2.5 py-1 rounded-md text-success-300 bg-success-800/30 border border-success-700/50', marking ? 'cursor-default opacity-60' : 'cursor-pointer')}
-        >
+        <Button type="button" intent="secondary" size="xs" onClick={onMarkPaid} disabled={marking}>
           {marking ? 'Marking…' : `Mark ${unpaidCount} as paid`}
-        </button>
+        </Button>
       )}
-      <button onClick={onDelete} disabled={deleting}
-        className={cn('flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md text-danger-300 bg-danger-800/30 border border-danger-700/50', deleting ? 'cursor-default' : 'cursor-pointer')}
-      >
+      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete} disabled={deleting}>
         <Trash weight="regular" className="w-3 h-3" /> Delete
-      </button>
-      <button onClick={onClear} className="ml-auto text-xs cursor-pointer bg-transparent border-none text-white/70">Clear</button>
-    </div>
+      </Button>
+    </ListBulkBar>
   )
 }
 
@@ -175,7 +141,7 @@ const INV_SORT_OPTIONS: { label: string; field: InvSortField; dir: 'asc' | 'desc
 ]
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices]         = useState<Invoice[]>([])
+  const [invoices, setInvoices]         = useState<InvoiceListRow[]>([])
   const [loading, setLoading]           = useState(true)
   const [updating, setUpdating]         = useState(false)
   const [msg, setMsg]                   = useState<string | null>(null)
@@ -186,7 +152,7 @@ export default function InvoicesPage() {
   const [bulkMarking, setBulkMarking]   = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
-  const [statusTarget, setStatusTarget] = useState<{ invoice: Invoice; status: string } | null>(null)
+  const [statusTarget, setStatusTarget] = useState<{ invoice: InvoiceListRow; status: string } | null>(null)
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [sortField, setSortField] = useState<InvSortField>('issue_date')
   const [sortDir, setSortDir]     = useState<'desc' | 'asc'>('desc')
@@ -195,8 +161,8 @@ export default function InvoicesPage() {
   useEffect(() => { load() }, [])
 
   const { pendingIds: deletePending, scheduleDelete } = useUndoDelete(
-    async (inv: Invoice) => deleteInvoice(inv.id),
-    (inv: Invoice) => String(inv.invoice_number),
+    async (inv: InvoiceListRow) => deleteInvoice(inv.id),
+    (inv: InvoiceListRow) => String(inv.invoice_number),
     load,
   )
 
@@ -251,7 +217,7 @@ export default function InvoicesPage() {
     } catch { setStatusUpdating(false) }
   }
 
-  async function handleSendByEmail(inv: Invoice) {
+  async function handleSendByEmail(inv: InvoiceListRow) {
     try {
       await fetch('/api/invoices/send', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -278,7 +244,7 @@ export default function InvoicesPage() {
   }
   function toggleSelectAll() {
     if (selected.size === filtered.length) setSelected(new Set())
-    else setSelected(new Set(filtered.map((i: Invoice) => i.id)))
+    else setSelected(new Set(filtered.map((i: InvoiceListRow) => i.id)))
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -315,13 +281,9 @@ export default function InvoicesPage() {
     return 0
   })
 
-  const groupedByMonth = sorted.reduce<{ label: string; items: typeof sorted }[]>((acc, inv) => {
-    const label = new Date(inv.issue_date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-    const last = acc[acc.length - 1]
-    if (last?.label === label) last.items.push(inv)
-    else acc.push({ label, items: [inv] })
-    return acc
-  }, [])
+  /** Month headers on mobile only when sorted by issue date (Stripe/Mercury-style flat desktop table). */
+  const mobileGroupedByMonth =
+    sortField === 'issue_date' ? groupByMonth(sorted, inv => inv.issue_date) : null
 
   const overdueCount = invoices.filter(i => i.status === 'sent' && i.due_date < today).length
   const unpaidSelectedCount = Array.from(selected).filter(id => {
@@ -346,70 +308,66 @@ export default function InvoicesPage() {
     }
   })
 
+  const outstandingTotal = invoices
+    .filter(i => i.status !== 'paid' && i.status !== 'cancelled')
+    .reduce((s, i) => s + Number(i.total), 0)
+
   return (
     <div>
-      <PageHeader className="fd-page-enter"
+      <PageHeader
         title="Invoices"
         subtitle={loading ? '' : `${invoices.length} invoices`}
         action={
           <div className="flex gap-2">
             {overdueCount > 0 && (
-              <button onClick={handleUpdateOverdue} disabled={updating}
-                className="px-3 py-2 bg-danger-50 border border-danger-200 text-danger-700 rounded-xl text-sm font-medium hover:bg-danger-100 disabled:opacity-50">
+              <Button type="button" intent="danger-subtle" size="sm" onClick={handleUpdateOverdue} disabled={updating}>
                 {updating ? 'Updating...' : `Mark ${overdueCount} overdue`}
-              </button>
+              </Button>
             )}
-            <Link href="/invoices/new" className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+            <Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
               New invoice
             </Link>
           </div>
         }
       />
 
-      {msg && <div className="fd-page-enter mb-4 bg-warning-50 border border-warning-200 text-warning-800 text-sm px-4 py-2.5 rounded-xl">{msg}</div>}
+      {msg && <div className="mb-4 bg-warning-50 border border-warning-200 text-warning-800 text-sm px-4 py-2.5 rounded-xl">{msg}</div>}
 
-      {/* Status cards */}
       {!loading && invoices.length > 0 && (
-        <div className="fd-stat-grid fd-page-enter">
-          {(['draft', 'sent', 'overdue', 'paid'] as const).map(key => {
-            const t = tonePalette(key)
-            const label = key.charAt(0).toUpperCase() + key.slice(1)
-            const isActive = statusFilter === key
-            return (
-              <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
-                className="rounded-lg px-4 py-3.5 cursor-pointer text-left transition-[background] duration-150"
-                style={{
-                  background: isActive ? 'var(--text-primary)' : t.bg,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
-                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
-                }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{stats[key].count}</p>
-                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{formatCurrency(stats[key].total)}</p>
-              </button>
-            )
-          })}
-        </div>
+        <>
+          <ListStatusTabs
+            allCount={invoices.length}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            tabs={(['draft', 'sent', 'overdue', 'paid'] as const).map(key => ({
+              id: key,
+              label: key.charAt(0).toUpperCase() + key.slice(1),
+              count: stats[key].count,
+            }))}
+          />
+          <ListMetrics
+            items={[
+              {
+                label: 'Outstanding',
+                value: formatCurrency(outstandingTotal),
+                highlight: outstandingTotal > 0 ? 'negative' : 'neutral',
+              },
+              {
+                label: 'Paid this period',
+                value: formatCurrency(stats.paid.total),
+                highlight: stats.paid.total > 0 ? 'positive' : 'neutral',
+              },
+            ]}
+          />
+        </>
       )}
 
-      {/* Search + mobile sort */}
-      <div className="fd-page-enter mb-4">
+      <div className="mb-4">
         <div className="flex items-center gap-2">
-          <div className="relative flex-1 max-w-[360px]">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search invoices..."
-              className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
-              onKeyDown={e => e.key === 'Escape' && setQuery('')}
-            />
-            {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
-          </div>
-          <button className="md:hidden flex-shrink-0 px-3 py-2 border border-border-default rounded-xl text-xs font-medium text-text-secondary bg-surface-card cursor-pointer whitespace-nowrap font-[inherit]" onClick={cycleInvSort}>
+          <ListSearch value={query} onChange={setQuery} placeholder="Search invoices..." />
+          <Button type="button" intent="secondary" size="xs" className="md:hidden flex-shrink-0 whitespace-nowrap" onClick={cycleInvSort}>
             {mobileSortLabel}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -427,10 +385,10 @@ export default function InvoicesPage() {
       )}
 
       {!loading && !invoices.length ? (
-        <EmptyState className="fd-page-enter" icon="invoice" title="No invoices yet" description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
-          action={<Link href="/invoices/new" className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Send your first invoice</Link>} />
+        <EmptyState icon="invoice" title="No invoices yet" description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
+          action={<Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>Send your first invoice</Link>} />
       ) : (
-        <div className="hidden md:block fd-page-enter bg-surface-card rounded-xl border border-border-default">
+        <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
           <table className="w-full border-separate border-spacing-0">
             <colgroup>
               <col className="w-10" />
@@ -476,13 +434,7 @@ export default function InvoicesPage() {
             <tbody>
               {loading ? Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i} className="border-t border-border-subtle">{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-3.5 fd-skeleton w-20" /></td>)}</tr>
-              )) : groupedByMonth.flatMap(({ label, items }, groupIdx) => [
-                <tr key={`hdr-${label}-${groupIdx}`}>
-                  <td colSpan={8} className={`px-4 pb-1 ${groupIdx === 0 ? 'pt-2.5' : 'pt-3 border-t border-border-subtle'}`}>
-                    <span className="text-micro font-semibold text-text-muted">{label}</span>
-                  </td>
-                </tr>,
-                ...items.map(inv => {
+              )) : sorted.map(inv => {
                   const days = calcDaysOverdue(inv.due_date)
                   const pastDue = isPastDue(inv.status, inv.due_date, today)
                   return (
@@ -508,25 +460,24 @@ export default function InvoicesPage() {
                       </td>
                     </tr>
                   )
-                }),
-              ])}
+                })}
             </tbody>
           </table>
         </div>
       )}
 
 
-        {/* Mobile cards — grouped by month */}
-        <div className="md:hidden fd-page-enter space-y-4">
+        {/* Mobile cards — month sections only when sorted by issue date */}
+        <div className="md:hidden space-y-4">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-24 mb-3" />
               <div className="h-3 fd-skeleton w-32 mb-2" />
               <div className="h-3 fd-skeleton w-20" />
             </div>
-          )) : groupedByMonth.map(({ label, items }) => (
-            <div key={label}>
-              <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>
+          )) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
+            <div key={label || `flat-${groupIdx}`}>
+              {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}
               <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden divide-y divide-border-subtle">
                 {items.map(inv => {
                   const days = calcDaysOverdue(inv.due_date)
@@ -575,7 +526,40 @@ export default function InvoicesPage() {
           loading={bulkDeleting}
         />
       )}
-      {statusTarget && <StatusModal count={1} newStatus={statusTarget.status} onConfirm={handleStatusChange} onCancel={() => setStatusTarget(null)} loading={statusUpdating} />}
+      {statusTarget && (
+        <StatusConfirmModal
+          statusKey={statusTarget.status}
+          title={
+            <>
+              Mark as{' '}
+              <span style={{ color: tonePalette(statusTarget.status).text }}>
+                {INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
+              </span>
+              ?
+            </>
+          }
+          description={
+            <>
+              1 invoice will be marked as{' '}
+              <span className="font-semibold" style={{ color: tonePalette(statusTarget.status).text }}>
+                {INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
+              </span>
+              .
+            </>
+          }
+          footerNote={
+            statusTarget.status === 'paid' ? (
+              <span className="block mt-1 text-warning-800 text-xs">
+                Paid date will be set to today for any unpaid invoices.
+              </span>
+            ) : undefined
+          }
+          confirmLabel={`Mark as ${INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}`}
+          onConfirm={handleStatusChange}
+          onCancel={() => setStatusTarget(null)}
+          loading={statusUpdating}
+        />
+      )}
     </div>
   )
 }

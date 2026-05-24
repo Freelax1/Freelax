@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Button from '@/components/ui/button'
 
 export default function DetailError({
   error,
@@ -24,12 +25,9 @@ export default function DetailError({
       </div>
       <p className="text-sm font-medium text-text-primary m-0">Failed to load</p>
       <p className="text-sm text-text-secondary m-0">Something went wrong loading this page.</p>
-      <button
-        onClick={reset}
-        className="mt-1 px-4 py-2 bg-brand-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer"
-      >
+      <Button type="button" intent="primary" size="md" className="mt-1" onClick={reset}>
         Try again
-      </button>
+      </Button>
       {error.digest && (
         <p className="text-caption text-text-muted m-0 font-sans">Ref: {error.digest}</p>
       )}

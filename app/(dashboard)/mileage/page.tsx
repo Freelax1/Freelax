@@ -5,13 +5,15 @@ import { useState, useEffect } from 'react'
 import { fetchMileageEntries, deleteMileageEntry, calcMileageRelief, calcMileageRate, HMRC_THRESHOLD, HMRC_RATE_FIRST, HMRC_RATE_AFTER } from '@/lib/api/mileage'
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
-import PageHeader from '@/components/page-header'
+import { PageHeader, ListMetrics } from '@/components/ui'
+import Button, { buttonVariants } from '@/components/ui/button'
 import SlideOver from '@/components/slide-over'
 import MileageForm from '@/components/mileage-form'
 import { Car, Trash, Lock, ArrowRight } from '@phosphor-icons/react'
 import type { MileageEntry } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
 export default function MileagePage() {
@@ -60,9 +62,9 @@ export default function MileagePage() {
         subtitle={loading ? '' : `${mileage.length} journey${mileage.length !== 1 ? 's' : ''} · ${totalMiles.toLocaleString('en-GB')} mi · ${label}`}
         action={
           canUseMileage && (
-            <button onClick={() => setSlideOpen(true)} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+            <Button type="button" intent="primary" size="sm" onClick={() => setSlideOpen(true)}>
               Log journey
-            </button>
+            </Button>
           )
         }
       />
@@ -78,7 +80,7 @@ export default function MileagePage() {
           </p>
           <Link
             href="/settings?tab=billing"
-            className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800"
+            className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), 'no-underline mt-3')}
           >
             Upgrade to Solo <ArrowRight weight="regular" className="w-3.5 h-3.5" />
           </Link>
@@ -88,18 +90,13 @@ export default function MileagePage() {
       {/* Stats */}
       {!loading && canUseMileage && (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            {[
-              { label: 'Total miles',  value: `${totalMiles.toLocaleString('en-GB')} mi` },
-              { label: 'Tax relief',   value: formatCurrency(totalMileageRelief) },
+          <ListMetrics
+            items={[
+              { label: 'Total miles', value: `${totalMiles.toLocaleString('en-GB')} mi` },
+              { label: 'Tax relief', value: formatCurrency(totalMileageRelief), highlight: 'positive' },
               { label: 'Current rate', value: `${(calcMileageRate(totalMiles) * 100).toFixed(0)}p/mile` },
-            ].map(s => (
-              <div key={s.label} className="bg-surface-card rounded-xl border border-border-default p-5">
-                <p className="text-micro font-semibold text-text-body mb-1.5">{s.label}</p>
-                <p className="text-xl font-semibold text-text-primary tracking-tight">{s.value}</p>
-              </div>
-            ))}
-          </div>
+            ]}
+          />
           <div className="bg-surface-sunken border border-border-default rounded-xl px-4 py-3 text-xs text-text-secondary mb-5">
             HMRC approved mileage: <strong className="text-text-primary">{(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile</strong> first {HMRC_THRESHOLD.toLocaleString()} miles,
             then <strong className="text-text-primary">{(HMRC_RATE_AFTER * 100).toFixed(0)}p/mile</strong>.
@@ -116,9 +113,9 @@ export default function MileagePage() {
           <Car weight="regular" className="w-10 h-10 text-text-muted mx-auto mb-3" />
           <p className="text-text-secondary text-sm font-medium mb-1">No journeys logged yet</p>
           <p className="text-text-secondary text-xs">Business mileage at {(HMRC_RATE_FIRST * 100).toFixed(0)}p/mile is tax-deductible.</p>
-          <button onClick={() => setSlideOpen(true)} className="mt-4 bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+          <Button type="button" intent="primary" size="sm" className="mt-4" onClick={() => setSlideOpen(true)}>
             Log your first journey
-          </button>
+          </Button>
         </div>
       )}
 

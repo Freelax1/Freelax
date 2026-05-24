@@ -173,7 +173,7 @@ export default function ProjectForm({ project, defaultClientId, onSuccess }: Pro
                       onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
                       className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                         ir35Answers[q.number] === val
-                          ? 'bg-forest-600 text-white'
+                          ? 'bg-brand-primary text-white'
                           : 'bg-surface-card border border-slate-200 text-text-secondary hover:bg-surface-sunken'
                       }`}
                     >

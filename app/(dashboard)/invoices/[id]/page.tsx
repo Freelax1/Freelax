@@ -8,6 +8,10 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, X, Clock, LinkSimple, Lock } from '@phosphor-icons/react'
 import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
 import Badge from '@/components/badge'
+import Button, { buttonVariants } from '@/components/ui/button'
+import { Field, Textarea } from '@/components/form-fields'
+import { cn } from '@/lib/utils'
+import { sectionTitle } from '@/lib/typography'
 import Tooltip from '@/components/tooltip'
 
 // ── Chase modal ────────────────────────────────────────────────────────
@@ -92,7 +96,7 @@ function ChaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
+      className="fixed inset-0 z-modal flex items-center justify-center px-4 bg-black/45"
       onClick={onClose}
     >
       <div
@@ -103,7 +107,7 @@ function ChaseModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle flex-shrink-0">
           <div>
-            <h2 className="font-semibold text-text-primary text-base">Chase invoice</h2>
+            <h2 className={sectionTitle}>Chase invoice</h2>
             <p className="text-xs text-text-muted mt-0.5">
               {invoice.invoice_number} · {formatCurrency(invoice.total)}
               {overdueDays > 0 && <span className="text-danger-500 ml-1">· {overdueDays}d overdue</span>}
@@ -185,19 +189,15 @@ function ChaseModal({
           </div>
 
           {/* Editable message body */}
-          <div>
-            <label className="block text-xs font-medium text-text-muted mb-1.5">Message</label>
-            <textarea
+          <Field label="Message" hint="Bank details and invoice summary will be appended automatically.">
+            <Textarea
               aria-label="Message"
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={7}
-              className="w-full px-3 py-2.5 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 resize-none leading-relaxed"
+              className="leading-relaxed"
             />
-            <p className="text-xs text-text-secondary mt-1">
-              Bank details and invoice summary will be appended automatically.
-            </p>
-          </div>
+          </Field>
 
           {/* Bank details notice */}
           {sender?.bank_sort_code && (
@@ -229,20 +229,17 @@ function ChaseModal({
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border-subtle gap-3 flex-shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-border-default rounded-xl text-sm text-text-secondary hover:bg-surface-sunken"
-          >
+          <Button type="button" intent="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
             onClick={handleSend}
             disabled={sending || !message.trim() || onCooldown}
+            className="text-white rounded-xl"
             style={{
               background: tier === 'legal' ? 'var(--danger-600)' : tier === 'formal' ? 'var(--warning-600)' : 'var(--text-primary)',
-              opacity: (sending || !message.trim() || onCooldown) ? 0.5 : 1,
             }}
-            className="flex items-center gap-2 px-5 py-2 text-white rounded-xl text-sm font-medium disabled:opacity-50 transition-colors"
           >
             <Bell weight="regular" className="w-3.5 h-3.5" />
             {sending
@@ -252,7 +249,7 @@ function ChaseModal({
                 : client?.email
                   ? `Send ${TIER_META[tier].label}`
                   : 'Log chase'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -410,7 +407,7 @@ export default function InvoiceDetailPage() {
         </Link>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-serif font-semibold text-text-primary">{invoice.invoice_number}</h1>
+            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{invoice.invoice_number}</h1>
             <Badge status={invoice.status} />
             {chaseLog.length > 0 && (
               <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
@@ -420,44 +417,59 @@ export default function InvoiceDetailPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {invoice.status === 'draft' && (
-              <Link href={`/invoices/${invoice.id}/edit`} className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-lg text-sm hover:bg-surface-sunken">
+              <Link href={`/invoices/${invoice.id}/edit`} className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
                 <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
               </Link>
             )}
             {canSend && (
-              <button onClick={handleSend} disabled={sending}
-                className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+              <Button type="button" intent="primary" size="sm" onClick={handleSend} disabled={sending}>
                 <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
                 {sending ? 'Sending...' : invoice.status === 'draft' ? 'Send invoice' : 'Resend'}
-              </button>
+              </Button>
             )}
             {canChase && (
-              <button
+              <Button
+                type="button"
+                size="sm"
                 onClick={() => setChaseOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-2 bg-warning-500 text-white rounded-xl text-sm font-medium hover:bg-warning-600"
+                className="bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 border-transparent focus-visible:ring-warning-500/40"
               >
                 <Bell weight="regular" className="w-3.5 h-3.5" />
                 Chase{chaseLog.length > 0 ? ` (${chaseLog.length})` : ''}
-              </button>
+              </Button>
             )}
-            <a href={`/api/invoices/pdf?id=${invoice.id}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+            <a
+              href={`/api/invoices/pdf?id=${invoice.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+            >
               <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
             </a>
             {invoice.status !== 'draft' && (
-              <button onClick={getPaymentLink} disabled={copyingLink}
-                className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken disabled:opacity-50"
-                title={payLink ?? 'Copy client payment link'}>
+              <Button
+                type="button"
+                intent="secondary"
+                size="sm"
+                onClick={getPaymentLink}
+                disabled={copyingLink}
+                title={payLink ?? 'Copy client payment link'}
+              >
                 <LinkSimple weight="regular" className="w-3.5 h-3.5" />
                 {copyingLink ? 'Generating…' : 'Payment link'}
-              </button>
+              </Button>
             )}
             {canMarkPaid && invoice.status !== 'paid' && (
-              <button onClick={handleMarkPaid} disabled={marking}
-                className="flex items-center gap-1.5 px-4 py-2 bg-success-700 text-white rounded-xl text-sm font-semibold hover:bg-success-800 disabled:opacity-50">
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleMarkPaid}
+                disabled={marking}
+                className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
+              >
                 <CheckCircle weight="regular" className="w-4 h-4" />
                 {marking ? 'Saving...' : 'Mark as paid'}
-              </button>
+              </Button>
             )}
             {invoice.status === 'paid' && (
               <span className="flex items-center gap-1.5 px-4 py-2 bg-success-50 text-success-700 rounded-xl text-sm font-semibold border border-success-200">
@@ -665,7 +677,7 @@ export default function InvoiceDetailPage() {
       <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
         <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
           <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
-          <h2 className="text-sm font-semibold text-text-primary">Activity</h2>
+          <h2 className={sectionTitle}>Activity</h2>
           {activity.length > 0 && (
             <span className="ml-auto text-xs text-text-secondary">
               {activity.length} event{activity.length !== 1 ? 's' : ''}

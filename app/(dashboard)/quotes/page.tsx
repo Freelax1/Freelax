@@ -4,54 +4,28 @@ import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchQuotes, deleteQuote } from '@/lib/api/quotes'
+import { fetchQuotes, deleteQuote, type QuoteListRow } from '@/lib/api/quotes'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
-import PageHeader from '@/components/page-header'
+import { groupByMonth } from '@/lib/logic/list-display'
+import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import Button, { buttonVariants } from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
-import type { Quote } from '@/types/database'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import StatusConfirmModal from '@/components/status-confirm-modal'
 import Tooltip from '@/components/tooltip'
 
-// ── Status modal ──────────────────────────────────────────────────────
-function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
-  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  const STATUS_LABELS: Record<string, string> = {
-    draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined',
-  }
-  const label = STATUS_LABELS[newStatus] ?? newStatus
-  const color = tonePalette(newStatus).text
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
-      onClick={onCancel}>
-      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-semibold text-text-primary mb-1">
-          Mark as <span style={{ color }}>{label}</span>?
-        </h2>
-        <p className="text-sm text-text-secondary mb-5">
-          {count} quote{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
-        </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
-          <button onClick={onConfirm} disabled={loading}
-            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
-            style={{ background: color }}>
-            {loading ? 'Updating...' : `Mark as ${label}`}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+const QUOTE_STATUS_LABELS: Record<string, string> = {
+  draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined',
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ quote, onDelete, onStatusChange }: {
-  quote: Quote; onDelete: (q: Quote) => void
-  onStatusChange: (q: Quote, status: string) => void
+  quote: QuoteListRow; onDelete: (q: QuoteListRow) => void
+  onStatusChange: (q: QuoteListRow, status: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -76,7 +50,7 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
         </button>
       </Tooltip>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
+        <DropdownPanel>
           <Link href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -104,7 +78,7 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   )
@@ -128,26 +102,16 @@ function BulkBar({ count, selectedStatuses, onDelete, onStatusChange, onClear }:
   ].filter(s => !allAre(s.key))
 
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
-      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
-      {statusOptions.length > 0 && (
-        <div className="w-px h-4 bg-white/15" />
-      )}
+    <ListBulkBar count={count} onClear={onClear}>
       {statusOptions.map(s => (
-        <button key={s.key} onClick={() => onStatusChange(s.key)}
-          className="text-xs font-medium px-2.5 py-1 rounded-md text-white cursor-pointer bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
-        >
+        <Button key={s.key} type="button" intent="secondary" size="xs" onClick={() => onStatusChange(s.key)}>
           {s.label}
-        </button>
+        </Button>
       ))}
-      <div className="w-px h-4 bg-white/15" />
-      <button onClick={onDelete}
-        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
-      >
+      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete}>
         <Trash weight="regular" className="w-3 h-3" /> Delete
-      </button>
-      <button onClick={onClear} className="ml-auto text-xs cursor-pointer bg-transparent border-none text-white/70">Clear</button>
-    </div>
+      </Button>
+    </ListBulkBar>
   )
 }
 
@@ -162,16 +126,16 @@ const QUOTE_SORT_OPTIONS: { label: string; field: QuoteSortField; dir: 'asc' | '
 
 export default function QuotesPage() {
   const router = useRouter()
-  const [quotes, setQuotes]           = useState<Quote[]>([])
+  const [quotes, setQuotes]           = useState<QuoteListRow[]>([])
   const [loading, setLoading]         = useState(true)
-  const [deleteTarget, setDeleteTarget] = useState<Quote | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<QuoteListRow | null>(null)
   const [deleting, setDeleting]       = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [query, setQuery]             = useState('')
   const [selected, setSelected]       = useState<Set<string>>(new Set())
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
-  const [statusTarget, setStatusTarget]   = useState<{ quote: Quote; status: string } | null>(null)
+  const [statusTarget, setStatusTarget]   = useState<{ quote: QuoteListRow; status: string } | null>(null)
   const [bulkStatusTarget, setBulkStatusTarget] = useState<string | null>(null)
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [sortField, setSortField] = useState<QuoteSortField>('issue_date')
@@ -237,7 +201,7 @@ export default function QuotesPage() {
       q.quote_number.toLowerCase().includes(sq) ||
       (q.clients?.name ?? '').toLowerCase().includes(sq) ||
       q.status.toLowerCase().includes(sq) ||
-      new Date(q.expiry_date).toLocaleDateString('en-GB').includes(sq) ||
+      (q.expiry_date != null && new Date(q.expiry_date).toLocaleDateString('en-GB').includes(sq)) ||
       new Date(q.issue_date).toLocaleDateString('en-GB').includes(sq)
     )
     const matchesStatus = statusFilter === 'all' ? true
@@ -264,6 +228,10 @@ export default function QuotesPage() {
     return 0
   })
 
+  /** Month headers on mobile only when sorted by issue date. */
+  const mobileGroupedByMonth =
+    sortField === 'issue_date' ? groupByMonth(sorted, q => q.issue_date) : null
+
   const allSelected = filtered.length > 0 && selected.size === filtered.length
 
   const stats = {
@@ -283,58 +251,43 @@ export default function QuotesPage() {
 
   return (
     <div>
-      <PageHeader className="fd-page-enter"
+      <PageHeader
         title="Quotes"
         subtitle={loading ? '' : `${quotes.length} quotes`}
         action={
-          <button onClick={() => router.push('/quotes/new')} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+          <Button type="button" intent="primary" size="sm" onClick={() => router.push('/quotes/new')}>
             New quote
-          </button>
+          </Button>
         }
       />
 
-      {/* Status cards */}
       {!loading && quotes.length > 0 && (
-        <div className="fd-stat-grid fd-page-enter">
-          {(['draft', 'sent', 'accepted', 'expired'] as const).map(key => {
-            const t = tonePalette(key)
-            const label = key.charAt(0).toUpperCase() + key.slice(1)
-            const isActive = statusFilter === key
-            return (
-              <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
-                className="rounded-lg px-4 py-3.5 cursor-pointer text-left transition-[background] duration-150"
-                style={{
-                  background: isActive ? 'var(--text-primary)' : t.bg,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
-                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
-                }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{stats[key]}</p>
-                <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{formatCurrency(totals[key])}</p>
-              </button>
-            )
-          })}
-        </div>
+        <>
+          <ListStatusTabs
+            allCount={quotes.length}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            tabs={(['draft', 'sent', 'accepted', 'expired'] as const).map(key => ({
+              id: key,
+              label: key.charAt(0).toUpperCase() + key.slice(1),
+              count: stats[key],
+            }))}
+          />
+          <ListMetrics
+            items={[
+              { label: 'Accepted value', value: formatCurrency(totals.accepted), highlight: totals.accepted > 0 ? 'positive' : 'neutral' },
+              { label: 'Pending (sent)', value: formatCurrency(totals.sent) },
+            ]}
+          />
+        </>
       )}
 
-      {/* Search + mobile sort */}
-      <div className="fd-page-enter mb-4">
+      <div className="mb-4">
         <div className="flex items-center gap-2">
-          <div className="relative flex-1 max-w-[360px]">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search quotes..."
-              className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
-              onKeyDown={e => e.key === 'Escape' && setQuery('')}
-            />
-            {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
-          </div>
-          <button className="md:hidden flex-shrink-0 px-3 py-2 border border-border-default rounded-xl text-xs font-medium text-text-secondary bg-surface-card cursor-pointer whitespace-nowrap font-[inherit]" onClick={cycleQuoteSort}>
+          <ListSearch value={query} onChange={setQuery} placeholder="Search quotes..." />
+          <Button type="button" intent="secondary" size="xs" className="md:hidden flex-shrink-0 whitespace-nowrap" onClick={cycleQuoteSort}>
             {mobileSortLabel}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -349,10 +302,10 @@ export default function QuotesPage() {
         />
       )}
 
-      <div className="fd-page-enter">
+      <div>
         {!loading && !quotes.length ? (
           <EmptyState icon="invoices" title="No quotes yet" description="Quotes let you price work before starting. Accept one and we'll convert it to an invoice automatically."
-            action={<button onClick={() => router.push('/quotes/new')} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Create a quote</button>} />
+            action={<Button type="button" intent="primary" size="sm" onClick={() => router.push('/quotes/new')}>Create a quote</Button>} />
         ) : (
           <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
             <table className="w-full border-separate border-spacing-0">
@@ -415,7 +368,7 @@ export default function QuotesPage() {
                       <td className="px-4 py-2.5 text-sm text-text-secondary">{q.clients?.name ?? '—'}</td>
                       <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
                       <td className={`px-4 py-2.5 text-sm tabular-nums ${expired ? 'text-danger-600' : days <= 3 && days >= 0 && q.status === 'sent' ? 'text-warning-600' : 'text-text-secondary'}`}>
-                        {new Date(q.expiry_date).toLocaleDateString('en-GB')}
+                        {q.expiry_date ? new Date(q.expiry_date).toLocaleDateString('en-GB') : '—'}
                         {expired && <span className="ml-1.5 text-caption font-medium">expired</span>}
                         {!expired && days <= 3 && days >= 0 && q.status === 'sent' && <span className="ml-1.5 text-caption font-medium">{days}d left</span>}
                       </td>
@@ -435,18 +388,22 @@ export default function QuotesPage() {
       </div>
 
 
-        {/* Mobile cards */}
-        <div className="md:hidden fd-page-enter space-y-2">
+        {/* Mobile cards — month sections only when sorted by issue date */}
+        <div className="md:hidden space-y-4">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-24 mb-3" /><div className="h-3 fd-skeleton w-32" />
             </div>
-          )) : sorted.map(q => {
+          )) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
+            <div key={label || `flat-${groupIdx}`}>
+              {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}
+              <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden divide-y divide-border-subtle">
+                {items.map(q => {
             const expired = q.status === 'sent' && isQuoteExpired(q.expiry_date)
             const days = daysUntilExpiry(q.expiry_date)
             const isSelected = selected.has(q.id)
             return (
-              <div key={q.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
+              <div key={q.id} className={`p-4 transition-colors ${isSelected ? 'bg-forest-50/30' : ''}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
@@ -464,7 +421,7 @@ export default function QuotesPage() {
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
                   <span className={`text-xs ${expired ? 'text-danger-700 font-medium' : !expired && days <= 3 && days >= 0 && q.status === 'sent' ? 'text-warning-700 font-medium' : 'text-text-primary'}`}>
-                    Valid until {new Date(q.expiry_date).toLocaleDateString('en-GB')}
+                    Valid until {q.expiry_date ? new Date(q.expiry_date).toLocaleDateString('en-GB') : '—'}
                     {expired && ' · expired'}
                     {!expired && days <= 3 && days >= 0 && q.status === 'sent' && ` · ${days}d left`}
                   </span>
@@ -473,7 +430,10 @@ export default function QuotesPage() {
                 </div>
               </div>
             )
-          })}
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
       {deleteTarget && (
@@ -494,8 +454,60 @@ export default function QuotesPage() {
           loading={bulkDeleting}
         />
       )}
-      {statusTarget && <StatusModal count={1} newStatus={statusTarget.status} onConfirm={handleStatusChange} onCancel={() => setStatusTarget(null)} loading={statusUpdating} />}
-      {bulkStatusTarget && <StatusModal count={selected.size} newStatus={bulkStatusTarget} onConfirm={handleBulkStatus} onCancel={() => setBulkStatusTarget(null)} loading={statusUpdating} />}
+      {statusTarget && (
+        <StatusConfirmModal
+          statusKey={statusTarget.status}
+          title={
+            <>
+              Mark as{' '}
+              <span style={{ color: tonePalette(statusTarget.status).text }}>
+                {QUOTE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
+              </span>
+              ?
+            </>
+          }
+          description={
+            <>
+              1 quote will be marked as{' '}
+              <span className="font-semibold" style={{ color: tonePalette(statusTarget.status).text }}>
+                {QUOTE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
+              </span>
+              .
+            </>
+          }
+          confirmLabel={`Mark as ${QUOTE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}`}
+          onConfirm={handleStatusChange}
+          onCancel={() => setStatusTarget(null)}
+          loading={statusUpdating}
+        />
+      )}
+      {bulkStatusTarget && (
+        <StatusConfirmModal
+          statusKey={bulkStatusTarget}
+          title={
+            <>
+              Mark as{' '}
+              <span style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {QUOTE_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              ?
+            </>
+          }
+          description={
+            <>
+              {selected.size} quote{selected.size !== 1 ? 's' : ''} will be marked as{' '}
+              <span className="font-semibold" style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {QUOTE_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              .
+            </>
+          }
+          confirmLabel={`Mark as ${QUOTE_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}`}
+          onConfirm={handleBulkStatus}
+          onCancel={() => setBulkStatusTarget(null)}
+          loading={statusUpdating}
+        />
+      )}
     </div>
   )
 }

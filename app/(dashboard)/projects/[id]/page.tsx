@@ -13,6 +13,9 @@ import IR35Questionnaire from '@/components/ir35-questionnaire'
 import ProjectForm from '@/components/project-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
+import Button, { buttonVariants } from '@/components/ui/button'
+import { sectionTitle } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
 import type { IR35Answer, IR35Status, Project, Invoice } from '@/types/database'
 
@@ -78,7 +81,7 @@ export default function ProjectDetailPage() {
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-serif font-semibold text-text-primary">{project.title}</h1>
+            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{project.title}</h1>
             {client && (
               <Link href={`/clients/${client.id}`} className="text-sm text-forest-600 hover:underline mt-0.5 block">
                 {client.name}
@@ -87,15 +90,15 @@ export default function ProjectDetailPage() {
           </div>
           <div className="flex gap-2 items-center">
             <Badge status={project.status} />
-            <button onClick={() => setEditOpen(true)} className="px-3 py-1.5 border border-border-default rounded-lg text-sm hover:bg-surface-sunken">
+            <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <h2 className="font-semibold text-text-primary mb-4">Details</h2>
+        <h2 className={cn(sectionTitle, 'mb-4')}>Details</h2>
         <div className="grid grid-cols-2 gap-4 text-sm">
           {project.description && (
             <div className="col-span-2">
@@ -129,7 +132,7 @@ export default function ProjectDetailPage() {
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-text-primary">IR35 Assessment</h2>
+          <h2 className={sectionTitle}>IR35 assessment</h2>
           {canUseIR35 && <Badge status={ir35Status} />}
         </div>
         {canUseIR35 ? (
@@ -149,7 +152,7 @@ export default function ProjectDetailPage() {
             </p>
             <Link
               href="/settings?tab=billing"
-              className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900"
+              className={buttonVariants({ intent: 'primary', size: 'sm' })}
             >
               Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
             </Link>
@@ -159,7 +162,7 @@ export default function ProjectDetailPage() {
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-text-primary">Invoices</h2>
+          <h2 className={sectionTitle}>Invoices</h2>
           <Link href={`/invoices/new?project=${project.id}`} className="text-sm text-forest-600 hover:underline">New invoice</Link>
         </div>
         {invoices.length ? (
@@ -187,7 +190,11 @@ export default function ProjectDetailPage() {
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit project"
-        footer={<button type="submit" form="project-form" className="w-full bg-forest-900 text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-forest-900">Update project</button>}
+        footer={
+          <Button type="submit" form="project-form" intent="primary" size="md" fullWidth>
+            Update project
+          </Button>
+        }
       >
         <ProjectForm project={project} onSuccess={() => { setEditOpen(false); load() }} />
       </SlideOver>

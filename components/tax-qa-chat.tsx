@@ -55,7 +55,7 @@ export default function TaxQAChat() {
         onClick={() => setOpen(true)}
         aria-label="Ask about your tax"
         title="Ask about your tax"
-        className="group fixed bottom-6 right-6 z-40 flex items-center bg-forest-900 text-white p-3 hover:pr-4 rounded-full shadow-lg hover:bg-forest-900 transition-all duration-300 ease-out"
+        className="group fixed bottom-6 right-6 z-40 flex items-center bg-brand-primary text-white p-3 hover:pr-4 rounded-full shadow-popover hover:bg-forest-700 transition-all duration-300 ease-out"
       >
         <ChatCircle weight="regular" className="w-5 h-5 shrink-0" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[160px] group-hover:ml-2 text-sm font-medium transition-all duration-300 ease-out">
@@ -67,22 +67,22 @@ export default function TaxQAChat() {
       {open && (
         <aside
           aria-label="Tax Q&A chat"
-          className="fixed bottom-20 right-6 z-50 bg-surface-card rounded-xl shadow-xl border border-border-default flex flex-col overflow-hidden w-[360px] max-w-[360px] max-h-[480px]"
+          className="fixed bottom-20 right-6 z-dropdown bg-surface-card rounded-xl shadow-xl border border-border-default flex flex-col overflow-hidden w-[360px] max-w-[360px] max-h-[480px]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-forest-600 text-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-surface-sunken">
             <div>
-              <p className="text-sm font-semibold">Tax Q&A</p>
-              <p className="text-xs text-white">Ask anything about your taxes</p>
+              <p className="text-sm font-semibold text-text-primary">Tax Q&A</p>
+              <p className="text-xs text-text-secondary">Ask anything about your taxes</p>
             </div>
             <div className="flex items-center gap-1">
               <Tooltip label="New question">
-                <button onClick={handleReset} className="p-1 hover:bg-forest-700 rounded-full">
+                <button type="button" onClick={handleReset} className="p-1 hover:bg-surface-card rounded-lg text-text-secondary">
                   <ArrowCounterClockwise weight="regular" className="w-4 h-4" />
                 </button>
               </Tooltip>
               <Tooltip label="Close">
-                <button onClick={() => setOpen(false)} className="p-1 hover:bg-forest-700 rounded-full">
+                <button type="button" onClick={() => setOpen(false)} className="p-1 hover:bg-surface-card rounded-lg text-text-secondary">
                   <X weight="regular" className="w-4 h-4" />
                 </button>
               </Tooltip>
@@ -139,10 +139,11 @@ export default function TaxQAChat() {
                 className="flex-1 px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
               />
               <button
+                type="button"
                 onClick={handleSend}
                 disabled={!input.trim() || loading || cooldown}
                 aria-label="Send question"
-                className="p-2 bg-forest-600 text-white rounded-full hover:bg-forest-700 disabled:opacity-40 transition-colors"
+                className="p-2 bg-brand-primary text-white rounded-full hover:bg-forest-700 disabled:opacity-40 transition-colors"
               >
                 <PaperPlaneTilt weight="regular" className="w-4 h-4" />
               </button>

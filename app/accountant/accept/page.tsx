@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle, CircleNotch, Warning } from '@phosphor-icons/react'
+import { buttonVariants } from '@/components/ui/button'
 
 function AcceptInviteContent() {
   const searchParams = useSearchParams()
@@ -36,7 +37,7 @@ function AcceptInviteContent() {
             <CheckCircle weight="regular" className="w-10 h-10 mx-auto mb-4 text-success-600" />
             <h1 className="text-xl font-semibold mb-2 text-text-primary">Invitation accepted</h1>
             <p className="text-sm mb-6 text-text-secondary">You now have read-only access to <strong>{ownerName}</strong>'s Freelax account.</p>
-            <a href={viewUrl} className="inline-block text-white bg-forest-950 px-6 py-3 rounded-lg text-sm font-semibold no-underline">
+            <a href={viewUrl} className={buttonVariants({ intent: 'primary', size: 'md' })}>
               View account
             </a>
           </>

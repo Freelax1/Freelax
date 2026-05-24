@@ -14,7 +14,9 @@ import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/quotes'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } from '@/lib/logic/quotes'
 import Link from 'next/link'
+import Button from '@/components/ui/button'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
+import { sectionTitle } from '@/lib/typography'
 import type { Client, Project } from '@/types/database'
 import { Input, Select, Textarea, Label } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
@@ -188,19 +190,19 @@ export default function NewQuotePage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6 pb-12">
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
       <div>
         <Link href="/quotes" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quotes
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">New quote</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New quote</h1>
       </div>
 
       {error && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
 
       {/* Quote details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className="font-semibold text-text-primary">Quote details</h2>
+        <h2 className={sectionTitle}>Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Client</Label>
@@ -223,21 +225,17 @@ export default function NewQuotePage() {
                 <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
                 <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
                 <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleCreateClient}
-                    disabled={!newClientName.trim() || creatingClient}
-                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
-                  >
+                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
                     {creatingClient ? 'Saving...' : 'Save client'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    intent="secondary"
+                    size="xs"
                     onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
-                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -261,21 +259,12 @@ export default function NewQuotePage() {
                 <p className="text-xs font-semibold text-text-secondary mb-1">New project</p>
                 <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
                 <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleCreateProject}
-                    disabled={!newProjectTitle.trim() || creatingProject}
-                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
-                  >
+                  <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
                     {creatingProject ? 'Saving...' : 'Save project'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}
-                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
-                  >
+                  </Button>
+                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -299,7 +288,7 @@ export default function NewQuotePage() {
 
       {/* Line items */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <h2 className="font-semibold text-text-primary">Line items</h2>
+        <h2 className={sectionTitle}>Line items</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -340,9 +329,15 @@ export default function NewQuotePage() {
             </tbody>
           </table>
         </div>
-        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-forest-600 hover:text-forest-700">
-          <Plus weight="regular" className="w-4 h-4" /> Add line item
-        </button>
+        <Button
+          type="button"
+          intent="ghost"
+          size="sm"
+          className="-ml-2"
+          onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
+        >
+          <Plus weight="regular" className="w-3.5 h-3.5" /> Add line item
+        </Button>
         <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
           <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
           <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
@@ -358,9 +353,9 @@ export default function NewQuotePage() {
 
       <div className="flex justify-end gap-3">
         <Link href="/quotes" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
-        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+        <Button type="button" intent="primary" size="md" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save quote'}
-        </button>
+        </Button>
       </div>
     </div>
   )

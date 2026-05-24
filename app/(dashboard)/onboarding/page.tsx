@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft } from '@phosphor-icons/react'
+import Button from '@/components/ui/button'
+import { Field, Input, Select, Toggle } from '@/components/form-fields'
 
-const inputClass = 'w-full px-3 py-2.5 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 bg-surface-card'
-const labelClass = 'block text-sm font-medium text-text-primary mb-1.5'
+const stepTitle = 'text-xl font-serif font-normal text-text-primary tracking-normal leading-heading'
 
 const STEPS = [
   { id: 1, label: 'About you' },
@@ -41,7 +42,7 @@ export default function OnboardingPage() {
     pension_contributions:     '',
     salary_drawn:              '',
     dividends_drawn:           '',
-    monthly_personal_outgoings:  '',   // personal living costs (NEW)
+    monthly_personal_outgoings:  '',
   })
 
   async function finish() {
@@ -68,14 +69,12 @@ export default function OnboardingPage() {
     router.refresh()
   }
 
-  const progress = ((step - 1) / (STEPS.length - 1)) * 100
-
   return (
     <div className="min-h-screen bg-surface-sunken flex items-center justify-center px-4">
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-8">
-          <span className="text-2xl font-semibold text-text-primary tracking-tighter">
+          <span className="text-2xl font-serif font-normal text-text-primary tracking-tighter">
             Freelax
           </span>
           <p className="text-sm text-text-secondary mt-1">Let's get you set up — takes about 2 minutes</p>
@@ -87,9 +86,9 @@ export default function OnboardingPage() {
             <div key={s.id} className="flex items-center flex-1">
               <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold shrink-0 transition-colors ${
                 step > s.id
-                  ? 'bg-forest-900 text-white'
+                  ? 'bg-brand-primary text-white'
                   : step === s.id
-                  ? 'bg-forest-900 text-white ring-4 ring-surface-sunken'
+                  ? 'bg-brand-primary text-white ring-4 ring-surface-sunken'
                   : 'bg-surface-sunken text-text-secondary'
               }`}>
                 {step > s.id ? <Check weight="regular" className="w-3.5 h-3.5" /> : s.id}
@@ -100,7 +99,7 @@ export default function OnboardingPage() {
               {i < STEPS.length - 1 && (
                 <div className="flex-1 h-0.5 mx-3 bg-surface-sunken rounded">
                   <div
-                    className="h-full bg-forest-900 rounded transition-all duration-300"
+                    className="h-full bg-brand-primary rounded transition-all duration-300"
                     style={{ width: step > s.id ? '100%' : '0%' }}
                   />
                 </div>
@@ -121,28 +120,24 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold text-text-primary">Tell us about yourself</h2>
+                <h2 className={stepTitle}>Tell us about yourself</h2>
                 <p className="text-sm text-text-secondary mt-1">This appears on your invoices and account.</p>
               </div>
-              <div>
-                <label className={labelClass}>Full name <span className="text-danger-400">*</span></label>
-                <input
-                  className={inputClass}
+              <Field label="Full name" required>
+                <Input
                   placeholder="Jane Smith"
                   value={step1.full_name}
                   onChange={e => setStep1(p => ({ ...p, full_name: e.target.value }))}
                   autoFocus
                 />
-              </div>
-              <div>
-                <label className={labelClass}>Phone number <span className="text-text-secondary font-normal">(optional)</span></label>
-                <input
-                  className={inputClass}
+              </Field>
+              <Field label={<>Phone number <span className="text-text-secondary font-normal normal-case">(optional)</span></>}>
+                <Input
                   placeholder="07700 000000"
                   value={step1.phone}
                   onChange={e => setStep1(p => ({ ...p, phone: e.target.value }))}
                 />
-              </div>
+              </Field>
             </div>
           )}
 
@@ -150,60 +145,48 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold text-text-primary">Your business</h2>
+                <h2 className={stepTitle}>Your business</h2>
                 <p className="text-sm text-text-secondary mt-1">Used for tax calculations and invoices.</p>
               </div>
-              <div>
-                <label className={labelClass}>Trading name <span className="text-text-secondary font-normal">(optional)</span></label>
-                <input
-                  className={inputClass}
+              <Field label={<>Trading name <span className="text-text-secondary font-normal normal-case">(optional)</span></>}>
+                <Input
                   placeholder="Jane Smith Creative"
                   value={step2.business_name}
                   onChange={e => setStep2(p => ({ ...p, business_name: e.target.value }))}
                   autoFocus
                 />
-              </div>
-              <div>
-                <label className={labelClass}>Business type</label>
-                <select
-                  className={inputClass}
+              </Field>
+              <Field label="Business type">
+                <Select
                   value={step2.business_type}
                   onChange={e => setStep2(p => ({ ...p, business_type: e.target.value }))}
                 >
                   <option value="sole_trader">Sole Trader</option>
                   <option value="limited_company">Limited Company</option>
                   <option value="partnership">Partnership</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>UTR number <span className="text-text-secondary font-normal">(optional — for Self Assessment)</span></label>
-                <input
-                  className={inputClass}
+                </Select>
+              </Field>
+              <Field label={<>UTR number <span className="text-text-secondary font-normal normal-case">(optional — for Self Assessment)</span></>}>
+                <Input
                   placeholder="1234567890"
                   value={step2.utr_number}
                   onChange={e => setStep2(p => ({ ...p, utr_number: e.target.value }))}
                 />
-              </div>
+              </Field>
               <div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div
-                    onClick={() => setStep2(p => ({ ...p, vat_registered: !p.vat_registered }))}
-                    className={`relative w-9 h-5 rounded-full transition-colors ${step2.vat_registered ? 'bg-forest-900' : 'bg-surface-sunken'}`}
-                  >
-                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-surface-card rounded-full shadow transition-transform ${step2.vat_registered ? 'translate-x-4' : ''}`} />
-                  </div>
-                  <span className="text-sm text-text-primary">VAT registered</span>
-                </label>
+                <Toggle
+                  checked={step2.vat_registered}
+                  onChange={vat_registered => setStep2(p => ({ ...p, vat_registered }))}
+                  label="VAT registered"
+                />
                 {step2.vat_registered && (
-                  <div className="mt-3">
-                    <label className={labelClass}>VAT number</label>
-                    <input
-                      className={inputClass}
+                  <Field label="VAT number" className="mt-3">
+                    <Input
                       placeholder="GB123456789"
                       value={step2.vat_number}
                       onChange={e => setStep2(p => ({ ...p, vat_number: e.target.value }))}
                     />
-                  </div>
+                  </Field>
                 )}
               </div>
             </div>
@@ -213,46 +196,38 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold text-text-primary">Your address</h2>
+                <h2 className={stepTitle}>Your address</h2>
                 <p className="text-sm text-text-secondary mt-1">Appears on invoices you send to clients.</p>
               </div>
-              <div>
-                <label className={labelClass}>Address line 1</label>
-                <input
-                  className={inputClass}
+              <Field label="Address line 1">
+                <Input
                   placeholder="10 Downing Street"
                   value={step3.address_line1}
                   onChange={e => setStep3(p => ({ ...p, address_line1: e.target.value }))}
                   autoFocus
                 />
-              </div>
-              <div>
-                <label className={labelClass}>Address line 2 <span className="text-text-secondary font-normal">(optional)</span></label>
-                <input
-                  className={inputClass}
+              </Field>
+              <Field label={<>Address line 2 <span className="text-text-secondary font-normal normal-case">(optional)</span></>}>
+                <Input
                   value={step3.address_line2}
                   onChange={e => setStep3(p => ({ ...p, address_line2: e.target.value }))}
                 />
-              </div>
+              </Field>
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass}>City</label>
-                  <input
-                    className={inputClass}
+                <Field label="City">
+                  <Input
                     placeholder="London"
                     value={step3.city}
                     onChange={e => setStep3(p => ({ ...p, city: e.target.value }))}
                   />
-                </div>
-                <div>
-                  <label className={labelClass}>Postcode</label>
-                  <input
-                    className={inputClass}
+                </Field>
+                <Field label="Postcode">
+                  <Input
                     placeholder="SW1A 2AA"
                     value={step3.postcode}
                     onChange={e => setStep3(p => ({ ...p, postcode: e.target.value }))}
                   />
-                </div>
+                </Field>
               </div>
 
               {/* Summary recap */}
@@ -270,32 +245,25 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold text-text-primary">Personal tax inputs</h2>
+                <h2 className={stepTitle}>Personal tax inputs</h2>
                 <p className="text-sm text-text-secondary mt-1">Improves the accuracy of your tax estimates. You can skip and set these later in Settings.</p>
               </div>
 
-              {/* NEW: monthly expenses estimate — shown first, most immediately useful */}
-<div>
-                <label className={labelClass}>
-                  Typical monthly personal outgoings <span className="text-text-secondary font-normal">(£, optional but recommended)</span>
-                </label>
-                <input
-                  className={inputClass}
+              <Field
+                label={<>Typical monthly personal outgoings <span className="text-text-secondary font-normal normal-case">(£, optional but recommended)</span></>}
+                hint="Rent or mortgage, food, bills, subscriptions — the fixed cost of your life each month. We use this to show what's genuinely safe to spend."
+              >
+                <Input
                   type="number"
                   min="0"
                   placeholder="e.g. 2500"
                   value={step4.monthly_personal_outgoings}
                   onChange={e => setStep4(p => ({ ...p, monthly_personal_outgoings: e.target.value }))}
                 />
-                <p className="text-xs text-text-secondary mt-1">
-                  Rent or mortgage, food, bills, subscriptions — the fixed cost of your life each month. We use this to show what's genuinely safe to spend.
-                </p>
-              </div>
+              </Field>
 
-              <div>
-                <label className={labelClass}>Student loan plan</label>
-                <select
-                  className={inputClass}
+              <Field label="Student loan plan">
+                <Select
                   value={step4.student_loan_plan}
                   onChange={e => setStep4(p => ({ ...p, student_loan_plan: e.target.value }))}
                 >
@@ -305,43 +273,39 @@ export default function OnboardingPage() {
                   <option value="plan4">Plan 4 (Scotland)</option>
                   <option value="plan5">Plan 5</option>
                   <option value="postgrad">Postgraduate loan</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Annual pension contributions <span className="text-text-secondary font-normal">(£, optional)</span></label>
-                <input
-                  className={inputClass}
+                </Select>
+              </Field>
+
+              <Field label={<>Annual pension contributions <span className="text-text-secondary font-normal normal-case">(£, optional)</span></>}>
+                <Input
                   type="number"
                   min="0"
                   placeholder="e.g. 3000"
                   value={step4.pension_contributions}
                   onChange={e => setStep4(p => ({ ...p, pension_contributions: e.target.value }))}
                 />
-              </div>
+              </Field>
+
               {step2.business_type === 'limited_company' && (
                 <>
-                  <div>
-                    <label className={labelClass}>Salary drawn from company <span className="text-text-secondary font-normal">(£ per year, optional)</span></label>
-                    <input
-                      className={inputClass}
+                  <Field label={<>Salary drawn from company <span className="text-text-secondary font-normal normal-case">(£ per year, optional)</span></>}>
+                    <Input
                       type="number"
                       min="0"
                       placeholder="e.g. 12570"
                       value={step4.salary_drawn}
                       onChange={e => setStep4(p => ({ ...p, salary_drawn: e.target.value }))}
                     />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Dividends drawn from company <span className="text-text-secondary font-normal">(£ per year, optional)</span></label>
-                    <input
-                      className={inputClass}
+                  </Field>
+                  <Field label={<>Dividends drawn from company <span className="text-text-secondary font-normal normal-case">(£ per year, optional)</span></>}>
+                    <Input
                       type="number"
                       min="0"
                       placeholder="e.g. 40000"
                       value={step4.dividends_drawn}
                       onChange={e => setStep4(p => ({ ...p, dividends_drawn: e.target.value }))}
                     />
-                  </div>
+                  </Field>
                 </>
               )}
               <p className="text-xs text-text-secondary">These figures affect tax estimates only and are never shared.</p>
@@ -351,12 +315,9 @@ export default function OnboardingPage() {
           {/* Nav buttons */}
           <div className="flex items-center justify-between mt-8">
             {step > 1 ? (
-              <button
-                onClick={() => setStep(s => s - 1)}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm text-text-secondary hover:text-text-primary border border-border-default rounded-xl hover:bg-surface-sunken"
-              >
+              <Button type="button" intent="outline" size="sm" onClick={() => setStep(s => s - 1)}>
                 <ArrowLeft weight="regular" className="w-3.5 h-3.5" /> Back
-              </button>
+              </Button>
             ) : (
               <div />
             )}
@@ -364,34 +325,28 @@ export default function OnboardingPage() {
             {step < STEPS.length ? (
               <div className="flex items-center gap-2">
                 {step === 3 && (
-                  <button
-                    onClick={finish}
-                    disabled={saving}
-                    className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary border border-border-default rounded-xl hover:bg-surface-sunken disabled:opacity-50"
-                  >
+                  <Button type="button" intent="outline" size="sm" onClick={finish} disabled={saving}>
                     Skip &amp; finish
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
+                  type="button"
+                  intent="primary"
+                  size="sm"
                   onClick={() => {
                     if (step === 1 && !step1.full_name.trim()) { setError('Please enter your name'); return }
                     setError(null)
                     setStep(s => s + 1)
                   }}
-                  className="flex items-center gap-1.5 px-5 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800"
                 >
                   Continue <ArrowRight weight="regular" className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={finish}
-                  disabled={saving}
-                  className="flex items-center gap-1.5 px-5 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
-                >
+                <Button type="button" intent="primary" size="sm" onClick={finish} disabled={saving}>
                   {saving ? 'Setting up…' : 'Go to dashboard'} {!saving && <ArrowRight className="w-3.5 h-3.5" />}
-                </button>
+                </Button>
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { inputClass } from './shared'
+import Button, { buttonVariants } from '@/components/ui/button'
 
 export default function AccountantTab() {
   const [acctEmail, setAcctEmail]     = useState('')
@@ -54,13 +55,9 @@ export default function AccountantTab() {
             onChange={e => setAcctEmail(e.target.value)}
             className="flex-1 px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
           />
-          <button
-            onClick={sendAccountantInvite}
-            disabled={acctSending || !acctEmail.trim()}
-            className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 disabled:opacity-50 whitespace-nowrap"
-          >
+          <Button type="button" intent="primary" size="sm" onClick={sendAccountantInvite} disabled={acctSending || !acctEmail.trim()} className="whitespace-nowrap shrink-0">
             {acctSending ? 'Sending…' : 'Send invite'}
-          </button>
+          </Button>
         </div>
         {acctMsg && (
           <p className={`text-sm mt-2 ${acctMsg.includes('success') ? 'text-success-700' : 'text-danger-600'}`}>{acctMsg}</p>

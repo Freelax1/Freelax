@@ -1,5 +1,7 @@
 'use client'
 
+import Button, { buttonVariants } from '@/components/ui/button'
+
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -126,10 +128,7 @@ export default function HmrcTab() {
               {disconnecting ? 'Disconnecting…' : 'Disconnect'}
             </button>
           ) : (
-            <a
-              href="/api/auth/hmrc"
-              className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 transition-colors"
-            >
+            <a href="/api/auth/hmrc" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
               Connect to HMRC
             </a>
           )}
@@ -148,7 +147,7 @@ export default function HmrcTab() {
               {testLoading ? 'Testing…' : 'Test connection (sandbox)'}
             </button>
             {testResult && (
-              <pre className="text-xs bg-forest-900 text-text-on-dark rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
+              <pre className="text-xs bg-surface-sunken text-text-secondary border border-border-default rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
                 {testResult}
               </pre>
             )}

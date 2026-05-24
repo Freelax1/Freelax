@@ -14,6 +14,7 @@ import SettingsModal from '@/components/settings-modal'
 import { buildNotifications, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
 import Tooltip from '@/components/tooltip'
+import { cn } from '@/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -334,11 +335,9 @@ export default function Sidebar() {
           {/* Profile row + menu */}
           <div ref={profileRef} style={{ position: 'relative' }}>
             {profileOpen && (
-              <div className="rounded-lg shadow-overlay" style={{
-                position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0,
-                background: 'var(--surface-card)', border: '1px solid var(--border-default)',
-                overflow: 'hidden', zIndex: 100, // z-dropdown
-              }}>
+              <div
+                className="absolute bottom-[calc(100%+8px)] left-0 right-0 z-dropdown rounded-lg shadow-overlay bg-surface-card border border-border-default overflow-hidden"
+              >
                 {/* Email header */}
                 <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border-subtle)' }}>
                   <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -456,35 +455,20 @@ export default function Sidebar() {
     <>
       {/* ── Desktop sidebar ──────────────────────────────────────────── */}
       <aside
-        className="hidden lg:flex rounded-xl"
-        style={{
-          position: 'fixed', top: 12, left: 12, bottom: 12,
-          width: SIDEBAR_W, flexDirection: 'column',
-          background: 'rgba(255,255,255,0.78)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(0,0,0,0.07)',
-          boxShadow: '0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-          zIndex: 40, // z-sticky
-          overflow: 'hidden',
-        }}
+        className="hidden lg:flex fixed z-sticky flex-col overflow-hidden rounded-xl border border-border-default bg-surface-card shadow-card"
+        style={{ top: 12, left: 12, bottom: 12, width: SIDEBAR_W }}
       >
         <SidebarContent />
       </aside>
 
       {/* ── Mobile top bar ───────────────────────────────────────────── */}
       <header
-        className="flex items-center lg:hidden"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 52, zIndex: 40, // z-sticky
-          background: 'rgba(255,255,255,0.82)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          borderBottom: '1px solid rgba(0,0,0,0.07)',
-          padding: '0 16px', gap: 12,
-          transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
-          transition: 'transform 280ms cubic-bezier(0.4,0,0.2,1)',
-        }}
+        className={cn(
+          'flex items-center lg:hidden fixed top-0 left-0 right-0 z-sticky h-[52px] gap-3 px-4',
+          'border-b border-border-default bg-surface-card',
+          'transition-transform duration-280 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          headerHidden ? '-translate-y-full' : 'translate-y-0',
+        )}
       >
         <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
           <List weight="regular" className="w-5 h-5" />
@@ -511,7 +495,7 @@ export default function Sidebar() {
 
       {/* ── Mobile drawer ────────────────────────────────────────────── */}
       {mobileOpen && (
-        <div className="lg:hidden z-overlay" style={{ position: 'fixed', inset: 0 }}>
+        <div className="lg:hidden fixed inset-0 z-overlay">
           <div
             className="absolute inset-0 bg-black/[0.35]"
             onClick={() => setMobileOpen(false)}

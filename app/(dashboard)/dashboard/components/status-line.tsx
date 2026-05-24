@@ -152,7 +152,7 @@ export default function StatusLine(props: Props) {
     }}>
       <div className="flex items-center gap-2 flex-wrap">
         <WeatherGlyph state={state} />
-        <p className="font-semibold text-text-primary inline-flex items-center gap-1 text-2xl font-sans tracking-tight leading-heading">
+        <p className="font-semibold text-text-primary inline-flex items-center gap-1 text-lg font-sans tracking-tight leading-snug">
           {text}
           {state === 'nudge' && <NudgeChevron />}
         </p>

@@ -10,6 +10,7 @@ import { createClientRecord } from '@/lib/api/clients'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
 import Link from 'next/link'
 import { ArrowLeft } from '@phosphor-icons/react'
+import { sectionTitle } from '@/lib/typography'
 
 export default function NewClientPage() {
   const router = useRouter()
@@ -65,7 +66,7 @@ export default function NewClientPage() {
         <Link href="/clients" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to clients
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">New client</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New client</h1>
       </div>
 
       {error && (
@@ -74,7 +75,7 @@ export default function NewClientPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className="font-semibold text-text-primary">Client details</h2>
+          <h2 className={sectionTitle}>Client details</h2>
 
           <Field label="Business name" required error={errors.name}>
             <Input value={form.name} onChange={e => set('name', e.target.value)}
@@ -104,7 +105,7 @@ export default function NewClientPage() {
         </div>
 
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className="font-semibold text-text-primary">Address</h2>
+          <h2 className={sectionTitle}>Address</h2>
 
           <Field label="Address line 1">
             <Input value={form.address_line1} onChange={e => set('address_line1', e.target.value)} placeholder="10 Example Street" />

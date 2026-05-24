@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { addMileageEntry } from '@/lib/api/mileage'
+import Button from '@/components/ui/button'
 
 interface Props {
   userId: string
@@ -80,13 +81,9 @@ export default function MileageForm({ userId, taxYearStart, onSuccess }: Props) 
         </div>
       </div>
       <div className="flex justify-end gap-3 pt-2">
-        <button
-          onClick={handleSubmit}
-          disabled={saving || !form.description || !form.miles}
-          className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
-        >
+        <Button type="button" intent="primary" size="sm" onClick={handleSubmit} disabled={saving || !form.description || !form.miles}>
           {saving ? 'Saving…' : 'Save journey'}
-        </button>
+        </Button>
       </div>
     </div>
   )

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { fetchClients } from '@/lib/api/clients'
 import { calcOutstanding } from '@/lib/logic/clients'
 import { formatCurrency } from '@/lib/tax-calculations'
-import PageHeader from '@/components/page-header'
+import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import Button, { buttonVariants } from '@/components/ui/button'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
@@ -18,42 +19,12 @@ import type { Client } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import StatusConfirmModal from '@/components/status-confirm-modal'
 import Tooltip from '@/components/tooltip'
 
 interface ClientWithStats extends Client { outstanding: number }
 
-// ── Status change confirm modal ───────────────────────────────────────
-function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
-  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  const STATUS_LABELS: Record<string, string> = { active: 'Active', paused: 'Paused', archived: 'Archived' }
-  const label = STATUS_LABELS[newStatus] ?? newStatus
-  const t     = tonePalette(newStatus)
-  const color = t.text
-  const bg    = t.bg
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
-      onClick={onCancel}>
-      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-semibold text-text-primary mb-1">
-          Change status to <span style={{ color }}>{label}</span>?
-        </h2>
-        <p className="text-sm text-text-secondary mb-5">
-          {count} client{count !== 1 ? 's' : ''} will be marked as{' '}
-          <span style={{ fontWeight: 600, color }}>{label}</span>.
-        </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
-          <button onClick={onConfirm} disabled={loading}
-            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
-            style={{ background: color }}>
-            {loading ? 'Updating...' : `Mark as ${label}`}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+const CLIENT_STATUS_LABELS: Record<string, string> = { active: 'Active', paused: 'Paused', archived: 'Archived' }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
@@ -83,7 +54,7 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
         </button>
       </Tooltip>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
+        <DropdownPanel>
           <Link href={`/clients/${client.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -112,38 +83,30 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   )
 }
 
 // ── Bulk action bar ───────────────────────────────────────────────────
-function BulkBar({ count, onDelete, onStatusChange }: {
+function BulkBar({ count, onDelete, onStatusChange, onClear }: {
   count: number
   onDelete: () => void
   onStatusChange: (status: string) => void
+  onClear: () => void
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
-      <span className="text-sm font-medium text-white mr-1">
-        {count} selected
-      </span>
-      <div className="w-px h-4 bg-white/15" />
+    <ListBulkBar count={count} onClear={onClear}>
       {['active', 'paused', 'archived'].map(s => (
-        <button key={s} onClick={() => onStatusChange(s)}
-          className="text-xs font-medium px-2.5 py-1 rounded-md text-white cursor-pointer capitalize bg-white/[0.08] border border-white/[0.12] hover:bg-white/15 transition-colors"
-        >
+        <Button key={s} type="button" intent="secondary" size="xs" onClick={() => onStatusChange(s)} className="capitalize">
           Mark as {s}
-        </button>
+        </Button>
       ))}
-      <div className="w-px h-4 bg-white/15" />
-      <button onClick={onDelete}
-        className="text-xs font-medium px-2.5 py-1 rounded-md text-danger-300 cursor-pointer flex items-center gap-1.5 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
-      >
+      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete}>
         <Trash weight="regular" className="w-3 h-3" /> Delete
-      </button>
-    </div>
+      </Button>
+    </ListBulkBar>
   )
 }
 
@@ -247,86 +210,65 @@ export default function ClientsPage() {
   const someSelected = selected.size > 0
 
   const CARDS = [
-    { key: 'active',   label: 'Active',   count: activeCount,   outstanding: activeOutstanding },
-    { key: 'paused',   label: 'Paused',   count: pausedCount,   outstanding: pausedOutstanding },
-    { key: 'archived', label: 'Archived', count: archivedCount, outstanding: 0                 },
+    { key: 'active',   label: 'Active',   count: activeCount },
+    { key: 'paused',   label: 'Paused',   count: pausedCount },
+    { key: 'archived', label: 'Archived', count: archivedCount },
   ] as const
 
   return (
     <div>
-      <PageHeader className="fd-page-enter"
+      <PageHeader
         title="Clients"
         subtitle={loading ? '' : `${clients.length} clients`}
-        action={<button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add client</button>}
+        action={
+          <Button type="button" intent="primary" size="sm" onClick={openAdd}>
+            Add client
+          </Button>
+        }
       />
 
-      {/* Stat / filter cards */}
       {!loading && clients.length > 0 && (
-        <div className="fd-page-enter flex gap-3 mt-4 mb-5">
-          {CARDS.map(({ key, label, count, outstanding }) => {
-            const t = tonePalette(key)
-            const isActive = statusFilter === key
-            return (
-              <button key={key}
-                onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.hover }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = t.bg }}
-                className="flex-1 rounded-xl px-5 py-4 cursor-pointer text-left transition-[background] duration-150"
-                style={{
-                  background: isActive ? 'var(--text-primary)' : t.bg,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
-                }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{count}</p>
-                {outstanding > 0 && (
-                  <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>
-                    {formatCurrency(outstanding)} outstanding
-                  </p>
-                )}
-              </button>
-            )
-          })}
-          {/* Total outstanding card */}
-          <div className="flex-1 bg-surface-sunken rounded-xl px-5 py-4 text-left border border-border-default">
-            <p className="text-micro font-semibold text-text-secondary mb-1.5">Total outstanding</p>
-            <p className={cn('text-xl font-semibold tracking-tight mb-px', totalOutstanding > 0 ? 'text-danger-700' : 'text-text-primary')}>
-              {totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—'}
-            </p>
-            <p className="text-caption font-medium text-text-secondary">{clients.length} client{clients.length !== 1 ? 's' : ''} total</p>
-          </div>
-        </div>
+        <>
+          <ListStatusTabs
+            allCount={clients.length}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            tabs={CARDS.map(c => ({ id: c.key, label: c.label, count: c.count }))}
+          />
+          <ListMetrics
+            items={[
+              {
+                label: 'Total outstanding',
+                value: totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—',
+                highlight: totalOutstanding > 0 ? 'negative' : 'neutral',
+              },
+              {
+                label: 'Active outstanding',
+                value: formatCurrency(activeOutstanding),
+              },
+            ]}
+          />
+        </>
       )}
 
-      {/* Search */}
-      <div className="fd-page-enter mb-4 max-w-[360px]">
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search clients..."
-            className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
-            onKeyDown={e => e.key === 'Escape' && setQuery('')}
-          />
-          {query && (
-            <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-text-muted text-base leading-none">×</button>
-          )}
-        </div>
+      <div className="mb-4 max-w-md">
+        <ListSearch value={query} onChange={setQuery} placeholder="Search clients..." />
       </div>
 
-      {/* Bulk action bar */}
       {someSelected && (
         <BulkBar
           count={selected.size}
           onDelete={() => setBulkDeleteOpen(true)}
           onStatusChange={s => setBulkStatusTarget(s)}
+          onClear={() => setSelected(new Set())}
         />
       )}
 
       {!loading && !clients.length ? (
         <EmptyState icon="clients" title="No clients yet" description="Clients connect to your projects, invoices, and IR35 assessments. Add one to start tracking work."
-          action={<button onClick={openAdd} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add your first client</button>} />
+          action={<Button type="button" intent="primary" size="sm" onClick={openAdd}>Add your first client</Button>} />
       ) : (
-        <div className="hidden md:block fd-page-enter bg-surface-card rounded-xl border border-border-default">
+        <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
           <table className="w-full border-separate border-spacing-0">
             <colgroup>
               <col className="w-10" />
@@ -401,7 +343,7 @@ export default function ClientsPage() {
 
 
         {/* Mobile cards */}
-        <div className="md:hidden fd-page-enter space-y-2">
+        <div className="md:hidden space-y-2">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
@@ -452,9 +394,27 @@ export default function ClientsPage() {
 
       {/* Bulk status modal */}
       {bulkStatusTarget && (
-        <StatusModal
-          count={selected.size}
-          newStatus={bulkStatusTarget}
+        <StatusConfirmModal
+          statusKey={bulkStatusTarget}
+          title={
+            <>
+              Change status to{' '}
+              <span style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {CLIENT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              ?
+            </>
+          }
+          description={
+            <>
+              {selected.size} client{selected.size !== 1 ? 's' : ''} will be marked as{' '}
+              <span className="font-semibold" style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {CLIENT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              .
+            </>
+          }
+          confirmLabel={`Mark as ${CLIENT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}`}
           onConfirm={handleBulkStatus}
           onCancel={() => setBulkStatusTarget(null)}
           loading={bulkUpdating}

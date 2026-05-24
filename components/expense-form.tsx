@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, Toggle, SaveButton } from '@/components/form-fields'
+import Button from '@/components/ui/button'
 import { Scan, UploadSimple, CircleNotch, Camera } from '@phosphor-icons/react'
 import type { Expense } from '@/types/database'
 
@@ -188,15 +189,10 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
             {receiptFile ? 'Change image' : isMobile ? 'Take photo' : 'Upload receipt'}
           </button>
           {receiptFile && (
-            <button
-              type="button"
-              onClick={handleScanReceipt}
-              disabled={scanning}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-forest-600 text-white rounded-xl text-xs font-medium hover:bg-forest-700 disabled:opacity-50"
-            >
+            <Button type="button" intent="primary" size="xs" onClick={handleScanReceipt} disabled={scanning}>
               {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
               {scanning ? 'Reading receipt...' : 'Scan with AI'}
-            </button>
+            </Button>
           )}
         </div>
       </div>

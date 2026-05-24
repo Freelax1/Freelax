@@ -6,7 +6,8 @@ import { fetchExpenses, deleteExpense } from '@/lib/api/expenses'
 import { CATEGORY_LABELS, calcTotalExVat, calcVatReclaimable, calcReceiptsUploaded } from '@/lib/logic/expenses'
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
-import PageHeader from '@/components/page-header'
+import { PageHeader, DropdownPanel, ListMetrics, ListSearch, ListBulkBar, FilterChip } from '@/components/ui'
+import Button from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
@@ -38,7 +39,7 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
         </button>
       </Tooltip>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-dropdown min-w-[130px] overflow-hidden shadow-popover">
+        <DropdownPanel className="min-w-[130px]">
           <button onClick={() => { setOpen(false); onEdit() }}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
             <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
@@ -49,7 +50,7 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   )
@@ -60,15 +61,11 @@ function BulkBar({ count, onDelete, onClear }: {
   count: number; onDelete: () => void; onClear: () => void
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
-      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
-      <div className="w-px h-4 bg-white/15" />
-      <button onClick={onDelete}
-        className="text-xs font-medium px-2.5 py-1 rounded-md text-danger-300 cursor-pointer flex items-center gap-1.5 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40">
+    <ListBulkBar count={count} onClear={onClear}>
+      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete}>
         <Trash weight="regular" className="w-3 h-3" /> Delete
-      </button>
-      <button onClick={onClear} className="ml-auto text-xs cursor-pointer bg-transparent border-none text-white/70">Clear</button>
-    </div>
+      </Button>
+    </ListBulkBar>
   )
 }
 
@@ -139,60 +136,42 @@ export default function ExpensesPage() {
         title="Expenses"
         subtitle={loading ? '' : `${expenses.length} expense${expenses.length !== 1 ? 's' : ''} · ${label}`}
         action={
-          <button onClick={() => { setEditExpense(undefined); setSlideOpen(true) }}
-            className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+          <Button type="button" intent="primary" size="sm" onClick={() => { setEditExpense(undefined); setSlideOpen(true) }}>
             Add expense
-          </button>
+          </Button>
         }
       />
 
-      {/* Summary cards */}
-      {!loading && (
-        <div className="grid grid-cols-3 gap-4 mb-5">
-          {[
-            { label: 'Total ex-VAT',      value: formatCurrency(totalExVat),              sub: `${expenses.length} expense${expenses.length !== 1 ? 's' : ''}` },
-            { label: 'VAT reclaimable',   value: formatCurrency(totalVatReclaimable),      sub: vatRegistered ? 'Registered for VAT' : 'Not VAT registered' },
-            { label: 'Receipts uploaded', value: `${receiptsUploaded}/${expenses.length}`, sub: receiptsUploaded === expenses.length ? '✓ All uploaded' : `${expenses.length - receiptsUploaded} missing` },
-          ].map(s => (
-            <div key={s.label} className="bg-surface-card rounded-xl border border-border-default p-5">
-              <p className="text-micro font-semibold text-text-body mb-1.5">{s.label}</p>
-              <p className="text-xl font-semibold text-text-primary tracking-tight mb-px">{s.value}</p>
-              <p className="text-caption font-medium text-text-secondary">{s.sub}</p>
-            </div>
-          ))}
-        </div>
+      {!loading && expenses.length > 0 && (
+        <ListMetrics
+          items={[
+            { label: 'Total ex-VAT', value: formatCurrency(totalExVat) },
+            { label: 'VAT reclaimable', value: formatCurrency(totalVatReclaimable) },
+            { label: 'Receipts', value: `${receiptsUploaded}/${expenses.length}` },
+          ]}
+        />
       )}
 
-      {/* Category filter pills */}
       {!loading && categories.length > 1 && (
         <div className="flex gap-1.5 flex-wrap mb-3.5">
           {categories.map(cat => {
-            const isActive = categoryFilter === cat
             const catLabel = cat === 'all' ? 'All categories' : (CATEGORY_LABELS[cat] ?? cat)
             return (
-              <button key={cat}
+              <FilterChip
+                key={cat}
+                active={categoryFilter === cat}
                 onClick={() => setCategoryFilter(cat === categoryFilter && cat !== 'all' ? 'all' : cat)}
-                className={cn('px-3 py-1 rounded-lg text-xs cursor-pointer transition-all duration-[120ms] border',
-                  isActive ? 'bg-forest-900 text-white border-forest-900 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal'
-                )}>
+              >
                 {catLabel}
-              </button>
+              </FilterChip>
             )
           })}
         </div>
       )}
 
-      {/* Search */}
       {!loading && (
-        <div className="relative mb-3.5 max-w-[360px]">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search expenses…"
-            className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
-            onKeyDown={e => e.key === 'Escape' && setQuery('')}
-          />
-          {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
+        <div className="mb-3.5 max-w-md">
+          <ListSearch value={query} onChange={setQuery} placeholder="Search expenses…" />
         </div>
       )}
 
@@ -206,10 +185,9 @@ export default function ExpensesPage() {
         <EmptyState icon="expense" title="No expenses yet"
           description="Every business cost you log reduces your tax bill. We handle the VAT split and keep your receipts in one place for Self Assessment."
           action={
-            <button onClick={() => { setEditExpense(undefined); setSlideOpen(true) }}
-              className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">
+            <Button type="button" intent="primary" size="sm" onClick={() => { setEditExpense(undefined); setSlideOpen(true) }}>
               Log your first expense
-            </button>
+            </Button>
           }
         />
       ) : (

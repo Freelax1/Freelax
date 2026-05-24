@@ -6,7 +6,7 @@ import { Bell, CheckCircle } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import { buildNotifications, TYPE_LABEL, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
-import PageHeader from '@/components/page-header'
+import { PageHeader, FilterChip } from '@/components/ui'
 
 const BADGE_STYLE: Record<Notification['priority'], { bg: string; color: string }> = {
   red:   { bg: 'var(--danger-50)',  color: 'var(--danger-600)'  },
@@ -53,7 +53,7 @@ export default function NotificationsPage() {
   const displayed = unreadOnly ? notifications.filter(n => !readIds.has(n.id)) : notifications
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl">
       <PageHeader title="Notifications" />
 
       <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
@@ -65,28 +65,9 @@ export default function NotificationsPage() {
               {newCount} new
             </span>
           )}
-          <div className="ml-auto flex items-center gap-2">
-            <span className="text-caption text-text-secondary">Unread only</span>
-            <button
-              role="switch"
-              aria-checked={unreadOnly}
-              onClick={() => setUnreadOnly(v => !v)}
-              className="relative shrink-0 cursor-pointer border-none p-0 transition-colors duration-200 rounded-full"
-              style={{
-                width: 28, height: 16,
-                background: unreadOnly ? 'var(--brand-primary)' : 'var(--border-default)',
-              }}
-            >
-              <span
-                className="absolute top-0.5 transition-all duration-200 rounded-full"
-                style={{
-                  width: 12, height: 12,
-                  background: 'var(--surface-card)',
-                  left: unreadOnly ? 14 : 2,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                }}
-              />
-            </button>
+          <div className="ml-auto flex items-center gap-1.5">
+            <FilterChip active={!unreadOnly} onClick={() => setUnreadOnly(false)}>All</FilterChip>
+            <FilterChip active={unreadOnly} onClick={() => setUnreadOnly(true)}>Unread</FilterChip>
           </div>
         </div>
 

@@ -7,15 +7,22 @@
 // accessible name without requiring it on every call-site.
 
 import { useState, useId, cloneElement, isValidElement } from 'react'
-import type { ReactElement } from 'react'
+import type { FocusEvent, MouseEvent, ReactElement } from 'react'
 
 interface TooltipProps {
   /** Text shown in the tooltip and injected as aria-label on the child */
   label: string
   /** Single interactive child element (button, a, etc.) */
-  children: ReactElement
+  children: ReactElement<TriggerProps & Record<string, unknown>>
   /** Horizontal alignment of the tooltip relative to the trigger */
   align?: 'center' | 'left' | 'right'
+}
+
+type TriggerProps = {
+  onMouseEnter?: (e: MouseEvent) => void
+  onMouseLeave?: (e: MouseEvent) => void
+  onFocus?: (e: FocusEvent) => void
+  onBlur?: (e: FocusEvent) => void
 }
 
 export default function Tooltip({ label, children, align = 'center' }: TooltipProps) {
@@ -27,26 +34,27 @@ export default function Tooltip({ label, children, align = 'center' }: TooltipPr
     align === 'right' ? 'right-0' :
     'left-1/2 -translate-x-1/2'
 
-  // Inject aria-label + aria-describedby onto the child
+  const childProps = (isValidElement(children) ? children.props : {}) as TriggerProps
+
   const trigger = isValidElement(children)
-    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+    ? cloneElement(children, {
         'aria-label':       label,
         'aria-describedby': visible ? id : undefined,
-        onMouseEnter: (e: React.MouseEvent) => {
+        onMouseEnter: (e: MouseEvent) => {
           setVisible(true)
-          ;(children.props as Record<string, unknown>).onMouseEnter?.(e)
+          childProps.onMouseEnter?.(e)
         },
-        onMouseLeave: (e: React.MouseEvent) => {
+        onMouseLeave: (e: MouseEvent) => {
           setVisible(false)
-          ;(children.props as Record<string, unknown>).onMouseLeave?.(e)
+          childProps.onMouseLeave?.(e)
         },
-        onFocus: (e: React.FocusEvent) => {
+        onFocus: (e: FocusEvent) => {
           setVisible(true)
-          ;(children.props as Record<string, unknown>).onFocus?.(e)
+          childProps.onFocus?.(e)
         },
-        onBlur: (e: React.FocusEvent) => {
+        onBlur: (e: FocusEvent) => {
           setVisible(false)
-          ;(children.props as Record<string, unknown>).onBlur?.(e)
+          childProps.onBlur?.(e)
         },
       })
     : children
@@ -58,7 +66,7 @@ export default function Tooltip({ label, children, align = 'center' }: TooltipPr
         <span
           id={id}
           role="tooltip"
-          className={`pointer-events-none absolute bottom-[calc(100%+6px)] ${alignClass} z-toast whitespace-nowrap rounded-md bg-forest-950 px-2 py-1 text-xs font-medium text-white shadow-tooltip animate-tooltip-in`}
+          className={`pointer-events-none absolute bottom-[calc(100%+6px)] ${alignClass} z-toast whitespace-nowrap rounded-lg border border-border-default bg-surface-card px-2.5 py-1.5 text-xs font-medium text-text-primary shadow-tooltip`}
         >
           {label}
         </span>

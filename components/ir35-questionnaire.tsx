@@ -6,6 +6,7 @@ import Badge from '@/components/badge'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import Button from '@/components/ui/button'
 
 interface Props {
   projectId: string
@@ -104,7 +105,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: true }))}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                     answers[q.number] === true
-                      ? 'bg-forest-600 text-white'
+                      ? 'bg-brand-primary text-white'
                       : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                   }`}
                 >
@@ -114,7 +115,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: false }))}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                     answers[q.number] === false && answers[q.number] !== undefined
-                      ? 'bg-forest-600 text-white'
+                      ? 'bg-brand-primary text-white'
                       : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                   }`}
                 >
@@ -134,21 +135,13 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
           </div>
           <div className="flex gap-2">
             {onSave && (
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
-              >
+              <Button type="button" intent="primary" size="sm" onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : 'Save assessment'}
-              </button>
+              </Button>
             )}
-            <button
-              onClick={handleAIAssess}
-              disabled={aiLoading}
-              className="px-4 py-2 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50"
-            >
+            <Button type="button" intent="primary" size="sm" onClick={handleAIAssess} disabled={aiLoading}>
               {aiLoading ? 'Analysing...' : 'Assess with AI'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -182,7 +175,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
               <ol className="space-y-2.5">
                 {aiResult.next_steps.map((step: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-forest-900 text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
                     {step}
                   </li>
                 ))}

@@ -4,58 +4,32 @@ export const dynamic = 'force-dynamic'
 import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { fetchProjects, deleteProject, updateProject } from '@/lib/api/projects'
+import { fetchProjects, deleteProject, updateProject, type ProjectListRow } from '@/lib/api/projects'
 import { formatCurrency } from '@/lib/tax-calculations'
-import PageHeader from '@/components/page-header'
+import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar, FilterChip } from '@/components/ui'
+import Button from '@/components/ui/button'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
 import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
-import type { Project } from '@/types/database'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
+import StatusConfirmModal from '@/components/status-confirm-modal'
 import Tooltip from '@/components/tooltip'
+import type { Project } from '@/types/database'
 import SlideOver from '@/components/slide-over'
 import ProjectForm from '@/components/project-form'
 
-// ── Status modal ──────────────────────────────────────────────────────
-function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
-  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
-}) {
-  const STATUS_LABELS: Record<string, string> = {
-    active: 'Active', completed: 'Completed', on_hold: 'On Hold', cancelled: 'Cancelled',
-  }
-  const label = STATUS_LABELS[newStatus] ?? newStatus
-  const color = tonePalette(newStatus).text
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45"
-      onClick={onCancel}>
-      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="font-semibold text-text-primary mb-1">
-          Change status to <span style={{ color }}>{label}</span>?
-        </h2>
-        <p className="text-sm text-text-secondary mb-5">
-          {count} project{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
-        </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">Cancel</button>
-          <button onClick={onConfirm} disabled={loading}
-            className={cn('flex-1 px-4 py-2.5 text-white border-none rounded-lg text-sm font-medium', loading ? 'cursor-default opacity-60' : 'cursor-pointer')}
-            style={{ background: color }}>
-            {loading ? 'Updating...' : `Mark as ${label}`}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+const PROJECT_STATUS_LABELS: Record<string, string> = {
+  active: 'Active', completed: 'Completed', on_hold: 'On Hold', cancelled: 'Cancelled',
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
-  project: Project
-  onDelete: (p: Project) => void
-  onStatusChange: (p: Project, status: string) => void
-  onEdit: (p: Project) => void
+  project: ProjectListRow
+  onDelete: (p: ProjectListRow) => void
+  onStatusChange: (p: ProjectListRow, status: string) => void
+  onEdit: (p: ProjectListRow) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -72,13 +46,14 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-        aria-label="Project actions"
-        className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-        <DotsThreeVertical weight="regular" className="w-4 h-4" />
-      </button>
+      <Tooltip label="Project actions">
+        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+          <DotsThreeVertical weight="regular" className="w-4 h-4" />
+        </button>
+      </Tooltip>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] bg-surface-card border border-border-default rounded-xl z-50 min-w-[160px] overflow-hidden shadow-popover">
+        <DropdownPanel>
           <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -104,66 +79,46 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   )
 }
 
 // ── Bulk bar ──────────────────────────────────────────────────────────
-function BulkBar({ count, onDelete, onStatusChange }: {
-  count: number; onDelete: () => void; onStatusChange: (s: string) => void
+function BulkBar({ count, onDelete, onStatusChange, onClear }: {
+  count: number; onDelete: () => void; onStatusChange: (s: string) => void; onClear: () => void
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-forest-950 rounded-lg px-4 py-2.5 mb-3">
-      <span className="text-sm font-medium text-white mr-1">{count} selected</span>
-      <div className="w-px h-4 bg-white/15" />
+    <ListBulkBar count={count} onClear={onClear}>
       {['active', 'completed', 'on_hold'].map(s => (
-        <button key={s} onClick={() => onStatusChange(s)}
-          className="text-xs font-medium px-2.5 py-1 rounded-md capitalize text-white bg-white/[0.08] border border-white/[0.12] cursor-pointer transition-colors hover:bg-white/15"
-        >
+        <Button key={s} type="button" intent="secondary" size="xs" onClick={() => onStatusChange(s)} className="capitalize">
           Mark as {s.replace('_', ' ')}
-        </button>
+        </Button>
       ))}
-      <div className="w-px h-4 bg-white/15" />
-      <button onClick={onDelete}
-        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md cursor-pointer text-danger-300 bg-danger-800/30 border border-danger-700/50 hover:bg-danger-800/40 transition-colors"
-      >
+      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete}>
         <Trash weight="regular" className="w-3 h-3" /> Delete
-      </button>
-    </div>
-  )
-}
-
-// ── Stat card ─────────────────────────────────────────────────────────
-function StatCard({ label, count, value, color, bg, border }: {
-  label: string; count: number; value?: string; color: string; bg: string; border: string
-}) {
-  return (
-    <div className="flex-1 rounded-lg px-5 py-4" style={{ background: bg, border: `1px solid ${border}` }}>
-      <p className="text-caption font-semibold mb-1.5" style={{ color }}>{label}</p>
-      <p className="text-2xl font-semibold tracking-tight leading-none" style={{ color }}>{count}</p>
-      {value && <p className="text-xs mt-1 opacity-70" style={{ color }}>{value}</p>}
-    </div>
+      </Button>
+    </ListBulkBar>
   )
 }
 
 export default function ProjectsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [projects, setProjects]           = useState<Project[]>([])
+  const [projects, setProjects]           = useState<ProjectListRow[]>([])
   const [loading, setLoading]             = useState(true)
   const [query, setQuery]                 = useState('')
   const [ir35Filter, setIr35Filter]       = useState<string>('all')
   const [statusFilter, setStatusFilter]     = useState<string>('all')
   const [selected, setSelected]           = useState<Set<string>>(new Set())
-  const [deleteTarget, setDeleteTarget]   = useState<Project | null>(null)
+  const [deleteTarget, setDeleteTarget]   = useState<ProjectListRow | null>(null)
   const [deleting, setDeleting]           = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkStatusTarget, setBulkStatusTarget] = useState<string | null>(null)
   const [bulkUpdating, setBulkUpdating]   = useState(false)
   const [slideOpen, setSlideOpen]         = useState(false)
-  const [editProject, setEditProject]     = useState<Partial<Project> | undefined>()
+  const [editProject, setEditProject]     = useState<Partial<ProjectListRow> | undefined>()
 
   useEffect(() => {
     const f = searchParams.get('filter')
@@ -189,7 +144,7 @@ export default function ProjectsPage() {
     } catch { setBulkUpdating(false) }
   }
 
-  async function handleStatusChange(project: Project, newStatus: string) {
+  async function handleStatusChange(project: ProjectListRow, newStatus: string) {
     await updateProject(project.id, { status: newStatus })
     load()
   }
@@ -208,7 +163,7 @@ export default function ProjectsPage() {
   }
   function toggleAll() {
     if (selected.size === searched.length) setSelected(new Set())
-    else setSelected(new Set(searched.map((p: Project) => p.id)))
+    else setSelected(new Set(searched.map((p: ProjectListRow) => p.id)))
   }
 
   const filtered = projects
@@ -226,47 +181,37 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <PageHeader className="fd-page-enter"
+      <PageHeader
         title="Projects"
         subtitle={loading ? '' : `${projects.length} project${projects.length !== 1 ? 's' : ''}`}
-        action={<button onClick={() => { setEditProject(undefined); setSlideOpen(true) }} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Add project</button>}
+        action={
+          <Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>
+            Add project
+          </Button>
+        }
       />
 
-      {/* Stat cards */}
       {!loading && projects.length > 0 && (
-        <div className="fd-stat-grid mb-6">
-          {([
-            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined },
-            { key: 'completed', label: 'Completed', count: completed.length, value: undefined },
-            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined },
-          ] as const).map(({ key, label, count, value }) => {
-            const t = tonePalette(key)
-            const isActive = statusFilter === key
-            return (
-              <button key={key}
-                onClick={() => setStatusFilter(isActive ? 'all' : key)}
-                className="flex-1 rounded-lg px-5 py-4 text-left cursor-pointer transition-all duration-150"
-                style={{
-                  background: isActive ? 'var(--text-primary)' : t.bg,
-                  border: `1px solid ${isActive ? 'var(--text-primary)' : t.border}`,
-                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-                }}>
-                <p className="text-micro font-semibold mb-1.5" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : t.text }}>{label}</p>
-                <p className="text-xl font-semibold tracking-tight mb-px" style={{ color: isActive ? 'var(--text-on-dark)' : t.textValue }}>{count}</p>
-                {value && <p className="text-caption font-medium" style={{ color: isActive ? 'rgba(255,255,255,0.85)' : t.textValue }}>{value}</p>}
-              </button>
-            )
-          })}
-          {/* Total rate value — non-clickable */}
-          <div className="flex-1 bg-surface-sunken rounded-xl px-5 py-4 border border-border-default">
-            <p className="text-micro font-semibold text-text-secondary mb-1.5">Total rate value</p>
-            <p className="text-xl font-semibold text-text-primary tracking-tight mb-px">{projects.length}</p>
-            {totalValue > 0 && <p className="text-caption font-medium text-text-secondary">{formatCurrency(totalValue)}</p>}
-          </div>
-        </div>
+        <>
+          <ListStatusTabs
+            allCount={projects.length}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            tabs={[
+              { id: 'active', label: 'Active', count: active.length },
+              { id: 'completed', label: 'Completed', count: completed.length },
+              { id: 'on_hold', label: 'On hold', count: onHold.length },
+            ]}
+          />
+          <ListMetrics
+            items={[
+              { label: 'Total projects', value: String(projects.length) },
+              { label: 'Combined rate value', value: totalValue > 0 ? formatCurrency(totalValue) : '—' },
+            ]}
+          />
+        </>
       )}
 
-      {/* IR35 filters */}
       <div className="flex gap-1.5 mb-4 flex-wrap">
         {[
           { key: 'all', label: 'All projects' },
@@ -274,34 +219,30 @@ export default function ProjectsPage() {
           { key: 'inside_ir35', label: 'Inside IR35' },
           { key: 'needs_review', label: 'Needs review' },
         ].map(({ key, label }) => (
-          <button key={key} onClick={() => setIr35Filter(key)}
-            className={cn('px-3 py-1 rounded-xl text-xs cursor-pointer transition-all duration-[120ms] border', ir35Filter === key ? 'bg-forest-950 text-white border-forest-950 font-semibold' : 'bg-surface-card text-text-secondary border-border-default font-normal')}
-          >{label}</button>
+          <FilterChip key={key} active={ir35Filter === key} onClick={() => setIr35Filter(key)}>
+            {label}
+          </FilterChip>
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4 max-w-[360px]">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-text-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-        </svg>
-        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search projects..."
-          className="w-full pl-9 pr-3 py-2 border border-border-default rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 font-[inherit] text-text-primary box-border"
-          onKeyDown={e => e.key === 'Escape' && setQuery('')}
-        />
-        {query && <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-text-muted text-base">×</button>}
+      <div className="mb-4 max-w-md">
+        <ListSearch value={query} onChange={setQuery} placeholder="Search projects..." />
       </div>
 
-      {/* Bulk bar */}
       {selected.size > 0 && (
-        <BulkBar count={selected.size} onDelete={() => setBulkDeleteOpen(true)} onStatusChange={s => setBulkStatusTarget(s)} />
+        <BulkBar
+          count={selected.size}
+          onDelete={() => setBulkDeleteOpen(true)}
+          onStatusChange={s => setBulkStatusTarget(s)}
+          onClear={() => setSelected(new Set())}
+        />
       )}
 
       {/* Table */}
-      <div className="fd-page-enter">
+      <div>
         {!loading && !projects.length ? (
           <EmptyState icon="projects" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
-            action={<button onClick={() => { setEditProject(undefined); setSlideOpen(true) }} className="bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800">Create your first project</button>} />
+            action={<Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>Create your first project</Button>} />
         ) : (
           <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
             <table className="w-full border-separate border-spacing-0">
@@ -336,7 +277,7 @@ export default function ProjectsPage() {
                   <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
                     <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-24" /></td>
                   ))}</tr>
-                )) : searched.map((p: Project) => {
+                )) : searched.map((p: ProjectListRow) => {
                   const isSelected = selected.has(p.id)
                   return (
                     <tr key={p.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
@@ -358,7 +299,7 @@ export default function ProjectsPage() {
                       </td>
                       <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : '—'}</td>
                       <td className="px-4 py-2.5"><Badge status={p.status} /></td>
-                      <td className="px-4 py-2.5"><Badge status={p.ir35_status} /></td>
+                      <td className="px-4 py-2.5">{p.ir35_status ? <Badge status={p.ir35_status} /> : <span className="text-sm text-text-muted">—</span>}</td>
                       <td className="px-3 py-2.5 text-right">
                         <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} onEdit={p => { setEditProject(p); setSlideOpen(true) }} />
                       </td>
@@ -377,7 +318,7 @@ export default function ProjectsPage() {
             <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
               <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
             </div>
-          )) : searched.map((p: Project) => {
+          )) : searched.map((p: ProjectListRow) => {
             const isSelected = selected.has(p.id)
             return (
               <div key={p.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
@@ -394,7 +335,7 @@ export default function ProjectsPage() {
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
                   <span className="text-sm text-text-secondary truncate">{p.clients?.name ?? '—'}</span>
-                  <div className="flex-shrink-0"><Badge status={p.ir35_status} /></div>
+                  <div className="flex-shrink-0">{p.ir35_status ? <Badge status={p.ir35_status} /> : null}</div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
                   <span className="text-xs text-text-secondary">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
@@ -414,10 +355,9 @@ export default function ProjectsPage() {
             <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
               For each project, we ask 8 questions based on UK case law and give you an Outside / Inside / Needs Review result. Add a project to get your first assessment.
             </p>
-            <button onClick={() => { setEditProject(undefined); setSlideOpen(true) }}
-              className="inline-block bg-forest-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-forest-800">
+            <Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>
               Add a project →
-            </button>
+            </Button>
           </div>
         )}
 
@@ -439,7 +379,33 @@ export default function ProjectsPage() {
           loading={bulkUpdating}
         />
       )}
-      {bulkStatusTarget && <StatusModal count={selected.size} newStatus={bulkStatusTarget} onConfirm={handleBulkStatus} onCancel={() => setBulkStatusTarget(null)} loading={bulkUpdating} />}
+      {bulkStatusTarget && (
+        <StatusConfirmModal
+          statusKey={bulkStatusTarget}
+          title={
+            <>
+              Change status to{' '}
+              <span style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              ?
+            </>
+          }
+          description={
+            <>
+              {selected.size} project{selected.size !== 1 ? 's' : ''} will be marked as{' '}
+              <span className="font-semibold" style={{ color: tonePalette(bulkStatusTarget).text }}>
+                {PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
+              </span>
+              .
+            </>
+          }
+          confirmLabel={`Mark as ${PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}`}
+          onConfirm={handleBulkStatus}
+          onCancel={() => setBulkStatusTarget(null)}
+          loading={bulkUpdating}
+        />
+      )}
 
       <SlideOver
         open={slideOpen}
@@ -447,13 +413,12 @@ export default function ProjectsPage() {
         title={editProject ? 'Edit project' : 'Add project'}
         width="lg"
         footer={
-          <button form="project-form" type="submit"
-            className="w-full bg-forest-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-forest-800 transition-colors">
+          <Button form="project-form" type="submit" intent="primary" size="md" fullWidth>
             {editProject ? 'Save changes' : 'Add project'}
-          </button>
+          </Button>
         }
       >
-        <ProjectForm project={editProject} onSuccess={() => { setSlideOpen(false); load() }} />
+        <ProjectForm project={editProject as Partial<Project> | undefined} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
     </div>
   )

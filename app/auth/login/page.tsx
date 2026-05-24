@@ -4,23 +4,10 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-
-const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
-const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
-
-function Spinner() {
-  return (
-    <svg
-      width="16" height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      className="animate-fd-spin shrink-0"
-    >
-      <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-      <path d="M8 2a6 6 0 0 1 6 6" stroke="var(--text-on-dark)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
+import { Field, Input, Label } from '@/components/ui/input'
+import Button from '@/components/ui/button'
+import AuthSpinner from '@/components/auth-spinner'
+import { AuthWordmark, AuthHeading, AuthError, AuthFooter } from '@/components/auth-ui'
 
 function LoginFallback() {
   return <div className="h-[200px]" />
@@ -51,88 +38,64 @@ function LoginForm() {
     }
   }
 
-  function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.08)'
-  }
-  function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-    e.currentTarget.style.boxShadow = 'none'
-  }
-
   return (
     <>
-      <div className="auth-wordmark-mobile text-xl font-semibold mb-8 tracking-tighter">
-        <span className="text-white">Free</span>
-        <span className="text-white/70">lax</span>
-        <span className="text-brand-primary">.</span>
-      </div>
-
-      <h2 className="text-xl font-semibold text-white tracking-tight mb-6">
-        Welcome back.
-      </h2>
+      <AuthWordmark variant="mobile" />
+      <AuthHeading title="Welcome back" subtitle="Sign in to your dashboard." />
+      <AuthError>{error}</AuthError>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
-        <div>
-          <label className={LABEL_CLS}>Email</label>
-          <input
+        <Field label="Email" labelVariant="auth">
+          <Input
+            variant="auth"
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className={INPUT_CLS}
             placeholder="you@example.com"
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
-        </div>
+        </Field>
 
         <div>
-          <div className="flex justify-between items-center mb-1.5">
-            <label className="block text-xs font-medium text-white/60">Password</label>
-            <Link
-              href="/auth/forgot-password"
-              className="text-xs text-white/60 font-medium no-underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <input
+          <Label variant="auth">Password</Label>
+          <Input
+            variant="auth"
             type="password"
             autoComplete="current-password"
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className={INPUT_CLS}
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
+          <div className="flex justify-end mt-1.5">
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs text-white/60 font-medium no-underline hover:text-white/80 transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
-        {error && (
-          <p className="text-sm -mt-1 text-[color:var(--danger-400)]">{error}</p>
-        )}
-
-        <button
+        <Button
           type="submit"
+          intent="auth"
+          size="auth"
+          fullWidth
           disabled={loading}
-          className="w-full mt-1 px-4 py-3 text-base font-semibold text-white border-none rounded-lg font-[inherit] flex items-center justify-center gap-2 transition-colors duration-[150ms] disabled:cursor-default"
-          style={{ background: loading ? 'var(--forest-600)' : 'var(--brand-primary)' }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--forest-700)' }}
-          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = 'var(--brand-primary)' }}
+          className="mt-1"
         >
-          {loading && <Spinner />}
+          {loading && <AuthSpinner />}
           {loading ? 'Signing in…' : 'Sign in'}
-        </button>
+        </Button>
       </form>
 
-      <p className="text-sm text-center mt-5 mb-0 text-white/50">
+      <AuthFooter>
         No account?{' '}
         <Link href="/auth/signup" className="text-white font-semibold no-underline">
           Sign up free
         </Link>
-      </p>
+      </AuthFooter>
     </>
   )
 }

@@ -10,7 +10,8 @@ import {
   getCurrentTaxYear,
   getVatThresholdWarning,
 } from '@/lib/tax-calculations'
-import PageHeader from '@/components/page-header'
+import { PageHeader } from '@/components/ui'
+import Button, { buttonVariants } from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import AIFlag from '@/components/ai-flag'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
@@ -21,6 +22,8 @@ import { Input } from '@/components/ui/input'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
+import { serifDisplay, sectionTitle } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 import type {
   TaxPotEntry, Invoice, Expense, MileageEntry,
   BusinessType, StudentLoanPlan, TaxDetail,
@@ -73,7 +76,7 @@ function Card({ title, accent, children }: { title: React.ReactNode; accent?: st
   return (
     <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
       <div className={`px-5 py-3 border-b border-border-subtle ${accent ?? 'bg-surface-sunken'}`}>
-        <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
+        <h2 className={sectionTitle}>{title}</h2>
       </div>
       <div className="px-5 py-1">{children}</div>
     </div>
@@ -96,7 +99,7 @@ function StatCard({
       <p className="text-caption font-medium text-text-secondary mb-3">
         {label}
       </p>
-      <p className="text-[clamp(22px,3.4vw,28px)] font-semibold tracking-tight leading-none [font-variant-numeric:tabular-nums]" style={{ color: valueColor ?? 'var(--text-primary)' }}>
+      <p className={cn('text-[clamp(22px,3.4vw,28px)] leading-none tabular-nums', serifDisplay)} style={{ color: valueColor ?? 'var(--text-primary)' }}>
         {value}
       </p>
       {progressBar && (
@@ -105,7 +108,6 @@ function StatCard({
             height: '100%',
             background: progressBar.color,
             width: `${progressBar.pct}%`,
-            transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
           }} />
         </div>
       )}
@@ -239,13 +241,16 @@ function TaxPotCard({
             value={potNote} onChange={e => setPotNote(e.target.value)}
             className="min-w-0"
           />
-          <button
+          <Button
+            type="button"
+            intent="primary"
+            size="xs"
             onClick={onAdd}
             disabled={savingPot || !potAmount || Number(potAmount) <= 0}
-            className="px-3 py-1.5 bg-forest-900 text-white rounded-xl text-xs font-medium hover:bg-forest-800 disabled:opacity-40 whitespace-nowrap"
+            className="whitespace-nowrap"
           >
             {savingPot ? '…' : '+ Save'}
-          </button>
+          </Button>
         </div>
       </div>
     </Card>
@@ -447,37 +452,44 @@ export default function TaxPage() {
 
 
   return (
-    <div className="space-y-6 fd-page-enter">
+    <div className="space-y-6">
       <PageHeader
         title="Tax"
         subtitle={`Tax year ${label} · 6 Apr – 5 Apr`}
         action={
           <div className="flex gap-2 flex-wrap">
             {canExport ? (
-              <button
+              <Button
+                type="button"
+                intent="primary"
+                size="sm"
                 onClick={downloadSAPack}
                 disabled={exportLoading || loading}
-                className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50"
               >
                 <DownloadSimple weight="regular" className="w-3.5 h-3.5" />
                 {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
-              </button>
+              </Button>
             ) : (
               <Link
                 href="/settings?tab=billing"
                 title="Export is available on the Solo plan and above. Upgrade to unlock."
-                className="flex items-center gap-1.5 px-3 py-2 bg-surface-sunken text-text-secondary rounded-xl text-sm font-medium hover:bg-surface-sunken"
+                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
               >
                 <Lock weight="regular" className="w-3.5 h-3.5" />
                 Download {label} SA pack
               </Link>
             )}
 
-            <button onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }} disabled={narrativeLoading || loading}
-              className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-800 disabled:opacity-50">
+            <Button
+              type="button"
+              intent="primary"
+              size="sm"
+              onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }}
+              disabled={narrativeLoading || loading}
+            >
               {narrativeLoading ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Sparkle weight="regular" className="w-3.5 h-3.5" />}
               SA Summary
-            </button>
+            </Button>
           </div>
         }
       />
@@ -485,27 +497,29 @@ export default function TaxPage() {
       <NotTaxAdviceDisclaimer />
 
       {(narrative || narrativeLoading) && (
-        <div className="bg-forest-900 rounded-xl p-5 text-white">
+        <div className="bg-surface-sunken rounded-xl border border-border-default p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkle weight="regular" className="w-4 h-4 text-text-secondary" />
-            <span className="text-sm font-medium text-text-secondary">Self Assessment Summary</span>
+            <Sparkle weight="regular" className="w-4 h-4 text-brand-primary" />
+            <span className="text-sm font-medium text-text-primary">Self Assessment Summary</span>
             <div className="ml-auto flex items-center gap-2">
               {narrative && !narrativeLoading && <AIFlag />}
               {!narrativeLoading && (
                 <>
                   {narrative && (
                     <button
+                      type="button"
                       onClick={() => generateNarrative(true)}
                       title="Refresh"
-                      className="p-1 rounded text-text-secondary hover:text-white hover:bg-forest-800 transition-colors"
+                      className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-card transition-colors"
                     >
                       <ArrowCounterClockwise weight="regular" className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => { setNarrative(null); try { sessionStorage.setItem(`fd_sa_narrative_${taxYearStart}_dismissed`, '1') } catch {} }}
                     title="Dismiss"
-                    className="p-1 rounded text-text-secondary hover:text-white hover:bg-forest-800 transition-colors"
+                    className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-card transition-colors"
                   >
                     <X weight="regular" className="w-4 h-4" />
                   </button>
@@ -515,15 +529,15 @@ export default function TaxPage() {
           </div>
           {narrativeLoading ? (
             <div className="space-y-2">
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-full" />
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-5/6" />
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-4/6" />
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-11/12 mt-3" />
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-4/5" />
-              <div className="h-3 bg-forest-800 rounded animate-pulse w-3/5" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-full" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-5/6" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-4/6" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-11/12 mt-3" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-4/5" />
+              <div className="h-3 bg-border-subtle rounded animate-pulse w-3/5" />
             </div>
           ) : (
-            <div className="text-sm text-text-on-dark leading-relaxed">
+            <div className="text-sm text-text-secondary leading-relaxed">
               {(() => {
                 const sections = parseNarrativeSections(narrative ?? '')
                 if (!sections.length) return <p>{narrative}</p>
@@ -535,16 +549,16 @@ export default function TaxPage() {
                       return (
                         <div key={header}>
                           {i > 0 && (
-                            <div className="h-px my-3.5 bg-white/[0.08]" />
+                            <div className="h-px my-3.5 bg-border-subtle" />
                           )}
-                          <p className="font-semibold mb-1.5 text-white/70">
+                          <p className="font-semibold mb-1.5 text-text-primary">
                             {header}
                           </p>
                           {isBullet ? (
                             <ul className="space-y-1.5">
                               {lines.map((l, j) => (
                                 <li key={j} className="flex gap-2">
-                                  <span className="shrink-0 text-white/35">•</span>
+                                  <span className="shrink-0 text-text-muted">•</span>
                                   <span>{l.replace(/^[-•]\s*/, '')}</span>
                                 </li>
                               ))}
@@ -584,14 +598,15 @@ export default function TaxPage() {
           {/* Empty state — no income data yet */}
           {pageData.taxDetail.grossIncome === 0 && pageData.taxDetail.totalExpenses === 0 && (
             <div className="bg-surface-card rounded-xl border border-border-default p-8 text-center">
-              <h2 className="text-base font-semibold text-text-primary mb-2">
+              <h2 className={cn(sectionTitle, 'mb-2')}>
                 Your tax summary will appear here
               </h2>
               <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
                 Log some invoices and expenses and we'll calculate your estimated Income Tax, National Insurance, and Corporation Tax — broken down clearly, with every deduction shown.
               </p>
               <Link href="/invoices/new"
-                className="inline-block bg-forest-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-forest-800">
+                className={buttonVariants({ intent: 'primary', size: 'sm' })}
+              >
                 Send your first invoice →
               </Link>
             </div>
@@ -669,13 +684,16 @@ export default function TaxPage() {
 
             return (
               <>
-                <div className="fd-stat-grid mb-0">
+                <div className="fd-cards-grid mb-0">
+                  <div className="flex-1 min-w-0">
                   <StatCard
                     tone="cream"
                     label="Tax owed"
                     value={formatCurrency(taxTotal)}
                     sub={`by 31 January ${endYear + 1}`}
                   />
+                  </div>
+                  <div className="flex-1 min-w-0">
                   <StatCard
                     label="Set aside"
                     value={formatCurrency(taxPotTotal)}
@@ -687,11 +705,15 @@ export default function TaxPage() {
                         : "You're fully covered"
                     }
                   />
+                  </div>
+                  <div className="flex-1 min-w-0">
                   <StatCard
                     label="Take-home"
                     value={formatCurrency(t.takeHome)}
                     sub={`${t.effectiveTaxRate}% effective rate · you keep ${Math.round(100 - t.effectiveTaxRate)}%`}
                   />
+                  </div>
+                  <div className="flex-1 min-w-0">
                   <StatCard
                     label="Deadline"
                     valueColor={daysColor}
@@ -705,6 +727,7 @@ export default function TaxPage() {
                     }
                     sub={`31 January ${endYear + 1}`}
                   />
+                  </div>
                 </div>
 
                 <NextSteps actions={actions.slice(0, 3)} />
@@ -893,7 +916,7 @@ export default function TaxPage() {
 
           {/* Important dates */}
           <div className="bg-surface-card rounded-xl border border-border-default p-6">
-            <h2 className="font-semibold text-text-primary mb-4">Important dates</h2>
+            <h2 className={cn(sectionTitle, 'mb-4')}>Important dates</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Tax year end',            date: `5 April ${endYear}` },
@@ -912,7 +935,7 @@ export default function TaxPage() {
           {/* Making Tax Digital — quarterly obligations */}
           <div className="bg-surface-card rounded-xl border border-border-default p-6">
             <div className="flex items-start justify-between mb-1">
-              <h2 className="font-semibold text-text-primary">Making Tax Digital — {label}</h2>
+              <h2 className={sectionTitle}>Making Tax Digital — {label}</h2>
               <Link
                 href="/settings?tab=HMRC"
                 className="text-xs text-text-secondary hover:text-text-secondary flex items-center gap-1 shrink-0 ml-4 mt-0.5"
@@ -974,7 +997,7 @@ export default function TaxPage() {
 
           {/* VAT — only shown for VAT registered users */}
           {pageData.vatRegistered && <div className="bg-surface-card rounded-xl border border-border-default p-6">
-            <h2 className="font-semibold text-text-primary mb-4">VAT position — {label}</h2>
+            <h2 className={cn(sectionTitle, 'mb-4')}>VAT position — {label}</h2>
             {pageData.vatWarning && (
               <div className="flex items-start gap-2 bg-warning-50 border border-warning-200 rounded-xl p-3 mb-4 text-sm text-warning-800">
                 <Warning weight="regular" className="w-4 h-4 shrink-0 mt-0.5" />
@@ -992,7 +1015,7 @@ export default function TaxPage() {
           <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
             <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-text-primary">Paid invoices</h2>
+                <h2 className={sectionTitle}>Paid invoices</h2>
                 <p className="text-xs text-text-secondary mt-0.5">
                   {pageData.paidInvoices?.length ?? 0} invoices · {formatCurrency(pageData.totalIncomeExVat)} ex-VAT
                 </p>

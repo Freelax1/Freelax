@@ -42,7 +42,7 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
       {open && (
         <span
           role="tooltip"
-          className="absolute top-[calc(100%+6px)] left-0 z-50 text-white text-xs leading-relaxed px-3 py-2.5 rounded-lg font-normal bg-forest-950 shadow-tooltip"
+          className="absolute top-[calc(100%+6px)] left-0 z-dropdown text-text-secondary text-xs leading-relaxed px-3 py-2.5 rounded-lg font-normal bg-surface-card border border-border-default shadow-tooltip"
           style={{ width, maxWidth: 'calc(100vw - 32px)' }}
           onClick={e => e.stopPropagation()}
         >

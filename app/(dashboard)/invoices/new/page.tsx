@@ -13,10 +13,13 @@ import { fetchProjectsForClient, createProject } from '@/lib/api/projects'
 import { createInvoice, updateInvoice, createInvoiceLineItems, deleteInvoiceLineItems, fetchMaxInvoiceNumber } from '@/lib/api/invoices'
 import { calcSubtotal, calcVatAmount, calcTotal, generateInvoiceNumber } from '@/lib/logic/invoices'
 import AIFlag from '@/components/ai-flag'
-import { Sparkle, Plus, X, CaretDown } from '@phosphor-icons/react'
+import Button from '@/components/ui/button'
+import { Sparkle, Plus, X, CaretDown, ArrowLeft } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
-import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import { Input, Select, Textarea, Label, Field } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
+import Link from 'next/link'
+import { sectionTitle } from '@/lib/typography'
 
 interface LineItem {
   description: string
@@ -293,54 +296,59 @@ export default function NewInvoicePage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-serif font-semibold text-text-primary">New Invoice</h1>
-          {lastSavedAt && (
-            <p className="text-xs text-text-secondary mt-1">
-              {autoSaving ? 'Saving...' : `Draft saved ${lastSavedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
-            </p>
-          )}
-          {!lastSavedAt && clientId && (
-            <p className="text-xs text-text-secondary mt-1">Auto-saves every 10s once a client is selected</p>
-          )}
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
+      <div>
+        <Link href="/invoices" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
+          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoices
+        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New invoice</h1>
+            {lastSavedAt && (
+              <p className="text-xs text-text-secondary mt-1">
+                {autoSaving ? 'Saving...' : `Draft saved ${lastSavedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
+              </p>
+            )}
+            {!lastSavedAt && clientId && (
+              <p className="text-xs text-text-secondary mt-1">Auto-saves every 10s once a client is selected</p>
+            )}
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setShowAI(!showAI)}
+            aria-expanded={showAI}
+            className="bg-forest-50 border border-forest-200 text-forest-700 hover:bg-forest-100 hover:border-forest-300 focus-visible:ring-forest-500/30 shrink-0"
+          >
+            <Sparkle weight="regular" className="w-4 h-4" />
+            AI Invoice Assistant
+          </Button>
         </div>
-        <button
-          onClick={() => setShowAI(!showAI)}
-          className="flex items-center gap-2 px-4 py-2 bg-forest-50 border border-forest-200 text-forest-700 rounded-xl text-sm font-medium hover:bg-forest-100 transition-colors"
-        >
-          <Sparkle weight="regular" className="w-4 h-4" />
-          AI Invoice Assistant
-        </button>
       </div>
 
       {/* AI Assistant */}
       {showAI && (
         <div className="bg-forest-50 border border-forest-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-forest-800 mb-2">Describe what you want to invoice for</p>
-          <textarea
-            value={aiInput}
-            onChange={e => setAiInput(e.target.value)}
-            placeholder="e.g. 3 days of React development at £600/day, plus a half day for code review"
-            className="w-full px-3 py-2 border border-forest-200 rounded-md text-sm bg-surface-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary h-20 resize-none"
-          />
-          <div className="flex justify-end gap-2 mt-2">
-            <button onClick={() => setShowAI(false)} className="px-3 py-1.5 text-sm text-text-muted hover:text-text-secondary">Cancel</button>
-            <button
-              onClick={handleAIAssist}
-              disabled={!aiInput.trim() || aiLoading || aiCooldown}
-              className="px-4 py-1.5 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50"
-            >
+          <Field label="Describe what you want to invoice for">
+            <Textarea
+              value={aiInput}
+              onChange={e => setAiInput(e.target.value)}
+              placeholder="e.g. 3 days of React development at £600/day, plus a half day for code review"
+              className="h-20"
+            />
+          </Field>
+          <div className="flex justify-end gap-2 mt-3">
+            <Button type="button" intent="ghost" size="sm" onClick={() => setShowAI(false)}>Cancel</Button>
+            <Button type="button" intent="primary" size="sm" onClick={handleAIAssist} disabled={!aiInput.trim() || aiLoading || aiCooldown}>
               {aiLoading ? 'Generating...' : 'Generate line items'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {/* Invoice details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className="font-semibold text-text-primary">Invoice Details</h2>
+        <h2 className={sectionTitle}>Invoice details</h2>
         <div className="grid grid-cols-2 gap-4">
           {/* Client with inline create */}
           <div>
@@ -368,19 +376,17 @@ export default function NewInvoicePage() {
                 <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
                 <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
                 <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={handleCreateClient}
-                    disabled={!newClientName.trim() || creatingClient}
-                    className="px-3 py-1.5 bg-forest-600 text-white rounded text-xs font-medium hover:bg-forest-700 disabled:opacity-50"
-                  >
+                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
                     {creatingClient ? 'Saving...' : 'Save client'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    type="button"
+                    intent="secondary"
+                    size="xs"
                     onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
-                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-sunken"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -408,19 +414,12 @@ export default function NewInvoicePage() {
                 <p className="text-xs font-semibold text-forest-700 mb-1">New project</p>
                 <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
                 <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={handleCreateProject}
-                    disabled={!newProjectTitle.trim() || creatingProject}
-                    className="px-3 py-1.5 bg-forest-600 text-white rounded text-xs font-medium hover:bg-forest-700 disabled:opacity-50"
-                  >
+                  <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
                     {creatingProject ? 'Saving...' : 'Save project'}
-                  </button>
-                  <button
-                    onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}
-                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-sunken"
-                  >
+                  </Button>
+                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -448,7 +447,7 @@ export default function NewInvoicePage() {
       {/* Line items */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-text-primary">Line Items</h2>
+          <h2 className={sectionTitle}>Line items</h2>
           {lineItemsFromAI && <AIFlag />}
         </div>
         <div className="overflow-x-auto">
@@ -497,9 +496,9 @@ export default function NewInvoicePage() {
             </tbody>
           </table>
         </div>
-        <button onClick={addLine} className="flex items-center gap-1 text-sm text-forest-600 hover:text-forest-700">
-          <Plus weight="regular" className="w-4 h-4" /> Add line item
-        </button>
+        <Button type="button" intent="ghost" size="sm" className="-ml-2" onClick={addLine}>
+          <Plus weight="regular" className="w-3.5 h-3.5" /> Add line item
+        </Button>
 
         {/* Totals */}
         <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
@@ -517,15 +516,13 @@ export default function NewInvoicePage() {
 
       {/* Actions */}
       <div className="flex justify-end gap-3">
-        <button onClick={() => router.back()} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
-          Cancel
-        </button>
-        <button onClick={() => handleSave(false)} disabled={saving} className="px-4 py-2 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken disabled:opacity-50">
+        <Button type="button" intent="secondary" size="md" onClick={() => router.back()}>Cancel</Button>
+        <Button type="button" intent="outline" size="md" onClick={() => handleSave(false)} disabled={saving}>
           Save as draft
-        </button>
-        <button onClick={() => handleSave(true)} disabled={saving} className="px-4 py-2 bg-forest-600 text-white rounded-lg text-sm font-medium hover:bg-forest-700 disabled:opacity-50">
+        </Button>
+        <Button type="button" intent="primary" size="md" onClick={() => handleSave(true)} disabled={saving}>
           {saving ? 'Saving...' : 'Send invoice'}
-        </button>
+        </Button>
       </div>
     </div>
   )

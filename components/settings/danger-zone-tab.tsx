@@ -86,7 +86,7 @@ export default function DangerZoneTab() {
                 ? 'bg-success-50 text-success-700 border border-success-200 cursor-default'
                 : exportState === 'loading'
                 ? 'bg-surface-sunken text-text-secondary border border-border-default cursor-not-allowed'
-                : 'bg-forest-900 text-white hover:bg-forest-900 border border-transparent'
+                : 'bg-brand-primary text-white hover:bg-forest-700 border border-transparent'
             }`}
           >
             {exportState === 'loading' && (

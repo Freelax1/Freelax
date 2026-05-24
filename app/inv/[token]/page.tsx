@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { CreditCard, CheckCircle } from '@phosphor-icons/react/dist/ssr'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -178,13 +180,7 @@ export default async function PublicInvoicePage({
                   <input type="hidden" name="token" value={token} />
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded cursor-pointer transition-colors duration-150"
-                    style={{
-                      background: 'var(--text-primary)', color: 'var(--text-on-dark)',
-                      border: 'none', fontSize: 'var(--text-sm)', fontWeight: 600,
-                      letterSpacing: '-0.01em',
-                      fontFamily: 'var(--font-sans)',
-                    }}
+                    className={cn(buttonVariants({ intent: 'primary', size: 'lg', fullWidth: true }), 'py-4 cursor-pointer')}
                   >
                     <CreditCard weight="regular" className="w-4 h-4" /> Pay {formatCurrency(invoice.total)} securely
                   </button>

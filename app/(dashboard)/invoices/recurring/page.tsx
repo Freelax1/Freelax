@@ -5,18 +5,24 @@ import { createClient } from '@/lib/supabase/client'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { fetchClientsForDropdown } from '@/lib/api/clients'
 import { formatCurrency } from '@/lib/tax-calculations'
-import PageHeader from '@/components/page-header'
+import { PageHeader } from '@/components/ui'
+import Button from '@/components/ui/button'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Plus, Pause, Play, Trash } from '@phosphor-icons/react'
 import type { InvoiceTemplate, Client } from '@/types/database'
 import { Input, Select, Label } from '@/components/ui/input'
 import Tooltip from '@/components/tooltip'
+import { sectionTitle } from '@/lib/typography'
+
+type RecurringTemplateRow = InvoiceTemplate & {
+  clients: { name: string } | null
+}
 
 interface LineItem { description: string; quantity: number; unit_price: number; vat_rate: number }
 
 export default function RecurringInvoicesPage() {
-  const [templates, setTemplates] = useState<InvoiceTemplate[]>([])
+  const [templates, setTemplates] = useState<RecurringTemplateRow[]>([])
   const [clients, setClients]     = useState<Pick<Client, 'id' | 'name' | 'status'>[]>([])
   const [loading, setLoading]     = useState(true)
   const [showForm, setShowForm]   = useState(false)
@@ -41,7 +47,7 @@ export default function RecurringInvoicesPage() {
       .select('*, clients(name)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-    setTemplates(data ?? [])
+    setTemplates((data ?? []) as RecurringTemplateRow[])
     setLoading(false)
   }
 
@@ -91,18 +97,17 @@ export default function RecurringInvoicesPage() {
         title="Recurring Invoices"
         subtitle={loading ? '' : `${templates.filter(t => t.active).length} active templates`}
         action={
-          <button onClick={() => setShowForm(true)}
-            className="bg-forest-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-forest-900 flex items-center gap-2">
+          <Button type="button" intent="primary" size="sm" onClick={() => setShowForm(true)}>
             <Plus weight="regular" className="w-4 h-4" /> New template
-          </button>
+          </Button>
         }
       />
 
       {/* New template form */}
       {showForm && (
         <div className="bg-surface-card rounded-xl border border-border-default p-6 mb-6 space-y-4">
-          <h2 className="font-semibold text-text-primary">New recurring template</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <h2 className={sectionTitle}>New recurring template</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label>Client</Label>
               <Select value={clientId} onChange={e => setClientId(e.target.value)}>
@@ -128,25 +133,31 @@ export default function RecurringInvoicesPage() {
           <div>
             <p className="text-xs font-medium text-text-muted mb-2">Line items</p>
             {lineItems.map((item, i) => (
-              <div key={i} className="grid grid-cols-4 gap-2 mb-2">
+              <div key={i} className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
                 <Input variant="inline" value={item.description} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, description: e.target.value } : l))}
-                  placeholder="Description" className="col-span-2" />
+                  placeholder="Description" className="sm:col-span-2" />
                 <Input variant="inline" type="number" value={item.quantity} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, quantity: Number(e.target.value) } : l))}
                   placeholder="Qty" />
                 <Input variant="inline" type="number" value={item.unit_price} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, unit_price: Number(e.target.value) } : l))}
                   placeholder="Price (£)" />
               </div>
             ))}
-            <button onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
-              className="text-sm text-forest-600 hover:text-forest-700">+ Add line</button>
+            <Button
+              type="button"
+              intent="ghost"
+              size="sm"
+              className="mt-1 -ml-2"
+              onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
+            >
+              <Plus weight="regular" className="w-3.5 h-3.5" /> Add line
+            </Button>
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</button>
-            <button onClick={handleSave} disabled={saving || !clientId}
-              className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+            <Button type="button" intent="secondary" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button type="button" intent="primary" size="sm" onClick={handleSave} disabled={saving || !clientId}>
               {saving ? 'Saving...' : 'Create template'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -158,7 +169,7 @@ export default function RecurringInvoicesPage() {
           <p className="text-text-secondary text-xs">Create a template and invoices will be generated automatically.</p>
         </div>
       ) : (
-        <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
+        <div className="fd-table-wrap bg-surface-card rounded-xl border border-border-default overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-surface-sunken border-b border-border-default">
               <tr>

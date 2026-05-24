@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { calculateTax, getCurrentTaxYear, type StudentLoanPlan } from '@/lib/tax-calculations'
 import { fetchDashboardData } from '@/lib/api/dashboard'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
@@ -11,6 +11,7 @@ import {
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import { PageHeader } from '@/components/ui'
 import AiLauncher  from './components/ai-launcher'
 import StatusLine  from './components/status-line'
 import ThreePots   from './components/three-pots'
@@ -18,6 +19,7 @@ import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
 import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/button'
 import { Lightning, ArrowRight, Plus, Question } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
@@ -113,16 +115,16 @@ function ShortcutHint() {
         <Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />
       </button>
       {open && (
-        <div className="absolute bottom-9 right-0 bg-forest-900 rounded-lg px-3.5 py-2.5 min-w-[200px] shadow-lg">
+        <div className="absolute bottom-9 right-0 bg-surface-card border border-border-default rounded-lg px-3.5 py-2.5 min-w-[200px] shadow-popover">
           {[
             ['N', 'New invoice'],
             ['T', 'Tax page'],
             ['E', 'Expenses'],
             ['⌘K', 'Command menu'],
           ].map(([k, v]) => (
-            <div key={k} className="flex justify-between items-center py-1 border-b border-b-white/[0.06]">
-              <span className="text-xs text-white/60">{v}</span>
-              <kbd className="text-micro text-white rounded-sm px-1.5 py-px bg-white/10">{k}</kbd>
+            <div key={k} className="flex justify-between items-center py-1 border-b border-border-subtle last:border-0">
+              <span className="text-xs text-text-secondary">{v}</span>
+              <kbd className="text-micro text-text-primary rounded-sm px-1.5 py-px bg-surface-sunken border border-border-default">{k}</kbd>
             </div>
           ))}
         </div>
@@ -347,24 +349,35 @@ export default function DashboardPage() {
     return `Synced ${Math.round(secs / 60)}m ago`
   }
 
+  const todayLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+  const headerSubtitle = data
+    ? `${todayLabel} · Tax year ${data.taxYearLabel}`
+    : todayLabel
+
+  const newInvoiceAction = (
+    <Link
+      href="/invoices/new"
+      className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), 'no-underline')}
+    >
+      <Plus weight="regular" className="w-[13px] h-[13px]" />
+      New invoice
+    </Link>
+  )
+
   return (
     <>
-      <h1 className="sr-only">Dashboard</h1>
       <LoadingBar active={loading} />
       <ShortcutHint />
 
-      {/* Header row — New invoice button sits here, no overlap */}
-      <div className="flex justify-end pb-2">
-        <Link href="/invoices/new"
-          className="flex items-center gap-1.5 bg-forest-950 hover:bg-forest-900 text-white rounded-lg px-3.5 py-2 text-xs font-semibold no-underline transition-colors shadow-btn-dark"
-        >
-          <Plus weight="regular" className="w-[13px] h-[13px]" />
-          New invoice
-        </Link>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle={headerSubtitle}
+        action={newInvoiceAction}
+        className="mb-0"
+      />
 
       {loading || !data ? (
-        <div className="flex flex-col gap-8 pt-16">
+        <div className="flex flex-col gap-8 mt-8">
           {/* Line skeleton */}
           <div className="h-7 rounded w-1/2 bg-black/[0.05]" />
           {/* Three pots — no shimmer per spec, just muted placeholders */}
@@ -382,7 +395,7 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-8 pb-14">
+        <div className="flex flex-col gap-8 mt-8 pb-14">
 
           {/* Onboarding checklist — top of page for brand new users */}
           {data.isNewUser && (
@@ -395,22 +408,14 @@ export default function DashboardPage() {
             />
           )}
 
-          <AiLauncher />
-
           {/* A. The Line */}
-          <div>
-            <StatusLine
-              actionCount={data.actionCount}
-              hasOverdue={data.hasOverdue}
-              taxProgress={data.taxProgress}
-              isNewUser={data.isNewUser}
-              taxTotal={data.taxTotal}
-            />
-            <p className="text-xs text-text-secondary mt-1.5 ml-6">
-              {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
-              {' · '}Tax year {data.taxYearLabel}
-            </p>
-          </div>
+          <StatusLine
+            actionCount={data.actionCount}
+            hasOverdue={data.hasOverdue}
+            taxProgress={data.taxProgress}
+            isNewUser={data.isNewUser}
+            taxTotal={data.taxTotal}
+          />
 
           {/* B. Do This Now — hidden when empty */}
           {data.actions.length > 0 && (
@@ -445,13 +450,14 @@ export default function DashboardPage() {
             taxDeadline={data.taxDeadline}
             safeToSpend={data.safeToSpend}
             safeToSpendMissingInput={data.safeToSpendMissingInput}
-            monthlyAvg={data.monthlyAvg}
             weeklySaveNeeded={data.weeklySaveNeeded}
             isNewUser={data.isNewUser}
           />
 
-          {/* D+E. This Month + What's Coming — 2/3 + 1/3 */}
-          <div className="flex gap-4 items-stretch">
+          <AiLauncher />
+
+          {/* D+E. This Month + What's Coming — stack on mobile */}
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
             <div className="flex-[2] min-w-0">
               <ThisMonth
                 thisMonthIncome={data.thisMonthIncome}

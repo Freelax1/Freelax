@@ -3,14 +3,24 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-export async function fetchInvoices() {
+export type InvoiceListRow = {
+  id: string
+  invoice_number: string
+  status: string
+  issue_date: string
+  due_date: string
+  total: number
+  clients: { name: string } | null
+}
+
+export async function fetchInvoices(): Promise<InvoiceListRow[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('invoices')
     .select('id, invoice_number, status, issue_date, due_date, total, clients(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as unknown as InvoiceListRow[]
 }
 
 export async function fetchInvoiceById(id: string) {

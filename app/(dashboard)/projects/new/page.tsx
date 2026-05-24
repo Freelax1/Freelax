@@ -11,7 +11,9 @@ import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fi
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Link from 'next/link'
+import Button, { buttonVariants } from '@/components/ui/button'
 import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
+import { sectionTitle } from '@/lib/typography'
 import type { Client, IR35Answer } from '@/types/database'
 
 export default function NewProjectPage() {
@@ -19,7 +21,7 @@ export default function NewProjectPage() {
   const searchParams = useSearchParams()
   const defaultClientId = searchParams.get('client') ?? ''
 
-  const [clients, setClients] = useState<Pick<Client, 'id' | 'name' | 'status'>[]>([])
+  const [clients, setClients] = useState<Pick<Client, 'id' | 'name'>[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showNewClient, setShowNewClient] = useState(false)
@@ -130,7 +132,7 @@ export default function NewProjectPage() {
         <Link href="/projects" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to projects
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">New project</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New project</h1>
       </div>
 
       {error && (
@@ -139,7 +141,7 @@ export default function NewProjectPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className="font-semibold text-text-primary">Project details</h2>
+          <h2 className={sectionTitle}>Project details</h2>
 
           <Field label="Project title" required>
             <Input
@@ -174,21 +176,12 @@ export default function NewProjectPage() {
                   className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleCreateClient}
-                    disabled={!newClientName.trim() || creatingClient}
-                    className="px-3 py-1.5 bg-forest-900 text-white rounded text-xs font-medium hover:bg-forest-900 disabled:opacity-50"
-                  >
+                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
                     {creatingClient ? 'Saving...' : 'Create client'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowNewClient(false); setNewClientName('') }}
-                    className="px-3 py-1.5 border border-border-default rounded text-xs text-text-secondary hover:bg-surface-card"
-                  >
+                  </Button>
+                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewClient(false); setNewClientName('') }}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -237,7 +230,7 @@ export default function NewProjectPage() {
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-semibold text-text-primary">IR35 questionnaire</h2>
+              <h2 className={sectionTitle}>IR35 questionnaire</h2>
               {canUseIR35 && <p className="text-xs text-text-secondary mt-0.5">Answer all 8 questions to get a calculated status</p>}
             </div>
             {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
@@ -265,7 +258,7 @@ export default function NewProjectPage() {
                           onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
                           className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                             ir35Answers[q.number] === val
-                              ? 'bg-forest-600 text-white'
+                              ? 'bg-brand-primary text-white'
                               : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
                           }`}
                         >
@@ -283,7 +276,7 @@ export default function NewProjectPage() {
                 <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
               </div>
               <p className="text-sm font-medium text-text-secondary mb-1">IR35 assessment is available on the Pro plan</p>
-              <Link href="/settings?tab=billing" className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900">
+              <Link href="/settings?tab=billing" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
                 Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
               </Link>
             </div>

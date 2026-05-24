@@ -3,23 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-
-const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
-const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
-
-function Spinner() {
-  return (
-    <svg
-      width="16" height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      className="animate-fd-spin shrink-0"
-    >
-      <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-      <path d="M8 2a6 6 0 0 1 6 6" stroke="var(--text-on-dark)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
+import { Field, Input } from '@/components/ui/input'
+import Button from '@/components/ui/button'
+import AuthSpinner from '@/components/auth-spinner'
+import { AuthWordmark, AuthHeading, AuthError, AuthStateHeading } from '@/components/auth-ui'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState('')
@@ -43,15 +30,6 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.08)'
-  }
-  function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-    e.currentTarget.style.boxShadow = 'none'
-  }
-
   if (done) {
     return (
       <div className="text-center py-3">
@@ -61,14 +39,12 @@ export default function ForgotPasswordPage() {
             <polyline points="22,6 12,13 2,6" />
           </svg>
         </div>
-        <h2 className="text-xl font-semibold text-white mb-2 tracking-tight">
-          Check your email
-        </h2>
+        <AuthStateHeading title="Check your email" />
         <p className="text-sm leading-relaxed m-0 text-white/60">
-          If an account exists for <strong className="text-white">{email}</strong>, you'll receive a reset link shortly.
+          If an account exists for <strong className="text-white">{email}</strong>, you&apos;ll receive a reset link shortly.
         </p>
         <p className="text-sm leading-relaxed mt-2 mb-0 text-white/50">
-          Check your spam folder if it doesn't arrive within a few minutes.
+          Check your spam folder if it doesn&apos;t arrive within a few minutes.
         </p>
         <Link href="/auth/login" className="inline-block mt-6 text-sm text-white font-semibold no-underline">
           ← Back to sign in
@@ -79,11 +55,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <div className="auth-wordmark-mobile text-xl font-semibold mb-8 tracking-tighter">
-        <span className="text-white">Free</span>
-        <span className="text-white/70">lax</span>
-        <span className="text-brand-primary">.</span>
-      </div>
+      <AuthWordmark variant="mobile" />
 
       <Link
         href="/auth/login"
@@ -92,44 +64,36 @@ export default function ForgotPasswordPage() {
         ← Back to sign in
       </Link>
 
-      <h2 className="text-xl font-semibold text-white tracking-tight mb-2">
-        Reset your password
-      </h2>
-      <p className="text-sm mt-0 mb-6 leading-normal text-white/60">
-        Enter your email and we'll send you a link to reset your password.
-      </p>
+      <AuthHeading
+        title="Reset your password"
+        subtitle="Enter your email and we'll send you a link to reset your password."
+      />
+      <AuthError>{error}</AuthError>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className={LABEL_CLS}>Email</label>
-          <input
+        <Field label="Email" labelVariant="auth">
+          <Input
+            variant="auth"
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className={INPUT_CLS}
             placeholder="you@example.com"
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
-        </div>
+        </Field>
 
-        {error && (
-          <p className="text-sm -mt-1 text-[color:var(--danger-400)]">{error}</p>
-        )}
-
-        <button
+        <Button
           type="submit"
+          intent="auth"
+          size="auth"
+          fullWidth
           disabled={loading}
-          className="w-full mt-1 px-4 py-3 text-base font-semibold text-white border-none rounded-lg font-[inherit] flex items-center justify-center gap-2 transition-colors duration-[150ms] disabled:cursor-default"
-          style={{ background: loading ? 'var(--forest-600)' : 'var(--brand-primary)' }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--forest-700)' }}
-          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = 'var(--brand-primary)' }}
+          className="mt-1"
         >
-          {loading && <Spinner />}
+          {loading && <AuthSpinner />}
           {loading ? 'Sending…' : 'Send reset link'}
-        </button>
+        </Button>
       </form>
     </>
   )

@@ -166,8 +166,8 @@ module.exports = {
         // ── Freelax type scale ────────────────────────────────────────
         // All sizes ship with lineHeight + letterSpacing baked in.
         // Use these exclusively — avoid arbitrary text-[Npx] values.
-        'micro':   ['0.625rem',  { lineHeight: '1.3',  letterSpacing: '0' }],       // 10px
-        'caption': ['0.6875rem', { lineHeight: '1.4',  letterSpacing: '0' }],       // 11px
+        'micro':   ['0.625rem',  { lineHeight: '1.3',  letterSpacing: '0.012em' }], // 10px — meta labels
+        'caption': ['0.6875rem', { lineHeight: '1.4',  letterSpacing: '0.012em' }], // 11px — table headers
         'xs':      ['0.75rem',   { lineHeight: '1.45', letterSpacing: '0' }],       // 12px
         'sm':      ['0.8125rem', { lineHeight: '1.5',  letterSpacing: '0' }],       // 13px — default body
         'base':    ['0.9375rem', { lineHeight: '1.55', letterSpacing: '-0.01em' }], // 15px
@@ -208,34 +208,27 @@ module.exports = {
         'lg':           'var(--shadow-lg)',
         'xl':           'var(--shadow-xl)',
         'inset':        'var(--shadow-inset)',
-        // ── Named elevation tokens ─────────────────────────────────────
-        'card':         '0 2px 8px rgba(0,0,0,0.08)',
-        'card-sm':      '0 1px 3px rgba(0,0,0,0.05)',
-        'card-public':  '0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04)',
-        'modal':        '0 24px 64px rgba(0,0,0,0.18)',
-        'popover':      '0 8px 24px rgba(0,0,0,0.10)',
-        'overlay':      '0 8px 32px rgba(0,0,0,0.12)',
-        'overlay-dark': '0 8px 32px rgba(0,0,0,0.24)',
-        'tooltip':      '0 8px 20px rgba(0,0,0,0.15)',
-        'sheet-bottom': '0 -4px 32px rgba(0,0,0,0.15)',
-        'slide-left':   '-4px 0 24px rgba(0,0,0,0.12)',
-        'btn-dark':     '0 2px 8px rgba(0,0,0,0.18)',
-      },
-
-      lineHeight: {
-        // ── 4 leading values only ──────────────────────────────────────
-        'display': '1.15',
-        'heading': '1.3',
-        'body':    '1.5',
-        'relaxed': '1.65',
+        // ── Named elevation (see --shadow-* in globals.css) ───────────
+        'card':         'var(--shadow-card)',
+        'card-sm':      'var(--shadow-card-sm)',
+        'card-public':  'var(--shadow-card-public)',
+        'modal':        'var(--shadow-modal)',
+        'popover':      'var(--shadow-popover)',
+        'overlay':      'var(--shadow-overlay)',
+        'overlay-dark': 'var(--shadow-overlay-dark)',
+        'tooltip':      'var(--shadow-tooltip)',
+        'sheet-bottom': 'var(--shadow-sheet-bottom)',
+        'slide-left':   'var(--shadow-slide-left)',
+        'btn-dark':     'var(--shadow-btn-dark)',
       },
 
       letterSpacing: {
-        // ── 3 tracking values only ─────────────────────────────────────
+        // ── Tracking scale ─────────────────────────────────────────────
         'normal':   '0',
-        'tight':    '-0.015em',  // headings ≥18px
-        'tighter':  '-0.03em',   // display ≥28px, wordmark
-        'wide':     '0.025em',   // badges, labels (rare)
+        'label':    '0.012em',   // micro/caption meta (matches text-micro scale)
+        'tight':    '-0.015em',  // sans headings ≥18px
+        'tighter':  '-0.03em',   // serif display ≥28px, wordmark
+        'wide':     '0.025em',   // badges (rare)
       },
 
       transitionDuration: {

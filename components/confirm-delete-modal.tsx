@@ -1,4 +1,5 @@
 import { Trash } from '@phosphor-icons/react'
+import Button from '@/components/ui/button'
 
 interface ConfirmDeleteModalProps {
   title: string
@@ -20,9 +21,14 @@ export default function ConfirmDeleteModal({
   loading,
 }: ConfirmDeleteModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:px-4 bg-black/45"
-      onClick={onCancel}>
-      <div className="bg-surface-card rounded-t-2xl sm:rounded-xl shadow-sheet-bottom sm:shadow-xl w-full sm:max-w-sm p-6 pb-10 sm:pb-6 animate-[sheet-up_280ms_cubic-bezier(0.4,0,0.2,1)_both] sm:animate-none" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-modal flex items-end sm:items-center justify-center sm:px-4 bg-black/45"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-surface-card rounded-t-2xl sm:rounded-xl shadow-sheet-bottom sm:shadow-xl w-full sm:max-w-sm p-6 pb-10 sm:pb-6 animate-[sheet-up_280ms_cubic-bezier(0.4,0,0.2,1)_both] sm:animate-none"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-danger-100 rounded-full flex items-center justify-center shrink-0">
             <Trash weight="regular" className="w-5 h-5 text-danger-600" />
@@ -39,12 +45,12 @@ export default function ConfirmDeleteModal({
         )}
         <p className="text-sm text-text-secondary mt-3 mb-5">This action cannot be undone.</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-border-default rounded-lg text-sm font-medium text-text-secondary hover:bg-surface-sunken">
+          <Button type="button" intent="secondary" fullWidth onClick={onCancel}>
             Cancel
-          </button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-danger-600 text-white rounded-lg text-sm font-medium hover:bg-danger-700 disabled:opacity-50">
+          </Button>
+          <Button type="button" intent="danger" fullWidth onClick={onConfirm} disabled={loading}>
             {loading ? 'Deleting...' : confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

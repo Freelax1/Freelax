@@ -195,7 +195,7 @@ export default function BillingTab({ profile }: Props) {
                       : isBelow
                       ? 'border-border-subtle bg-surface-sunken opacity-50'
                       : isDark
-                      ? 'border-slate-900 bg-forest-900 text-white'
+                      ? 'border-brand-primary bg-forest-50'
                       : 'border-border-default bg-surface-card hover:border-border-strong'
                   }`}
                 >
@@ -215,7 +215,7 @@ export default function BillingTab({ profile }: Props) {
                   </p>
 
                   <div className="mb-1">
-                    <span className={`text-3xl font-serif font-semibold tracking-tight ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                    <span className="text-3xl font-serif font-normal leading-none tabular-nums text-text-primary">
                       £{yearly ? Math.round(plan.yearly / 12) : plan.monthly}
                     </span>
                     <span className={`text-sm ml-1 ${isDark ? 'text-text-secondary' : 'text-text-secondary'}`}>/mo</span>
@@ -264,7 +264,7 @@ export default function BillingTab({ profile }: Props) {
                       className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-60 ${
                         isDark
                           ? 'bg-surface-card text-text-primary hover:bg-surface-sunken'
-                          : 'bg-forest-900 text-white hover:bg-forest-900'
+                          : 'bg-brand-primary text-white hover:bg-forest-700'
                       }`}
                     >
                       {isLoading ? 'Redirecting to Stripe…' : `Upgrade to ${plan.name}`}

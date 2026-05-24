@@ -8,7 +8,9 @@ import { Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
 import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import Button from '@/components/ui/button'
 import Tooltip from '@/components/tooltip'
+import { sectionTitle } from '@/lib/typography'
 
 type ClientOption = { id: string; name: string }
 type ProjectOption = { id: string; title: string }
@@ -123,11 +125,11 @@ export default function InvoiceEditPage() {
         <Link href={`/invoices/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoice
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">Edit {invoice?.invoice_number}</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit {invoice?.invoice_number}</h1>
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className="font-semibold text-text-primary">Invoice Details</h2>
+        <h2 className={sectionTitle}>Invoice details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Client</Label>
@@ -159,7 +161,7 @@ export default function InvoiceEditPage() {
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <h2 className="font-semibold text-text-primary">Line Items</h2>
+        <h2 className={sectionTitle}>Line items</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -200,9 +202,15 @@ export default function InvoiceEditPage() {
             </tbody>
           </table>
         </div>
-        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-forest-600 hover:text-forest-700">
-          <Plus weight="regular" className="w-4 h-4" /> Add line item
-        </button>
+        <Button
+          type="button"
+          intent="ghost"
+          size="sm"
+          className="-ml-2"
+          onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
+        >
+          <Plus weight="regular" className="w-3.5 h-3.5" /> Add line item
+        </Button>
         <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
           <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
           <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
@@ -217,9 +225,9 @@ export default function InvoiceEditPage() {
 
       <div className="flex justify-end gap-3">
         <Link href={`/invoices/${params.id}`} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
-        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-forest-900 text-white rounded-lg text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+        <Button type="button" intent="primary" size="md" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
-        </button>
+        </Button>
       </div>
     </div>
   )

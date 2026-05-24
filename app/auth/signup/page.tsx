@@ -4,23 +4,10 @@ import { Suspense, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-
-const INPUT_CLS = 'w-full px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 font-[inherit] box-border transition-[border-color,box-shadow] duration-[150ms]'
-const LABEL_CLS = 'block text-xs font-medium text-white/60 mb-1.5'
-
-function Spinner() {
-  return (
-    <svg
-      width="16" height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      className="animate-fd-spin shrink-0"
-    >
-      <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-      <path d="M8 2a6 6 0 0 1 6 6" stroke="var(--text-on-dark)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
+import { Field, Input } from '@/components/ui/input'
+import Button from '@/components/ui/button'
+import AuthSpinner from '@/components/auth-spinner'
+import { AuthWordmark, AuthHeading, AuthError, AuthFooter } from '@/components/auth-ui'
 
 function SignupForm() {
   const router = useRouter()
@@ -67,85 +54,53 @@ function SignupForm() {
     router.refresh()
   }
 
-  function focusInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
-    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(255,255,255,0.08)'
-  }
-  function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-    e.currentTarget.style.boxShadow   = 'none'
-  }
-
   return (
     <>
-      <div className="auth-wordmark-mobile text-xl font-semibold mb-8 tracking-tighter">
-        <span className="text-white">Free</span>
-        <span className="text-white/70">lax</span>
-        <span className="text-brand-primary">.</span>
-      </div>
-
-      <h2 className="text-xl font-semibold text-white tracking-tight mb-1.5">
-        Create your account
-      </h2>
-      <p className="text-sm mt-0 mb-7 text-white/60">
-        Start managing your freelance finances in minutes.
-      </p>
-
-      {error && (
-        <div className="text-sm rounded-lg px-3.5 py-2.5 mb-4 border text-[color:var(--danger-300)] bg-[color:var(--danger-950)] border-[color:var(--danger-800)]">
-          {error}
-        </div>
-      )}
+      <AuthWordmark variant="mobile" />
+      <AuthHeading
+        title="Create your account"
+        subtitle="Start managing your freelance finances in minutes."
+      />
+      <AuthError>{error}</AuthError>
 
       <form onSubmit={handleSignup} className="flex flex-col gap-4">
-
-        <div>
-          <label className={LABEL_CLS}>Full name</label>
-          <input
+        <Field label="Full name" labelVariant="auth">
+          <Input
+            variant="auth"
             type="text"
             autoComplete="name"
             required
             value={fullName}
             onChange={e => setFullName(e.target.value)}
-            className={INPUT_CLS}
             placeholder="Jane Smith"
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className={LABEL_CLS}>Email address</label>
-          <input
+        <Field label="Email address" labelVariant="auth">
+          <Input
+            variant="auth"
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className={INPUT_CLS}
             placeholder="your@email.com"
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className={LABEL_CLS}>Password</label>
-          <input
+        <Field label="Password" labelVariant="auth">
+          <Input
+            variant="auth"
             type="password"
             autoComplete="new-password"
             required
             minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className={INPUT_CLS}
             placeholder="At least 8 characters"
-            onFocus={focusInput}
-            onBlur={blurInput}
           />
-        </div>
+        </Field>
 
-        {/* Terms + Privacy acceptance — required for HMRC production application */}
         <label className={`flex items-start gap-2.5 cursor-pointer px-3 py-2.5 rounded-lg transition-colors bg-white/[0.04] border ${terms ? 'border-brand-primary' : 'border-white/10'}`}>
           <input
             type="checkbox"
@@ -162,31 +117,33 @@ function SignupForm() {
             <Link href="/terms" target="_blank" className="text-white font-semibold no-underline">
               Terms of Service
             </Link>
-            . By signing up, I consent to Freelax processing my financial data,
-            including submitting information to HMRC on my behalf.
+            <span className="hidden sm:inline">
+              , including Freelax processing my financial data and HMRC submissions on my behalf.
+            </span>
+            <span className="sm:hidden">
+              , including data processing and HMRC submissions.
+            </span>
           </span>
         </label>
 
-        <button
+        <Button
           type="submit"
+          intent="auth"
+          size="auth"
+          fullWidth
           disabled={loading || !terms}
-          className="w-full px-4 py-3 text-base font-semibold text-white border-none rounded-lg font-[inherit] flex items-center justify-center gap-2 transition-colors duration-[150ms] disabled:cursor-not-allowed"
-          style={{ background: loading || !terms ? 'var(--forest-600)' : 'var(--brand-primary)' }}
-          onMouseEnter={e => { if (!loading && terms) e.currentTarget.style.background = 'var(--forest-700)' }}
-          onMouseLeave={e => { if (!loading && terms) e.currentTarget.style.background = 'var(--brand-primary)' }}
         >
-          {loading && <Spinner />}
+          {loading && <AuthSpinner />}
           {loading ? 'Creating account…' : 'Create account →'}
-        </button>
-
+        </Button>
       </form>
 
-      <p className="text-sm text-center mt-5 mb-0 pt-4 text-white/50 border-t border-white/10">
+      <AuthFooter>
         Already have an account?{' '}
         <Link href="/auth/login" className="text-white font-semibold no-underline">
           Sign in
         </Link>
-      </p>
+      </AuthFooter>
     </>
   )
 }

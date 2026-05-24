@@ -9,7 +9,9 @@ import { fetchCurrentUser } from '@/lib/api/users'
 import { createExpense, uploadReceipt } from '@/lib/api/expenses'
 import { Field, Input, Select, Toggle, SaveButton } from '@/components/form-fields'
 import { Scan, UploadSimple, CircleNotch, ArrowLeft } from '@phosphor-icons/react'
+import { sectionTitle } from '@/lib/typography'
 import Link from 'next/link'
+import Button from '@/components/ui/button'
 
 const CATEGORIES = [
   { value: 'office_supplies',   label: 'Office & Supplies' },
@@ -135,7 +137,7 @@ export default function NewExpensePage() {
         <Link href="/expenses" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to expenses
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">New expense</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New expense</h1>
       </div>
 
       {error && (
@@ -169,18 +171,17 @@ export default function NewExpensePage() {
               {receiptFile ? 'Change image' : 'Upload receipt'}
             </button>
             {receiptFile && (
-              <button type="button" onClick={handleScanReceipt} disabled={scanning || scanCooldown}
-                className="flex items-center gap-1.5 px-3 py-2 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50">
+              <Button type="button" intent="primary" size="sm" onClick={handleScanReceipt} disabled={scanning || scanCooldown}>
                 {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
                 {scanning ? 'Reading receipt...' : 'Scan with AI'}
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
         {/* Main fields */}
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className="font-semibold text-text-primary">Expense details</h2>
+          <h2 className={sectionTitle}>Expense details</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Date" required error={errors.date}>

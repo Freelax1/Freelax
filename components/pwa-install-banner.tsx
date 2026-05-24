@@ -91,7 +91,7 @@ export function PWAInstallBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4 md:max-w-sm md:left-auto md:right-4 md:bottom-4">
+    <div className="fixed bottom-0 left-0 right-0 z-dropdown p-3 md:p-4 md:max-w-sm md:left-auto md:right-4 md:bottom-4">
       <div className="bg-surface-card border border-border-default rounded-xl shadow-lg p-4 flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center flex-shrink-0">
           <DownloadSimple weight="regular" className="w-5 h-5 text-white" />

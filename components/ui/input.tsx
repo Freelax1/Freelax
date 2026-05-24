@@ -10,6 +10,7 @@ export const inputVariants = cva(
         default: 'px-3 py-2 border border-border-default bg-surface-card text-text-primary placeholder:text-text-muted hover:border-border-hover focus-visible:border-border-focus focus-visible:ring-2 focus-visible:ring-brand-primary/20 disabled:hover:border-border-default disabled:bg-surface-sunken disabled:text-text-muted disabled:cursor-not-allowed',
         error:   'px-3 py-2 border border-danger-500 bg-surface-card text-text-primary placeholder:text-text-muted focus-visible:border-danger-500 focus-visible:ring-2 focus-visible:ring-danger-500/20',
         inline:  'px-2 py-1.5 border border-border-default bg-surface-card text-text-primary placeholder:text-text-muted hover:border-border-hover focus-visible:border-border-focus focus-visible:ring-1 focus-visible:ring-brand-primary/20 disabled:hover:border-border-default disabled:bg-surface-sunken disabled:text-text-muted disabled:cursor-not-allowed',
+        auth:    'px-3.5 py-3 text-base leading-body text-white bg-white/[0.08] border border-white/15 placeholder:text-white/40 hover:border-white/25 focus-visible:border-white/50 focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-50 disabled:cursor-not-allowed',
       },
     },
     defaultVariants: { variant: 'default' },
@@ -78,11 +79,25 @@ Select.displayName = 'Select'
 
 // ── Label ─────────────────────────────────────────────────────────────────
 
-const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
-  ({ className, ...props }, ref) => (
+export const labelVariants = cva('block', {
+  variants: {
+    variant: {
+      default: 'text-caption font-semibold text-text-secondary mb-1.5',
+      auth:    'text-xs font-medium text-white/60 mb-1.5',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+})
+
+export interface LabelProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement>,
+    VariantProps<typeof labelVariants> {}
+
+const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
+  ({ variant, className, ...props }, ref) => (
     <label
       ref={ref}
-      className={cn('block text-caption font-semibold text-text-secondary mb-1.5', className)}
+      className={cn(labelVariants({ variant }), className)}
       {...props}
     />
   )
@@ -98,13 +113,14 @@ interface FieldProps {
   hint?: string
   children: React.ReactNode
   className?: string
+  labelVariant?: VariantProps<typeof labelVariants>['variant']
 }
 
-function Field({ label, required, error, hint, children, className }: FieldProps) {
+function Field({ label, required, error, hint, children, className, labelVariant }: FieldProps) {
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <Label>
+        <Label variant={labelVariant}>
           {label}
           {required && <span className="text-danger-500 ml-0.5 normal-case">*</span>}
         </Label>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { fetchProjectById } from '@/lib/api/projects'
 import ProjectForm from '@/components/project-form'
+import Button from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowLeft } from '@phosphor-icons/react'
 import type { Project } from '@/types/database'
@@ -34,7 +35,7 @@ export default function ProjectEditPage() {
         <Link href={`/projects/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
           <ArrowLeft weight="regular" className="w-4 h-4" /> Back to project
         </Link>
-        <h1 className="text-2xl font-serif font-semibold text-text-primary">Edit project</h1>
+        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit project</h1>
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
@@ -43,13 +44,9 @@ export default function ProjectEditPage() {
           onSuccess={() => router.push(`/projects/${params.id}`)}
         />
         <div className="mt-6 pt-4 border-t border-border-subtle">
-          <button
-            type="submit"
-            form="project-form"
-            className="w-full bg-forest-900 text-white py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-forest-900 transition-colors"
-          >
+          <Button type="submit" form="project-form" intent="primary" size="md" fullWidth>
             Save changes
-          </button>
+          </Button>
         </div>
       </div>
     </div>

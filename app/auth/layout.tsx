@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { AuthWordmark } from '@/components/auth-ui'
 
 const taglines = [
   "Know exactly what you owe. Instantly.",
@@ -39,7 +40,7 @@ function RightPanel() {
           </div>
 
           <p className="text-sm text-text-secondary leading-normal mb-4 -mt-1">
-            Freelax shows your real income after tax — so you're never surprised again.
+            Freelax shows your real income after tax — so you&apos;re never surprised again.
           </p>
 
           <div className="flex gap-2 flex-wrap mb-3.5">
@@ -86,29 +87,25 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         .auth-left input::placeholder { color: rgba(255,255,255,0.35) !important; }
         @media (max-width: 768px) {
           .auth-right { display: none !important; }
-          .auth-left { flex: none !important; width: 100% !important; justify-content: center !important; padding-bottom: 48px !important; }
-          .auth-split-wordmark { display: none !important; }
+          .auth-left { flex: none !important; width: 100% !important; min-height: 100dvh !important; height: auto !important; justify-content: flex-start !important; padding-top: 48px !important; padding-bottom: 48px !important; overflow-y: auto !important; }
+          .auth-wordmark-desktop { display: none !important; }
           .auth-wordmark-mobile { display: block !important; }
         }
         @media (min-width: 769px) {
           .auth-wordmark-mobile { display: none !important; }
-          .auth-split-wordmark { display: flex !important; }
+          .auth-wordmark-desktop { display: block !important; }
         }
       `}</style>
 
-      <div className="h-screen overflow-hidden flex relative">
+      <div className="min-h-screen md:h-screen md:overflow-hidden flex flex-col md:flex-row relative">
 
         <div
-          className="auth-split-wordmark absolute top-12 left-0 right-0 justify-start items-baseline z-10 pointer-events-none text-3xl font-serif leading-none  tracking-tighter pl-[calc(60%-124px)]"
+          className="auth-left min-h-screen md:h-screen flex-[0_0_60%] flex flex-col items-center md:overflow-y-auto pt-24 md:pt-16 px-8 pb-12 bg-cover bg-center"
+          style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')" }}
         >
-          <span className="text-white">Free</span>
-          <span className="text-text-primary">lax</span>
-          <span className="text-brand-primary">.</span>
-        </div>
+          <div className="w-full max-w-[420px] flex flex-col flex-1 justify-center md:justify-center md:pt-8">
+            <AuthWordmark variant="desktop" />
 
-        <div className="auth-left h-screen flex-[0_0_60%] flex flex-col items-center justify-center pt-36 px-8 pb-12 bg-cover bg-center"
-          style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/right-panel-bg.png')" }}>
-          <div className="w-full max-w-[420px]">
             <div key={pathname} className="animate-auth-in">
               {children}
             </div>

@@ -14,7 +14,11 @@ import { generateInvoiceNumber } from '@/lib/logic/invoices'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
+import Button, { buttonVariants } from '@/components/ui/button'
+import { sectionTitle } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 import Tooltip from '@/components/tooltip'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import Link from 'next/link'
 import {
   ArrowLeft, PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
@@ -66,37 +70,6 @@ function activityConfig(entry: QuoteActivity): {
         label: entry.action,
       }
   }
-}
-
-// ── Delete confirmation modal ─────────────────────────────────────────────────
-function DeleteModal({ onConfirm, onCancel, loading }: {
-  onConfirm: () => void
-  onCancel:  () => void
-  loading:   boolean
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45" onClick={onCancel}>
-      <div className="bg-surface-card rounded-xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-danger-100 rounded-full flex items-center justify-center shrink-0">
-            <Trash weight="regular" className="w-5 h-5 text-danger-600" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-text-primary">Delete quote?</h2>
-            <p className="text-sm text-text-muted mt-0.5">This cannot be undone.</p>
-          </div>
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
-            Cancel
-          </button>
-          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2 bg-danger-600 text-white rounded-lg text-sm font-medium hover:bg-danger-700 disabled:opacity-50">
-            {loading ? 'Deleting...' : 'Yes, delete'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
@@ -258,7 +231,7 @@ export default function QuoteDetailPage() {
         </Link>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-serif font-semibold text-text-primary">{quote.quote_number}</h1>
+            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{quote.quote_number}</h1>
             <Badge status={quote.status} />
             {expired && quote.status === 'sent' && (
               <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
@@ -270,50 +243,58 @@ export default function QuoteDetailPage() {
           <div className="flex flex-wrap gap-2">
             {canEdit && (
               <Link href={`/quotes/${quote.id}/edit`}
-                className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+                className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
                 <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
               </Link>
             )}
             {canSend && (
-              <button onClick={handleSend} disabled={sending}
-                className="flex items-center gap-1.5 px-3 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium hover:bg-forest-900 disabled:opacity-50">
+              <Button type="button" intent="primary" size="sm" onClick={handleSend} disabled={sending}>
                 <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
                 {sending ? 'Sending...' : quote.status === 'draft' ? 'Send quote' : 'Resend'}
-              </button>
+              </Button>
             )}
             {canAccept && (
-              <button onClick={() => handleStatusChange('accepted')}
-                className="flex items-center gap-1.5 px-3 py-2 bg-success-700 text-white rounded-xl text-sm font-medium hover:bg-success-800">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handleStatusChange('accepted')}
+                className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
+              >
                 <CheckCircle weight="regular" className="w-3.5 h-3.5" /> Mark accepted
-              </button>
+              </Button>
             )}
             {canDecline && (
-              <button onClick={() => handleStatusChange('declined')}
-                className="flex items-center gap-1.5 px-3 py-2 bg-danger-50 border border-danger-200 text-danger-700 rounded-xl text-sm font-medium hover:bg-danger-100">
+              <Button type="button" intent="danger-subtle" size="sm" onClick={() => handleStatusChange('declined')}>
                 <XCircle weight="regular" className="w-3.5 h-3.5" /> Mark declined
-              </button>
+              </Button>
             )}
             {canConvert && (
-              <button onClick={handleConvertToInvoice} disabled={converting}
-                className="flex items-center gap-1.5 px-3 py-2 bg-forest-600 text-white rounded-xl text-sm font-medium hover:bg-forest-700 disabled:opacity-50">
+              <Button type="button" intent="primary" size="sm" onClick={handleConvertToInvoice} disabled={converting}>
                 <FileText weight="regular" className="w-3.5 h-3.5" />
                 {converting ? 'Creating...' : 'Create invoice'}
-              </button>
+              </Button>
             )}
-            <button onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+            <Button type="button" intent="secondary" size="sm" onClick={handleCopyLink}>
               <LinkSimple weight="regular" className="w-3.5 h-3.5" />
               {linkCopied ? 'Copied!' : 'Client link'}
-            </button>
-            <a href={`/api/quotes/pdf?id=${quote.id}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 border border-border-default rounded-xl text-sm hover:bg-surface-sunken">
+            </Button>
+            <a
+              href={`/api/quotes/pdf?id=${quote.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+            >
               <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
             </a>
-            <button onClick={() => setShowDelete(true)}
+            <Button
+              type="button"
+              intent="danger-subtle"
+              size="sm"
+              onClick={() => setShowDelete(true)}
               aria-label="Delete quote"
-              className="flex items-center gap-1.5 px-3 py-2 border border-danger-200 text-danger-600 rounded-xl text-sm hover:bg-danger-50">
+            >
               <Trash weight="regular" className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -496,7 +477,7 @@ export default function QuoteDetailPage() {
       <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
         <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
           <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
-          <h2 className="text-sm font-semibold text-text-primary">Activity</h2>
+          <h2 className={sectionTitle}>Activity</h2>
           {activity.length > 0 && (
             <span className="ml-auto text-xs text-text-secondary">
               {activity.length} event{activity.length !== 1 ? 's' : ''}
@@ -540,7 +521,9 @@ export default function QuoteDetailPage() {
 
             {/* Delete modal */}
       {showDelete && (
-        <DeleteModal
+        <ConfirmDeleteModal
+          title="Delete quote?"
+          description="This quote will be permanently removed."
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleting}

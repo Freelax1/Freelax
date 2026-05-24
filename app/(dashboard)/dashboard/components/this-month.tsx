@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { BarChart, Bar, Cell, XAxis, ResponsiveContainer, Tooltip, ReferenceLine } from 'recharts'
 import { Sparkle, CircleNotch, X } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
+import Button from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 
 interface MonthData { month: string; income: number }
@@ -114,17 +114,18 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
           This month
         </p>
         {!isNewUser && monthlyAvg > 0 && (
-          <button
+          <Button
+            intent="primary"
+            size="xs"
             onClick={() => generateInsight(!!showInsightPanel)}
             disabled={insightLoading}
-            className={cn('flex items-center gap-1.5 text-caption font-semibold text-text-on-dark bg-brand-primary border-none rounded-md px-2.5 py-1 transition-opacity duration-150', insightLoading ? 'cursor-default opacity-70' : 'cursor-pointer')}
           >
             {insightLoading
               ? <CircleNotch weight="regular" className="w-[11px] h-[11px] animate-spin" />
               : <Sparkle weight="regular" className="w-[11px] h-[11px]" />
             }
             {insightLoading ? 'Thinking…' : showInsightPanel ? 'Refresh' : 'AI insight'}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -214,7 +215,6 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
           )}
         </div>
       )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 }
