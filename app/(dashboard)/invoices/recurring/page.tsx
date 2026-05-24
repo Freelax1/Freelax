@@ -10,6 +10,8 @@ import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Plus, Pause, Play, Trash } from '@phosphor-icons/react'
 import type { InvoiceTemplate, Client } from '@/types/database'
+import { Input, Select, Label } from '@/components/ui/input'
+import Tooltip from '@/components/tooltip'
 
 interface LineItem { description: string; quantity: number; unit_price: number; vat_rate: number }
 
@@ -102,26 +104,23 @@ export default function RecurringInvoicesPage() {
           <h2 className="font-semibold text-text-primary">New recurring template</h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Client</label>
-              <select value={clientId} onChange={e => setClientId(e.target.value)}
-                className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20">
+              <Label>Client</Label>
+              <Select value={clientId} onChange={e => setClientId(e.target.value)}>
                 <option value="">Select client...</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              </Select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Frequency</label>
-              <select value={frequency} onChange={e => setFrequency(e.target.value)}
-                className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20">
+              <Label>Frequency</Label>
+              <Select value={frequency} onChange={e => setFrequency(e.target.value)}>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
                 <option value="quarterly">Quarterly</option>
-              </select>
+              </Select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">First invoice date</label>
-              <input type="date" value={nextRun} onChange={e => setNextRun(e.target.value)}
-                className="w-full px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20" />
+              <Label>First invoice date</Label>
+              <Input type="date" value={nextRun} onChange={e => setNextRun(e.target.value)} />
             </div>
           </div>
 
@@ -130,12 +129,12 @@ export default function RecurringInvoicesPage() {
             <p className="text-xs font-medium text-text-muted mb-2">Line items</p>
             {lineItems.map((item, i) => (
               <div key={i} className="grid grid-cols-4 gap-2 mb-2">
-                <input value={item.description} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, description: e.target.value } : l))}
-                  placeholder="Description" className="col-span-2 px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none" />
-                <input type="number" value={item.quantity} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, quantity: Number(e.target.value) } : l))}
-                  placeholder="Qty" className="px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none" />
-                <input type="number" value={item.unit_price} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, unit_price: Number(e.target.value) } : l))}
-                  placeholder="Price (£)" className="px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none" />
+                <Input variant="inline" value={item.description} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, description: e.target.value } : l))}
+                  placeholder="Description" className="col-span-2" />
+                <Input variant="inline" type="number" value={item.quantity} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, quantity: Number(e.target.value) } : l))}
+                  placeholder="Qty" />
+                <Input variant="inline" type="number" value={item.unit_price} onChange={e => setLineItems(prev => prev.map((l, j) => j === i ? { ...l, unit_price: Number(e.target.value) } : l))}
+                  placeholder="Price (£)" />
               </div>
             ))}
             <button onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
@@ -176,20 +175,22 @@ export default function RecurringInvoicesPage() {
                   <td className="px-4 py-3 text-text-muted">{new Date(t.next_run_date).toLocaleDateString('en-GB')}</td>
                   <td className="px-4 py-3 font-medium">{formatCurrency(total(t.line_items ?? []))}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${t.active ? 'bg-success-50 text-success-700 border border-success-200' : 'bg-surface-sunken text-text-secondary border border-border-default'}`}>
-                      {t.active ? 'Active' : 'Paused'}
-                    </span>
+                    <Badge status={t.active ? 'active' : 'paused'} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => toggleActive(t.id, t.active)}
-                        className="p-1.5 rounded hover:bg-surface-sunken text-text-secondary hover:text-text-secondary" title={t.active ? 'Pause' : 'Resume'}>
-                        {t.active ? <Pause weight="regular" className="w-4 h-4" /> : <Play weight="regular" className="w-4 h-4" />}
-                      </button>
-                      <button onClick={() => deleteTemplate(t.id)}
-                        className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-600">
-                        <Trash weight="regular" className="w-4 h-4" />
-                      </button>
+                      <Tooltip label={t.active ? 'Pause' : 'Resume'}>
+                        <button onClick={() => toggleActive(t.id, t.active)}
+                          className="p-1.5 rounded hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
+                          {t.active ? <Pause weight="regular" className="w-4 h-4" /> : <Play weight="regular" className="w-4 h-4" />}
+                        </button>
+                      </Tooltip>
+                      <Tooltip label="Delete template">
+                        <button onClick={() => deleteTemplate(t.id)}
+                          className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-600 transition-colors">
+                          <Trash weight="regular" className="w-4 h-4" />
+                        </button>
+                      </Tooltip>
                     </div>
                   </td>
                 </tr>

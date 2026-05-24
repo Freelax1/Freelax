@@ -17,6 +17,7 @@ import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
 import { Sparkle, DownloadSimple, CircleNotch, Warning, Info, X, ArrowRight, Lightning, ArrowCounterClockwise, Lock } from '@phosphor-icons/react'
+import { Input } from '@/components/ui/input'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
@@ -228,15 +229,15 @@ function TaxPotCard({
           </p>
         )}
         <div className="grid grid-cols-[1fr_1fr_auto] gap-2 mt-4">
-          <input
+          <Input
             type="number" min="0" placeholder="Add amount (£)"
             value={potAmount} onChange={e => setPotAmount(e.target.value)}
-            className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
+            className="min-w-0"
           />
-          <input
+          <Input
             placeholder="Note (optional)"
             value={potNote} onChange={e => setPotNote(e.target.value)}
-            className="border border-border-default rounded-md px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 min-w-0"
+            className="min-w-0"
           />
           <button
             onClick={onAdd}
@@ -737,7 +738,7 @@ export default function TaxPage() {
                         label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
                         value={`−${formatCurrency(pageData.mileageRelief)}`}
                         red indent
-                        hint="HMRC approved rate · see Expenses → Mileage"
+                        hint="HMRC approved rate · see Mileage"
                       />
                     )}
                     {t.pensionContributions > 0 && (
@@ -820,7 +821,7 @@ export default function TaxPage() {
                         label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
                         value={`−${formatCurrency(pageData.mileageRelief)}`}
                         red indent
-                        hint="HMRC approved rate · see Expenses → Mileage"
+                        hint="HMRC approved rate · see Mileage"
                       />
                     )}
                     <Row label="Director salary"              value={`−${formatCurrency(t.salaryDrawn)}`} red />
