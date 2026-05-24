@@ -20,7 +20,8 @@ import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
-import { Lightning, ArrowRight, Plus, Question } from '@phosphor-icons/react'
+import ActionList from '@/components/ui/action-list'
+import { Plus, Question } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 // ── Local types ────────────────────────────────────────────────────────
@@ -417,32 +418,7 @@ export default function DashboardPage() {
             taxTotal={data.taxTotal}
           />
 
-          {/* B. Do This Now — hidden when empty */}
-          {data.actions.length > 0 && (
-            <div className="rounded-xl p-5 bg-warning-50 border border-warning-200">
-              <div className="flex items-center gap-2 mb-3.5">
-                <Lightning weight="regular" className="w-3 h-3 text-warning-700" />
-                <p className="text-caption font-medium text-warning-700">
-                  Do this now
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                {data.actions.map((action: DashboardAction, i: number) => (
-                  <Link key={i} href={action.href}
-                    className="flex items-center gap-3 no-underline">
-                    <div className={cn('w-1.5 h-1.5 rounded-full shrink-0', action.priority === 'red' ? 'bg-danger-600' : 'bg-warning-600')} />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-text-primary">{action.title}</p>
-                      {action.sub && <p className="text-caption text-text-secondary mt-px">{action.sub}</p>}
-                    </div>
-                    <ArrowRight weight="regular" className="w-3 h-3 text-text-muted shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* C. The Three Pots */}
+          {/* B. The Three Pots */}
           <ThreePots
             earnedThisYear={data.netProfit}
             taxSetAside={data.taxPotSaved}
@@ -453,6 +429,8 @@ export default function DashboardPage() {
             weeklySaveNeeded={data.weeklySaveNeeded}
             isNewUser={data.isNewUser}
           />
+
+          <ActionList items={data.actions} />
 
           <AiLauncher />
 

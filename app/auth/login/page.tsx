@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Field, Input, Label } from '@/components/ui/input'
+import { Field, Input } from '@/components/ui/input'
 import Button from '@/components/ui/button'
 import AuthSpinner from '@/components/auth-spinner'
 import { AuthWordmark, AuthHeading, AuthError, AuthFooter } from '@/components/auth-ui'
@@ -57,8 +57,7 @@ function LoginForm() {
           />
         </Field>
 
-        <div>
-          <Label variant="auth">Password</Label>
+        <Field label="Password" labelVariant="auth">
           <Input
             variant="auth"
             type="password"
@@ -67,14 +66,14 @@ function LoginForm() {
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
-          <div className="flex justify-end mt-1.5">
-            <Link
-              href="/auth/forgot-password"
-              className="text-xs text-white/60 font-medium no-underline hover:text-white/80 transition-colors"
-            >
-              Forgot password?
-            </Link>
-          </div>
+        </Field>
+        <div className="flex justify-end -mt-2">
+          <Link
+            href="/auth/forgot-password"
+            className="text-xs text-white/60 font-medium no-underline hover:text-white/80 transition-colors"
+          >
+            Forgot password?
+          </Link>
         </div>
 
         <Button

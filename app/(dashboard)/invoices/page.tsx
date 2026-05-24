@@ -7,6 +7,7 @@ import { fetchInvoices, deleteInvoice, type InvoiceListRow } from '@/lib/api/inv
 import { calcDaysOverdue, isPastDue } from '@/lib/logic/invoices'
 import { groupByMonth } from '@/lib/logic/list-display'
 import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import Alert from '@/components/ui/alert'
 import Button, { buttonVariants } from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
@@ -331,7 +332,7 @@ export default function InvoicesPage() {
         }
       />
 
-      {msg && <div className="mb-4 bg-warning-50 border border-warning-200 text-warning-800 text-sm px-4 py-2.5 rounded-xl">{msg}</div>}
+      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
       {!loading && invoices.length > 0 && (
         <>

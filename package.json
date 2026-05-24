@@ -4,10 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "jest && next build --webpack",
+    "build": "jest && npm run check:design-system && next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "check:design-system": "bash scripts/check-design-system.sh",
+    "check:alerts": "bash scripts/check-hand-rolled-alerts.sh",
+    "check:stat-cards": "bash scripts/check-hand-rolled-stat-cards.sh",
+    "check:progress-bars": "bash scripts/check-hand-rolled-progress-bars.sh",
+    "check:breakdown-rows": "bash scripts/check-hand-rolled-breakdown-rows.sh",
+    "check:primary-buttons": "bash scripts/check-hand-rolled-primary-buttons.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { Field, Input, Select, Toggle } from '@/components/form-fields'
 
 const stepTitle = 'text-xl font-serif font-normal text-text-primary tracking-normal leading-heading'
@@ -111,9 +112,9 @@ export default function OnboardingPage() {
         {/* Card */}
         <div className="bg-surface-card rounded-xl border border-border-default p-8 shadow-sm">
           {error && (
-            <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-2.5 rounded-xl mb-5">
+            <Alert intent="danger" className="mb-5">
               {error}
-            </div>
+            </Alert>
           )}
 
           {/* Step 1 */}

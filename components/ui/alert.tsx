@@ -4,14 +4,15 @@ import React from 'react'
 import { XCircle, Warning, CheckCircle, Info } from '@phosphor-icons/react'
 
 const alert = cva(
-  'rounded-xl px-4 py-3 text-sm flex items-start gap-3',
+  'rounded-xl px-4 py-3 text-sm flex items-start gap-2',
   {
     variants: {
       intent: {
         danger:  'bg-danger-50  border border-danger-200  text-danger-700',
         warning: 'bg-warning-50 border border-warning-200 text-warning-700',
         success: 'bg-success-50 border border-success-200 text-success-700',
-        info:    'bg-forest-50  border border-forest-200  text-forest-700',
+        info:    'bg-info-50    border border-info-200    text-info-700',
+        helper:  'bg-surface-card border border-border-default text-text-secondary',
         neutral: 'bg-surface-sunken border border-border-subtle text-text-secondary',
       },
     },
@@ -24,6 +25,7 @@ const ICONS = {
   warning: Warning,
   success: CheckCircle,
   info:    Info,
+  helper:  Info,
   neutral: Info,
 } as const
 

@@ -9,3 +9,15 @@ export const serifStat =
 /** L3 section headings — sans sm semibold, below page title */
 export const sectionTitle =
   'text-sm font-semibold text-text-primary'
+
+/** KPI / stat card labels — xs (12px) medium, secondary */
+export const cardLabel =
+  'text-xs font-medium text-text-secondary'
+
+/** Floating field — label when raised (smaller than value) */
+export const floatingFieldLabel =
+  'text-micro leading-none font-normal text-text-muted'
+
+/** Floating field — input value (primary readable size) */
+export const floatingFieldValue =
+  'text-sm leading-snug font-normal text-text-primary'

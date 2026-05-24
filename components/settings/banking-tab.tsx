@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Bank } from '@phosphor-icons/react'
-import { Field, inputClass, btnClass, formatSortCode } from './shared'
+import { Field, Input, SaveSettingsButton, formatSortCode } from './shared'
 
 interface Props {
   profile: any
@@ -33,8 +33,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
         </p>
 
         <Field label="Account name" hint="Usually your full name or business name as registered with your bank">
-          <input
-            className={inputClass}
+          <Input
             value={bank.bank_account_name}
             onChange={e => setBank(p => ({ ...p, bank_account_name: e.target.value }))}
             placeholder="Jane Smith"
@@ -43,8 +42,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Sort code" hint="Format: 12-34-56">
-            <input
-              className={inputClass}
+            <Input
               value={bank.bank_sort_code}
               onChange={e => setBank(p => ({ ...p, bank_sort_code: formatSortCode(e.target.value) }))}
               placeholder="12-34-56"
@@ -52,8 +50,7 @@ export default function BankingTab({ profile, save, saving }: Props) {
             />
           </Field>
           <Field label="Account number" hint="8 digits">
-            <input
-              className={inputClass}
+            <Input
               value={bank.bank_account_number}
               onChange={e => setBank(p => ({ ...p, bank_account_number: e.target.value.replace(/\D/g, '').slice(0, 8) }))}
               placeholder="12345678"
@@ -66,17 +63,14 @@ export default function BankingTab({ profile, save, saving }: Props) {
           label="Payment reference note"
           hint='Shown on invoices under bank details, e.g. "Please use invoice number as reference"'
         >
-          <input
-            className={inputClass}
+          <Input
             value={bank.bank_reference_note}
             onChange={e => setBank(p => ({ ...p, bank_reference_note: e.target.value }))}
             placeholder="Please use invoice number as reference"
           />
         </Field>
 
-        <button className={btnClass} disabled={saving} onClick={() => save(bank)}>
-          {saving ? 'Saving...' : 'Save bank details'}
-        </button>
+        <SaveSettingsButton saving={saving} label="Save bank details" onClick={() => save(bank)} />
       </div>
 
       {/* Preview */}

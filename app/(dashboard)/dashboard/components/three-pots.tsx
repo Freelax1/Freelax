@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { serifDisplay } from '@/lib/typography'
+import { cardLabel } from '@/lib/typography'
+import StatCard from '@/components/ui/stat-card'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -14,22 +15,6 @@ interface Props {
   safeToSpendMissingInput:  boolean
   weeklySaveNeeded: number
   isNewUser?:       boolean
-}
-
-const LABEL_CN = 'text-caption font-medium text-text-secondary mb-3'
-const HERO_CN  = cn('text-[clamp(28px,5vw,40px)] text-text-primary', serifDisplay)
-const SUB_CN   = 'text-xs text-text-muted mt-2 leading-relaxed'
-const CARD_CN  = 'rounded-xl p-6 border border-border-default flex flex-col gap-0 flex-1'
-
-function ProgressBar({ pct, color }: { pct: number; color: string }) {
-  return (
-    <div className="h-[5px] bg-border-subtle rounded-[var(--radius-full)] overflow-hidden mt-3.5">
-      <div
-        className="h-full rounded-[var(--radius-full)]"
-        style={{ background: color, width: `${pct}%` }}
-      />
-    </div>
-  )
 }
 
 function SafeToSpendInfo() {
@@ -64,7 +49,7 @@ function SafeToSpendInfo() {
       {open && (
         <div className="absolute bottom-[calc(100%+10px)] right-0 w-[264px] bg-surface-card border border-border-default rounded-[var(--radius-lg)] px-4 py-4 z-dropdown shadow-popover">
 
-          <p className="text-caption font-semibold text-text-primary mb-3">
+          <p className="text-xs font-semibold text-text-primary mb-3">
             How this is calculated
           </p>
 
@@ -107,75 +92,91 @@ export default function ThreePots({
       : 'var(--danger-500)'
 
   const showInfo = !isNewUser && !safeToSpendMissingInput && safeToSpend !== null
+  const reserveFooter = !isNewUser
+
+  const safeLabel = (
+    <div className="flex items-center justify-between gap-2">
+      <p className={cardLabel}>Safe to spend</p>
+      {showInfo && <SafeToSpendInfo />}
+    </div>
+  )
+
+  const potCn = 'h-full w-full'
 
   return (
     <div className="fd-cards-grid">
 
-      {/* Pot 1 — Earned this year */}
-      <div className={`${CARD_CN} bg-surface-sunken`}>
-        <p className={LABEL_CN}>Earned this year</p>
-        <p className={HERO_CN}>{isNewUser ? '—' : formatCurrency(earnedThisYear)}</p>
-        <p className={SUB_CN}>
-          {isNewUser
+      <StatCard
+        className={potCn}
+        variant="sunken"
+        label="Earned this year"
+        value={isNewUser ? '—' : formatCurrency(earnedThisYear)}
+        reserveFooter={reserveFooter}
+        sub={
+          isNewUser
             ? "As you log invoices and they're paid, your total earnings for the year will appear here."
-            : 'Income minus expenses · across the tax year'}
-        </p>
-      </div>
+            : 'Income minus expenses · across the tax year'
+        }
+      />
 
-      {/* Pot 2 — Tax set aside */}
-      <Link href="/tax" className="no-underline flex-1">
-        <div className={`${CARD_CN} bg-surface-card cursor-pointer h-full`}>
-          <p className={LABEL_CN}>Tax set aside</p>
-          <p className={HERO_CN}>{isNewUser ? '—' : formatCurrency(taxSetAside)}</p>
-          {!isNewUser && (
-            <>
-              <p className="text-sm text-text-secondary mt-1.5">
-                of {formatCurrency(taxTarget)} needed by {taxDeadline.label}
-              </p>
-              <ProgressBar pct={taxPct} color={barColor} />
-              <p className={cn('text-caption mt-2 font-medium', onTrack ? 'text-success-700' : 'text-warning-700')}>
-                {onTrack ? '✓ On track for January' : `Save ${formatCurrency(weeklySaveNeeded)}/week to stay on track`}
-              </p>
-            </>
-          )}
-          {isNewUser && (
-            <p className={SUB_CN}>We'll calculate exactly what to save for your January tax bill as you earn. Start by sending an invoice.</p>
-          )}
-        </div>
+      <Link href="/tax" className="no-underline flex-1 min-w-0 flex">
+        <StatCard
+          className={cn(potCn, 'cursor-pointer')}
+          label="Tax set aside"
+          value={isNewUser ? '—' : formatCurrency(taxSetAside)}
+          reserveFooter={reserveFooter}
+          progressBar={!isNewUser ? { pct: taxPct, color: barColor } : undefined}
+          sub={
+            isNewUser
+              ? "We'll calculate exactly what to save for your January tax bill as you earn. Start by sending an invoice."
+              : onTrack
+                ? `of ${formatCurrency(taxTarget)} by ${taxDeadline.label} · ✓ On track for January`
+                : `of ${formatCurrency(taxTarget)} by ${taxDeadline.label} · Save ${formatCurrency(weeklySaveNeeded)}/week`
+          }
+          subClassName={!isNewUser && !onTrack ? 'text-warning-700 font-medium' : !isNewUser ? 'text-success-700 font-medium' : undefined}
+        />
       </Link>
 
-      {/* Pot 3 — Safe to spend */}
-      <div className={`${CARD_CN} bg-surface-card relative`}>
-        <div className="flex items-center justify-between mb-3">
-          <p className={`${LABEL_CN} !mb-0`}>Safe to spend</p>
-          {showInfo && <SafeToSpendInfo />}
-        </div>
-
-        {isNewUser ? (
-          <>
-            <p className={HERO_CN}>—</p>
-            <p className={SUB_CN}>Once you've logged some income and told us your typical monthly outgoings, we'll show what's genuinely safe to spend each month.</p>
-          </>
-        ) : safeToSpendMissingInput ? (
-          <Link href="/settings?tab=Personal%20tax%20inputs" className="no-underline">
-            <p className={`${HERO_CN} !text-xl !leading-heading`}>Set up needed</p>
-            <p className={`${SUB_CN} !mt-2`}>
-              Tell us your monthly personal outgoings (rent, food, bills) and we'll show you what's truly safe to spend.{' '}
-              <span className="text-brand-primary font-medium">Set it up →</span>
-            </p>
-          </Link>
-        ) : safeToSpend !== null && safeToSpend <= 0 ? (
-          <>
-            <p className={`${HERO_CN} !text-danger-500`}>{formatCurrency(0)}</p>
-            <p className={SUB_CN}>Spending is tight this month — hold off on big purchases.</p>
-          </>
-        ) : (
-          <>
-            <p className={HERO_CN}>{formatCurrency(safeToSpend ?? 0)}</p>
-            <p className={SUB_CN}>After tax and your typical monthly outgoings — what's genuinely available to spend this month.</p>
-          </>
-        )}
-      </div>
+      {isNewUser ? (
+        <StatCard
+          className={potCn}
+          label={safeLabel}
+          value="—"
+          sub="Once you've logged some income and told us your typical monthly outgoings, we'll show what's genuinely safe to spend each month."
+        />
+      ) : safeToSpendMissingInput ? (
+        <Link href="/settings?tab=Personal%20tax%20inputs" className="no-underline flex-1 min-w-0 flex">
+          <StatCard
+            className={cn(potCn, 'cursor-pointer')}
+            label={safeLabel}
+            value="Set up"
+            reserveFooter={reserveFooter}
+            sub={
+              <>
+                Add your monthly outgoings to see what's truly safe to spend.{' '}
+                <span className="text-brand-primary font-medium">Set it up →</span>
+              </>
+            }
+          />
+        </Link>
+      ) : safeToSpend !== null && safeToSpend <= 0 ? (
+        <StatCard
+          className={potCn}
+          label={safeLabel}
+          value={formatCurrency(0)}
+          valueColor="var(--danger-500)"
+          reserveFooter={reserveFooter}
+          sub="Spending is tight this month — hold off on big purchases."
+        />
+      ) : (
+        <StatCard
+          className={potCn}
+          label={safeLabel}
+          value={formatCurrency(safeToSpend ?? 0)}
+          reserveFooter={reserveFooter}
+          sub="After tax and your typical monthly outgoings — what's genuinely available to spend this month."
+        />
+      )}
 
     </div>
   )

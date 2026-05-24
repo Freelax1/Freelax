@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
+import Button from '@/components/ui/button'
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import type { Project, Client, IR35Answer } from '@/types/database'
@@ -167,18 +168,15 @@ export default function ProjectForm({ project, defaultClientId, onSuccess }: Pro
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   {[true, false].map(val => (
-                    <button
+                    <Button
                       key={String(val)}
                       type="button"
+                      size="xs"
+                      intent={ir35Answers[q.number] === val ? 'primary' : 'secondary'}
                       onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                        ir35Answers[q.number] === val
-                          ? 'bg-brand-primary text-white'
-                          : 'bg-surface-card border border-slate-200 text-text-secondary hover:bg-surface-sunken'
-                      }`}
                     >
                       {val ? 'Yes' : 'No'}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

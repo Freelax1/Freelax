@@ -15,7 +15,8 @@ import Button from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
-import { serifStat, sectionTitle } from '@/lib/typography'
+import { sectionTitle } from '@/lib/typography'
+import StatCard from '@/components/ui/stat-card'
 import type { Client, Project, Invoice, Quote } from '@/types/database'
 
 type ClientProject = Pick<Project, 'id' | 'title' | 'status' | 'ir35_status' | 'rate_type' | 'rate_amount'>
@@ -135,23 +136,16 @@ export default function ClientDetailPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-caption text-text-muted">Total invoiced</p>
-          <p className={cn('text-2xl text-text-primary mt-1', serifStat)}>{formatCurrency(totalInvoiced)}</p>
-        </div>
-        <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-caption text-text-muted">Total paid</p>
-          <p className={cn('text-2xl text-success-700 mt-1', serifStat)}>{formatCurrency(totalPaid)}</p>
-        </div>
-        <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-caption text-text-muted">Outstanding</p>
-          <p className={cn('text-2xl mt-1', serifStat, outstanding > 0 ? 'text-danger-600' : 'text-text-primary')}>{formatCurrency(outstanding)}</p>
-        </div>
-        <div className="bg-surface-card rounded-xl border border-border-default p-4">
-          <p className="text-caption text-text-muted">Quotes pipeline</p>
-          <p className={cn('text-2xl text-text-primary mt-1', serifStat)}>{formatCurrency(quotesPipeline)}</p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 fd-stat-grid">
+        <StatCard size="sm" label="Total invoiced" value={formatCurrency(totalInvoiced)} />
+        <StatCard size="sm" label="Total paid" value={formatCurrency(totalPaid)} valueColor="var(--success-700)" />
+        <StatCard
+          size="sm"
+          label="Outstanding"
+          value={formatCurrency(outstanding)}
+          valueColor={outstanding > 0 ? 'var(--danger-600)' : undefined}
+        />
+        <StatCard size="sm" label="Quotes pipeline" value={formatCurrency(quotesPipeline)} />
       </div>
 
       {(client.address_line1 || client.notes) && (

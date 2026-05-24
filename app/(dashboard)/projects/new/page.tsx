@@ -12,6 +12,7 @@ import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
 import { sectionTitle } from '@/lib/typography'
 import type { Client, IR35Answer } from '@/types/database'
@@ -136,7 +137,7 @@ export default function NewProjectPage() {
       </div>
 
       {error && (
-        <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+        <Alert intent="danger">{error}</Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -168,12 +169,12 @@ export default function NewProjectPage() {
             {showNewClient && (
               <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
                 <p className="text-xs font-semibold text-text-secondary">New client</p>
-                <input
+                <Input
                   aria-label="New client name"
+                  variant="inline"
                   value={newClientName}
                   onChange={e => setNewClientName(e.target.value)}
                   placeholder="Client name *"
-                  className="w-full px-2 py-1.5 border border-border-default rounded text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 bg-surface-card"
                 />
                 <div className="flex gap-2 pt-1">
                   <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
@@ -252,18 +253,15 @@ export default function NewProjectPage() {
                     </div>
                     <div className="flex gap-2 shrink-0">
                       {[true, false].map(val => (
-                        <button
+                        <Button
                           key={String(val)}
                           type="button"
+                          size="xs"
+                          intent={ir35Answers[q.number] === val ? 'primary' : 'secondary'}
                           onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                            ir35Answers[q.number] === val
-                              ? 'bg-brand-primary text-white'
-                              : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
-                          }`}
                         >
                           {val ? 'Yes' : 'No'}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>

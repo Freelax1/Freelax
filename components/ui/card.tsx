@@ -54,7 +54,7 @@ CardHeader.displayName = 'CardHeader'
 
 const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn('text-caption font-semibold text-text-secondary', className)} {...props} />
+    <p ref={ref} className={cn('text-xs font-semibold text-text-secondary', className)} {...props} />
   )
 )
 CardTitle.displayName = 'CardTitle'
@@ -68,7 +68,7 @@ CardContent.displayName = 'CardContent'
 
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('mt-4 pt-4 border-t border-border-subtle flex items-center gap-3', className)} {...props} />
+    <div ref={ref} className={cn('mt-4 pt-4 border-t border-border-subtle flex items-center gap-2', className)} {...props} />
   )
 )
 CardFooter.displayName = 'CardFooter'

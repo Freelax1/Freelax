@@ -11,7 +11,7 @@ import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Plus, Pause, Play, Trash } from '@phosphor-icons/react'
 import type { InvoiceTemplate, Client } from '@/types/database'
-import { Input, Select, Label } from '@/components/ui/input'
+import { Input, Select, Field } from '@/components/ui/input'
 import Tooltip from '@/components/tooltip'
 import { sectionTitle } from '@/lib/typography'
 
@@ -108,25 +108,22 @@ export default function RecurringInvoicesPage() {
         <div className="bg-surface-card rounded-xl border border-border-default p-6 mb-6 space-y-4">
           <h2 className={sectionTitle}>New recurring template</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <Label>Client</Label>
+            <Field label="Client">
               <Select value={clientId} onChange={e => setClientId(e.target.value)}>
                 <option value="">Select client...</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
-            </div>
-            <div>
-              <Label>Frequency</Label>
+            </Field>
+            <Field label="Frequency">
               <Select value={frequency} onChange={e => setFrequency(e.target.value)}>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
                 <option value="quarterly">Quarterly</option>
               </Select>
-            </div>
-            <div>
-              <Label>First invoice date</Label>
+            </Field>
+            <Field label="First invoice date">
               <Input type="date" value={nextRun} onChange={e => setNextRun(e.target.value)} />
-            </div>
+            </Field>
           </div>
 
           {/* Line items */}

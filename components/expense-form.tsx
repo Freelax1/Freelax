@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, Toggle, SaveButton } from '@/components/form-fields'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { Scan, UploadSimple, CircleNotch, Camera } from '@phosphor-icons/react'
 import type { Expense } from '@/types/database'
 
@@ -159,12 +160,11 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
+      {errors._ && <Alert intent="danger">{errors._}</Alert>}
 
       {/* Scan receipt button */}
-      <div className="bg-forest-50 border border-forest-200 rounded-xl p-4">
-        <p className="text-sm font-medium text-forest-800 mb-2">Scan receipt with AI</p>
-        <p className="text-xs text-forest-600 mb-3">Upload a receipt image and AI will auto-fill the fields below.</p>
+      <Alert intent="info" title="Scan receipt with AI" className="p-4">
+        <p className="text-xs text-forest-600 mb-3 -mt-1">Upload a receipt image and AI will auto-fill the fields below.</p>
 
         <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} {...(isMobile ? { capture: "environment" as const } : {})} />
 
@@ -180,14 +180,10 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
         )}
 
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-forest-300 bg-surface-card text-forest-700 rounded-xl text-xs font-medium hover:bg-forest-50"
-          >
+          <Button type="button" intent="secondary" size="xs" onClick={() => fileRef.current?.click()}>
             {isMobile ? <Camera weight="regular" className="w-3.5 h-3.5" /> : <UploadSimple weight="regular" className="w-3.5 h-3.5" />}
             {receiptFile ? 'Change image' : isMobile ? 'Take photo' : 'Upload receipt'}
-          </button>
+          </Button>
           {receiptFile && (
             <Button type="button" intent="primary" size="xs" onClick={handleScanReceipt} disabled={scanning}>
               {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
@@ -195,7 +191,7 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
             </Button>
           )}
         </div>
-      </div>
+      </Alert>
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Date" required error={errors.date}>

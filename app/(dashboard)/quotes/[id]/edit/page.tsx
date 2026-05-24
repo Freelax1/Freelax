@@ -13,10 +13,11 @@ import { fetchProjectsForClient } from '@/lib/api/projects'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal } from '@/lib/logic/quotes'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
 import { sectionTitle } from '@/lib/typography'
 import type { Client, Project, QuoteLineItem } from '@/types/database'
-import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
 
 interface LineItem {
@@ -126,34 +127,30 @@ export default function EditQuotePage() {
         <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit quote</h1>
       </div>
 
-      {error && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+      {error && <Alert intent="danger">{error}</Alert>}
 
       {/* Quote details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
         <h2 className={sectionTitle}>Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Client</Label>
+          <Field label="Client">
             <Select value={clientId} onChange={e => setClientId(e.target.value)}>
               <option value="">Select client...</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </Select>
-          </div>
-          <div>
-            <Label>Project</Label>
+          </Field>
+          <Field label="Project">
             <Select value={projectId} onChange={e => setProjectId(e.target.value)}>
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
             </Select>
-          </div>
-          <div>
-            <Label>Issue date</Label>
+          </Field>
+          <Field label="Issue date">
             <Input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-          </div>
-          <div>
-            <Label>Valid until</Label>
+          </Field>
+          <Field label="Valid until">
             <Input type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -218,8 +215,9 @@ export default function EditQuotePage() {
 
       {/* Notes */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <Label>Notes</Label>
-        <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        <Field label="Notes">
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        </Field>
       </div>
 
       <div className="flex justify-end gap-3">

@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, Pen
 import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
 import Badge from '@/components/badge'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { Field, Textarea } from '@/components/form-fields'
 import { cn } from '@/lib/utils'
 import { sectionTitle } from '@/lib/typography'
@@ -165,9 +166,9 @@ function ChaseModal({
               })}
             </div>
             {tier === 'legal' && (
-              <p className="text-xs text-danger-600 mt-2 bg-danger-50 border border-danger-200 rounded-xl px-3 py-2">
+              <Alert intent="danger" className="text-xs mt-2">
                 ⚖️ This notice references the <strong>Late Payment of Commercial Debts Act 1998</strong> and warns of legal proceedings. Only use when you intend to escalate.
-              </p>
+              </Alert>
             )}
           </div>
 
@@ -209,21 +210,21 @@ function ChaseModal({
           )}
 
           {!client?.email && (
-            <div className="bg-warning-50 border border-warning-200 rounded-xl px-4 py-3 text-xs text-warning-800">
+            <Alert intent="warning" className="text-xs">
               No email address on file for this client. Chase will be logged but no email will be sent.
-            </div>
+            </Alert>
           )}
 
           {onCooldown && (
-            <div className="bg-warning-50 border border-warning-200 rounded-xl px-4 py-3 text-xs text-warning-800">
+            <Alert intent="warning" className="text-xs">
               You can chase this invoice again in <strong>{cooldownDaysRemaining} day{cooldownDaysRemaining === 1 ? '' : 's'}</strong>. To prevent spam, Freelax enforces a 7-day gap between chases.
-            </div>
+            </Alert>
           )}
 
           {error && (
-            <div className="bg-danger-50 border border-danger-200 rounded-xl px-4 py-3 text-xs text-danger-700">
+            <Alert intent="danger" className="text-xs">
               {error}
-            </div>
+            </Alert>
           )}
         </div>
 

@@ -1,6 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
+import { cardLabel } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 interface Props {
   activeClients:     number
@@ -22,7 +24,7 @@ export default function QuietRow({ activeClients, openInvoices, openInvoicesTota
     <div className="pt-5 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 border-t border-border-default">
       {stats.map(s => (
         <Link key={s.label} href={s.href} className="no-underline group">
-          <p className="text-caption text-text-secondary font-medium mb-1">
+          <p className={cn(cardLabel, 'mb-1')}>
             {s.label}
           </p>
           <p className="text-sm font-medium text-text-primary tabular-nums group-hover:text-brand-primary transition-colors">

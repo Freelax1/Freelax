@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import { ChatCircle, X, PaperPlaneTilt, CircleNotch, ArrowCounterClockwise } from '@phosphor-icons/react'
 import Link from 'next/link'
 import Tooltip from '@/components/tooltip'
+import Button from '@/components/ui/button'
+import Input from '@/components/ui/input'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -130,23 +132,25 @@ export default function TaxQAChat() {
           {/* Input */}
           <div className="p-3 border-t border-border-subtle">
             <div className="flex gap-2">
-              <input
+              <Input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
                 placeholder="Ask a tax question..."
                 aria-label="Tax question"
-                className="flex-1 px-3 py-2 border border-border-default rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20"
+                className="flex-1 min-w-0"
               />
-              <button
+              <Button
                 type="button"
+                intent="primary"
+                size="sm"
                 onClick={handleSend}
                 disabled={!input.trim() || loading || cooldown}
                 aria-label="Send question"
-                className="p-2 bg-brand-primary text-white rounded-full hover:bg-forest-700 disabled:opacity-40 transition-colors"
+                className="p-2 rounded-full shrink-0"
               >
                 <PaperPlaneTilt weight="regular" className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
             <p className="mt-1.5 text-center whitespace-nowrap overflow-hidden text-ellipsis text-caption text-text-secondary">
               AI estimates only · not professional advice ·{' '}

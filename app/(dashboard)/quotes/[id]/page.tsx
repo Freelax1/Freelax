@@ -15,6 +15,7 @@ import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { sectionTitle } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import Tooltip from '@/components/tooltip'
@@ -344,17 +345,25 @@ export default function QuoteDetailPage() {
 
       {/* Accepted banner with convert CTA */}
       {quote.status === 'accepted' && (
-        <div className="bg-success-50 border border-success-200 rounded-xl px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-success-800 text-sm">Quote accepted</p>
-            <p className="text-xs text-success-600 mt-0.5">Ready to convert into a draft invoice with one click.</p>
+        <Alert intent="success" icon={null}>
+          <div className="flex items-center justify-between gap-4 w-full">
+            <div>
+              <p className="font-semibold text-success-800 text-sm">Quote accepted</p>
+              <p className="text-xs text-success-600 mt-0.5">Ready to convert into a draft invoice with one click.</p>
+            </div>
+            <Button
+              type="button"
+              intent="primary"
+              size="sm"
+              className="rounded-xl shrink-0 bg-success-700 hover:bg-success-800"
+              onClick={handleConvertToInvoice}
+              disabled={converting}
+            >
+              <FileText weight="regular" className="w-4 h-4" />
+              {converting ? 'Creating invoice...' : 'Create invoice from quote'}
+            </Button>
           </div>
-          <button onClick={handleConvertToInvoice} disabled={converting}
-            className="flex items-center gap-2 px-4 py-2 bg-success-700 text-white rounded-xl text-sm font-medium hover:bg-success-800 disabled:opacity-50 shrink-0">
-            <FileText weight="regular" className="w-4 h-4" />
-            {converting ? 'Creating invoice...' : 'Create invoice from quote'}
-          </button>
-        </div>
+        </Alert>
       )}
 
       {/* Quote — Letterhead design */}

@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { cn } from '@/lib/utils'
+import { cardLabel } from '@/lib/typography'
 
 interface TimelineItem {
   id:      string
@@ -35,7 +36,7 @@ export default function WhatsComing({ items }: Props) {
   if (!items.length) {
     return (
       <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
-        <p className="text-caption font-medium text-text-secondary mb-5">What's coming</p>
+        <p className={cn(cardLabel, 'mb-5')}>What's coming</p>
         <p className="text-sm text-text-secondary">Nothing due in the next 30 days. Enjoy the quiet.</p>
       </div>
     )
@@ -43,7 +44,7 @@ export default function WhatsComing({ items }: Props) {
 
   return (
     <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
-      <p className="text-caption font-medium text-text-secondary mb-4">What's coming — next 30 days</p>
+      <p className={cn(cardLabel, 'mb-4')}>What's coming — next 30 days</p>
 
       <div className="flex flex-col divide-y divide-border-subtle">
         {items.map((item) => {

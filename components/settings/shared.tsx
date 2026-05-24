@@ -1,10 +1,27 @@
 'use client'
 
 import React from 'react'
+import Button from '@/components/ui/button'
+import { Field, Input, Select, Textarea, inputClass } from '@/components/ui/input'
 
-export const inputClass = 'w-full px-3 py-2.5 border border-border-default rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/10 focus:border-border-focus bg-surface-card text-text-primary transition-colors'
+export { Field, Input, Select, Textarea, inputClass }
 export const labelClass = 'block text-xs font-semibold text-text-primary mb-1.5'
-export const btnClass   = 'inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-medium hover:bg-forest-700 disabled:opacity-50 transition-colors w-auto'
+
+export function SaveSettingsButton({
+  saving,
+  label,
+  onClick,
+}: {
+  saving: boolean
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <Button type="button" intent="primary" size="sm" disabled={saving} onClick={onClick}>
+      {saving ? 'Saving...' : label}
+    </Button>
+  )
+}
 
 export const TABS = [
   'Profile',
@@ -57,24 +74,6 @@ export const TAB_DESCRIPTIONS: Record<SettingsTab, string> = {
   'Billing':             'Your current plan, usage and subscription management',
   'Accountant Access':   'Invite your accountant to view your Freelax data read-only',
   'Danger Zone':         'Export all your data or permanently delete your account',
-}
-
-export function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: React.ReactNode
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <label className="block">
-      <span className={labelClass}>{label}</span>
-      {children}
-      {hint && <span className="text-xs text-text-muted mt-1 block">{hint}</span>}
-    </label>
-  )
 }
 
 export function Toggle({

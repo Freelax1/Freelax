@@ -15,10 +15,11 @@ import { createQuote, createQuoteLineItems, fetchQuoteCount } from '@/lib/api/qu
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal, generateQuoteNumber } from '@/lib/logic/quotes'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
 import { sectionTitle } from '@/lib/typography'
 import type { Client, Project } from '@/types/database'
-import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
 
 interface LineItem {
@@ -198,91 +199,91 @@ export default function NewQuotePage() {
         <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New quote</h1>
       </div>
 
-      {error && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+      {error && <Alert intent="danger">{error}</Alert>}
 
       {/* Quote details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
         <h2 className={sectionTitle}>Quote details</h2>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Client</Label>
-            <Select
-              aria-label="Client"
-              value={clientId}
-              onChange={e => {
-                if (e.target.value === '__new__') { setShowNewClient(true) }
-                else { setClientId(e.target.value); setShowNewClient(false) }
-              }}
-            >
-              <option value="">Select client...</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              <option value="__new__">+ Create new client</option>
-            </Select>
-            {showNewClient && (
-              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
-                <p className="text-xs font-semibold text-text-secondary mb-1">New client</p>
-                <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
-                <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
-                <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
-                <div className="flex gap-2 pt-1">
-                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
-                    {creatingClient ? 'Saving...' : 'Save client'}
-                  </Button>
-                  <Button
-                    type="button"
-                    intent="secondary"
-                    size="xs"
-                    onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
-                  >
-                    Cancel
-                  </Button>
+          <Field label="Client">
+            <>
+              <Select
+                aria-label="Client"
+                value={clientId}
+                onChange={e => {
+                  if (e.target.value === '__new__') { setShowNewClient(true) }
+                  else { setClientId(e.target.value); setShowNewClient(false) }
+                }}
+              >
+                <option value="">Select client...</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                <option value="__new__">+ Create new client</option>
+              </Select>
+              {showNewClient && (
+                <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
+                  <p className="text-xs font-semibold text-text-secondary mb-1">New client</p>
+                  <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
+                  <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
+                  <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
+                  <div className="flex gap-2 pt-1">
+                    <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
+                      {creatingClient ? 'Saving...' : 'Save client'}
+                    </Button>
+                    <Button
+                      type="button"
+                      intent="secondary"
+                      size="xs"
+                      onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div>
-            <Label>Project</Label>
-            <Select
-              aria-label="Project"
-              value={projectId}
-              onChange={e => {
-                if (e.target.value === '__new_project__') { setShowNewProject(true) }
-                else { setProjectId(e.target.value); setShowNewProject(false) }
-              }}
-            >
-              <option value="">No project</option>
-              {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-              {clientId && <option value="__new_project__">+ Add project</option>}
-            </Select>
-            {showNewProject && (
-              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
-                <p className="text-xs font-semibold text-text-secondary mb-1">New project</p>
-                <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
-                <div className="flex gap-2 pt-1">
-                  <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
-                    {creatingProject ? 'Saving...' : 'Save project'}
-                  </Button>
-                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
-                    Cancel
-                  </Button>
+              )}
+            </>
+          </Field>
+          <Field label="Project">
+            <>
+              <Select
+                aria-label="Project"
+                value={projectId}
+                onChange={e => {
+                  if (e.target.value === '__new_project__') { setShowNewProject(true) }
+                  else { setProjectId(e.target.value); setShowNewProject(false) }
+                }}
+              >
+                <option value="">No project</option>
+                {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                {clientId && <option value="__new_project__">+ Add project</option>}
+              </Select>
+              {showNewProject && (
+                <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
+                  <p className="text-xs font-semibold text-text-secondary mb-1">New project</p>
+                  <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
+                  <div className="flex gap-2 pt-1">
+                    <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
+                      {creatingProject ? 'Saving...' : 'Save project'}
+                    </Button>
+                    <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </>
+          </Field>
           {clientWarning && (
             <div className="col-span-2 px-4 py-3 rounded-xl text-sm font-medium"
               style={{ background: selectedClient?.status === 'archived' ? 'var(--danger-50)' : 'var(--warning-50)', color: selectedClient?.status === 'archived' ? 'var(--danger-600)' : 'var(--warning-600)', border: `1px solid ${selectedClient?.status === 'archived' ? 'var(--danger-200)' : 'var(--warning-200)'}` }}>
               {clientWarning}
             </div>
           )}
-          <div>
-            <Label>Issue date</Label>
+          <Field label="Issue date">
             <Input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-          </div>
-          <div>
-            <Label>Valid until</Label>
+          </Field>
+          <Field label="Valid until">
             <Input aria-label="Expiry date" type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -347,8 +348,9 @@ export default function NewQuotePage() {
 
       {/* Notes */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <Label>Notes</Label>
-        <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        <Field label="Notes">
+          <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        </Field>
       </div>
 
       <div className="flex justify-end gap-3">

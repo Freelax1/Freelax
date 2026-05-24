@@ -5,6 +5,7 @@ module.exports = {
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
+    './lib/**/*.{ts,tsx}',
   ],
   theme: {
     container: {
@@ -169,8 +170,8 @@ module.exports = {
         'micro':   ['0.625rem',  { lineHeight: '1.3',  letterSpacing: '0.012em' }], // 10px — meta labels
         'caption': ['0.6875rem', { lineHeight: '1.4',  letterSpacing: '0.012em' }], // 11px — table headers
         'xs':      ['0.75rem',   { lineHeight: '1.45', letterSpacing: '0' }],       // 12px
-        'sm':      ['0.8125rem', { lineHeight: '1.5',  letterSpacing: '0' }],       // 13px — default body
-        'base':    ['0.9375rem', { lineHeight: '1.55', letterSpacing: '-0.01em' }], // 15px
+        'sm':      ['0.875rem',  { lineHeight: '1.5',  letterSpacing: '0' }],       // 14px — default body
+        'base':    ['1rem',      { lineHeight: '1.55', letterSpacing: '-0.01em' }], // 16px
         'lg':      ['1.125rem',  { lineHeight: '1.4',  letterSpacing: '-0.015em' }],// 18px
         'xl':      ['1.375rem',  { lineHeight: '1.3',  letterSpacing: '-0.02em' }], // 22px
         '2xl':     ['1.75rem',   { lineHeight: '1.2',  letterSpacing: '-0.025em' }],// 28px

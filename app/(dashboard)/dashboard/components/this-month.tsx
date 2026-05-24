@@ -5,6 +5,8 @@ import { BarChart, Bar, Cell, XAxis, ResponsiveContainer, Tooltip, ReferenceLine
 import { Sparkle, CircleNotch, X } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import { cardLabel } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 interface MonthData { month: string; income: number }
 
@@ -110,12 +112,12 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
     <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
       {/* Header row */}
       <div className="flex justify-between items-center mb-3">
-        <p className="text-caption font-medium text-text-secondary">
+        <p className={cardLabel}>
           This month
         </p>
         {!isNewUser && monthlyAvg > 0 && (
           <Button
-            intent="primary"
+            intent="secondary"
             size="xs"
             onClick={() => generateInsight(!!showInsightPanel)}
             disabled={insightLoading}
@@ -210,7 +212,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
           {monthlyAvg > 0 && (
             <div className="flex justify-end items-center gap-1 mt-1">
               <div className="w-3.5 border-t border-dashed border-border-default" />
-              <p className="text-caption text-text-secondary">Typical month</p>
+              <p className={cn(cardLabel, 'text-text-secondary')}>Typical month</p>
             </div>
           )}
         </div>

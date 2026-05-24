@@ -10,19 +10,24 @@ import {
   getCurrentTaxYear,
   getVatThresholdWarning,
 } from '@/lib/tax-calculations'
-import { PageHeader } from '@/components/ui'
+import { PageHeader, StatCard } from '@/components/ui'
+import SectionCard from '@/components/ui/section-card'
+import BreakdownRow from '@/components/ui/breakdown-row'
+import ProgressBar from '@/components/ui/progress-bar'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
+import ActionList, { type ActionListItem } from '@/components/ui/action-list'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import AIFlag from '@/components/ai-flag'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
-import { Sparkle, DownloadSimple, CircleNotch, Warning, Info, X, ArrowRight, Lightning, ArrowCounterClockwise, Lock } from '@phosphor-icons/react'
-import { Input } from '@/components/ui/input'
+import { Sparkle, DownloadSimple, CircleNotch, Warning, Info, X, ArrowRight, ArrowCounterClockwise, Lock } from '@phosphor-icons/react'
+import { Input } from '@/components/form-fields'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
 import Link from 'next/link'
-import { serifDisplay, sectionTitle } from '@/lib/typography'
+import { sectionTitle } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import type {
   TaxPotEntry, Invoice, Expense, MileageEntry,
@@ -53,121 +58,6 @@ type TaxPageData = {
   mileageMiles:      number
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-function Row({ label, value, bold, red, green, indent, hint }: {
-  label: React.ReactNode; value: string; bold?: boolean; red?: boolean
-  green?: boolean; indent?: boolean; hint?: string
-}) {
-
-  return (
-    <div className={`flex justify-between items-start py-2 border-b border-border-subtle last:border-0 ${indent ? 'pl-4' : ''}`}>
-      <div>
-        <span className={`text-sm ${bold ? 'font-semibold text-text-primary' : 'text-text-secondary'}`}>{label}</span>
-        {hint && <p className="text-xs text-text-secondary mt-0.5">{hint}</p>}
-      </div>
-      <span className={`text-sm ml-4 shrink-0 ${bold ? 'font-semibold' : 'font-medium'} ${red ? 'text-danger-600' : green ? 'text-success-700' : bold ? 'text-text-primary' : 'text-text-primary'}`}>
-        {value}
-      </span>
-    </div>
-  )
-}
-
-function Card({ title, accent, children }: { title: React.ReactNode; accent?: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
-      <div className={`px-5 py-3 border-b border-border-subtle ${accent ?? 'bg-surface-sunken'}`}>
-        <h2 className={sectionTitle}>{title}</h2>
-      </div>
-      <div className="px-5 py-1">{children}</div>
-    </div>
-  )
-}
-
-// ── Dashboard-style KPI card ───────────────────────────────────────────
-function StatCard({
-  label, value, sub, valueColor, tone = 'white', progressBar,
-}: {
-  label:       string
-  value:       React.ReactNode
-  sub?:        React.ReactNode
-  valueColor?: string
-  tone?:       'white' | 'cream'
-  progressBar?: { pct: number; color: string }
-}) {
-  return (
-    <div className="rounded-xl p-6 flex flex-col border border-border-default bg-surface-card">
-      <p className="text-caption font-medium text-text-secondary mb-3">
-        {label}
-      </p>
-      <p className={cn('text-[clamp(22px,3.4vw,28px)] leading-none tabular-nums', serifDisplay)} style={{ color: valueColor ?? 'var(--text-primary)' }}>
-        {value}
-      </p>
-      {progressBar && (
-        <div className="h-[5px] rounded-full overflow-hidden mt-3 bg-border-subtle">
-          <div style={{
-            height: '100%',
-            background: progressBar.color,
-            width: `${progressBar.pct}%`,
-          }} />
-        </div>
-      )}
-      {sub && (
-        <p className="text-xs text-text-secondary leading-relaxed mt-2">
-          {sub}
-        </p>
-      )}
-    </div>
-  )
-}
-
-// ── "What to do next" action card ──────────────────────────────────────
-interface TaxAction {
-  priority: 'red' | 'amber' | 'green' | 'info'
-  title:    string
-  sub:      string
-  href:     string
-}
-
-function NextSteps({ actions }: { actions: TaxAction[] }) {
-  if (!actions.length) return null
-
-  const allGreen = actions.every(a => a.priority === 'green')
-  const hasRed   = actions.some(a => a.priority === 'red')
-
-  const cardCn = allGreen ? 'bg-success-50 border-success-200' : hasRed ? 'bg-danger-50 border-danger-200' : 'bg-warning-50 border-warning-200'
-  const accentCn = allGreen ? 'text-success-700' : hasRed ? 'text-danger-700' : 'text-warning-700'
-  const label  = allGreen ? 'On track' : hasRed ? 'Act soon' : 'What to do next'
-
-  const dotCn = (p: TaxAction['priority']) =>
-    p === 'red'   ? 'bg-danger-600' :
-    p === 'amber' ? 'bg-warning-600' :
-    p === 'green' ? 'bg-success-600' :
-                    'bg-text-muted'
-
-  return (
-    <div className={`rounded-xl p-5 border ${cardCn}`}>
-      <div className="flex items-center gap-2 mb-3.5">
-        <Lightning weight="regular" className={`w-3 h-3 ${accentCn}`} />
-        <p className={`text-caption font-medium ${accentCn}`}>
-          {label}
-        </p>
-      </div>
-      <div className="flex flex-col gap-3">
-        {actions.map((a, i) => (
-          <Link key={i} href={a.href} className="flex items-center gap-3 no-underline">
-            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotCn(a.priority)}`} />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-text-primary">{a.title}</p>
-              <p className="text-caption text-text-secondary mt-px">{a.sub}</p>
-            </div>
-            <ArrowRight weight="regular" className="w-3 h-3 text-text-muted shrink-0" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 function TaxPotCard({
@@ -186,7 +76,7 @@ function TaxPotCard({
   onDelete:    (id: string) => void
 }) {
   return (
-    <Card title="Tax Pot">
+    <SectionCard title="Tax Pot">
       <div className="py-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-text-secondary">Target</span>
@@ -201,14 +91,19 @@ function TaxPotCard({
         </div>
         {/* Progress bar */}
         {totalTarget > 0 && (
-          <div className="h-[5px] rounded-full overflow-hidden mb-3 bg-black/[0.06]">
-            <div style={{
-              height: '100%',
-              background: totalSaved >= totalTarget ? 'var(--success-500)' : totalSaved / totalTarget > 0.6 ? 'var(--warning-500)' : 'var(--danger-500)',
-              width: `${Math.min(100, Math.round((totalSaved / totalTarget) * 100))}%`,
-              transition: 'width 800ms cubic-bezier(0.22,1,0.36,1)',
-            }} />
-          </div>
+          <ProgressBar
+            className="mb-3"
+            trackClassName="bg-black/[0.06]"
+            animate
+            pct={Math.min(100, Math.round((totalSaved / totalTarget) * 100))}
+            color={
+              totalSaved >= totalTarget
+                ? 'var(--success-500)'
+                : totalSaved / totalTarget > 0.6
+                  ? 'var(--warning-500)'
+                  : 'var(--danger-500)'
+            }
+          />
         )}
         {entries.map((e: TaxPotEntry) => (
           <div key={e.id} className="flex justify-between items-center text-xs text-text-secondary mb-1.5 group">
@@ -230,30 +125,34 @@ function TaxPotCard({
             {formatCurrency(totalTarget - totalSaved)} still to set aside
           </p>
         )}
-        <div className="grid grid-cols-[1fr_1fr_auto] gap-2 mt-4">
+        <div className="grid grid-cols-[minmax(0,7.5rem)_1fr_auto] gap-2 mt-4 items-stretch">
           <Input
-            type="number" min="0" placeholder="Add amount (£)"
-            value={potAmount} onChange={e => setPotAmount(e.target.value)}
-            className="min-w-0"
+            type="number"
+            min="0"
+            placeholder="Amount (£)"
+            value={potAmount}
+            onChange={e => setPotAmount(e.target.value)}
+            className="min-w-0 py-2"
           />
           <Input
             placeholder="Note (optional)"
-            value={potNote} onChange={e => setPotNote(e.target.value)}
-            className="min-w-0"
+            value={potNote}
+            onChange={e => setPotNote(e.target.value)}
+            className="min-w-0 py-2"
           />
           <Button
             type="button"
             intent="primary"
-            size="xs"
+            size="sm"
             onClick={onAdd}
             disabled={savingPot || !potAmount || Number(potAmount) <= 0}
-            className="whitespace-nowrap"
+            className="whitespace-nowrap self-stretch px-4"
           >
             {savingPot ? '…' : '+ Save'}
           </Button>
         </div>
       </div>
-    </Card>
+    </SectionCard>
   )
 }
 
@@ -585,13 +484,10 @@ export default function TaxPage() {
         <>
           {/* Tax profile nudge */}
           {!pageData.hasTaxProfile && (
-            <div className="flex items-start gap-3 bg-warning-50 border border-warning-200 rounded-xl px-4 py-3">
-              <Info weight="regular" className="w-4 h-4 text-warning-600 mt-0.5 shrink-0" />
-              <p className="text-sm text-warning-800">
-                For a precise take-home figure, add your student loan plan and pension contributions in{' '}
-                <a href="/settings" className="underline font-medium">Settings → Tax Profile</a>.
-              </p>
-            </div>
+            <Alert intent="info">
+              For a precise take-home figure, add your student loan plan and pension contributions in{' '}
+              <Link href="/settings" className="underline font-medium">Settings → Tax Profile</Link>.
+            </Alert>
           )}
 
 
@@ -626,12 +522,18 @@ export default function TaxPage() {
             const weeksLeft  = Math.max(1, Math.round(daysToDue / 7))
             const weeklyNeed = remaining > 0 ? remaining / weeksLeft : 0
             const daysColor  = daysToDue < 30 ? 'var(--danger-500)' : daysToDue < 90 ? 'var(--warning-500)' : 'var(--text-primary)'
+            const taxYearEnd = new Date(endYear, 3, 5)
+            const filingWindowMs = deadline.getTime() - taxYearEnd.getTime()
+            const elapsedMs = Math.max(0, today.getTime() - taxYearEnd.getTime())
+            const deadlinePct = filingWindowMs > 0 ? Math.min(100, Math.round((elapsedMs / filingWindowMs) * 100)) : 0
+            const deadlineBar = daysToDue < 30 ? 'var(--danger-500)' : daysToDue < 90 ? 'var(--warning-500)' : 'var(--success-500)'
 
             // Build prioritised action list
-            const actions: TaxAction[] = []
+            const actions: ActionListItem[] = []
 
             if (remaining > 0) {
               actions.push({
+                kind:     'tax_pot',
                 priority: potPct < 60 ? 'red' : 'amber',
                 title:    `Save ${formatCurrency(weeklyNeed)} per week to hit your tax target`,
                 sub:      `${formatCurrency(remaining)} still to set aside before 31 January ${endYear + 1}`,
@@ -641,6 +543,7 @@ export default function TaxPage() {
 
             if (daysToDue <= 60 && daysToDue > 0) {
               actions.push({
+                kind:     'filing',
                 priority: daysToDue <= 30 ? 'red' : 'amber',
                 title:    `File Self Assessment in ${daysToDue} day${daysToDue === 1 ? '' : 's'}`,
                 sub:      `Deadline: 31 January ${endYear + 1} · Download the SA pack up top`,
@@ -650,6 +553,7 @@ export default function TaxPage() {
 
             if (t.kind === 'sole_trader' && t.paAlert) {
               actions.push({
+                kind:     'pension',
                 priority: 'red',
                 title:    "You're earning over £100k — Personal Allowance is being tapered",
                 sub:      'Pension contributions can reclaim up to 60% effective relief in the taper zone',
@@ -657,6 +561,7 @@ export default function TaxPage() {
               })
             } else if (t.kind === 'sole_trader' && t.higherRateAlert) {
               actions.push({
+                kind:     'pension',
                 priority: 'amber',
                 title:    'Some income is taxed at 40%',
                 sub:      'Pension contributions can reduce your higher-rate exposure pound-for-pound',
@@ -666,6 +571,7 @@ export default function TaxPage() {
 
             if (!pageData.hasTaxProfile) {
               actions.push({
+                kind:     'profile',
                 priority: 'info',
                 title:    'Complete your tax profile for a precise figure',
                 sub:      'Add student loan plan and pension details in Settings → Tax inputs',
@@ -675,6 +581,7 @@ export default function TaxPage() {
 
             if (actions.length === 0) {
               actions.push({
+                kind:     'on_track',
                 priority: 'green',
                 title:    "You're on track for January",
                 sub:      `Tax pot covers your ${formatCurrency(taxTotal)} liability · ${daysToDue} days until the deadline`,
@@ -685,36 +592,36 @@ export default function TaxPage() {
             return (
               <>
                 <div className="fd-cards-grid mb-0">
-                  <div className="flex-1 min-w-0">
                   <StatCard
-                    tone="cream"
+                    className="h-full w-full"
+                    variant="sunken"
                     label="Tax owed"
                     value={formatCurrency(taxTotal)}
+                    reserveFooter
                     sub={`by 31 January ${endYear + 1}`}
                   />
-                  </div>
-                  <div className="flex-1 min-w-0">
                   <StatCard
+                    className="h-full w-full"
                     label="Set aside"
                     value={formatCurrency(taxPotTotal)}
                     valueColor={potPct >= 100 ? 'var(--success-500)' : 'var(--text-primary)'}
                     progressBar={{ pct: potPct, color: potBar }}
+                    reserveFooter
                     sub={
                       remaining > 0
                         ? `${potPct}% of target · ${formatCurrency(remaining)} to go`
                         : "You're fully covered"
                     }
                   />
-                  </div>
-                  <div className="flex-1 min-w-0">
                   <StatCard
+                    className="h-full w-full"
                     label="Take-home"
                     value={formatCurrency(t.takeHome)}
+                    reserveFooter
                     sub={`${t.effectiveTaxRate}% effective rate · you keep ${Math.round(100 - t.effectiveTaxRate)}%`}
                   />
-                  </div>
-                  <div className="flex-1 min-w-0">
                   <StatCard
+                    className="h-full w-full"
                     label="Deadline"
                     valueColor={daysColor}
                     value={
@@ -725,12 +632,17 @@ export default function TaxPage() {
                         </span>
                       </>
                     }
+                    progressBar={{ pct: deadlinePct, color: deadlineBar }}
+                    reserveFooter
                     sub={`31 January ${endYear + 1}`}
                   />
-                  </div>
                 </div>
 
-                <NextSteps actions={actions.slice(0, 3)} />
+                <ActionList
+                  title="Suggested next steps"
+                  className="mt-1"
+                  items={actions.filter(a => a.priority === 'red' || a.priority === 'amber' || a.priority === 'info').slice(0, 3)}
+                />
               </>
             )
           })()}
@@ -744,60 +656,58 @@ export default function TaxPage() {
                 <div className="space-y-4">
 
                   {t.paAlert && (
-                    <div className="flex items-start gap-3 bg-danger-50 border border-danger-200 rounded-xl px-4 py-3">
-                      <Warning weight="regular" className="w-4 h-4 text-danger-600 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-danger-700">Personal Allowance is being tapered</p>
-                        <p className="text-xs text-danger-700 mt-1">Your income exceeds £100,000. You lose £1 of Personal Allowance for every £2 above £100k, creating an effective 60% tax rate between £100,000–£125,140. Pension contributions can reduce this significantly.</p>
-                      </div>
-                    </div>
+                    <Alert intent="danger" title="Personal Allowance is being tapered">
+                      <p className="text-xs mt-1">
+                        Your income exceeds £100,000. You lose £1 of Personal Allowance for every £2 above £100k, creating an effective 60% tax rate between £100,000–£125,140. Pension contributions can reduce this significantly.
+                      </p>
+                    </Alert>
                   )}
 
-                  <Card title="Profit & Loss">
-                    <Row label="Gross income (ex-VAT)"  value={formatCurrency(t.grossIncome)} />
-                    <Row label="Allowable expenses"     value={`−${formatCurrency(t.totalExpenses)}`} red />
+                  <SectionCard title="Profit & Loss">
+                    <BreakdownRow label="Gross income (ex-VAT)"  value={formatCurrency(t.grossIncome)} />
+                    <BreakdownRow label="Allowable expenses"     value={`−${formatCurrency(t.totalExpenses)}`} red />
                     {pageData.mileageRelief > 0 && (
-                      <Row
+                      <BreakdownRow
                         label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
                         value={`−${formatCurrency(pageData.mileageRelief)}`}
-                        red indent
+                        red
                         hint="HMRC approved rate · see Mileage"
                       />
                     )}
                     {t.pensionContributions > 0 && (
-                      <Row label="Pension contributions" value={`−${formatCurrency(t.pensionContributions)}`} red
+                      <BreakdownRow label="Pension contributions" value={`−${formatCurrency(t.pensionContributions)}`} red
                         hint={`Tax relief: ${formatCurrency(t.pensionTaxRelief)} (basic rate at source)`} />
                     )}
-                    <Row label="Net profit"             value={formatCurrency(t.netProfit)} bold />
+                    <BreakdownRow label="Net profit"             value={formatCurrency(t.netProfit)} bold />
                     {t.otherIncome > 0 && (
-                      <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
+                      <BreakdownRow label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
                     <p className="text-xs text-text-secondary mt-1">
                       <a href="/settings?tab=Personal+tax+inputs" className="text-text-secondary hover:underline">Edit in Settings →</a>
                     </p>
-                    <Row label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
+                    <BreakdownRow label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
                       hint={t.paAlert ? 'Reduced — income over £100k' : undefined} />
-                    <Row label="Taxable income"         value={formatCurrency(t.taxableIncome)} bold />
-                  </Card>
+                    <BreakdownRow label="Taxable income"         value={formatCurrency(t.taxableIncome)} bold />
+                  </SectionCard>
 
-                  <Card title={<span>Income Tax<InfoTooltip>Tax on your personal income above the Personal Allowance (£12,570). Rates: 20% basic, 40% higher, 45% additional.</InfoTooltip></span>}>
-                    {t.basicRateTax > 0     && <Row label="Basic rate (20%)"       value={formatCurrency(t.basicRateTax)} indent />}
-                    {t.higherRateTax > 0    && <Row label="Higher rate (40%)"      value={formatCurrency(t.higherRateTax)} indent red />}
-                    {t.additionalRateTax > 0 && <Row label="Additional rate (45%)" value={formatCurrency(t.additionalRateTax)} indent red />}
-                    <Row label="Total Income Tax"        value={formatCurrency(t.incomeTax)} bold />
-                  </Card>
+                  <SectionCard title={<span>Income Tax<InfoTooltip>Tax on your personal income above the Personal Allowance (£12,570). Rates: 20% basic, 40% higher, 45% additional.</InfoTooltip></span>}>
+                    {t.basicRateTax > 0     && <BreakdownRow label="Basic rate (20%)"       value={formatCurrency(t.basicRateTax)} />}
+                    {t.higherRateTax > 0    && <BreakdownRow label="Higher rate (40%)"      value={formatCurrency(t.higherRateTax)} red />}
+                    {t.additionalRateTax > 0 && <BreakdownRow label="Additional rate (45%)" value={formatCurrency(t.additionalRateTax)} red />}
+                    <BreakdownRow label="Total Income Tax"        value={formatCurrency(t.incomeTax)} bold />
+                  </SectionCard>
 
-                  <Card title="NI & Other Deductions">
-                    <Row label={<span>Class 4 NI (6%/2%)<InfoTooltip>National Insurance paid by self-employed people on profits over £12,570. 6% up to £50,270, then 2% above that.</InfoTooltip></span>}   value={formatCurrency(t.classFourNI)}
+                  <SectionCard title="NI & Other Deductions">
+                    <BreakdownRow label={<span>Class 4 NI (6%/2%)<InfoTooltip>National Insurance paid by self-employed people on profits over £12,570. 6% up to £50,270, then 2% above that.</InfoTooltip></span>}   value={formatCurrency(t.classFourNI)}
                       hint="Class 2 NI abolished April 2024" />
                     {t.studentLoanRepayment > 0 && (
-                      <Row label="Student loan repayment" value={formatCurrency(t.studentLoanRepayment)} />
+                      <BreakdownRow label="Student loan repayment" value={formatCurrency(t.studentLoanRepayment)} />
                     )}
                     {t.investmentDividendTax > 0 && (
-                      <Row label="Investment dividend tax" value={formatCurrency(t.investmentDividendTax)} />
+                      <BreakdownRow label="Investment dividend tax" value={formatCurrency(t.investmentDividendTax)} />
                     )}
-                    <Row label="Total deductions"        value={formatCurrency(t.totalTax)} bold />
-                  </Card>
+                    <BreakdownRow label="Total deductions"        value={formatCurrency(t.totalTax)} bold />
+                  </SectionCard>
                 </div>
 
                 <div className="space-y-4" id="tax-pot">
@@ -814,16 +724,16 @@ export default function TaxPage() {
 
                   {/* Payments on account */}
                   {t.paymentsOnAccount > 0 && (
-                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                    <SectionCard title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
                       <div className="py-2 text-xs text-warning-800 leading-relaxed">
                         Your tax bill exceeds £1,000 so HMRC requires advance payments. Many freelancers are caught off guard by these.
                       </div>
-                      <Row label={`31 Jan ${endYear + 1} (balancing + 1st POA)`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
-                      <Row label={`31 Jul ${endYear + 1} (2nd POA)`}              value={formatCurrency(t.julyPayment)} red />
+                      <BreakdownRow label={`31 Jan ${endYear + 1} (balancing + 1st POA)`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
+                      <BreakdownRow label={`31 Jul ${endYear + 1} (2nd POA)`}              value={formatCurrency(t.julyPayment)} red />
                       <p className="text-xs text-text-secondary py-2 leading-relaxed">
                         Each payment on account = 50% of this year's bill, credited against next year's liability.
                       </p>
-                    </Card>
+                    </SectionCard>
                   )}
                 </div>
               </div>
@@ -836,54 +746,54 @@ export default function TaxPage() {
             return (
               <div className="grid lg:grid-cols-2 gap-5 items-start">
                 <div className="space-y-4">
-                  <Card title="Company — Corporation Tax">
-                    <Row label="Gross income (ex-VAT)"       value={formatCurrency(t.grossIncome)} />
-                    <Row label="Business expenses"            value={`−${formatCurrency(t.totalExpenses)}`} red />
+                  <SectionCard title="Company — Corporation Tax">
+                    <BreakdownRow label="Gross income (ex-VAT)"       value={formatCurrency(t.grossIncome)} />
+                    <BreakdownRow label="Business expenses"            value={`−${formatCurrency(t.totalExpenses)}`} red />
                     {pageData.mileageRelief > 0 && (
-                      <Row
+                      <BreakdownRow
                         label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
                         value={`−${formatCurrency(pageData.mileageRelief)}`}
-                        red indent
+                        red
                         hint="HMRC approved rate · see Mileage"
                       />
                     )}
-                    <Row label="Director salary"              value={`−${formatCurrency(t.salaryDrawn)}`} red />
-                    <Row label="Company profit"               value={formatCurrency(t.companyProfit)} bold />
-                    <Row label={<span>Corporation Tax ({t.corporationTaxRate}%)<InfoTooltip>Tax your limited company pays on its profits before you take anything out. 19% if profits are £50k or less, 25% if £250k or more.</InfoTooltip></span>} value={formatCurrency(t.corporationTax)} red />
-                    <Row label="Profit after corp tax"        value={formatCurrency(t.profitAfterCorpTax)} bold />
-                    <Row label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={`−${formatCurrency(t.dividendsDrawn)}`} red />
-                    <Row label="Retained in company"          value={formatCurrency(t.retainedProfit)} bold green />
-                  </Card>
+                    <BreakdownRow label="Director salary"              value={`−${formatCurrency(t.salaryDrawn)}`} red />
+                    <BreakdownRow label="Company profit"               value={formatCurrency(t.companyProfit)} bold />
+                    <BreakdownRow label={<span>Corporation Tax ({t.corporationTaxRate}%)<InfoTooltip>Tax your limited company pays on its profits before you take anything out. 19% if profits are £50k or less, 25% if £250k or more.</InfoTooltip></span>} value={formatCurrency(t.corporationTax)} red />
+                    <BreakdownRow label="Profit after corp tax"        value={formatCurrency(t.profitAfterCorpTax)} bold />
+                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={`−${formatCurrency(t.dividendsDrawn)}`} red />
+                    <BreakdownRow label="Retained in company"          value={formatCurrency(t.retainedProfit)} bold green />
+                  </SectionCard>
 
-                  <Card title="Personal — Director Self Assessment">
+                  <SectionCard title="Personal — Director Self Assessment">
                     {t.otherIncome > 0 && (
-                      <Row label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
+                      <BreakdownRow label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
-                    <Row label="Salary"                       value={formatCurrency(t.salaryDrawn)} />
-                    <Row label="Salary income tax"            value={formatCurrency(t.salaryIncomeTax)} indent red />
-                    <Row label={<span>Employee NI (8%)<InfoTooltip>Your personal National Insurance on salary income. 8% on earnings between £12,570 and £50,270, then 2% on anything above.</InfoTooltip></span>}             value={formatCurrency(t.employeeNI)} indent red />
-                    <Row label={<span>Employer NI (company cost)<InfoTooltip>National Insurance your company pays on your salary, on top of the salary itself. 13.8% on every £1 over £5,000.</InfoTooltip></span>}   value={formatCurrency(t.employerNI)} indent red />
-                    <Row label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={formatCurrency(t.dividendsDrawn)} />
-                    <Row label="Dividend allowance (tax-free)" value={`−${formatCurrency(t.dividendAllowance)}`} indent green />
-                    <Row label="Dividend tax"                 value={formatCurrency(t.dividendTax)} indent red />
-                    {t.studentLoanRepayment > 0 && <Row label="Student loan" value={formatCurrency(t.studentLoanRepayment)} red />}
-                    <Row label="Total personal tax"           value={formatCurrency(t.totalPersonalTax)} bold />
-                  </Card>
+                    <BreakdownRow label="Salary"                       value={formatCurrency(t.salaryDrawn)} />
+                    <BreakdownRow label="Salary income tax"            value={formatCurrency(t.salaryIncomeTax)} red />
+                    <BreakdownRow label={<span>Employee NI (8%)<InfoTooltip>Your personal National Insurance on salary income. 8% on earnings between £12,570 and £50,270, then 2% on anything above.</InfoTooltip></span>}             value={formatCurrency(t.employeeNI)} red />
+                    <BreakdownRow label={<span>Employer NI (company cost)<InfoTooltip>National Insurance your company pays on your salary, on top of the salary itself. 13.8% on every £1 over £5,000.</InfoTooltip></span>}   value={formatCurrency(t.employerNI)} red />
+                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={formatCurrency(t.dividendsDrawn)} />
+                    <BreakdownRow label="Dividend allowance (tax-free)" value={`−${formatCurrency(t.dividendAllowance)}`} green />
+                    <BreakdownRow label="Dividend tax"                 value={formatCurrency(t.dividendTax)} red />
+                    {t.studentLoanRepayment > 0 && <BreakdownRow label="Student loan" value={formatCurrency(t.studentLoanRepayment)} red />}
+                    <BreakdownRow label="Total personal tax"           value={formatCurrency(t.totalPersonalTax)} bold />
+                  </SectionCard>
                 </div>
 
                 <div className="space-y-4" id="tax-pot">
                   {/* Ltd summary: compact inline stat row — complements KPI row above */}
-                  <Card title="Company summary" accent="bg-surface-sunken">
-                    <Row label="Corp tax + employer NI" value={formatCurrency(t.totalCompanyTax)} red />
-                    <Row label="Retained in company"    value={formatCurrency(t.retainedProfit)} green bold />
-                  </Card>
+                  <SectionCard title="Company summary" accent="bg-surface-sunken">
+                    <BreakdownRow label="Corp tax + employer NI" value={formatCurrency(t.totalCompanyTax)} red />
+                    <BreakdownRow label="Retained in company"    value={formatCurrency(t.retainedProfit)} green bold />
+                  </SectionCard>
 
                   {t.paymentsOnAccount > 0 && (
-                    <Card title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                    <SectionCard title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
                       <div className="py-2 text-xs text-warning-800">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
-                      <Row label={`31 Jan ${endYear + 1}`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
-                      <Row label={`31 Jul ${endYear + 1}`} value={formatCurrency(t.julyPayment)} red />
-                    </Card>
+                      <BreakdownRow label={`31 Jan ${endYear + 1}`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
+                      <BreakdownRow label={`31 Jul ${endYear + 1}`} value={formatCurrency(t.julyPayment)} red />
+                    </SectionCard>
                   )}
 
                   <TaxPotCard
@@ -897,7 +807,7 @@ export default function TaxPage() {
                     onDelete={deletePotEntry}
                   />
 
-                  <Card title="Optimisation note">
+                  <SectionCard title="Optimisation note">
                     <div className="py-3 text-xs text-text-secondary space-y-1.5 leading-relaxed">
                       <p>The most tax-efficient structure for a Ltd director is typically:</p>
                       <ul className="list-disc list-inside space-y-1 text-text-secondary ml-1">
@@ -908,7 +818,7 @@ export default function TaxPage() {
                       </ul>
                       <p className="text-text-secondary mt-2">Talk to an accountant to optimise your structure.</p>
                     </div>
-                  </Card>
+                  </SectionCard>
                 </div>
               </div>
             )
@@ -947,7 +857,7 @@ export default function TaxPage() {
               ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
             </p>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 fd-stat-grid">
               {mtdQuarters.map(q => {
                 const isCurrent = q.status === 'current'
                 const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -968,21 +878,25 @@ export default function TaxPage() {
                 return (
                   <div
                     key={q.quarter}
-                    className={`rounded-xl border p-4 ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
+                    className={`rounded-xl border p-4 h-full flex flex-col ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
                   >
-                    <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center justify-between mb-2.5 shrink-0">
                       <span className="text-sm font-semibold text-text-primary">Q{q.quarter}</span>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${badgeBg} ${badgeText}`}>
                         {statusLabel}
                       </span>
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
-                    </p>
-                    <p className="text-xs text-text-secondary mt-1.5">
-                      Deadline: {fmt(q.deadline)}
-                    </p>
-                    <p className="text-xs text-text-secondary mt-2 font-medium">Not Started</p>
+                    <div className="flex-1 flex flex-col justify-center min-h-0 py-1">
+                      <p className="text-xs text-text-secondary leading-relaxed">
+                        {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
+                      </p>
+                    </div>
+                    <div className="shrink-0 pt-2 space-y-1.5">
+                      <p className="text-xs text-text-secondary">
+                        Deadline: {fmt(q.deadline)}
+                      </p>
+                      <p className="text-xs text-text-secondary font-medium">Not Started</p>
+                    </div>
                   </div>
                 )
               })}
@@ -999,15 +913,14 @@ export default function TaxPage() {
           {pageData.vatRegistered && <div className="bg-surface-card rounded-xl border border-border-default p-6">
             <h2 className={cn(sectionTitle, 'mb-4')}>VAT position — {label}</h2>
             {pageData.vatWarning && (
-              <div className="flex items-start gap-2 bg-warning-50 border border-warning-200 rounded-xl p-3 mb-4 text-sm text-warning-800">
-                <Warning weight="regular" className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{pageData.vatWarning}</span>
-              </div>
+              <Alert intent="warning" className="mb-4">
+                {pageData.vatWarning}
+              </Alert>
             )}
             <div className="space-y-0 max-w-sm">
-              <Row label="VAT collected on invoices"   value={formatCurrency(pageData.totalVatCollected)} />
-              <Row label="VAT reclaimable on expenses" value={`−${formatCurrency(pageData.vatReclaimable)}`} green />
-              <Row label="Net VAT owed"                value={formatCurrency(pageData.totalVatCollected - pageData.vatReclaimable)} bold />
+              <BreakdownRow label="VAT collected on invoices"   value={formatCurrency(pageData.totalVatCollected)} />
+              <BreakdownRow label="VAT reclaimable on expenses" value={`−${formatCurrency(pageData.vatReclaimable)}`} green />
+              <BreakdownRow label="Net VAT owed"                value={formatCurrency(pageData.totalVatCollected - pageData.vatReclaimable)} bold />
             </div>
           </div>}
 

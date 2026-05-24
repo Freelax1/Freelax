@@ -12,6 +12,7 @@ import { Scan, UploadSimple, CircleNotch, ArrowLeft } from '@phosphor-icons/reac
 import { sectionTitle } from '@/lib/typography'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 
 const CATEGORIES = [
   { value: 'office_supplies',   label: 'Office & Supplies' },
@@ -141,15 +142,14 @@ export default function NewExpensePage() {
       </div>
 
       {error && (
-        <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+        <Alert intent="danger">{error}</Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* AI receipt scanner */}
-        <div className="bg-forest-50 border border-forest-200 rounded-xl p-5">
-          <p className="text-sm font-semibold text-forest-800 mb-1">📷 Scan receipt with AI</p>
-          <p className="text-xs text-forest-600 mb-4">Upload a receipt image and AI will auto-fill the fields below.</p>
+        <Alert intent="info" title="Scan receipt with AI" className="p-5">
+          <p className="text-xs text-forest-600 mb-4 -mt-1">Upload a receipt image and AI will auto-fill the fields below.</p>
 
           <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} />
 
@@ -165,11 +165,10 @@ export default function NewExpensePage() {
           )}
 
           <div className="flex gap-2">
-            <button type="button" onClick={() => fileRef.current?.click()}
-              className="flex items-center gap-1.5 px-3 py-2 border border-forest-300 bg-surface-card text-forest-700 rounded-xl text-sm font-medium hover:bg-forest-50">
+            <Button type="button" intent="secondary" size="sm" onClick={() => fileRef.current?.click()}>
               <UploadSimple weight="regular" className="w-3.5 h-3.5" />
               {receiptFile ? 'Change image' : 'Upload receipt'}
-            </button>
+            </Button>
             {receiptFile && (
               <Button type="button" intent="primary" size="sm" onClick={handleScanReceipt} disabled={scanning || scanCooldown}>
                 {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
@@ -177,7 +176,7 @@ export default function NewExpensePage() {
               </Button>
             )}
           </div>
-        </div>
+        </Alert>
 
         {/* Main fields */}
         <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">

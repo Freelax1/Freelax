@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Alert from '@/components/ui/alert'
+import Button from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type ExportState = 'idle' | 'loading' | 'success' | 'error'
 
@@ -72,22 +75,23 @@ export default function DangerZoneTab() {
         </div>
 
         {exportError && (
-          <p className="mt-3 text-sm text-danger-600 bg-danger-50 border border-danger-200 rounded-xl px-4 py-3">
+          <Alert intent="danger" className="mt-3">
             {exportError}
-          </p>
+          </Alert>
         )}
 
         <div className="mt-4">
-          <button
+          <Button
+            type="button"
+            size="sm"
+            intent={exportState === 'success' ? 'secondary' : 'primary'}
+            className={cn(
+              'rounded-xl gap-2',
+              exportState === 'success' && 'bg-success-50 text-success-700 border-success-200 hover:bg-success-50 cursor-default',
+              exportState === 'loading' && 'bg-surface-sunken text-text-secondary border-border-default cursor-not-allowed',
+            )}
             onClick={handleExport}
-            disabled={exportState === 'loading'}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-              exportState === 'success'
-                ? 'bg-success-50 text-success-700 border border-success-200 cursor-default'
-                : exportState === 'loading'
-                ? 'bg-surface-sunken text-text-secondary border border-border-default cursor-not-allowed'
-                : 'bg-brand-primary text-white hover:bg-forest-700 border border-transparent'
-            }`}
+            disabled={exportState === 'loading' || exportState === 'success'}
           >
             {exportState === 'loading' && (
               <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -104,7 +108,7 @@ export default function DangerZoneTab() {
             {exportState === 'success'  && 'Download started'}
             {exportState === 'idle'     && 'Download export'}
             {exportState === 'error'    && 'Try again'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -117,9 +121,9 @@ export default function DangerZoneTab() {
               Permanently delete your account and all associated data. This cannot be undone.
             </p>
           </div>
-          <button className="px-4 py-2 border border-danger-200 rounded-lg text-sm text-danger-600 hover:bg-danger-50 transition-colors">
+          <Button type="button" intent="danger-subtle" size="sm">
             Delete account
-          </button>
+          </Button>
         </div>
       </div>
 

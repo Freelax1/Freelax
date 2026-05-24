@@ -7,6 +7,7 @@ import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 
 interface Props {
   projectId: string
@@ -101,26 +102,22 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
                 <p className="text-sm text-text-primary">{q.text}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button
+                <Button
+                  type="button"
+                  size="xs"
+                  intent={answers[q.number] === true ? 'primary' : 'secondary'}
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: true }))}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                    answers[q.number] === true
-                      ? 'bg-brand-primary text-white'
-                      : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
-                  }`}
                 >
                   Yes
-                </button>
-                <button
+                </Button>
+                <Button
+                  type="button"
+                  size="xs"
+                  intent={answers[q.number] === false && answers[q.number] !== undefined ? 'primary' : 'secondary'}
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: false }))}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                    answers[q.number] === false && answers[q.number] !== undefined
-                      ? 'bg-brand-primary text-white'
-                      : 'bg-surface-card border border-border-default text-text-secondary hover:bg-surface-sunken'
-                  }`}
                 >
                   No
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -190,9 +187,9 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       )}
 
       {aiResult?.error && (
-        <div className="bg-danger-50 border border-danger-200 rounded-xl p-4">
-          <p className="text-sm text-danger-600">{aiResult.error}</p>
-        </div>
+        <Alert intent="danger">
+          {aiResult.error}
+        </Alert>
       )}
     </div>
   )

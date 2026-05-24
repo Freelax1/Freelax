@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Field, inputClass, btnClass } from './shared'
+import { Field, Input, Textarea, SaveSettingsButton } from './shared'
 
 interface Props {
   profile: any
@@ -37,22 +37,20 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
           <p className="text-sm text-text-muted mt-1">This address appears on all invoices sent to clients.</p>
         </div>
         <Field label="Address line 1">
-          <input className={inputClass} value={addr.address_line1} onChange={e => setAddr(p => ({ ...p, address_line1: e.target.value }))} />
+          <Input value={addr.address_line1} onChange={e => setAddr(p => ({ ...p, address_line1: e.target.value }))} />
         </Field>
         <Field label="Address line 2">
-          <input className={inputClass} value={addr.address_line2} onChange={e => setAddr(p => ({ ...p, address_line2: e.target.value }))} />
+          <Input value={addr.address_line2} onChange={e => setAddr(p => ({ ...p, address_line2: e.target.value }))} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="City">
-            <input className={inputClass} value={addr.city} onChange={e => setAddr(p => ({ ...p, city: e.target.value }))} />
+            <Input value={addr.city} onChange={e => setAddr(p => ({ ...p, city: e.target.value }))} />
           </Field>
           <Field label="Postcode">
-            <input className={inputClass} value={addr.postcode} onChange={e => setAddr(p => ({ ...p, postcode: e.target.value }))} placeholder="E1 1AA" />
+            <Input value={addr.postcode} onChange={e => setAddr(p => ({ ...p, postcode: e.target.value }))} placeholder="E1 1AA" />
           </Field>
         </div>
-        <button className={btnClass} disabled={saving} onClick={() => save(addr)}>
-          {saving ? 'Saving...' : 'Save address'}
-        </button>
+        <SaveSettingsButton saving={saving} label="Save address" onClick={() => save(addr)} />
       </div>
 
       {/* Numbering + default notes */}
@@ -62,8 +60,7 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
           <p className="text-sm text-text-muted mt-1">Pre-filled on every new invoice you create.</p>
         </div>
         <Field label="Invoice prefix" hint="Prefix used for invoice numbers. Default is INV (e.g. INV-0001).">
-          <input
-            className={inputClass}
+          <Input
             value={numbering.invoice_prefix}
             onChange={e => setNumbering(p => ({ ...p, invoice_prefix: e.target.value }))}
             placeholder="INV"
@@ -71,17 +68,14 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
           />
         </Field>
         <Field label="Default notes" hint="Appears at the bottom of every invoice. Can be overridden per invoice.">
-          <textarea
+          <Textarea
             rows={3}
-            className={inputClass}
             value={numbering.invoice_default_notes}
             onChange={e => setNumbering(p => ({ ...p, invoice_default_notes: e.target.value }))}
             placeholder="e.g. Payment due within 30 days. Thank you for your business."
           />
         </Field>
-        <button className={btnClass} disabled={saving} onClick={() => save(numbering)}>
-          {saving ? 'Saving...' : 'Save invoice defaults'}
-        </button>
+        <SaveSettingsButton saving={saving} label="Save invoice defaults" onClick={() => save(numbering)} />
       </div>
 
       {/* Email template */}
@@ -98,25 +92,21 @@ export default function InvoiceDefaultsTab({ profile, save, saving }: Props) {
           </p>
         </div>
         <Field label="Email subject">
-          <input
-            className={inputClass}
+          <Input
             value={email.invoice_email_subject}
             onChange={e => setEmail(p => ({ ...p, invoice_email_subject: e.target.value }))}
             placeholder="Invoice {{invoice_number}} from {{business_name}}"
           />
         </Field>
         <Field label="Personal message">
-          <textarea
+          <Textarea
             rows={5}
-            className={inputClass}
             value={email.invoice_email_body}
             onChange={e => setEmail(p => ({ ...p, invoice_email_body: e.target.value }))}
             placeholder={`e.g. Hi {{client_name}},\n\nPlease find invoice {{invoice_number}} for {{total}} attached.\n\nKind regards,\n{{business_name}}`}
           />
         </Field>
-        <button className={btnClass} disabled={saving} onClick={() => save(email)}>
-          {saving ? 'Saving...' : 'Save email template'}
-        </button>
+        <SaveSettingsButton saving={saving} label="Save email template" onClick={() => save(email)} />
       </div>
     </div>
   )

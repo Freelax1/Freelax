@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Button from '@/components/ui/button'
 
 export default function CookieNotice() {
   const [visible, setVisible] = useState(false)
@@ -26,12 +27,9 @@ export default function CookieNotice() {
           Learn more
         </Link>
       </p>
-      <button
-        onClick={dismiss}
-        className="bg-brand-primary text-white border-none rounded-lg px-3.5 py-2 text-sm font-semibold cursor-pointer shrink-0 font-[inherit]"
-      >
+      <Button type="button" intent="primary" size="sm" onClick={dismiss} className="shrink-0 font-semibold">
         Got it
-      </button>
+      </Button>
     </div>
   )
 }

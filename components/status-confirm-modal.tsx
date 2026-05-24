@@ -53,8 +53,8 @@ export default function StatusConfirmModal({
             fullWidth
             disabled={loading}
             onClick={onConfirm}
-            className="text-white hover:opacity-90 disabled:opacity-60"
-            style={{ background: tone.text }}
+            className="text-white hover:opacity-90 disabled:!bg-surface-sunken disabled:!text-text-disabled disabled:border disabled:border-border-default disabled:opacity-100 disabled:hover:opacity-100"
+            style={{ background: loading ? undefined : tone.text }}
           >
             {loading ? loadingLabel : confirmLabel}
           </Button>

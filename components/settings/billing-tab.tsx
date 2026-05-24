@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Tooltip from '@/components/tooltip'
+import Alert from '@/components/ui/alert'
+import Button from '@/components/ui/button'
 
 interface Props {
   profile: any
@@ -108,19 +110,18 @@ export default function BillingTab({ profile }: Props) {
 
       {/* Upgrade success banner */}
       {upgraded && (
-        <div className="flex items-center gap-3 bg-success-50 border border-success-200 rounded-xl px-5 py-4">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="flex-shrink-0">
-            <path d="M3.5 9l4 4 7-7" stroke="var(--success-500)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <p className="text-sm font-medium text-success-800">You're all set — your plan has been upgraded successfully.</p>
-          <Tooltip label="Dismiss" align="right">
-            <button onClick={() => setUpgraded(false)} className="ml-auto text-success-500 hover:text-success-700">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </Tooltip>
-        </div>
+        <Alert intent="success" className="px-5 py-4">
+          <div className="flex items-center gap-3 w-full">
+            <p className="text-sm font-medium flex-1">You're all set — your plan has been upgraded successfully.</p>
+            <Tooltip label="Dismiss" align="right">
+              <button onClick={() => setUpgraded(false)} className="text-success-500 hover:text-success-700">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </Tooltip>
+          </div>
+        </Alert>
       )}
 
       {/* Current plan banner */}
@@ -140,13 +141,16 @@ export default function BillingTab({ profile }: Props) {
             </span>
           </div>
           {currentPlan !== 'free' && (
-            <button
+            <Button
+              type="button"
+              intent="ghost"
+              size="sm"
               onClick={handleManage}
               disabled={loading === 'portal'}
-              className="text-sm font-medium text-text-secondary underline underline-offset-2 hover:text-text-primary disabled:opacity-50"
+              className="underline underline-offset-2 px-0 h-auto"
             >
               {loading === 'portal' ? 'Opening…' : 'Manage subscription →'}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -258,17 +262,17 @@ export default function BillingTab({ profile }: Props) {
                       Lower plan
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      type="button"
+                      fullWidth
+                      intent={isDark ? 'secondary' : 'primary'}
+                      size="sm"
+                      className={isDark ? 'py-2.5 rounded-xl font-semibold' : 'py-2.5 rounded-xl font-semibold'}
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={!!loading}
-                      className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-60 ${
-                        isDark
-                          ? 'bg-surface-card text-text-primary hover:bg-surface-sunken'
-                          : 'bg-brand-primary text-white hover:bg-forest-700'
-                      }`}
                     >
                       {isLoading ? 'Redirecting to Stripe…' : `Upgrade to ${plan.name}`}
-                    </button>
+                    </Button>
                   )}
                 </div>
               )

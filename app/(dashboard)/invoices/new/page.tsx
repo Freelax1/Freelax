@@ -14,9 +14,10 @@ import { createInvoice, updateInvoice, createInvoiceLineItems, deleteInvoiceLine
 import { calcSubtotal, calcVatAmount, calcTotal, generateInvoiceNumber } from '@/lib/logic/invoices'
 import AIFlag from '@/components/ai-flag'
 import Button from '@/components/ui/button'
-import { Sparkle, Plus, X, CaretDown, ArrowLeft } from '@phosphor-icons/react'
+import Alert from '@/components/ui/alert'
+import { Sparkle, Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
-import { Input, Select, Textarea, Label, Field } from '@/components/form-fields'
+import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Tooltip from '@/components/tooltip'
 import Link from 'next/link'
 import { sectionTitle } from '@/lib/typography'
@@ -328,7 +329,7 @@ export default function NewInvoicePage() {
 
       {/* AI Assistant */}
       {showAI && (
-        <div className="bg-forest-50 border border-forest-200 rounded-xl p-4">
+        <Alert intent="info" className="p-4">
           <Field label="Describe what you want to invoice for">
             <Textarea
               value={aiInput}
@@ -343,17 +344,15 @@ export default function NewInvoicePage() {
               {aiLoading ? 'Generating...' : 'Generate line items'}
             </Button>
           </div>
-        </div>
+        </Alert>
       )}
 
       {/* Invoice details */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
         <h2 className={sectionTitle}>Invoice details</h2>
         <div className="grid grid-cols-2 gap-4">
-          {/* Client with inline create */}
-          <div>
-            <Label>Client</Label>
-            <div className="relative">
+          <Field label="Client">
+            <>
               <Select
                 aria-label="Client"
                 value={clientId}
@@ -361,39 +360,36 @@ export default function NewInvoicePage() {
                   if (e.target.value === '__new__') { setShowNewClient(true) }
                   else { setClientId(e.target.value); setShowNewClient(false) }
                 }}
-                className="appearance-none"
               >
                 <option value="">Select client...</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 <option value="__new__">+ Create new client</option>
               </Select>
-              <CaretDown weight="regular" className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
-            </div>
-            {showNewClient && (
-              <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
-                <p className="text-xs font-semibold text-forest-700 mb-1">New client</p>
-                <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
-                <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
-                <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
-                <div className="flex gap-2 pt-1">
-                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
-                    {creatingClient ? 'Saving...' : 'Save client'}
-                  </Button>
-                  <Button
-                    type="button"
-                    intent="secondary"
-                    size="xs"
-                    onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
-                  >
-                    Cancel
-                  </Button>
+              {showNewClient && (
+                <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
+                  <p className="text-xs font-semibold text-forest-700 mb-1">New client</p>
+                  <Input variant="inline" aria-label="New client name" value={newClientName} onChange={e => setNewClientName(e.target.value)} placeholder="Company / client name *" />
+                  <Input variant="inline" aria-label="New client contact name" value={newClientContact} onChange={e => setNewClientContact(e.target.value)} placeholder="Contact name" />
+                  <Input variant="inline" aria-label="New client email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} placeholder="Email" type="email" />
+                  <div className="flex gap-2 pt-1">
+                    <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
+                      {creatingClient ? 'Saving...' : 'Save client'}
+                    </Button>
+                    <Button
+                      type="button"
+                      intent="secondary"
+                      size="xs"
+                      onClick={() => { setShowNewClient(false); setNewClientName(''); setNewClientContact(''); setNewClientEmail('') }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div>
-            <Label>Project</Label>
-            <div className="relative">
+              )}
+            </>
+          </Field>
+          <Field label="Project">
+            <>
               <Select
                 aria-label="Project"
                 value={projectId}
@@ -401,46 +397,41 @@ export default function NewInvoicePage() {
                   if (e.target.value === '__new_project__') { setShowNewProject(true) }
                   else { setProjectId(e.target.value); setShowNewProject(false) }
                 }}
-                className="appearance-none"
               >
                 <option value="">Select project...</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                 {clientId && <option value="__new_project__">+ Add project</option>}
               </Select>
-              <CaretDown weight="regular" className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
-            </div>
-            {showNewProject && (
-              <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
-                <p className="text-xs font-semibold text-forest-700 mb-1">New project</p>
-                <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
-                <div className="flex gap-2 pt-1">
-                  <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
-                    {creatingProject ? 'Saving...' : 'Save project'}
-                  </Button>
-                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
-                    Cancel
-                  </Button>
+              {showNewProject && (
+                <div className="mt-2 border border-forest-200 rounded-xl p-3 bg-forest-50 space-y-2">
+                  <p className="text-xs font-semibold text-forest-700 mb-1">New project</p>
+                  <Input variant="inline" aria-label="New project name" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} placeholder="Project name *" />
+                  <div className="flex gap-2 pt-1">
+                    <Button type="button" intent="primary" size="xs" onClick={handleCreateProject} disabled={!newProjectTitle.trim() || creatingProject}>
+                      {creatingProject ? 'Saving...' : 'Save project'}
+                    </Button>
+                    <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewProject(false); setNewProjectTitle('') }}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </>
+          </Field>
           {clientWarning && (
             <div className="col-span-2 px-4 py-3 rounded-xl text-sm font-medium bg-warning-50 text-warning-800 border border-warning-200">
               {clientWarning}
             </div>
           )}
-          <div>
-            <Label>Issue date</Label>
+          <Field label="Issue date">
             <Input aria-label="Issue date" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-          </div>
-          <div>
-            <Label>Due date</Label>
+          </Field>
+          <Field label="Due date">
             <Input aria-label="Due date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-          </div>
-          <div className="col-span-2">
-            <Label>Payment terms</Label>
+          </Field>
+          <Field label="Payment terms" className="col-span-2">
             <Input aria-label="Payment terms" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -510,8 +501,9 @@ export default function NewInvoicePage() {
 
       {/* Notes */}
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <Label>Notes</Label>
-        <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        <Field label="Notes">
+          <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        </Field>
       </div>
 
       {/* Actions */}

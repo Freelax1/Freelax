@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Field, Toggle, inputClass, btnClass } from './shared'
+import { Field, Toggle, Input, Select, inputClass, SaveSettingsButton } from './shared'
 
 interface Props {
   profile: any
@@ -28,7 +28,7 @@ export default function BusinessTab({ profile, save, saving }: Props) {
   return (
     <div className="space-y-5">
       <Field label="Business name">
-        <input className={inputClass} value={bf.business_name} onChange={e => setBf(p => ({ ...p, business_name: e.target.value }))} />
+        <Input value={bf.business_name} onChange={e => setBf(p => ({ ...p, business_name: e.target.value }))} />
       </Field>
       <Field label="Business type">
         <p className={inputClass + ' bg-surface-sunken text-text-secondary cursor-default'}>
@@ -48,22 +48,20 @@ export default function BusinessTab({ profile, save, saving }: Props) {
       {bf.vat_registered && (
         <>
           <Field label="VAT number">
-            <input className={inputClass} value={bf.vat_number} onChange={e => setBf(p => ({ ...p, vat_number: e.target.value }))} placeholder="GB123456789" />
+            <Input value={bf.vat_number} onChange={e => setBf(p => ({ ...p, vat_number: e.target.value }))} placeholder="GB123456789" />
           </Field>
           <Field label="VAT scheme">
-            <select className={inputClass} value={bf.vat_scheme} onChange={e => setBf(p => ({ ...p, vat_scheme: e.target.value }))}>
+            <Select value={bf.vat_scheme} onChange={e => setBf(p => ({ ...p, vat_scheme: e.target.value }))}>
               <option value="standard">Standard</option>
               <option value="flat_rate">Flat Rate</option>
-            </select>
+            </Select>
           </Field>
         </>
       )}
       <Field label="UTR number">
-        <input className={inputClass} value={bf.utr_number} onChange={e => setBf(p => ({ ...p, utr_number: e.target.value }))} placeholder="1234567890" />
+        <Input value={bf.utr_number} onChange={e => setBf(p => ({ ...p, utr_number: e.target.value }))} placeholder="1234567890" />
       </Field>
-      <button className={btnClass} disabled={saving} onClick={() => save(bf)}>
-        {saving ? 'Saving...' : 'Save business details'}
-      </button>
+      <SaveSettingsButton saving={saving} label="Save business details" onClick={() => save(bf)} />
     </div>
   )
 }

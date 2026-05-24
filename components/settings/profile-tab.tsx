@@ -2,8 +2,9 @@
 
 import { useState, useRef } from 'react'
 import { UploadSimple, X } from '@phosphor-icons/react'
+import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { Field, inputClass, btnClass, labelClass } from './shared'
+import { Field, Input, SaveSettingsButton, labelClass } from './shared'
 
 interface Props {
   profile: any
@@ -95,14 +96,16 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
               className="hidden"
               onChange={handleLogoUpload}
             />
-            <button
+            <Button
+              type="button"
+              intent="secondary"
+              size="sm"
               onClick={() => fileRef.current?.click()}
               disabled={logoUploading}
-              className="flex items-center gap-2 px-4 py-2 border border-border-default rounded-xl text-sm text-text-secondary hover:bg-surface-sunken hover:border-border-strong disabled:opacity-50 transition-all font-medium"
             >
               <UploadSimple weight="regular" className="w-3.5 h-3.5" />
               {logoUploading ? 'Uploading…' : logoUrl ? 'Replace logo' : 'Upload logo'}
-            </button>
+            </Button>
             {logoUrl && (
               <button
                 onClick={removeLogo}
@@ -126,22 +129,19 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
       {/* Contact details */}
       <div className="px-7 py-6 space-y-4">
         <Field label="Full name">
-          <input className={inputClass} value={pf.full_name} onChange={e => setPf(p => ({ ...p, full_name: e.target.value }))} />
+          <Input value={pf.full_name} onChange={e => setPf(p => ({ ...p, full_name: e.target.value }))} />
         </Field>
-        <Field label="Email">
-          <input className={`${inputClass} bg-surface-sunken text-text-secondary cursor-not-allowed`} value={email} readOnly />
-          <p className="text-caption text-text-muted mt-1">Email cannot be changed here</p>
+        <Field label="Email" hint="Email cannot be changed here">
+          <Input value={email} readOnly disabled />
         </Field>
         <Field label="Phone">
-          <input className={inputClass} value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />
+          <Input value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />
         </Field>
       </div>
 
       {/* Save footer */}
       <div className="px-7 py-4 bg-surface-sunken flex justify-end">
-        <button className={btnClass} disabled={saving} onClick={() => save(pf)}>
-          {saving ? 'Saving…' : 'Save changes'}
-        </button>
+        <SaveSettingsButton saving={saving} label="Save changes" onClick={() => save(pf)} />
       </div>
     </div>
   )

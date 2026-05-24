@@ -120,13 +120,15 @@ export default function HmrcTab() {
           </div>
 
           {connected ? (
-            <button
+            <Button
+              type="button"
+              intent="danger-subtle"
+              size="sm"
               onClick={handleDisconnect}
               disabled={disconnecting}
-              className="px-4 py-2 border border-danger-200 text-danger-600 rounded-xl text-sm font-medium hover:bg-danger-50 disabled:opacity-50 transition-colors"
             >
               {disconnecting ? 'Disconnecting…' : 'Disconnect'}
-            </button>
+            </Button>
           ) : (
             <a href="/api/auth/hmrc" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
               Connect to HMRC
@@ -138,14 +140,16 @@ export default function HmrcTab() {
         {/* Sandbox: test connection button */}
         {SANDBOX_MODE && connected && (
           <div className="space-y-2">
-            <button
+            <Button
+              type="button"
+              intent="secondary"
+              size="sm"
               onClick={handleTestConnection}
               disabled={testLoading}
-              className="flex items-center gap-2 px-4 py-2 border border-border-default text-text-secondary rounded-xl text-sm font-medium hover:bg-surface-sunken disabled:opacity-50 transition-colors"
             >
               {testLoading && <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" />}
               {testLoading ? 'Testing…' : 'Test connection (sandbox)'}
-            </button>
+            </Button>
             {testResult && (
               <pre className="text-xs bg-surface-sunken text-text-secondary border border-border-default rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap break-all">
                 {testResult}

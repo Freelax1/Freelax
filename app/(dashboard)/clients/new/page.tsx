@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { createClientRecord } from '@/lib/api/clients'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
+import Alert from '@/components/ui/alert'
 import Link from 'next/link'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { sectionTitle } from '@/lib/typography'
@@ -70,7 +71,7 @@ export default function NewClientPage() {
       </div>
 
       {error && (
-        <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+        <Alert intent="danger">{error}</Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">

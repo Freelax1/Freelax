@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import Input from '@/components/ui/input'
 
 export interface ListStatusTab {
   id: string
@@ -104,11 +105,11 @@ export function ListSearch({ value, onChange, placeholder, className }: ListSear
         <circle cx={11} cy={11} r={8} />
         <path d="m21 21-4.35-4.35" />
       </svg>
-      <input
+      <Input
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-8 py-2 border border-border-default rounded-lg text-sm bg-surface-card text-text-primary placeholder:text-text-muted hover:border-border-hover focus-visible:outline-none focus-visible:border-border-focus focus-visible:ring-2 focus-visible:ring-brand-primary/20 font-sans"
+        className="pl-9 pr-8"
         onKeyDown={e => e.key === 'Escape' && onChange('')}
       />
       {value && (

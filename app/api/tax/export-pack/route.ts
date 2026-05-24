@@ -1,7 +1,7 @@
-﻿import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentTaxYear } from '@/lib/tax-calculations'
-import { DISCLAIMER_FOOTER_TEXT } from '@/components/not-tax-advice'
+import { DISCLAIMER_FOOTER_TEXT } from '@/lib/disclaimer-text'
 import JSZip from 'jszip'
 import ExcelJS from 'exceljs'
 

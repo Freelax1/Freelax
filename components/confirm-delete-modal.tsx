@@ -1,5 +1,6 @@
 import { Trash } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 
 interface ConfirmDeleteModalProps {
   title: string
@@ -39,9 +40,9 @@ export default function ConfirmDeleteModal({
           </div>
         </div>
         {warning && (
-          <div className="mt-3 mb-2 bg-warning-50 border border-warning-200 rounded-xl px-3 py-2.5">
-            <p className="text-sm text-warning-800">{warning}</p>
-          </div>
+          <Alert intent="warning" className="mt-3 mb-2">
+            {warning}
+          </Alert>
         )}
         <p className="text-sm text-text-secondary mt-3 mb-5">This action cannot be undone.</p>
         <div className="flex gap-3">

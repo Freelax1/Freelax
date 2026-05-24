@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { Plus, X, ArrowLeft } from '@phosphor-icons/react'
 import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
-import { Input, Select, Textarea, Label } from '@/components/form-fields'
+import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Button from '@/components/ui/button'
 import Tooltip from '@/components/tooltip'
 import { sectionTitle } from '@/lib/typography'
@@ -131,32 +131,27 @@ export default function InvoiceEditPage() {
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
         <h2 className={sectionTitle}>Invoice details</h2>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Client</Label>
+          <Field label="Client">
             <Select value={clientId} onChange={e => setClientId(e.target.value)}>
               <option value="">No client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </Select>
-          </div>
-          <div>
-            <Label>Project</Label>
+          </Field>
+          <Field label="Project">
             <Select value={projectId} onChange={e => setProjectId(e.target.value)}>
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
             </Select>
-          </div>
-          <div>
-            <Label>Issue date</Label>
+          </Field>
+          <Field label="Issue date">
             <Input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-          </div>
-          <div>
-            <Label>Due date</Label>
+          </Field>
+          <Field label="Due date">
             <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-          </div>
-          <div className="col-span-2">
-            <Label>Payment terms</Label>
+          </Field>
+          <Field label="Payment terms" className="col-span-2">
             <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -219,8 +214,9 @@ export default function InvoiceEditPage() {
       </div>
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <Label>Notes</Label>
-        <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        <Field label="Notes">
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
+        </Field>
       </div>
 
       <div className="flex justify-end gap-3">
