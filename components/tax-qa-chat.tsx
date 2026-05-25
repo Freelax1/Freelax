@@ -57,7 +57,7 @@ export default function TaxQAChat() {
         onClick={() => setOpen(true)}
         aria-label="Ask about your tax"
         title="Ask about your tax"
-        className="group fixed bottom-6 right-6 z-40 flex items-center bg-brand-primary text-white p-3 hover:pr-4 rounded-full shadow-popover hover:bg-forest-700 transition-all duration-300 ease-out"
+        className="group fixed bottom-6 right-6 z-40 flex items-center bg-brand-primary text-white p-3 hover:pr-4 rounded-full shadow-popover hover:bg-forest-700 transition-all duration-300 ease-out min-w-[44px] min-h-[44px]"
       >
         <ChatCircle weight="regular" className="w-5 h-5 shrink-0" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[160px] group-hover:ml-2 text-sm font-medium transition-all duration-300 ease-out">

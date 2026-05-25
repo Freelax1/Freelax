@@ -62,6 +62,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
             <button
               onClick={onClose}
+              aria-label="Close"
               className="p-1.5 rounded-lg border-none cursor-pointer flex items-center justify-center bg-surface-sunken text-text-secondary"
             >
               <X weight="regular" size={18} />
@@ -96,6 +97,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
             <button
               onClick={onClose}
+              aria-label="Close"
               className="p-1.5 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center text-text-secondary hover:bg-surface-sunken transition-colors"
             >
               <X weight="regular" size={16} />
