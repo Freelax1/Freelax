@@ -922,6 +922,14 @@ export default function TaxPage() {
               <BreakdownRow label="VAT reclaimable on expenses" value={`−${formatCurrency(pageData.vatReclaimable)}`} green />
               <BreakdownRow label="Net VAT owed"                value={formatCurrency(pageData.totalVatCollected - pageData.vatReclaimable)} bold />
             </div>
+            <div className="mt-4">
+              <Link
+                href="/tax/vat"
+                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+              >
+                View VAT Returns →
+              </Link>
+            </div>
           </div>}
 
           {/* Paid invoices */}

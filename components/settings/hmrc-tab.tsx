@@ -1,8 +1,9 @@
 'use client'
 
 import Button, { buttonVariants } from '@/components/ui/button'
+import { Field, Input } from '@/components/ui/input'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CircleNotch } from '@phosphor-icons/react'
@@ -17,6 +18,10 @@ export default function HmrcTab() {
   const [message, setMessage]               = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [testLoading, setTestLoading]       = useState(false)
   const [testResult, setTestResult]         = useState<string | null>(null)
+  const [vrn, setVrn]                       = useState('')
+  const [vrnSaving, setVrnSaving]           = useState<'idle' | 'saving' | 'saved'>('idle')
+  const vrnTimerRef                         = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const userIdRef                           = useRef<string | null>(null)
 
   // Show success/error from OAuth callback redirect
   useEffect(() => {
@@ -35,18 +40,55 @@ export default function HmrcTab() {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { if (isMounted) setLoading(false); return }
-        const { data } = await supabase
-          .from('oauth_connections')
-          .select('id')
-          .eq('provider', 'hmrc')
-          .eq('user_id', user.id)
-          .maybeSingle()
-        if (isMounted) setConnected(!!data)
+        userIdRef.current = user.id
+        const [{ data: conn }, { data: profile }] = await Promise.all([
+          supabase
+            .from('oauth_connections')
+            .select('id')
+            .eq('provider', 'hmrc')
+            .eq('user_id', user.id)
+            .maybeSingle(),
+          supabase
+            .from('users')
+            .select('vat_registration_number')
+            .eq('id', user.id)
+            .maybeSingle(),
+        ])
+        if (isMounted) {
+          setConnected(!!conn)
+          setVrn(profile?.vat_registration_number ?? '')
+        }
       } catch {}
       if (isMounted) setLoading(false)
     }
     checkConnection()
     return () => { isMounted = false }
+  }, [])
+
+  function handleVrnChange(next: string) {
+    setVrn(next)
+    setVrnSaving('saving')
+    if (vrnTimerRef.current) clearTimeout(vrnTimerRef.current)
+    vrnTimerRef.current = setTimeout(async () => {
+      const uid = userIdRef.current
+      if (!uid) { setVrnSaving('idle'); return }
+      try {
+        const supabase = createClient()
+        const trimmed = next.trim()
+        await supabase
+          .from('users')
+          .update({ vat_registration_number: trimmed.length ? trimmed : null })
+          .eq('id', uid)
+        setVrnSaving('saved')
+        setTimeout(() => setVrnSaving(curr => (curr === 'saved' ? 'idle' : curr)), 1800)
+      } catch {
+        setVrnSaving('idle')
+      }
+    }, 800)
+  }
+
+  useEffect(() => () => {
+    if (vrnTimerRef.current) clearTimeout(vrnTimerRef.current)
   }, [])
 
   async function handleTestConnection() {
@@ -135,6 +177,30 @@ export default function HmrcTab() {
             </a>
           )}
         </div>
+
+        {/* VAT Registration Number — only when connected */}
+        {connected && (
+          <div className="space-y-1.5">
+            <Field
+              label="VAT Registration Number"
+              hint="Required for VAT (MTD) submissions."
+            >
+              <Input
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="GB123456789"
+                value={vrn}
+                onChange={e => handleVrnChange(e.target.value)}
+              />
+            </Field>
+            <div className="h-3 text-xs text-text-muted">
+              {vrnSaving === 'saving' && 'Saving…'}
+              {vrnSaving === 'saved'  && 'Saved'}
+            </div>
+          </div>
+        )}
 
 
         {/* Sandbox: test connection button */}
