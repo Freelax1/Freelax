@@ -483,7 +483,6 @@ export default function Sidebar() {
         </Tooltip>
         <Link
           href="/notifications"
-          aria-label="Notifications"
           className="p-1 flex relative"
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
         >

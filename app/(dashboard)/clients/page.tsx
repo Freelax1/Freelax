@@ -295,7 +295,7 @@ export default function ClientsPage() {
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Email</th>
                 <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Outstanding</th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
-                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
+                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
               </tr>
             </thead>
             <tbody>

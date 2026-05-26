@@ -4,7 +4,7 @@ import { CaretDown } from '@phosphor-icons/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { floatingFieldLabel, floatingFieldValue } from '@/lib/typography'
 import { cn } from '@/lib/utils'
-import React, { cloneElement, isValidElement, useState, useId } from 'react'
+import React, { cloneElement, isValidElement, useState } from 'react'
 
 /** Outer field chrome — white on card surfaces; border strengthens on focus. */
 export const fieldShellVariants = cva(
@@ -235,8 +235,6 @@ function FloatingFieldShell({
   className,
   children,
 }: FloatingFieldShellProps) {
-  const generatedId = useId()
-  const inputId = children.props.id ?? generatedId
   const [focused, setFocused] = useState(false)
   const childVariant = (children.props.variant as VariantProps<typeof inputVariants>['variant']) ?? 'default'
   const shellVariant = error ? 'error' : childVariant
@@ -246,7 +244,6 @@ function FloatingFieldShell({
 
   const control = cloneElement(children, {
     bare: true,
-    id: inputId,
     error: undefined,
     className: cn(
       inputControlVariants({ variant: error ? 'error' : childVariant }),
@@ -277,7 +274,6 @@ function FloatingFieldShell({
         )}
       >
         <label
-          htmlFor={inputId}
           className={cn(
             'absolute left-3 right-3 pointer-events-none truncate origin-left',
             'transition-[top,transform,font-size,color] duration-fast',
@@ -324,7 +320,6 @@ function Field({
   labelVariant,
   layout = 'floating',
 }: FieldProps) {
-  const generatedId = useId()
   const child = isValidElement(children) ? children : null
   const useFloating =
     label != null &&
@@ -348,16 +343,15 @@ function Field({
     )
   }
 
-  const inputId = child?.props.id ?? generatedId
   const stackedControl =
-    child && isFormControl(child)
-      ? cloneElement(child, { id: inputId, ...(error ? { error: true } : {}) })
+    child && isFormControl(child) && error
+      ? cloneElement(child, { error: true })
       : children
 
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <Label variant={labelVariant} htmlFor={inputId}>
+        <Label variant={labelVariant}>
           {label}
           {required && <span className="text-danger-500 ml-0.5 normal-case">*</span>}
         </Label>

@@ -429,7 +429,7 @@ export default function InvoicesPage() {
                   Amount{sortField === 'total' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
                 </th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
-                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
+                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
               </tr>
             </thead>
             <tbody>

@@ -139,7 +139,7 @@ export default function MileagePage() {
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Route</th>
                   <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Miles</th>
                   <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Relief</th>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
                 </tr>
               </thead>
               <tbody>
@@ -160,7 +160,6 @@ export default function MileagePage() {
                       <td className="px-4 py-2.5 text-right text-success-700 font-semibold text-sm tabular-nums">£{relief.toFixed(2)}</td>
                       <td className="px-3 py-2.5 text-right">
                         <button onClick={() => scheduleMileageDelete(e)}
-                          aria-label="Delete entry"
                           className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-500 transition-colors">
                           <Trash weight="regular" className="w-3.5 h-3.5" />
                         </button>
