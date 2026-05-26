@@ -3,6 +3,40 @@
 
 export const MONTHS_TY = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
 
+export type MonthlyIncomeBar = {
+  month: string
+  income: number
+  isCurrent: boolean
+  isFuture: boolean
+}
+
+/** Last N tax-year months for the dashboard income bar chart. */
+export function buildMonthlyIncomeBars(
+  chartData: { month: string; income: number }[],
+  windowSize = 6,
+): MonthlyIncomeBar[] {
+  const dataMap = Object.fromEntries(chartData.map(d => [d.month, d.income]))
+  const lastMonth = chartData.length > 0 ? chartData[chartData.length - 1].month : MONTHS_TY[0]
+  const lastIdx = MONTHS_TY.indexOf(lastMonth)
+  const startIdx = Math.max(0, lastIdx - (windowSize - 1))
+  const bars: MonthlyIncomeBar[] = []
+
+  for (let i = 0; i < windowSize; i++) {
+    const idx = startIdx + i
+    const m = MONTHS_TY[idx] ?? ''
+    const isFuture = idx > lastIdx
+    const isCurrent = idx === lastIdx
+    bars.push({
+      month: m,
+      income: isFuture ? 0 : (dataMap[m] ?? 0),
+      isCurrent,
+      isFuture,
+    })
+  }
+
+  return bars
+}
+
 export function calcMonthlyChart(
   paidInvoices: { total: number; vat_amount: number; paid_date: string }[],
   expenses:     { amount: number; date: string }[],

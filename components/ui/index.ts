@@ -9,11 +9,13 @@ export { default as SectionCard } from './section-card'
 export { default as ProgressBar } from './progress-bar'
 export { default as BreakdownRow } from './breakdown-row'
 export { default as ActionList } from './action-list'
+export { default as MonthlyIncomeChart } from './monthly-income-chart'
 export type { StatCardProgressBar, StatCardProps } from './stat-card'
 export type { SectionCardProps } from './section-card'
 export type { ProgressBarProps } from './progress-bar'
 export type { BreakdownRowProps } from './breakdown-row'
 export type { ActionListItem, ActionListProps, ActionPriority } from './action-list'
+export type { MonthlyIncomeChartProps } from './monthly-income-chart'
 export { default as DropdownPanel, DropdownMenuItem, DropdownMenuLink } from './dropdown-panel'
 export {
   ListStatusTabs,

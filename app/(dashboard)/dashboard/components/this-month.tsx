@@ -1,12 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { BarChart, Bar, Cell, XAxis, ResponsiveContainer, Tooltip, ReferenceLine } from 'recharts'
+import MonthlyIncomeChart from '@/components/ui/monthly-income-chart'
+import { buildMonthlyIncomeBars } from '@/lib/logic/dashboard'
 import { Sparkle, CircleNotch, X } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import { cardLabel } from '@/lib/typography'
-import { cn } from '@/lib/utils'
 
 interface MonthData { month: string; income: number }
 
@@ -19,7 +19,6 @@ interface Props {
 }
 
 const MONTHS_FULL = ['April','May','June','July','August','September','October','November','December','January','February','March']
-const MONTHS      = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
 
 export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expensesThisMonth = 0, isNewUser }: Props) {
   const diff = thisMonthIncome - monthlyAvg
@@ -91,20 +90,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
     sentence = `This month is ${formatCurrency(Math.abs(diff))} lighter than your typical month.`
   }
 
-  const barData: { month: string; income: number; isCurrent: boolean; isFuture: boolean }[] = []
-  if (!isNewUser) {
-    const dataMap   = Object.fromEntries(chartData.map(d => [d.month, d.income]))
-    const lastMonth = chartData.length > 0 ? chartData[chartData.length - 1].month : MONTHS[0]
-    const lastIdx   = MONTHS.indexOf(lastMonth)
-    const startIdx  = Math.max(0, lastIdx - 5)
-    for (let i = 0; i < 6; i++) {
-      const idx       = startIdx + i
-      const m         = MONTHS[idx] ?? ''
-      const isFuture  = idx > lastIdx
-      const isCurrent = idx === lastIdx
-      barData.push({ month: m, income: isFuture ? 0 : (dataMap[m] ?? 0), isCurrent, isFuture })
-    }
-  }
+  const barData = !isNewUser ? buildMonthlyIncomeBars(chartData) : []
 
   const showInsightPanel = insight && insightVisible
 
@@ -168,53 +154,9 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
       </p>
 
       {/* Bar chart */}
-      {!isNewUser && (
+      {!isNewUser && barData.length > 0 && (
         <div className="mt-5">
-          <ResponsiveContainer width="100%" height={100}>
-            <BarChart data={barData} barSize={24} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-              {monthlyAvg > 0 && (
-                <ReferenceLine y={monthlyAvg} stroke="var(--border-default)" strokeWidth={1} strokeDasharray="3 3" />
-              )}
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={({ x, y, payload, index }: any) => (
-                  <text
-                    x={x} y={y + 12}
-                    textAnchor="middle"
-                    fontSize={9}
-                    fontWeight={barData[index]?.isCurrent ? 600 : 400}
-                    fill={barData[index]?.isCurrent ? 'var(--text-secondary)' : 'var(--border-default)'}
-                  >
-                    {payload.value}
-                  </text>
-                )}
-              />
-              <Tooltip
-                cursor={{ fill: 'rgba(0,0,0,0.03)' }}
-                contentStyle={{ fontSize: 'var(--text-caption)', border: '1px solid var(--border-subtle)', borderRadius: 8, background: 'var(--surface-card)', boxShadow: 'none' }}
-                formatter={(v: number, _: any, props: any) =>
-                  props.payload?.isFuture ? ['—', 'Not yet'] : [`£${v.toLocaleString('en-GB')}`, 'Income']
-                }
-                labelFormatter={(l: string) => l}
-              />
-              <Bar dataKey="income" radius={[3, 3, 0, 0]} animationDuration={600}>
-                {barData.map((entry, i) => (
-                  <Cell
-                    key={i}
-                    fill={entry.isFuture ? 'var(--border-subtle)' : entry.isCurrent ? 'var(--brand-primary)' : 'var(--success-200)'}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-          {monthlyAvg > 0 && (
-            <div className="flex justify-end items-center gap-1 mt-1">
-              <div className="w-3.5 border-t border-dashed border-border-default" />
-              <p className={cn(cardLabel, 'text-text-secondary')}>Typical month</p>
-            </div>
-          )}
+          <MonthlyIncomeChart data={barData} typicalMonth={monthlyAvg} />
         </div>
       )}
     </div>
