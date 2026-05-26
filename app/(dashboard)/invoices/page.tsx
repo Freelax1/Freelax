@@ -6,18 +6,30 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchInvoices, deleteInvoice, type InvoiceListRow } from '@/lib/api/invoices'
 import { calcDaysOverdue, isPastDue } from '@/lib/logic/invoices'
 import { groupByMonth } from '@/lib/logic/list-display'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import {
+  PageHeader,
+  DropdownPanel,
+  ListStatusTabs,
+  ListMetrics,
+  ListMetricsSkeleton,
+  ListSearch,
+  ListBulkBar,
+  TableRowsSkeleton,
+  ListMobileCardSkeleton,
+  TABLE_CELL_PRESETS,
+} from '@/components/ui'
 import Alert from '@/components/ui/alert'
 import Button, { buttonVariants } from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, Envelope } from '@phosphor-icons/react'
+import { Eye, PencilSimple, Trash, Envelope } from '@phosphor-icons/react'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import ListPageLayout from '@/components/list-page-layout'
+import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
 
 const INVOICE_STATUS_LABELS: Record<string, string> = {
   sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
@@ -29,14 +41,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
   onStatusChange: (inv: InvoiceListRow, status: string) => void; onSendByEmail: (inv: InvoiceListRow) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const isDraft = invoice.status === 'draft'
   const isPaid  = invoice.status === 'paid'
@@ -57,15 +62,9 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
   })
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Invoice actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
-      {open && (
-        <DropdownPanel>
+    <div className="relative">
+      <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
+      <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
           <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -106,8 +105,7 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
-      )}
+      </DropdownPanel>
     </div>
   )
 }
@@ -314,7 +312,7 @@ export default function InvoicesPage() {
     .reduce((s, i) => s + Number(i.total), 0)
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Invoices"
         subtitle={loading ? '' : `${invoices.length} invoices`}
@@ -334,7 +332,9 @@ export default function InvoicesPage() {
 
       {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
-      {!loading && invoices.length > 0 && (
+      {loading ? (
+        <ListMetricsSkeleton count={2} />
+      ) : invoices.length > 0 ? (
         <>
           <ListStatusTabs
             allCount={invoices.length}
@@ -349,19 +349,21 @@ export default function InvoicesPage() {
           <ListMetrics
             items={[
               {
-                label: 'Outstanding',
+                label: 'Unpaid invoices',
+                tooltip: 'Draft, sent, and overdue. Paid and cancelled excluded.',
                 value: formatCurrency(outstandingTotal),
                 highlight: outstandingTotal > 0 ? 'negative' : 'neutral',
               },
               {
-                label: 'Paid this period',
+                label: 'Paid',
+                tooltip: 'Total paid on this list.',
                 value: formatCurrency(stats.paid.total),
                 highlight: stats.paid.total > 0 ? 'positive' : 'neutral',
               },
             ]}
           />
         </>
-      )}
+      ) : null}
 
       <div className="mb-4">
         <div className="flex items-center gap-2">
@@ -433,9 +435,9 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody>
-              {loading ? Array.from({ length: 4 }).map((_, i) => (
-                <tr key={i} className="border-t border-border-subtle">{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-3.5 fd-skeleton w-20" /></td>)}</tr>
-              )) : sorted.map(inv => {
+              {loading ? (
+                <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.invoice} />
+              ) : sorted.map(inv => {
                   const days = calcDaysOverdue(inv.due_date)
                   const pastDue = isPastDue(inv.status, inv.due_date, today)
                   return (
@@ -470,13 +472,13 @@ export default function InvoicesPage() {
 
         {/* Mobile cards — month sections only when sorted by issue date */}
         <div className="md:hidden space-y-4">
-          {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
-              <div className="h-4 fd-skeleton w-24 mb-3" />
-              <div className="h-3 fd-skeleton w-32 mb-2" />
-              <div className="h-3 fd-skeleton w-20" />
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ListMobileCardSkeleton key={i} variant="invoice" />
+              ))}
             </div>
-          )) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
+          ) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
             <div key={label || `flat-${groupIdx}`}>
               {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}
               <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden divide-y divide-border-subtle">
@@ -561,6 +563,6 @@ export default function InvoicesPage() {
           loading={statusUpdating}
         />
       )}
-    </div>
+    </ListPageLayout>
   )
 }

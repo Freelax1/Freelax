@@ -5,15 +5,16 @@ import { createClient } from '@/lib/supabase/client'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { fetchClientsForDropdown } from '@/lib/api/clients'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { PageHeader } from '@/components/ui'
+import { PageHeader, TableCardSkeleton, TABLE_CELL_PRESETS } from '@/components/ui'
 import Button from '@/components/ui/button'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Plus, Pause, Play, Trash } from '@phosphor-icons/react'
 import type { InvoiceTemplate, Client } from '@/types/database'
 import { Input, Select, Field } from '@/components/ui/input'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 import { sectionTitle } from '@/lib/typography'
+import ListPageLayout from '@/components/list-page-layout'
 
 type RecurringTemplateRow = InvoiceTemplate & {
   clients: { name: string } | null
@@ -92,7 +93,7 @@ export default function RecurringInvoicesPage() {
   const total = (items: LineItem[]) => items.reduce((s, i) => s + i.quantity * i.unit_price * (1 + i.vat_rate / 100), 0)
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Recurring Invoices"
         subtitle={loading ? '' : `${templates.filter(t => t.active).length} active templates`}
@@ -160,7 +161,9 @@ export default function RecurringInvoicesPage() {
       )}
 
       {/* Template list */}
-      {!loading && !templates.length ? (
+      {loading ? (
+        <TableCardSkeleton rows={4} cells={TABLE_CELL_PRESETS.recurring} tableClassName="text-sm" />
+      ) : !templates.length ? (
         <div className="bg-surface-card rounded-xl border border-border-default p-12 text-center">
           <p className="text-text-muted text-sm mb-2">No recurring templates yet</p>
           <p className="text-text-secondary text-xs">Create a template and invoices will be generated automatically.</p>
@@ -187,18 +190,17 @@ export default function RecurringInvoicesPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
-                      <Tooltip label={t.active ? 'Pause' : 'Resume'}>
-                        <button onClick={() => toggleActive(t.id, t.active)}
-                          className="p-1.5 rounded hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-                          {t.active ? <Pause weight="regular" className="w-4 h-4" /> : <Play weight="regular" className="w-4 h-4" />}
-                        </button>
-                      </Tooltip>
-                      <Tooltip label="Delete template">
-                        <button onClick={() => deleteTemplate(t.id)}
-                          className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-600 transition-colors">
-                          <Trash weight="regular" className="w-4 h-4" />
-                        </button>
-                      </Tooltip>
+                      <IconButton
+                        label={t.active ? 'Pause' : 'Resume'}
+                        onClick={() => toggleActive(t.id, t.active)}
+                        icon={t.active ? <Pause weight="regular" className="w-4 h-4" /> : <Play weight="regular" className="w-4 h-4" />}
+                      />
+                      <IconButton
+                        label="Delete"
+                        variant="danger"
+                        onClick={() => deleteTemplate(t.id)}
+                        icon={<Trash weight="regular" className="w-4 h-4" />}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -211,6 +213,6 @@ export default function RecurringInvoicesPage() {
       <p className="text-xs text-text-secondary mt-4">
         Invoices are auto-created on the scheduled date. A Vercel cron job or Supabase scheduled function is required to trigger generation — see <code>/api/invoices/recurring</code>.
       </p>
-    </div>
+    </ListPageLayout>
   )
 }

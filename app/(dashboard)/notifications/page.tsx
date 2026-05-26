@@ -6,7 +6,7 @@ import { Bell, CheckCircle } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import { buildNotifications, TYPE_LABEL, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
-import { PageHeader, FilterChip } from '@/components/ui'
+import { PageHeader, FilterChip, NotificationListSkeleton } from '@/components/ui'
 
 const BADGE_STYLE: Record<Notification['priority'], { bg: string; color: string }> = {
   red:   { bg: 'var(--danger-50)',  color: 'var(--danger-600)'  },
@@ -72,9 +72,7 @@ export default function NotificationsPage() {
         </div>
 
         {fetching ? (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm text-text-secondary">Loading…</p>
-          </div>
+          <NotificationListSkeleton rows={6} />
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center gap-3 px-5 py-12 text-center">
             <CheckCircle weight="regular" className="w-8 h-8 text-success-500" />

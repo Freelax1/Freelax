@@ -19,7 +19,7 @@ export default function DashboardError({
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-6 py-12">
       <div className="max-w-[400px] w-full text-center">
-        <div className="w-12 h-12 rounded-full inline-flex items-center justify-center mb-4 bg-danger-50 border border-[color:var(--danger-200)]">
+        <div className="w-12 h-12 rounded-lg inline-flex items-center justify-center mb-4 bg-danger-50 border border-[color:var(--danger-200)]">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 import Alert from '@/components/ui/alert'
 import Button from '@/components/ui/button'
 
@@ -113,13 +113,17 @@ export default function BillingTab({ profile }: Props) {
         <Alert intent="success" className="px-5 py-4">
           <div className="flex items-center gap-3 w-full">
             <p className="text-sm font-medium flex-1">You're all set — your plan has been upgraded successfully.</p>
-            <Tooltip label="Dismiss" align="right">
-              <button onClick={() => setUpgraded(false)} className="text-success-500 hover:text-success-700">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <IconButton
+              label="Dismiss"
+              align="right"
+              onClick={() => setUpgraded(false)}
+              className="hover:bg-transparent text-success-500 hover:text-success-700"
+              icon={
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
                   <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
-              </button>
-            </Tooltip>
+              }
+            />
           </div>
         </Alert>
       )}
@@ -290,7 +294,7 @@ export default function BillingTab({ profile }: Props) {
       ) : (
         <div className="pb-6 border-b border-border-subtle last:border-0 last:pb-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M3.5 9l4 4 7-7" stroke="var(--success-500)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

@@ -270,7 +270,7 @@ export default function NewProjectPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 rounded-xl bg-surface-sunken text-center">
-              <div className="w-10 h-10 rounded-full bg-surface-sunken flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-lg bg-surface-sunken flex items-center justify-center mb-3">
                 <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
               </div>
               <p className="text-sm font-medium text-text-secondary mb-1">IR35 assessment is available on the Pro plan</p>

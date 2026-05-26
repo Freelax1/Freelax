@@ -10,41 +10,39 @@ import {
   getCurrentTaxYear,
   getVatThresholdWarning,
 } from '@/lib/tax-calculations'
-import { PageHeader, StatCard } from '@/components/ui'
+import {
+  PageHeader,
+  StatCard,
+  StatCardSkeleton,
+  TaxBriefingBannerSkeleton,
+  ActionListSkeleton,
+} from '@/components/ui'
 import SectionCard from '@/components/ui/section-card'
-import BreakdownRow from '@/components/ui/breakdown-row'
+import BreakdownRow, { BreakdownGroup } from '@/components/ui/breakdown-row'
 import ProgressBar from '@/components/ui/progress-bar'
 import Button, { buttonVariants } from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import ActionList, { type ActionListItem } from '@/components/ui/action-list'
-import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
-import AIFlag from '@/components/ai-flag'
+import PageLayout from '@/components/page-layout'
+import TaxDeadlineTimeline from '@/components/ui/tax-deadline-timeline'
+import TaxBriefingCard from '@/components/tax-briefing-card'
 import { fetchTaxPotTotal, fetchTaxPotEntries, addTaxPotEntry } from '@/lib/api/tax-pot'
 import { createClient } from '@/lib/supabase/client'
 import { fetchMileageEntries, calcMileageRelief } from '@/lib/api/mileage'
-import { Sparkle, DownloadSimple, CircleNotch, Warning, Info, X, ArrowRight, ArrowCounterClockwise, Lock } from '@phosphor-icons/react'
+import { DownloadSimple, Warning, Info, X, Lock } from '@phosphor-icons/react'
 import { Input } from '@/components/form-fields'
 import { getCurrentYearQuartersWithStatus } from '@/lib/logic/mtd-quarters'
 import InfoTooltip from '@/components/info-tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 import Link from 'next/link'
-import { sectionTitle } from '@/lib/typography'
+import { cardLabel, sectionTitle, serifStat } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import type {
   TaxPotEntry, Invoice, Expense, MileageEntry,
   BusinessType, StudentLoanPlan, TaxDetail,
 } from '@/types/database'
 
-type PaidInvoiceRow = {
-  id: string
-  invoice_number: string
-  total: number
-  vat_amount: number
-  paid_date: string | null
-  clients: { name: string } | { name: string }[] | null
-}
-
 type TaxPageData = {
-  paidInvoices:      PaidInvoiceRow[]
   totalIncomeExVat:  number
   totalVatCollected: number
   totalExpenses:     number
@@ -56,6 +54,8 @@ type TaxPageData = {
   vatRegistered:     boolean
   mileageRelief:     number
   mileageMiles:      number
+  paidInvoiceCount:  number
+  expenseCount:      number
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -76,8 +76,8 @@ function TaxPotCard({
   onDelete:    (id: string) => void
 }) {
   return (
-    <SectionCard title="Tax Pot">
-      <div className="py-4">
+    <SectionCard variant="flat" title="Tax Pot" bodyClassName="py-1">
+      <div className="py-3">
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-text-secondary">Target</span>
           <span className="text-sm font-semibold">{formatCurrency(totalTarget)}</span>
@@ -110,13 +110,13 @@ function TaxPotCard({
             <span>{e.note || 'Contribution'} · {new Date(e.date).toLocaleDateString('en-GB')}</span>
             <div className="flex items-center gap-2">
               <span>+{formatCurrency(e.amount)}</span>
-              <button
+              <IconButton
+                label="Remove"
+                variant="danger"
                 onClick={() => onDelete(e.id)}
-                title="Remove this entry"
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-danger-50 hover:text-danger-500 text-text-secondary"
-              >
-                <X weight="regular" className="w-3 h-3" />
-              </button>
+                className="opacity-0 group-hover:opacity-100 p-0.5"
+                icon={<X weight="regular" className="w-3 h-3" />}
+              />
             </div>
           </div>
         ))}
@@ -156,26 +156,155 @@ function TaxPotCard({
   )
 }
 
-// ── SA narrative parser ──────────────────────────────────────────────────────
-const NARRATIVE_SECTION_HEADERS = ['SNAPSHOT', 'BASED ON', "WHAT'S GOING WELL", 'WHERE TO IMPROVE', 'TAX REDUCTION OPPORTUNITIES', 'KEY DEADLINE']
-const NARRATIVE_BULLET_SECTIONS = new Set(["WHAT'S GOING WELL", 'WHERE TO IMPROVE', 'TAX REDUCTION OPPORTUNITIES'])
+function VatPositionCard({
+  vatWarning,
+  totalVatCollected,
+  vatReclaimable,
+}: {
+  vatWarning: string | null
+  totalVatCollected: number
+  vatReclaimable: number
+}) {
+  const netVat = totalVatCollected - vatReclaimable
+  return (
+    <SectionCard
+      variant="flat"
+      title="VAT position"
+      action={
+        <Link
+          href="/tax/vat"
+          className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+        >
+          VAT Returns →
+        </Link>
+      }
+    >
+      {vatWarning && (
+        <Alert intent="warning" className="mb-3">
+          {vatWarning}
+        </Alert>
+      )}
+      <div className="shrink-0 mb-3">
+        <p className={cardLabel}>Net VAT owed</p>
+      </div>
+      <div className="py-1">
+        <p className={cn('text-2xl', serifStat, 'text-text-primary')}>
+          {formatCurrency(netVat)}
+        </p>
+      </div>
+      <div className="shrink-0 flex flex-col gap-2 pt-3 text-xs text-text-secondary">
+        <div className="flex justify-between gap-4">
+          <span>Collected on invoices</span>
+          <span className="tabular-nums font-medium text-text-primary">
+            {formatCurrency(totalVatCollected)}
+          </span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span>Reclaimable on expenses</span>
+          <span className="tabular-nums font-medium text-success-700">
+            −{formatCurrency(vatReclaimable)}
+          </span>
+        </div>
+      </div>
+    </SectionCard>
+  )
+}
 
-function parseNarrativeSections(text: string): { header: string; content: string }[] {
-  const sections: { header: string; content: string }[] = []
-  let currentHeader = ''
-  let currentLines: string[] = []
-  for (const line of text.split('\n')) {
-    const trimmed = line.trim()
-    if (NARRATIVE_SECTION_HEADERS.includes(trimmed)) {
-      if (currentHeader) sections.push({ header: currentHeader, content: currentLines.join('\n').trim() })
-      currentHeader = trimmed
-      currentLines = []
-    } else if (currentHeader) {
-      currentLines.push(line)
-    }
+function MtdQuartersCard({
+  quarters,
+  compact,
+}: {
+  quarters: ReturnType<typeof getCurrentYearQuartersWithStatus>
+  compact: boolean
+}) {
+  return (
+    <SectionCard
+      variant="flat"
+      title="Making Tax Digital"
+      action={
+        <Link
+          href="/settings?tab=HMRC"
+          className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+        >
+          Connect HMRC →
+        </Link>
+      }
+      bodyClassName="space-y-0"
+    >
+      <p className="text-xs text-text-secondary mb-5">
+        ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
+      </p>
+
+      <div
+        className={cn(
+          'grid gap-3 fd-stat-grid',
+          compact ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4',
+        )}
+      >
+        {quarters.map(q => {
+          const isCurrent = q.status === 'current'
+          const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+          const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+          const { badgeBg, badgeText, cardBorder } =
+            q.status === 'current'  ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
+            q.status === 'upcoming' ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
+            q.status === 'overdue'  ? { badgeBg: 'bg-danger-50',    badgeText: 'text-danger-600',    cardBorder: 'border-danger-200'   } :
+                                      { badgeBg: 'bg-surface-sunken',  badgeText: 'text-text-secondary',  cardBorder: 'border-border-subtle' }
+
+          const statusLabel =
+            q.status === 'current'  ? 'Open now' :
+            q.status === 'upcoming' ? 'Submit soon' :
+            q.status === 'overdue'  ? 'Overdue' :
+                                      'Not started'
+
+          return (
+            <div
+              key={q.quarter}
+              className={`rounded-xl border p-4 h-full flex flex-col ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
+            >
+              <div className="flex items-center justify-between mb-2.5 shrink-0">
+                <span className="text-sm font-semibold text-text-primary">Q{q.quarter}</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${badgeBg} ${badgeText}`}>
+                  {statusLabel}
+                </span>
+              </div>
+              <div className="flex-1 flex flex-col justify-center min-h-0 py-1">
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
+                </p>
+              </div>
+              <div className="shrink-0 pt-2 space-y-1.5">
+                <p className="text-xs text-text-secondary">
+                  Deadline: {fmt(q.deadline)}
+                </p>
+                <p className="text-xs text-text-secondary font-medium">Not Started</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </SectionCard>
+  )
+}
+
+function buildTaxBriefingPrompts(data: TaxPageData): string[] {
+  const t = data.taxDetail
+  const taxTotal = t.kind === 'sole_trader' ? t.totalTax : t.totalPersonalTax
+  const prompts: string[] = []
+
+  if (taxTotal > 0) prompts.push('How much should I set aside for tax?')
+  if ((t.paymentsOnAccount ?? 0) > 0) {
+    prompts.push(`Why is my January payment ${formatCurrency(t.totalJanuaryPayment)}?`)
+  } else {
+    prompts.push('When is my Self Assessment deadline?')
   }
-  if (currentHeader) sections.push({ header: currentHeader, content: currentLines.join('\n').trim() })
-  return sections
+  if (data.vatRegistered) prompts.push('How much net VAT will I owe this year?')
+  else prompts.push('When do I need to register for VAT?')
+  if (data.mileageRelief > 0) prompts.push('How does my mileage relief work?')
+  else prompts.push('Can I claim my home office?')
+
+  return prompts.slice(0, 4)
 }
 
 export default function TaxPage() {
@@ -192,16 +321,7 @@ export default function TaxPage() {
   const [savingPot, setSavingPot]           = useState(false)
   const [exportLoading, setExportLoading]   = useState(false)
   const [canExport, setCanExport]           = useState(false)
-
-  useEffect(() => {
-    try {
-      const dismissed = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}_dismissed`)
-      if (dismissed) return
-      const cached = sessionStorage.getItem(`fd_sa_narrative_${taxYearStart}`)
-      if (cached) setNarrative(cached)
-    } catch {}
-  }, [taxYearStart])
-
+  const [syncedAt, setSyncedAt]             = useState<Date | null>(null)
   useEffect(() => {
     async function load() {
       const user   = await fetchCurrentUser()
@@ -255,13 +375,15 @@ export default function TaxPage() {
       const mileageRelief = calcMileageRelief(mileageMiles)
 
       setPageData({
-        paidInvoices, totalIncomeExVat, totalVatCollected,
+        totalIncomeExVat, totalVatCollected,
         totalExpenses, vatReclaimable, vatWarning,
         taxDetail, hasTaxProfile,
         businessType:  profile?.business_type ?? 'sole_trader',
         vatRegistered: !!profile?.vat_registered,
         mileageRelief,
         mileageMiles,
+        paidInvoiceCount: paidInvoices?.length ?? 0,
+        expenseCount:     expenses?.length ?? 0,
       })
       // Fetch tax pot
       const [potTotal, potEntries] = await Promise.all([
@@ -272,6 +394,7 @@ export default function TaxPage() {
       setTaxPotEntries(potEntries)
 
       setLoading(false)
+      setSyncedAt(new Date())
     }
     load()
   }, [])
@@ -296,7 +419,6 @@ export default function TaxPage() {
   }
 
   const mtdQuarters = getCurrentYearQuartersWithStatus()
-  const exportCSV = (type: string) => { window.location.href = `/api/invoices/export?type=${type}` }
   const endYear = new Date(end).getFullYear()
 
   async function addPotContribution() {
@@ -378,110 +500,23 @@ export default function TaxPage() {
                 Download {label} SA pack
               </Link>
             )}
-
-            <Button
-              type="button"
-              intent="primary"
-              size="sm"
-              onClick={() => { try { sessionStorage.removeItem(`fd_sa_narrative_${taxYearStart}_dismissed`) } catch {} generateNarrative() }}
-              disabled={narrativeLoading || loading}
-            >
-              {narrativeLoading ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Sparkle weight="regular" className="w-3.5 h-3.5" />}
-              SA Summary
-            </Button>
           </div>
         }
       />
 
-      <NotTaxAdviceDisclaimer />
-
-      {(narrative || narrativeLoading) && (
-        <div className="bg-surface-sunken rounded-xl border border-border-default p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkle weight="regular" className="w-4 h-4 text-brand-primary" />
-            <span className="text-sm font-medium text-text-primary">Self Assessment Summary</span>
-            <div className="ml-auto flex items-center gap-2">
-              {narrative && !narrativeLoading && <AIFlag />}
-              {!narrativeLoading && (
-                <>
-                  {narrative && (
-                    <button
-                      type="button"
-                      onClick={() => generateNarrative(true)}
-                      title="Refresh"
-                      className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-card transition-colors"
-                    >
-                      <ArrowCounterClockwise weight="regular" className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => { setNarrative(null); try { sessionStorage.setItem(`fd_sa_narrative_${taxYearStart}_dismissed`, '1') } catch {} }}
-                    title="Dismiss"
-                    className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-card transition-colors"
-                  >
-                    <X weight="regular" className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-          {narrativeLoading ? (
-            <div className="space-y-2">
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-full" />
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-5/6" />
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-4/6" />
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-11/12 mt-3" />
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-4/5" />
-              <div className="h-3 bg-border-subtle rounded animate-pulse w-3/5" />
-            </div>
-          ) : (
-            <div className="text-sm text-text-secondary leading-relaxed">
-              {(() => {
-                const sections = parseNarrativeSections(narrative ?? '')
-                if (!sections.length) return <p>{narrative}</p>
-                return (
-                  <div>
-                    {sections.map(({ header, content }, i) => {
-                      const isBullet = NARRATIVE_BULLET_SECTIONS.has(header)
-                      const lines = content.split('\n').map(l => l.trim()).filter(Boolean)
-                      return (
-                        <div key={header}>
-                          {i > 0 && (
-                            <div className="h-px my-3.5 bg-border-subtle" />
-                          )}
-                          <p className="font-semibold mb-1.5 text-text-primary">
-                            {header}
-                          </p>
-                          {isBullet ? (
-                            <ul className="space-y-1.5">
-                              {lines.map((l, j) => (
-                                <li key={j} className="flex gap-2">
-                                  <span className="shrink-0 text-text-muted">•</span>
-                                  <span>{l.replace(/^[-•]\s*/, '')}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="leading-relaxed">{content}</p>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              })()}
-            </div>
-          )}
-        </div>
-      )}
-
       {loading || !pageData ? (
-        <div className="space-y-4">
-          {[1,2,3].map(i => <div key={i} className="h-40 bg-surface-card rounded-xl border border-border-default fd-skeleton" />)}
+        <div className="space-y-6" aria-busy aria-label="Loading tax summary">
+          <div className="fd-cards-grid">
+            <StatCardSkeleton className="h-full w-full" variant="sunken" reserveFooter />
+            <StatCardSkeleton className="h-full w-full" reserveFooter showProgress />
+            <StatCardSkeleton className="h-full w-full" reserveFooter />
+            <StatCardSkeleton className="h-full w-full" reserveFooter showProgress />
+          </div>
+          <TaxBriefingBannerSkeleton />
+          <ActionListSkeleton rows={2} />
         </div>
       ) : (
-        <>
+        <PageLayout className="space-y-6" syncedAt={syncedAt}>
           {/* Tax profile nudge */}
           {!pageData.hasTaxProfile && (
             <Alert intent="info">
@@ -489,7 +524,6 @@ export default function TaxPage() {
               <Link href="/settings" className="underline font-medium">Settings → Tax Profile</Link>.
             </Alert>
           )}
-
 
           {/* Empty state — no income data yet */}
           {pageData.taxDetail.grossIncome === 0 && pageData.taxDetail.totalExpenses === 0 && (
@@ -596,6 +630,7 @@ export default function TaxPage() {
                     className="h-full w-full"
                     variant="sunken"
                     label="Tax owed"
+                    tooltip="Estimate from your data. Confirm with an accountant."
                     value={formatCurrency(taxTotal)}
                     reserveFooter
                     sub={`by 31 January ${endYear + 1}`}
@@ -603,6 +638,7 @@ export default function TaxPage() {
                   <StatCard
                     className="h-full w-full"
                     label="Set aside"
+                    tooltip="Logged in Tax pot — not your bank balance."
                     value={formatCurrency(taxPotTotal)}
                     valueColor={potPct >= 100 ? 'var(--success-500)' : 'var(--text-primary)'}
                     progressBar={{ pct: potPct, color: potBar }}
@@ -616,6 +652,7 @@ export default function TaxPage() {
                   <StatCard
                     className="h-full w-full"
                     label="Take-home"
+                    tooltip="After estimated tax from your profile."
                     value={formatCurrency(t.takeHome)}
                     reserveFooter
                     sub={`${t.effectiveTaxRate}% effective rate · you keep ${Math.round(100 - t.effectiveTaxRate)}%`}
@@ -623,6 +660,7 @@ export default function TaxPage() {
                   <StatCard
                     className="h-full w-full"
                     label="Deadline"
+                    tooltip="Days until Self Assessment deadline."
                     valueColor={daysColor}
                     value={
                       <>
@@ -641,11 +679,42 @@ export default function TaxPage() {
                 <ActionList
                   title="Suggested next steps"
                   className="mt-1"
+                  dismissStorageKey="freelax_dismissed_tax_actions"
                   items={actions.filter(a => a.priority === 'red' || a.priority === 'amber' || a.priority === 'info').slice(0, 3)}
                 />
               </>
             )
           })()}
+
+          {(() => {
+            const t = pageData.taxDetail
+            const taxTotal = t.kind === 'sole_trader' ? t.totalTax : t.totalPersonalTax
+            const hasData = t.grossIncome > 0 || t.totalExpenses > 0
+            const taxPotGap = Math.max(0, taxTotal - taxPotTotal)
+            return (
+              <TaxBriefingCard
+                hook={{
+                  hasData,
+                  incomeExVat: pageData.totalIncomeExVat,
+                  totalExpenses: pageData.totalExpenses,
+                  expenseCount: pageData.expenseCount,
+                  taxOwed: taxTotal,
+                  taxPotGap,
+                  hasTaxProfile: pageData.hasTaxProfile,
+                  higherRateAlert: t.kind === 'sole_trader' ? t.higherRateAlert : false,
+                  paAlert: t.kind === 'sole_trader' ? t.paAlert : false,
+                }}
+                narrative={narrative}
+                loading={narrativeLoading}
+                onGenerate={generateNarrative}
+                suggestedPrompts={buildTaxBriefingPrompts(pageData)}
+              />
+            )
+          })()}
+
+          {!pageData.vatRegistered && (
+            <MtdQuartersCard quarters={mtdQuarters} compact={false} />
+          )}
 
           {/* ── SOLE TRADER ── */}
           {pageData.taxDetail.kind === 'sole_trader' && (() => {
@@ -653,7 +722,14 @@ export default function TaxPage() {
             const gap = t.totalTax - (taxPotTotal)
             return (
               <div className="grid lg:grid-cols-2 gap-5 items-start">
-                <div className="space-y-4">
+                <div className="space-y-4 min-w-0">
+                  {pageData.vatRegistered && (
+                    <VatPositionCard
+                      vatWarning={pageData.vatWarning}
+                      totalVatCollected={pageData.totalVatCollected}
+                      vatReclaimable={pageData.vatReclaimable}
+                    />
+                  )}
 
                   {t.paAlert && (
                     <Alert intent="danger" title="Personal Allowance is being tapered">
@@ -663,42 +739,76 @@ export default function TaxPage() {
                     </Alert>
                   )}
 
-                  <SectionCard title="Profit & Loss">
-                    <BreakdownRow label="Gross income (ex-VAT)"  value={formatCurrency(t.grossIncome)} />
-                    <BreakdownRow label="Allowable expenses"     value={`−${formatCurrency(t.totalExpenses)}`} red />
-                    {pageData.mileageRelief > 0 && (
-                      <BreakdownRow
-                        label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
-                        value={`−${formatCurrency(pageData.mileageRelief)}`}
-                        red
-                        hint="HMRC approved rate · see Mileage"
-                      />
-                    )}
-                    {t.pensionContributions > 0 && (
-                      <BreakdownRow label="Pension contributions" value={`−${formatCurrency(t.pensionContributions)}`} red
-                        hint={`Tax relief: ${formatCurrency(t.pensionTaxRelief)} (basic rate at source)`} />
-                    )}
-                    <BreakdownRow label="Net profit"             value={formatCurrency(t.netProfit)} bold />
-                    {t.otherIncome > 0 && (
-                      <BreakdownRow label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
-                    )}
-                    <p className="text-xs text-text-secondary mt-1">
-                      <a href="/settings?tab=Personal+tax+inputs" className="text-text-secondary hover:underline">Edit in Settings →</a>
-                    </p>
-                    <BreakdownRow label={<span>Personal Allowance<InfoTooltip>The amount you can earn each year with no Income Tax — currently £12,570. Reduces by £1 for every £2 you earn over £100,000.</InfoTooltip></span>}     value={`−${formatCurrency(t.personalAllowance)}`}
-                      hint={t.paAlert ? 'Reduced — income over £100k' : undefined} />
-                    <BreakdownRow label="Taxable income"         value={formatCurrency(t.taxableIncome)} bold />
+                  <SectionCard
+                    variant="flat"
+                    title="Profit & Loss"
+                    action={
+                      <Link
+                        href="/settings?tab=Personal+tax+inputs"
+                        className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+                      >
+                        Edit inputs →
+                      </Link>
+                    }
+                    bodyClassName="space-y-0"
+                  >
+                    <BreakdownGroup label="Trading profit">
+                      <BreakdownRow label="Gross income (ex-VAT)" value={formatCurrency(t.grossIncome)} />
+                      <BreakdownRow label="Allowable expenses" value={`−${formatCurrency(t.totalExpenses)}`} red />
+                      {pageData.mileageRelief > 0 && (
+                        <BreakdownRow
+                          label={`Mileage relief (${pageData.mileageMiles.toLocaleString('en-GB')} mi)`}
+                          value={`−${formatCurrency(pageData.mileageRelief)}`}
+                          red
+                          hint="HMRC approved rate · see Mileage"
+                        />
+                      )}
+                      {t.pensionContributions > 0 && (
+                        <BreakdownRow
+                          label="Pension contributions"
+                          value={`−${formatCurrency(t.pensionContributions)}`}
+                          red
+                          hint={`Tax relief: ${formatCurrency(t.pensionTaxRelief)} (basic rate at source)`}
+                        />
+                      )}
+                      <BreakdownRow label="Net profit" value={formatCurrency(t.netProfit)} bold />
+                    </BreakdownGroup>
+
+                    <div className="mt-6 pt-6 border-t border-border-subtle">
+                      <BreakdownGroup label="Taxable income">
+                        {t.otherIncome > 0 && (
+                          <BreakdownRow
+                            label="Other income"
+                            value={formatCurrency(t.otherIncome)}
+                            hint="Employment, rental, savings etc."
+                          />
+                        )}
+                        <BreakdownRow
+                          label={
+                            <span>
+                              Personal Allowance
+                              <InfoTooltip>
+                                Tax-free up to £12,570. Tapers if income is over £100k.
+                              </InfoTooltip>
+                            </span>
+                          }
+                          value={`−${formatCurrency(t.personalAllowance)}`}
+                          hint={t.paAlert ? 'Reduced — income over £100k' : undefined}
+                        />
+                        <BreakdownRow label="Taxable income" value={formatCurrency(t.taxableIncome)} bold />
+                      </BreakdownGroup>
+                    </div>
                   </SectionCard>
 
-                  <SectionCard title={<span>Income Tax<InfoTooltip>Tax on your personal income above the Personal Allowance (£12,570). Rates: 20% basic, 40% higher, 45% additional.</InfoTooltip></span>}>
+                  <SectionCard variant="flat" title={<span>Income Tax<InfoTooltip>On income above £12,570. 20%, 40%, or 45%.</InfoTooltip></span>} bodyClassName="py-1">
                     {t.basicRateTax > 0     && <BreakdownRow label="Basic rate (20%)"       value={formatCurrency(t.basicRateTax)} />}
                     {t.higherRateTax > 0    && <BreakdownRow label="Higher rate (40%)"      value={formatCurrency(t.higherRateTax)} red />}
                     {t.additionalRateTax > 0 && <BreakdownRow label="Additional rate (45%)" value={formatCurrency(t.additionalRateTax)} red />}
                     <BreakdownRow label="Total Income Tax"        value={formatCurrency(t.incomeTax)} bold />
                   </SectionCard>
 
-                  <SectionCard title="NI & Other Deductions">
-                    <BreakdownRow label={<span>Class 4 NI (6%/2%)<InfoTooltip>National Insurance paid by self-employed people on profits over £12,570. 6% up to £50,270, then 2% above that.</InfoTooltip></span>}   value={formatCurrency(t.classFourNI)}
+                  <SectionCard variant="flat" title="NI & Other Deductions" bodyClassName="py-1">
+                    <BreakdownRow label={<span>Class 4 NI (6%/2%)<InfoTooltip>NI on profits over £12,570: 6%, then 2%.</InfoTooltip></span>}   value={formatCurrency(t.classFourNI)}
                       hint="Class 2 NI abolished April 2024" />
                     {t.studentLoanRepayment > 0 && (
                       <BreakdownRow label="Student loan repayment" value={formatCurrency(t.studentLoanRepayment)} />
@@ -710,7 +820,11 @@ export default function TaxPage() {
                   </SectionCard>
                 </div>
 
-                <div className="space-y-4" id="tax-pot">
+                <div className="space-y-4 min-w-0" id="tax-pot">
+                  {pageData.vatRegistered && (
+                    <MtdQuartersCard quarters={mtdQuarters} compact />
+                  )}
+
                   <TaxPotCard
                     totalTarget={t.totalTax}
                     totalSaved={taxPotTotal}
@@ -724,7 +838,12 @@ export default function TaxPage() {
 
                   {/* Payments on account */}
                   {t.paymentsOnAccount > 0 && (
-                    <SectionCard title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                    <SectionCard
+                      variant="flat"
+                      title={<span>Payments on Account<InfoTooltip>Bill over £1k? Pre-pay half in Jan and Jul.</InfoTooltip></span>}
+                      accent="bg-warning-50 border-warning-200"
+                      bodyClassName="py-1"
+                    >
                       <div className="py-2 text-xs text-warning-800 leading-relaxed">
                         Your tax bill exceeds £1,000 so HMRC requires advance payments. Many freelancers are caught off guard by these.
                       </div>
@@ -745,8 +864,16 @@ export default function TaxPage() {
             const t = pageData.taxDetail
             return (
               <div className="grid lg:grid-cols-2 gap-5 items-start">
-                <div className="space-y-4">
-                  <SectionCard title="Company — Corporation Tax">
+                <div className="space-y-4 min-w-0">
+                  {pageData.vatRegistered && (
+                    <VatPositionCard
+                      vatWarning={pageData.vatWarning}
+                      totalVatCollected={pageData.totalVatCollected}
+                      vatReclaimable={pageData.vatReclaimable}
+                    />
+                  )}
+
+                  <SectionCard variant="flat" title="Company — Corporation Tax" bodyClassName="py-1">
                     <BreakdownRow label="Gross income (ex-VAT)"       value={formatCurrency(t.grossIncome)} />
                     <BreakdownRow label="Business expenses"            value={`−${formatCurrency(t.totalExpenses)}`} red />
                     {pageData.mileageRelief > 0 && (
@@ -759,21 +886,21 @@ export default function TaxPage() {
                     )}
                     <BreakdownRow label="Director salary"              value={`−${formatCurrency(t.salaryDrawn)}`} red />
                     <BreakdownRow label="Company profit"               value={formatCurrency(t.companyProfit)} bold />
-                    <BreakdownRow label={<span>Corporation Tax ({t.corporationTaxRate}%)<InfoTooltip>Tax your limited company pays on its profits before you take anything out. 19% if profits are £50k or less, 25% if £250k or more.</InfoTooltip></span>} value={formatCurrency(t.corporationTax)} red />
+                    <BreakdownRow label={<span>Corporation Tax ({t.corporationTaxRate}%)<InfoTooltip>Tax on company profits. 19% or 25% by band.</InfoTooltip></span>} value={formatCurrency(t.corporationTax)} red />
                     <BreakdownRow label="Profit after corp tax"        value={formatCurrency(t.profitAfterCorpTax)} bold />
-                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={`−${formatCurrency(t.dividendsDrawn)}`} red />
+                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Lower tax than salary. £500 free, then band rates.</InfoTooltip></span>}              value={`−${formatCurrency(t.dividendsDrawn)}`} red />
                     <BreakdownRow label="Retained in company"          value={formatCurrency(t.retainedProfit)} bold green />
                   </SectionCard>
 
-                  <SectionCard title="Personal — Director Self Assessment">
+                  <SectionCard variant="flat" title="Personal — Director Self Assessment" bodyClassName="py-1">
                     {t.otherIncome > 0 && (
                       <BreakdownRow label="Other income" value={formatCurrency(t.otherIncome)} hint="Employment, rental, savings etc." />
                     )}
                     <BreakdownRow label="Salary"                       value={formatCurrency(t.salaryDrawn)} />
                     <BreakdownRow label="Salary income tax"            value={formatCurrency(t.salaryIncomeTax)} red />
-                    <BreakdownRow label={<span>Employee NI (8%)<InfoTooltip>Your personal National Insurance on salary income. 8% on earnings between £12,570 and £50,270, then 2% on anything above.</InfoTooltip></span>}             value={formatCurrency(t.employeeNI)} red />
-                    <BreakdownRow label={<span>Employer NI (company cost)<InfoTooltip>National Insurance your company pays on your salary, on top of the salary itself. 13.8% on every £1 over £5,000.</InfoTooltip></span>}   value={formatCurrency(t.employerNI)} red />
-                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Dividends you draw from your company are taxed at lower rates than salary. First £500 is free, then 10.75%, 35.75%, or 39.35% depending on your tax band.</InfoTooltip></span>}              value={formatCurrency(t.dividendsDrawn)} />
+                    <BreakdownRow label={<span>Employee NI (8%)<InfoTooltip>Your NI on salary: 8%, then 2% above £50,270.</InfoTooltip></span>}             value={formatCurrency(t.employeeNI)} red />
+                    <BreakdownRow label={<span>Employer NI (company cost)<InfoTooltip>Company NI on salary: 13.8% over £5k.</InfoTooltip></span>}   value={formatCurrency(t.employerNI)} red />
+                    <BreakdownRow label={<span>Dividends drawn<InfoTooltip>Lower tax than salary. £500 free, then band rates.</InfoTooltip></span>}              value={formatCurrency(t.dividendsDrawn)} />
                     <BreakdownRow label="Dividend allowance (tax-free)" value={`−${formatCurrency(t.dividendAllowance)}`} green />
                     <BreakdownRow label="Dividend tax"                 value={formatCurrency(t.dividendTax)} red />
                     {t.studentLoanRepayment > 0 && <BreakdownRow label="Student loan" value={formatCurrency(t.studentLoanRepayment)} red />}
@@ -781,15 +908,24 @@ export default function TaxPage() {
                   </SectionCard>
                 </div>
 
-                <div className="space-y-4" id="tax-pot">
+                <div className="space-y-4 min-w-0" id="tax-pot">
+                  {pageData.vatRegistered && (
+                    <MtdQuartersCard quarters={mtdQuarters} compact />
+                  )}
+
                   {/* Ltd summary: compact inline stat row — complements KPI row above */}
-                  <SectionCard title="Company summary" accent="bg-surface-sunken">
+                  <SectionCard variant="flat" title="Company summary" accent="bg-surface-sunken" bodyClassName="py-1">
                     <BreakdownRow label="Corp tax + employer NI" value={formatCurrency(t.totalCompanyTax)} red />
                     <BreakdownRow label="Retained in company"    value={formatCurrency(t.retainedProfit)} green bold />
                   </SectionCard>
 
                   {t.paymentsOnAccount > 0 && (
-                    <SectionCard title={<span>Payments on Account<InfoTooltip>If your tax bill is over £1,000, HMRC asks you to pre-pay half of next year's bill in January and the other half in July. It can feel like a big hit the first time.</InfoTooltip></span>} accent="bg-warning-50">
+                    <SectionCard
+                      variant="flat"
+                      title={<span>Payments on Account<InfoTooltip>Bill over £1k? Pre-pay half in Jan and Jul.</InfoTooltip></span>}
+                      accent="bg-warning-50 border-warning-200"
+                      bodyClassName="py-1"
+                    >
                       <div className="py-2 text-xs text-warning-800">Your SA bill triggers advance payments to HMRC. These figures assume this is your first year of Self Assessment — your January bill will be lower from next year once prior POAs are offset.</div>
                       <BreakdownRow label={`31 Jan ${endYear + 1}`} value={formatCurrency(t.totalJanuaryPayment)} bold red />
                       <BreakdownRow label={`31 Jul ${endYear + 1}`} value={formatCurrency(t.julyPayment)} red />
@@ -807,7 +943,7 @@ export default function TaxPage() {
                     onDelete={deletePotEntry}
                   />
 
-                  <SectionCard title="Optimisation note">
+                  <SectionCard variant="flat" title="Optimisation note" bodyClassName="py-1">
                     <div className="py-3 text-xs text-text-secondary space-y-1.5 leading-relaxed">
                       <p>The most tax-efficient structure for a Ltd director is typically:</p>
                       <ul className="list-disc list-inside space-y-1 text-text-secondary ml-1">
@@ -824,168 +960,11 @@ export default function TaxPage() {
             )
           })()}
 
-          {/* Important dates */}
-          <div className="bg-surface-card rounded-xl border border-border-default p-6">
-            <h2 className={cn(sectionTitle, 'mb-4')}>Important dates</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Tax year end',            date: `5 April ${endYear}` },
-                { label: 'Paper SA deadline',        date: `31 October ${endYear}` },
-                { label: 'Online SA + payment',      date: `31 January ${endYear + 1}` },
-                { label: 'Payments on account',      date: `31 July ${endYear + 1}` },
-              ].map(d => (
-                <div key={d.label}>
-                  <p className="text-xs text-text-secondary">{d.label}</p>
-                  <p className="text-sm font-medium text-text-primary mt-0.5">{d.date}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SectionCard variant="flat" title="Important dates" bodyClassName="pt-0">
+            <TaxDeadlineTimeline endYear={endYear} />
+          </SectionCard>
 
-          {/* Making Tax Digital — quarterly obligations */}
-          <div className="bg-surface-card rounded-xl border border-border-default p-6">
-            <div className="flex items-start justify-between mb-1">
-              <h2 className={sectionTitle}>Making Tax Digital — {label}</h2>
-              <Link
-                href="/settings?tab=HMRC"
-                className="text-xs text-text-secondary hover:text-text-secondary flex items-center gap-1 shrink-0 ml-4 mt-0.5"
-              >
-                Connect HMRC <ArrowRight weight="regular" className="w-3 h-3" />
-              </Link>
-            </div>
-            <p className="text-xs text-text-secondary mb-5">
-              ITSA quarterly submission windows for the current tax year. Submissions unlock once your HMRC account is connected.
-            </p>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 fd-stat-grid">
-              {mtdQuarters.map(q => {
-                const isCurrent = q.status === 'current'
-                const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-                const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-
-                const { badgeBg, badgeText, cardBorder } =
-                  q.status === 'current'  ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
-                  q.status === 'upcoming' ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
-                  q.status === 'overdue'  ? { badgeBg: 'bg-danger-50',    badgeText: 'text-danger-600',    cardBorder: 'border-danger-200'   } :
-                                            { badgeBg: 'bg-surface-sunken',  badgeText: 'text-text-secondary',  cardBorder: 'border-border-subtle' }
-
-                const statusLabel =
-                  q.status === 'current'  ? 'Open now' :
-                  q.status === 'upcoming' ? 'Submit soon' :
-                  q.status === 'overdue'  ? 'Overdue' :
-                                            'Not started'
-
-                return (
-                  <div
-                    key={q.quarter}
-                    className={`rounded-xl border p-4 h-full flex flex-col ${cardBorder} ${isCurrent ? 'ring-1 ring-amber-300' : ''}`}
-                  >
-                    <div className="flex items-center justify-between mb-2.5 shrink-0">
-                      <span className="text-sm font-semibold text-text-primary">Q{q.quarter}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${badgeBg} ${badgeText}`}>
-                        {statusLabel}
-                      </span>
-                    </div>
-                    <div className="flex-1 flex flex-col justify-center min-h-0 py-1">
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        {fmtShort(q.periodStart)} – {fmt(q.periodEnd)}
-                      </p>
-                    </div>
-                    <div className="shrink-0 pt-2 space-y-1.5">
-                      <p className="text-xs text-text-secondary">
-                        Deadline: {fmt(q.deadline)}
-                      </p>
-                      <p className="text-xs text-text-secondary font-medium">Not Started</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <p className="text-xs text-text-secondary mt-4">
-              Connect your HMRC account in{' '}
-              <Link href="/settings?tab=HMRC" className="underline hover:text-text-secondary">Settings → HMRC</Link>
-              {' '}to enable submissions.
-            </p>
-          </div>
-
-          {/* VAT — only shown for VAT registered users */}
-          {pageData.vatRegistered && <div className="bg-surface-card rounded-xl border border-border-default p-6">
-            <h2 className={cn(sectionTitle, 'mb-4')}>VAT position — {label}</h2>
-            {pageData.vatWarning && (
-              <Alert intent="warning" className="mb-4">
-                {pageData.vatWarning}
-              </Alert>
-            )}
-            <div className="space-y-0 max-w-sm">
-              <BreakdownRow label="VAT collected on invoices"   value={formatCurrency(pageData.totalVatCollected)} />
-              <BreakdownRow label="VAT reclaimable on expenses" value={`−${formatCurrency(pageData.vatReclaimable)}`} green />
-              <BreakdownRow label="Net VAT owed"                value={formatCurrency(pageData.totalVatCollected - pageData.vatReclaimable)} bold />
-            </div>
-            <div className="mt-4">
-              <Link
-                href="/tax/vat"
-                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-              >
-                View VAT Returns →
-              </Link>
-            </div>
-          </div>}
-
-          {/* Paid invoices */}
-          <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
-            <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
-              <div>
-                <h2 className={sectionTitle}>Paid invoices</h2>
-                <p className="text-xs text-text-secondary mt-0.5">
-                  {pageData.paidInvoices?.length ?? 0} invoices · {formatCurrency(pageData.totalIncomeExVat)} ex-VAT
-                </p>
-              </div>
-              {canExport ? (
-                <button onClick={() => exportCSV('income')} className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary border border-border-default rounded-lg px-2.5 py-1.5 hover:bg-surface-sunken">
-                  <DownloadSimple weight="regular" className="w-3 h-3" /> CSV
-                </button>
-              ) : (
-                <Link
-                  href="/settings?tab=billing"
-                  title="Export is available on the Solo plan and above. Upgrade to unlock."
-                  className="flex items-center gap-1.5 text-xs text-text-secondary border border-border-subtle rounded-xl px-2.5 py-1.5 hover:bg-surface-sunken"
-                >
-                  <Lock weight="regular" className="w-3 h-3" /> CSV
-                </Link>
-              )}
-            </div>
-            {pageData.paidInvoices?.length ? (
-              <table className="w-full text-sm">
-                <thead className="bg-surface-sunken border-b border-border-default">
-                  <tr>
-                    {['Invoice','Client','Paid','Ex-VAT','VAT','Total'].map((h, i) => (
-                      <th key={h} className={`px-4 py-3 font-medium text-text-secondary ${i >= 3 ? 'text-right' : 'text-left'}`}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle">
-                  {pageData.paidInvoices.map((inv: PaidInvoiceRow) => (
-                    <tr key={inv.id} className="fd-table-row">
-                      <td className="px-4 py-3 font-medium text-text-primary">{inv.invoice_number}</td>
-                      <td className="px-4 py-3 text-text-secondary">{(Array.isArray(inv.clients) ? inv.clients[0]?.name : inv.clients?.name) ?? '—'}</td>
-                      <td className="px-4 py-3 text-text-secondary">{inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('en-GB') : '—'}</td>
-                      <td className="px-4 py-3 text-right">{formatCurrency(Number(inv.total) - Number(inv.vat_amount))}</td>
-                      <td className="px-4 py-3 text-right text-text-secondary">{formatCurrency(inv.vat_amount)}</td>
-                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(inv.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="px-6 py-8 text-sm text-text-secondary text-center">No paid invoices in this tax year.</p>
-            )}
-          </div>
-
-          <p className="text-xs text-text-secondary">
-            Estimates only — based on information you have entered. Confirm all figures with a qualified UK accountant before filing your Self Assessment return.
-          </p>
-        </>
+        </PageLayout>
       )}
     </div>
   )

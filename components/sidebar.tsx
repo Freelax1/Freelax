@@ -4,16 +4,17 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import {
-  List, X, Bell, MagnifyingGlass, Gear, SignOut, Question, ArrowUp,
+  List, X, Bell, Gear, SignOut, Question, ArrowUp, CaretDown,
   House, Calculator, FileText, ClipboardText, Receipt, Car,
   Users, FolderOpen,
 } from '@phosphor-icons/react'
+import type { Icon } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import CommandMenu from '@/components/command-menu'
 import SettingsModal from '@/components/settings-modal'
 import { buildNotifications, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
-import Tooltip from '@/components/tooltip'
+import { IconButton, IconLink } from '@/components/ui/icon-button'
 import { cn } from '@/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -45,31 +46,62 @@ function fmt(n: number) {
 
 // ── Nav groups ─────────────────────────────────────────────────────────
 
-const NAV_GROUPS = [
+type NavIcon = Icon
+
+type NavLinkItem = {
+  kind: 'link'
+  href: string
+  label: string
+  icon: NavIcon
+}
+
+type NavNestedItem = {
+  kind: 'nested'
+  id: string
+  label: string
+  icon: NavIcon
+  children: { href: string; label: string; icon: NavIcon }[]
+}
+
+type NavItem = NavLinkItem | NavNestedItem
+
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: 'Overview',
     items: [
-      { href: '/dashboard', label: 'Dashboard', icon: House },
-      { href: '/tax',       label: 'Tax',       icon: Calculator },
+      { kind: 'link', href: '/dashboard', label: 'Dashboard', icon: House },
+      { kind: 'link', href: '/tax',       label: 'Tax',       icon: Calculator },
     ],
   },
   {
     label: 'Money',
     items: [
-      { href: '/invoices', label: 'Invoices', icon: FileText },
-      { href: '/quotes',   label: 'Quotes',   icon: ClipboardText },
-      { href: '/expenses', label: 'Expenses', icon: Receipt },
-      { href: '/mileage',  label: 'Mileage',  icon: Car },
+      { kind: 'link', href: '/invoices', label: 'Invoices', icon: FileText },
+      { kind: 'link', href: '/quotes',   label: 'Quotes',   icon: ClipboardText },
+      {
+        kind: 'nested',
+        id: 'spending',
+        label: 'Expenses',
+        icon: Receipt,
+        children: [
+          { href: '/expenses', label: 'Expenses', icon: Receipt },
+          { href: '/mileage',  label: 'Mileage',  icon: Car },
+        ],
+      },
     ],
   },
   {
     label: 'Work',
     items: [
-      { href: '/clients',  label: 'Clients',  icon: Users },
-      { href: '/projects', label: 'Projects', icon: FolderOpen },
+      { kind: 'link', href: '/clients',  label: 'Clients',  icon: Users },
+      { kind: 'link', href: '/projects', label: 'Projects', icon: FolderOpen },
     ],
   },
 ]
+
+function isNavActive(pathname: string, href: string) {
+  return pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+}
 
 // ── Notification system ────────────────────────────────────────────────
 
@@ -138,6 +170,9 @@ export default function Sidebar() {
   const [profileOpen,      setProfileOpen]      = useState(false)
   const [settingsOpen,     setSettingsOpen]     = useState(false)
   const [settingsInitialTab, setSettingsInitialTab] = useState<import('@/components/settings/shared').SettingsTab | undefined>(undefined)
+  const [spendingExpanded, setSpendingExpanded] = useState(
+    () => pathname.startsWith('/expenses') || pathname.startsWith('/mileage'),
+  )
   const lastScrollY  = useRef(0)
   const profileRef   = useRef<HTMLDivElement>(null)
 
@@ -192,6 +227,12 @@ export default function Sidebar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  useEffect(() => {
+    if (pathname.startsWith('/expenses') || pathname.startsWith('/mileage')) {
+      setSpendingExpanded(true)
+    }
+  }, [pathname])
+
   const { visible: notifications, unreadCount } = useNotifications(
     navData.invoices, navData.quotes, navData.projects
   )
@@ -221,32 +262,11 @@ export default function Sidebar() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-        {/* Logo + search */}
-        <div className="pt-5 px-3.5 pb-3.5 shrink-0">
-          <div className="mb-3.5">
-            <span style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
-              Freelax
-            </span>
-          </div>
-          <button
-            onClick={() => { setCmdOpen(true); onNavClick?.() }}
-            className="transition-colors duration-150"
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '7px 12px', borderRadius: 'var(--radius-full)',
-              background: 'transparent', border: '1px solid var(--border-default)',
-              color: 'var(--text-muted)', cursor: 'pointer', fontSize: 'var(--text-xs)',
-              fontFamily: 'var(--font-sans)',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-sunken)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
-            <MagnifyingGlass weight="regular" style={{ width: 13, height: 13, flexShrink: 0 }} />
-            <span style={{ flex: 1, textAlign: 'left' }}>Search…</span>
-            <kbd className="rounded-sm" style={{ fontSize: 'var(--text-micro)', padding: '1px 5px', background: 'var(--surface-card)', border: '1px solid var(--border-default)', color: 'var(--text-muted)' }} suppressHydrationWarning>
-              {typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl+K'}
-            </kbd>
-          </button>
+        {/* Logo */}
+        <div className="pt-5 px-3.5 pb-3 shrink-0">
+          <span style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
+            Freelax
+          </span>
         </div>
 
         {/* Nav groups */}
@@ -259,30 +279,101 @@ export default function Sidebar() {
               }}>
                 {group.label}
               </p>
-              {group.items.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+              {group.items.map(item => {
+                if (item.kind === 'link') {
+                  const { href, label, icon: Icon } = item
+                  const active = isNavActive(pathname, href)
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={onNavClick}
+                      className="mb-px transition-colors duration-100"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '7px 10px', borderRadius: 'var(--radius-xl)',
+                        textDecoration: 'none',
+                        background: active ? 'var(--surface-sunken)' : 'transparent',
+                        color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        fontWeight: active ? 600 : 400,
+                        fontSize: 'var(--text-sm)',
+                      }}
+                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
+                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+                    >
+                      <Icon weight="regular" style={{ width: 17, height: 17, flexShrink: 0, color: active ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
+                      <span className="flex-1">{label}</span>
+                      {active && <div className="rounded-full shrink-0" style={{ width: 5, height: 5, background: 'var(--brand-primary)' }} />}
+                    </Link>
+                  )
+                }
+
+                const groupActive = item.children.some(c => isNavActive(pathname, c.href))
+                const expanded = spendingExpanded
+                const ParentIcon = item.icon
+
                 return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={onNavClick}
-                    className="mb-px transition-colors duration-100"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '7px 10px', borderRadius: 'var(--radius-xl)',
-                      textDecoration: 'none',
-                      background: active ? 'var(--surface-sunken)' : 'transparent',
-                      color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                      fontWeight: active ? 600 : 400,
-                      fontSize: 'var(--text-sm)',
-                    }}
-                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
-                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
-                  >
-                    <Icon weight="regular" style={{ width: 17, height: 17, flexShrink: 0, color: active ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
-                    <span className="flex-1">{label}</span>
-                    {active && <div className="rounded-full shrink-0" style={{ width: 5, height: 5, background: 'var(--brand-primary)' }} />}
-                  </Link>
+                  <div key={item.id} className="mb-px">
+                    <button
+                      type="button"
+                      onClick={() => setSpendingExpanded(o => !o)}
+                      aria-expanded={expanded}
+                      className="w-full transition-colors duration-100"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '7px 10px', borderRadius: 'var(--radius-xl)',
+                        background: groupActive && !expanded ? 'var(--surface-sunken)' : 'transparent',
+                        border: 'none', cursor: 'pointer',
+                        color: groupActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        fontWeight: groupActive ? 600 : 400,
+                        fontSize: 'var(--text-sm)',
+                        fontFamily: 'var(--font-sans)',
+                      }}
+                      onMouseEnter={e => { if (!groupActive) e.currentTarget.style.background = 'var(--surface-sunken)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = groupActive && !expanded ? 'var(--surface-sunken)' : 'transparent' }}
+                    >
+                      <ParentIcon weight="regular" style={{ width: 17, height: 17, flexShrink: 0, color: groupActive ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <CaretDown
+                        weight="regular"
+                        aria-hidden
+                        className={cn(
+                          'w-3.5 h-3.5 shrink-0 text-text-muted transition-transform duration-200 origin-center',
+                          expanded ? 'rotate-0' : '-rotate-90',
+                        )}
+                      />
+                    </button>
+                    {expanded && (
+                      <div className="mt-0.5 mb-0.5 ml-[18px] pl-3 border-l border-border-subtle">
+                        {item.children.map(({ href, label, icon: ChildIcon }) => {
+                          const active = isNavActive(pathname, href)
+                          return (
+                            <Link
+                              key={href}
+                              href={href}
+                              onClick={onNavClick}
+                              className="mb-px block transition-colors duration-100"
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '6px 10px', borderRadius: 'var(--radius-xl)',
+                                textDecoration: 'none',
+                                background: active ? 'var(--surface-sunken)' : 'transparent',
+                                color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                fontWeight: active ? 600 : 400,
+                                fontSize: 'var(--text-xs)',
+                              }}
+                              onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-sunken)' }}
+                              onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+                            >
+                              <ChildIcon weight="regular" style={{ width: 15, height: 15, flexShrink: 0, color: active ? 'var(--brand-primary)' : 'var(--text-muted)' }} />
+                              <span className="flex-1">{label}</span>
+                              {active && <div className="rounded-full shrink-0" style={{ width: 5, height: 5, background: 'var(--brand-primary)' }} />}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
                 )
               })}
             </div>
@@ -470,27 +561,26 @@ export default function Sidebar() {
           headerHidden ? '-translate-y-full' : 'translate-y-0',
         )}
       >
-        <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-          <List weight="regular" className="w-5 h-5" />
-        </button>
+        <IconButton
+          label="Menu"
+          onClick={() => setMobileOpen(true)}
+          className="p-1 hover:bg-transparent"
+          icon={<List weight="regular" className="w-5 h-5" />}
+        />
         <span style={{ flex: 1, fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>
           Freelax
         </span>
-        <Tooltip label="Search" align="right">
-          <button onClick={() => setCmdOpen(true)} className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-            <MagnifyingGlass weight="regular" style={{ width: 18, height: 18 }} />
-          </button>
-        </Tooltip>
-        <Link
-          href="/notifications"
-          className="p-1 flex relative"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
-        >
-          <Bell weight="regular" style={{ width: 18, height: 18 }} />
+        <span className="relative">
+          <IconLink
+            href="/notifications"
+            label="Notifications"
+            className="p-1 hover:bg-transparent"
+            icon={<Bell weight="regular" style={{ width: 18, height: 18 }} />}
+          />
           {unreadCount > 0 && (
-            <span className="absolute rounded-full" style={{ top: 2, right: 2, width: 7, height: 7, background: 'var(--danger-500)', border: '1px solid var(--surface-card)' }} />
+            <span className="absolute rounded-full pointer-events-none" style={{ top: 2, right: 2, width: 7, height: 7, background: 'var(--danger-500)', border: '1px solid var(--surface-card)' }} />
           )}
-        </Link>
+        </span>
       </header>
 
       {/* ── Mobile drawer ────────────────────────────────────────────── */}
@@ -508,11 +598,13 @@ export default function Sidebar() {
           }}>
             <div className="flex items-center justify-between pt-4 px-4 shrink-0">
               <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tighter, -0.03em)', fontFamily: 'var(--font-serif)' }}>Freelax</span>
-              <Tooltip label="Close menu" align="right">
-                <button onClick={() => setMobileOpen(false)} className="p-1 flex" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                  <X weight="regular" style={{ width: 18, height: 18 }} />
-                </button>
-              </Tooltip>
+              <IconButton
+                label="Close"
+                align="right"
+                onClick={() => setMobileOpen(false)}
+                className="p-1 hover:bg-transparent"
+                icon={<X weight="regular" style={{ width: 18, height: 18 }} />}
+              />
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <SidebarContent onNavClick={() => setMobileOpen(false)} />

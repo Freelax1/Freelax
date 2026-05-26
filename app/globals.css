@@ -450,11 +450,26 @@ select option {
   border-radius: var(--radius-sm);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .fd-skeleton {
+    animation: none;
+    background: var(--surface-sunken);
+  }
+}
+
 .fd-table-row {
   transition: background var(--duration-fast) var(--ease-out);
 }
 .fd-table-row:hover {
   background: var(--forest-50) !important;
+}
+
+/* Dark tooltip surface — Tooltip, InfoTooltip, MetricWithTooltip */
+.fd-tooltip {
+  background: var(--forest-800);
+  color: var(--text-on-dark);
+  border: 1px solid var(--forest-700);
+  box-shadow: var(--shadow-tooltip);
 }
 
 /* ── Focus ring ─────────────────────────────────────────────────────────── */

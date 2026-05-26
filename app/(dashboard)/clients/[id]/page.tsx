@@ -17,6 +17,7 @@ import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { sectionTitle } from '@/lib/typography'
 import StatCard from '@/components/ui/stat-card'
+import { ClientDetailSkeleton } from '@/components/ui'
 import type { Client, Project, Invoice, Quote } from '@/types/database'
 
 type ClientProject = Pick<Project, 'id' | 'title' | 'status' | 'ir35_status' | 'rate_type' | 'rate_amount'>
@@ -68,11 +69,7 @@ export default function ClientDetailPage() {
 
   useEffect(() => { load() }, [params.id])
 
-  if (loading) return (
-    <div className="space-y-4">
-      {[1,2,3].map(i => <div key={i} className="h-24 bg-surface-sunken rounded-xl animate-pulse" />)}
-    </div>
-  )
+  if (loading) return <ClientDetailSkeleton />
   if (!client) return null
 
   const totalInvoiced  = calcTotalInvoiced(invoices)
@@ -137,15 +134,32 @@ export default function ClientDetailPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 fd-stat-grid">
-        <StatCard size="sm" label="Total invoiced" value={formatCurrency(totalInvoiced)} />
-        <StatCard size="sm" label="Total paid" value={formatCurrency(totalPaid)} valueColor="var(--success-700)" />
         <StatCard
           size="sm"
-          label="Outstanding"
+          label="Total invoiced"
+          tooltip="All invoices for this client."
+          value={formatCurrency(totalInvoiced)}
+        />
+        <StatCard
+          size="sm"
+          label="Total paid"
+          tooltip="Paid invoices for this client."
+          value={formatCurrency(totalPaid)}
+          valueColor="var(--success-700)"
+        />
+        <StatCard
+          size="sm"
+          label="Unpaid"
+          tooltip="Sent and overdue only."
           value={formatCurrency(outstanding)}
           valueColor={outstanding > 0 ? 'var(--danger-600)' : undefined}
         />
-        <StatCard size="sm" label="Quotes pipeline" value={formatCurrency(quotesPipeline)} />
+        <StatCard
+          size="sm"
+          label="Quotes pipeline"
+          tooltip="Sent and accepted quotes."
+          value={formatCurrency(quotesPipeline)}
+        />
       </div>
 
       {(client.address_line1 || client.notes) && (

@@ -10,8 +10,16 @@ import {
   calcTaxDeadline, calcActionItems,
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
-import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
-import { PageHeader } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
+import {
+  PageHeader,
+  StatCardSkeleton,
+  StatusLineSkeleton,
+  PanelCardSkeleton,
+  WhatsComingSkeleton,
+  ActionListSkeleton,
+  QuietRowSkeleton,
+} from '@/components/ui'
 import AiLauncher  from './components/ai-launcher'
 import StatusLine  from './components/status-line'
 import ThreePots   from './components/three-pots'
@@ -341,15 +349,6 @@ export default function DashboardPage() {
     }
   }, [])
 
-  function syncedLabel() {
-    if (!syncedAt) return null
-    const secs = Math.round((Date.now() - syncedAt.getTime()) / 1000)
-    if (secs < 10)  return 'Synced just now'
-    if (secs < 60)  return `Synced ${secs}s ago`
-    if (secs < 120) return 'Synced a moment ago'
-    return `Synced ${Math.round(secs / 60)}m ago`
-  }
-
   const todayLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
   const headerSubtitle = data
     ? `${todayLabel} · Tax year ${data.taxYearLabel}`
@@ -378,25 +377,22 @@ export default function DashboardPage() {
       />
 
       {loading || !data ? (
-        <div className="flex flex-col gap-8 mt-8">
-          {/* Line skeleton */}
-          <div className="h-7 rounded w-1/2 bg-black/[0.05]" />
-          {/* Three pots — no shimmer per spec, just muted placeholders */}
+        <div className="flex flex-col gap-8 mt-8" aria-busy aria-label="Loading dashboard">
+          <StatusLineSkeleton />
           <div className="fd-cards-grid">
-            {[1,2,3].map(i => (
-              <div key={i} className="flex-1 h-[160px] rounded-xl p-6 border border-border-default bg-surface-card">
-                <div className="h-[10px] rounded w-[80px] mb-4 bg-black/[0.05]" />
-                <div className="h-9 rounded w-3/5 bg-black/[0.05]" />
-              </div>
-            ))}
+            <StatCardSkeleton className="flex-1 w-full" reserveFooter />
+            <StatCardSkeleton className="flex-1 w-full" reserveFooter showProgress />
+            <StatCardSkeleton className="flex-1 w-full" reserveFooter />
           </div>
-          {/* Lower placeholders */}
-          {[100, 80, 40].map((h, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default" style={{ height: h }} />
-          ))}
+          <QuietRowSkeleton />
+          <ActionListSkeleton rows={2} />
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+            <PanelCardSkeleton showChart className="flex-1 min-w-0" />
+            <WhatsComingSkeleton className="flex-1 min-w-0 lg:max-w-sm" />
+          </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-8 mt-8 pb-14">
+        <PageLayout className="flex flex-col gap-8 mt-8" syncedAt={syncedAt}>
 
           {/* Onboarding checklist — top of page for brand new users */}
           {data.isNewUser && (
@@ -473,14 +469,7 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* "Synced" footer */}
-          <p className="text-caption text-text-secondary text-center pt-2">
-            {syncedLabel()} · Built in the UK · <Link href="/security" className="text-text-secondary no-underline font-medium">Your data is encrypted</Link>
-          </p>
-
-          <NotTaxAdviceDisclaimer variant="footer" />
-
-        </div>
+        </PageLayout>
       )}
     </>
   )

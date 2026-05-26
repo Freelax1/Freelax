@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { X } from '@phosphor-icons/react'
+import { IconButton } from '@/components/ui/icon-button'
 
 interface SlideOverProps {
   open: boolean
@@ -60,12 +61,12 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-2.5 pb-3.5 shrink-0 border-b border-b-border-subtle">
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
-            <button
+            <IconButton
+              label="Close"
               onClick={onClose}
-              className="p-1.5 rounded-lg border-none cursor-pointer flex items-center justify-center bg-surface-sunken text-text-secondary"
-            >
-              <X weight="regular" size={18} />
-            </button>
+              className="bg-surface-sunken hover:bg-surface-sunken"
+              icon={<X weight="regular" size={18} />}
+            />
           </div>
 
           {/* Scrollable body */}
@@ -94,12 +95,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 shrink-0 border-b border-b-border-subtle">
             <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center text-text-secondary hover:bg-surface-sunken transition-colors"
-            >
-              <X weight="regular" size={16} />
-            </button>
+            <IconButton label="Close" onClick={onClose} icon={<X weight="regular" size={16} />} />
           </div>
 
           {/* Scrollable body */}

@@ -1,7 +1,10 @@
+'use client'
+
 import React from 'react'
 import { cardLabel, serifDisplay, serifStat } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import ProgressBar from './progress-bar'
+import { MetricWithTooltip } from '@/components/ui/metric-hint'
 
 export interface StatCardProgressBar {
   pct: number
@@ -22,6 +25,8 @@ export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'sunken'
   size?: 'md' | 'sm'
   heroClassName?: string
+  /** Detail on hover / focus */
+  tooltip?: string
 }
 
 export default function StatCard({
@@ -36,10 +41,18 @@ export default function StatCard({
   variant = 'default',
   size = 'md',
   heroClassName,
+  tooltip,
   className,
   ...props
 }: StatCardProps) {
   const hasFooter = Boolean(progressBar || sub || reserveFooter)
+
+  const labelBlock =
+    typeof label === 'string' ? (
+      <p className={cardLabel}>{label}</p>
+    ) : (
+      label
+    )
 
   return (
     <div
@@ -52,10 +65,10 @@ export default function StatCard({
       {...props}
     >
       <div className="shrink-0 mb-3">
-        {typeof label === 'string' ? (
-          <p className={cardLabel}>{label}</p>
+        {tooltip ? (
+          <MetricWithTooltip tooltip={tooltip} side="top">{labelBlock}</MetricWithTooltip>
         ) : (
-          label
+          labelBlock
         )}
       </div>
 

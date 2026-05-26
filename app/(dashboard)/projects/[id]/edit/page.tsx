@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { fetchProjectById } from '@/lib/api/projects'
 import ProjectForm from '@/components/project-form'
 import Button from '@/components/ui/button'
+import { FormPageSkeleton } from '@/components/ui'
 import Link from 'next/link'
 import { ArrowLeft } from '@phosphor-icons/react'
 import type { Project } from '@/types/database'
@@ -22,11 +23,7 @@ export default function ProjectEditPage() {
     })
   }, [params.id])
 
-  if (loading) return (
-    <div className="max-w-2xl space-y-4">
-      {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse" />)}
-    </div>
-  )
+  if (loading) return <FormPageSkeleton className="max-w-2xl" />
   if (!project) return <p className="text-text-muted">Project not found.</p>
 
   return (

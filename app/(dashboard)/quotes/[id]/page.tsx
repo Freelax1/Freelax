@@ -18,7 +18,8 @@ import Button, { buttonVariants } from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import { sectionTitle } from '@/lib/typography'
 import { cn } from '@/lib/utils'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
+import { DocumentDetailSkeleton } from '@/components/ui'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import Link from 'next/link'
 import {
@@ -204,11 +205,7 @@ export default function QuoteDetailPage() {
     setTimeout(() => setLinkCopied(false), 2500)
   }
 
-  if (loading) return (
-    <div className="space-y-4 max-w-3xl">
-      {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse" />)}
-    </div>
-  )
+  if (loading) return <DocumentDetailSkeleton />
   if (!quote) return <p className="text-text-muted">Quote not found.</p>
 
   const client    = quote.clients
@@ -287,15 +284,13 @@ export default function QuoteDetailPage() {
             >
               <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
             </a>
-            <Button
-              type="button"
-              intent="danger-subtle"
-              size="sm"
+            <IconButton
+              label="Delete"
+              variant="danger"
               onClick={() => setShowDelete(true)}
-              aria-label="Delete quote"
-            >
-              <Trash weight="regular" className="w-3.5 h-3.5" />
-            </Button>
+              className="rounded-lg bg-danger-50 text-danger-700 hover:bg-danger-100"
+              icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
+            />
           </div>
         </div>
       </div>
@@ -305,7 +300,7 @@ export default function QuoteDetailPage() {
         <>
           {msg.type === 'error' && msg.text.toLowerCase().includes('plan') ? (
             <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-warning-200 bg-warning-50">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
+              <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 4.8H15l-4 2.9 1.5 4.8L8 10.4 3.5 13.5l1.5-4.8L1 5.8h5.2L8 1z" fill="currentColor"/></svg>
               </div>
               <div className="flex-1 min-w-0">
@@ -315,11 +310,12 @@ export default function QuoteDetailPage() {
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
-                  <X weight="regular" className="w-4 h-4" />
-                </button>
-              </Tooltip>
+              <IconButton
+                label="Dismiss"
+                onClick={() => setMsg(null)}
+                className="flex-shrink-0 hover:bg-transparent text-warning-400 hover:text-warning-600"
+                icon={<X weight="regular" className="w-4 h-4" />}
+              />
             </div>
           ) : (
             <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium border ${
@@ -333,11 +329,12 @@ export default function QuoteDetailPage() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
-                  <X weight="regular" className="w-4 h-4" />
-                </button>
-              </Tooltip>
+              <IconButton
+                label="Dismiss"
+                onClick={() => setMsg(null)}
+                className="opacity-50 hover:opacity-100 hover:bg-transparent"
+                icon={<X weight="regular" className="w-4 h-4" />}
+              />
             </div>
           )}
         </>
@@ -505,7 +502,7 @@ export default function QuoteDetailPage() {
               const cfg = activityConfig(entry)
               return (
                 <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
+                  <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
                     <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -6,40 +6,40 @@ import { fetchExpenses, deleteExpense } from '@/lib/api/expenses'
 import { CATEGORY_LABELS, calcTotalExVat, calcVatReclaimable, calcReceiptsUploaded } from '@/lib/logic/expenses'
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
-import { PageHeader, DropdownPanel, ListMetrics, ListSearch, ListBulkBar, FilterChip } from '@/components/ui'
+import {
+  PageHeader,
+  DropdownPanel,
+  ListMetrics,
+  ListMetricsSkeleton,
+  ListSearch,
+  ListBulkBar,
+  CategoryFilterBar,
+  TableRowsSkeleton,
+  ListMobileCardSkeleton,
+  TABLE_CELL_PRESETS,
+} from '@/components/ui'
 import Button from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
-import { Paperclip, Trash, DotsThreeVertical, PencilSimple, CheckSquare, Square } from '@phosphor-icons/react'
+import { Paperclip, Trash, PencilSimple } from '@phosphor-icons/react'
 import type { Expense } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
-import Tooltip from '@/components/tooltip'
+import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
+import { SelectAllIconButton, SelectIconButton } from '@/components/ui/icon-button'
+import ListPageLayout from '@/components/list-page-layout'
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Expense actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
-      {open && (
-        <DropdownPanel className="min-w-[130px]">
+    <div className="relative">
+      <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
+      <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)} className="min-w-[130px]">
           <button onClick={() => { setOpen(false); onEdit() }}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
             <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
@@ -50,8 +50,7 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
-      )}
+      </DropdownPanel>
     </div>
   )
 }
@@ -116,7 +115,13 @@ export default function ExpensesPage() {
   const totalVatReclaimable = calcVatReclaimable(expenses)
   const receiptsUploaded    = calcReceiptsUploaded(expenses)
 
-  const categories = ['all', ...Array.from(new Set(expenses.map(e => e.category))).sort()]
+  const categoryCounts = expenses.reduce<Record<string, number>>((acc, e) => {
+    acc[e.category] = (acc[e.category] ?? 0) + 1
+    return acc
+  }, {})
+  const usedCategories = Array.from(new Set(expenses.map(e => e.category))).sort(
+    (a, b) => (categoryCounts[b] ?? 0) - (categoryCounts[a] ?? 0) || a.localeCompare(b),
+  )
 
   const filtered = expenses.filter(e => {
     const q = query.trim().toLowerCase()
@@ -131,7 +136,7 @@ export default function ExpensesPage() {
   const allSelected = filtered.length > 0 && selected.size === filtered.length
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Expenses"
         subtitle={loading ? '' : `${expenses.length} expense${expenses.length !== 1 ? 's' : ''} · ${label}`}
@@ -142,31 +147,41 @@ export default function ExpensesPage() {
         }
       />
 
-      {!loading && expenses.length > 0 && (
+      {loading ? (
+        <ListMetricsSkeleton count={3} />
+      ) : expenses.length > 0 ? (
         <ListMetrics
           items={[
-            { label: 'Total ex-VAT', value: formatCurrency(totalExVat) },
-            { label: 'VAT reclaimable', value: formatCurrency(totalVatReclaimable) },
-            { label: 'Receipts', value: `${receiptsUploaded}/${expenses.length}` },
+            {
+              label: 'Total ex-VAT',
+              tooltip: `Expenses ex-VAT, ${label}.`,
+              value: formatCurrency(totalExVat),
+            },
+            {
+              label: 'VAT reclaimable',
+              tooltip: 'VAT on flagged expenses. VAT registered only.',
+              value: formatCurrency(totalVatReclaimable),
+              highlight: totalVatReclaimable > 0 ? 'positive' : 'neutral',
+            },
+            {
+              label: 'Receipts',
+              tooltip: 'Expenses with a receipt this tax year.',
+              value: `${receiptsUploaded}/${expenses.length}`,
+            },
           ]}
         />
-      )}
+      ) : null}
 
-      {!loading && categories.length > 1 && (
-        <div className="flex gap-1.5 flex-wrap mb-3.5">
-          {categories.map(cat => {
-            const catLabel = cat === 'all' ? 'All categories' : (CATEGORY_LABELS[cat] ?? cat)
-            return (
-              <FilterChip
-                key={cat}
-                active={categoryFilter === cat}
-                onClick={() => setCategoryFilter(cat === categoryFilter && cat !== 'all' ? 'all' : cat)}
-              >
-                {catLabel}
-              </FilterChip>
-            )
-          })}
-        </div>
+      {!loading && usedCategories.length > 0 && (
+        <CategoryFilterBar
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+          options={usedCategories.map(cat => ({
+            id: cat,
+            label: CATEGORY_LABELS[cat] ?? cat,
+            count: categoryCounts[cat],
+          }))}
+        />
       )}
 
       {!loading && (
@@ -208,12 +223,10 @@ export default function ExpensesPage() {
               <thead>
                 <tr>
                   <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                    <Tooltip label={allSelected ? 'Deselect all' : 'Select all'}>
-                      <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(e => e.id)))}
-                        className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                        {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                      </button>
-                    </Tooltip>
+                    <SelectAllIconButton
+                      allSelected={allSelected}
+                      onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(e => e.id)))}
+                    />
                   </th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Date</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Merchant</th>
@@ -225,18 +238,14 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-20" /></td>)}</tr>
-                )) : filtered.map(exp => {
+                {loading ? (
+                  <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.expense} />
+                ) : filtered.map(exp => {
                   const isSelected = selected.has(exp.id)
                   return (
                     <tr key={exp.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                       <td className="px-3 py-2.5 text-center">
-                        <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                          <button onClick={() => toggleSelect(exp.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                            {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                          </button>
-                        </Tooltip>
+                        <SelectIconButton selected={isSelected} onClick={() => toggleSelect(exp.id)} />
                       </td>
                       <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{new Date(exp.date).toLocaleDateString('en-GB')}</td>
                       <td className="px-4 py-2.5 font-medium text-sm text-text-primary">{exp.merchant}</td>
@@ -269,21 +278,19 @@ export default function ExpensesPage() {
 
           {/* Mobile cards */}
           <div className="md:hidden space-y-2">
-            {loading ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
-                <div className="h-4 fd-skeleton w-24 mb-3" /><div className="h-3 fd-skeleton w-32" />
+            {loading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <ListMobileCardSkeleton key={i} variant="expense" />
+                ))}
               </div>
-            )) : filtered.map(exp => {
+            ) : filtered.map(exp => {
               const isSelected = selected.has(exp.id)
               return (
                 <div key={exp.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                        <button onClick={() => toggleSelect(exp.id)} className="flex items-center flex-shrink-0">
-                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                        </button>
-                      </Tooltip>
+                      <SelectIconButton selected={isSelected} onClick={() => toggleSelect(exp.id)} className="flex-shrink-0" />
                       <span className="font-medium text-text-primary truncate">{exp.merchant}</span>
                     </div>
                     <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(exp.amount)}</span>
@@ -323,6 +330,6 @@ export default function ExpensesPage() {
         title={editExpense ? 'Edit expense' : 'Add expense'}>
         <ExpenseForm expense={editExpense} vatRegistered={vatRegistered} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
-    </div>
+    </ListPageLayout>
   )
 }

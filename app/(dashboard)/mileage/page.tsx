@@ -5,16 +5,18 @@ import { useState, useEffect } from 'react'
 import { fetchMileageEntries, deleteMileageEntry, calcMileageRelief, calcMileageRate, HMRC_THRESHOLD, HMRC_RATE_FIRST, HMRC_RATE_AFTER } from '@/lib/api/mileage'
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
-import { PageHeader, ListMetrics } from '@/components/ui'
+import { PageHeader, ListMetrics, MileagePageSkeleton } from '@/components/ui'
 import Button, { buttonVariants } from '@/components/ui/button'
 import SlideOver from '@/components/slide-over'
 import MileageForm from '@/components/mileage-form'
 import { Car, Trash, Lock, ArrowRight } from '@phosphor-icons/react'
+import { IconButton } from '@/components/ui/icon-button'
 import type { MileageEntry } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import ListPageLayout from '@/components/list-page-layout'
 
 export default function MileagePage() {
   const [mileage, setMileage]           = useState<MileageEntry[]>([])
@@ -56,7 +58,7 @@ export default function MileagePage() {
   const visibleMileage     = mileage.filter(e => !mileageDeletePending.has(e.id))
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Mileage"
         subtitle={loading ? '' : `${mileage.length} journey${mileage.length !== 1 ? 's' : ''} · ${totalMiles.toLocaleString('en-GB')} mi · ${label}`}
@@ -69,10 +71,12 @@ export default function MileagePage() {
         }
       />
 
+      {loading && <MileagePageSkeleton />}
+
       {/* Upsell gate */}
       {!loading && !canUseMileage && (
         <div className="flex flex-col items-center justify-center py-16 rounded-xl bg-surface-sunken text-center">
-          <div className="w-10 h-10 rounded-full bg-surface-card border border-border-default flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-lg bg-surface-card border border-border-default flex items-center justify-center mb-3">
             <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
           </div>
           <p className="text-sm font-medium text-text-primary mb-1">
@@ -92,9 +96,22 @@ export default function MileagePage() {
         <>
           <ListMetrics
             items={[
-              { label: 'Total miles', value: `${totalMiles.toLocaleString('en-GB')} mi` },
-              { label: 'Tax relief', value: formatCurrency(totalMileageRelief), highlight: 'positive' },
-              { label: 'Current rate', value: `${(calcMileageRate(totalMiles) * 100).toFixed(0)}p/mile` },
+              {
+                label: 'Total miles',
+                tooltip: `Business miles, ${label} tax year.`,
+                value: `${totalMiles.toLocaleString('en-GB')} mi`,
+              },
+              {
+                label: 'Tax relief',
+                tooltip: 'Deduction using HMRC mileage rates.',
+                value: formatCurrency(totalMileageRelief),
+                highlight: 'positive',
+              },
+              {
+                label: 'Rate band',
+                tooltip: 'Rate for your next mile, based on YTD mileage.',
+                value: `${(calcMileageRate(totalMiles) * 100).toFixed(0)}p/mile`,
+              },
             ]}
           />
           <div className="bg-surface-sunken border border-border-default rounded-xl px-4 py-3 text-xs text-text-secondary mb-5">
@@ -159,10 +176,12 @@ export default function MileagePage() {
                       <td className="px-4 py-2.5 text-right font-medium text-sm tabular-nums">{Number(e.miles).toLocaleString('en-GB', { minimumFractionDigits: 1 })}</td>
                       <td className="px-4 py-2.5 text-right text-success-700 font-semibold text-sm tabular-nums">£{relief.toFixed(2)}</td>
                       <td className="px-3 py-2.5 text-right">
-                        <button onClick={() => scheduleMileageDelete(e)}
-                          className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-500 transition-colors">
-                          <Trash weight="regular" className="w-3.5 h-3.5" />
-                        </button>
+                        <IconButton
+                          label="Delete"
+                          variant="danger"
+                          onClick={() => scheduleMileageDelete(e)}
+                          icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
+                        />
                       </td>
                     </tr>
                   )
@@ -200,10 +219,12 @@ export default function MileagePage() {
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-text-secondary">{new Date(e.date).toLocaleDateString('en-GB')}</span>
-                    <button onClick={() => scheduleMileageDelete(e)}
-                      className="p-1.5 rounded hover:bg-danger-50 text-text-secondary hover:text-danger-500 transition-colors">
-                      <Trash weight="regular" className="w-3.5 h-3.5" />
-                    </button>
+                    <IconButton
+                      label="Delete"
+                      variant="danger"
+                      onClick={() => scheduleMileageDelete(e)}
+                      icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
+                    />
                   </div>
                 </div>
               )
@@ -215,6 +236,6 @@ export default function MileagePage() {
       <SlideOver open={slideOpen} onClose={() => setSlideOpen(false)} title="Log journey">
         <MileageForm userId={userId} taxYearStart={taxYearStart} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
-    </div>
+    </ListPageLayout>
   )
 }

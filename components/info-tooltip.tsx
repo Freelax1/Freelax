@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Question } from '@phosphor-icons/react'
+import { useFloatingPosition } from '@/lib/use-floating-position'
 
 interface Props {
   children: React.ReactNode
@@ -10,12 +12,26 @@ interface Props {
 
 export default function InfoTooltip({ children, width = 280 }: Props) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLSpanElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const anchorRef = useRef<HTMLButtonElement | null>(null)
+  const panelRef = useRef<HTMLSpanElement | null>(null)
+
+  const { coords, side } = useFloatingPosition(open, anchorRef, panelRef, {
+    preferredSide: 'bottom',
+    align: 'start',
+    gap: 6,
+    estimateWidth: width,
+    estimateHeight: 80,
+  })
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (!open) return
     function onOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (anchorRef.current?.contains(t) || panelRef.current?.contains(t)) return
+      setOpen(false)
     }
     function onEsc(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
@@ -28,27 +44,38 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
     }
   }, [open])
 
+  const panel =
+    mounted && open ? (
+      <span
+        ref={panelRef}
+        role="tooltip"
+        data-side={side}
+        className="fd-tooltip fixed z-dropdown text-xs leading-relaxed px-3 py-2.5 rounded-lg font-normal"
+        style={{
+          top: coords.top,
+          left: coords.left,
+          width,
+          maxWidth: 'calc(100vw - 32px)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {children}
+      </span>
+    ) : null
+
   return (
-    <span ref={ref} className="relative inline-flex items-center">
+    <>
       <button
+        ref={anchorRef}
         type="button"
         onClick={() => setOpen(v => !v)}
-        aria-label="More information"
+        aria-label="Help"
+        aria-expanded={open}
         className="bg-transparent border-none p-0 ml-1 cursor-pointer inline-flex items-center transition-colors text-text-secondary hover:text-brand-primary"
       >
         <Question weight="regular" size={13} />
       </button>
-
-      {open && (
-        <span
-          role="tooltip"
-          className="absolute top-[calc(100%+6px)] left-0 z-dropdown text-text-secondary text-xs leading-relaxed px-3 py-2.5 rounded-lg font-normal bg-surface-card border border-border-default shadow-tooltip"
-          style={{ width, maxWidth: 'calc(100vw - 32px)' }}
-          onClick={e => e.stopPropagation()}
-        >
-          {children}
-        </span>
-      )}
-    </span>
+      {panel ? createPortal(panel, document.body) : null}
+    </>
   )
 }

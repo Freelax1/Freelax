@@ -14,6 +14,7 @@ import ProjectForm from '@/components/project-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
 import Button, { buttonVariants } from '@/components/ui/button'
+import { ProjectDetailSkeleton } from '@/components/ui'
 import { sectionTitle } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
@@ -64,11 +65,7 @@ export default function ProjectDetailPage() {
     if (updated) setProject(updated)
   }
 
-  if (loading) return (
-    <div className="space-y-4 max-w-3xl">
-      {[1,2,3].map(i => <div key={i} className="h-24 bg-surface-sunken rounded-xl animate-pulse" />)}
-    </div>
-  )
+  if (loading) return <ProjectDetailSkeleton />
   if (!project) return null
 
   const client = project.clients
@@ -144,7 +141,7 @@ export default function ProjectDetailPage() {
           />
         ) : (
           <div className="flex flex-col items-center justify-center py-10 rounded-xl bg-surface-sunken text-center">
-            <div className="w-10 h-10 rounded-full bg-surface-sunken flex items-center justify-center mb-3">
+            <div className="w-10 h-10 rounded-lg bg-surface-sunken flex items-center justify-center mb-3">
               <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
             </div>
             <p className="text-sm font-medium text-text-secondary mb-1">

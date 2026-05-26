@@ -9,7 +9,8 @@ import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
 import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Button from '@/components/ui/button'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
+import { FormPageSkeleton } from '@/components/ui'
 import { sectionTitle } from '@/lib/typography'
 
 type ClientOption = { id: string; name: string }
@@ -117,7 +118,7 @@ export default function InvoiceEditPage() {
     router.push(`/invoices/${params.id}`)
   }
 
-  if (loading) return <div className="space-y-4">{Array.from({length:3}).map((_,i) => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse"/>)}</div>
+  if (loading) return <FormPageSkeleton />
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -185,11 +186,12 @@ export default function InvoiceEditPage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(Number(item.quantity) * Number(item.unit_price))}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <Tooltip label="Remove line item">
-                        <button type="button" onClick={() => setLineItems(prev => prev.filter((_,idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
-                          <X weight="regular" className="w-4 h-4" />
-                        </button>
-                      </Tooltip>
+                      <IconButton
+                        label="Remove line"
+                        onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
+                        className="hover:bg-transparent text-text-muted hover:text-danger-500"
+                        icon={<X weight="regular" className="w-4 h-4" />}
+                      />
                     )}
                   </td>
                 </tr>

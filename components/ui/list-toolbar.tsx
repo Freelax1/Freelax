@@ -1,7 +1,10 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import Input from '@/components/ui/input'
+import Input, { Select } from '@/components/ui/input'
+import Tooltip from '@/components/tooltip'
+import { MetricWithTooltip } from '@/components/ui/metric-hint'
 
 export interface ListStatusTab {
   id: string
@@ -55,8 +58,16 @@ export function ListStatusTabs({ tabs, value, onChange, allCount, className }: L
   )
 }
 
+export type ListMetricItem = {
+  label: string
+  value: string
+  /** Detail on hover / focus */
+  tooltip?: string
+  highlight?: 'positive' | 'negative' | 'neutral'
+}
+
 interface ListMetricsProps {
-  items: { label: string; value: string; highlight?: 'positive' | 'negative' | 'neutral' }[]
+  items: ListMetricItem[]
   className?: string
 }
 
@@ -64,22 +75,36 @@ interface ListMetricsProps {
 export function ListMetrics({ items, className }: ListMetricsProps) {
   if (!items.length) return null
   return (
-    <div className={cn('flex flex-wrap items-center gap-x-6 gap-y-1 mb-4 text-sm', className)}>
-      {items.map((item, i) => (
-        <div key={i} className="flex items-baseline gap-2">
-          <span className="text-text-muted">{item.label}</span>
-          <span
-            className={cn(
-              'font-semibold tabular-nums',
-              item.highlight === 'positive' && 'text-success-600',
-              item.highlight === 'negative' && 'text-danger-600',
-              (!item.highlight || item.highlight === 'neutral') && 'text-text-primary',
+    <div className={cn('flex flex-wrap items-start gap-x-8 gap-y-3 mb-4', className)}>
+      {items.map((item, i) => {
+        const body = (
+          <>
+            <div className="flex items-baseline gap-2 text-sm">
+              <span className="text-text-muted">{item.label}</span>
+              <span
+                className={cn(
+                  'font-semibold tabular-nums',
+                  item.highlight === 'positive' && 'text-success-600',
+                  item.highlight === 'negative' && 'text-danger-600',
+                  (!item.highlight || item.highlight === 'neutral') && 'text-text-primary',
+                )}
+              >
+                {item.value}
+              </span>
+            </div>
+          </>
+        )
+
+        return (
+          <div key={i} className="min-w-0">
+            {item.tooltip ? (
+              <MetricWithTooltip tooltip={item.tooltip}>{body}</MetricWithTooltip>
+            ) : (
+              body
             )}
-          >
-            {item.value}
-          </span>
-        </div>
-      ))}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -113,14 +138,15 @@ export function ListSearch({ value, onChange, placeholder, className }: ListSear
         onKeyDown={e => e.key === 'Escape' && onChange('')}
       />
       {value && (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary text-base leading-none bg-transparent border-none cursor-pointer"
-          aria-label="Clear search"
-        >
-          ×
-        </button>
+        <Tooltip label="Clear">
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary text-base leading-none bg-transparent border-none cursor-pointer p-1 rounded-lg hover:bg-surface-sunken"
+          >
+            ×
+          </button>
+        </Tooltip>
       )}
     </div>
   )
@@ -169,7 +195,7 @@ export function FilterChip({ active, onClick, children }: FilterChipProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'px-3 py-1 rounded-lg text-xs font-medium border transition-colors duration-fast',
+        'shrink-0 whitespace-nowrap px-3 py-1 rounded-lg text-xs font-medium border transition-colors duration-fast',
         active
           ? 'bg-forest-50 text-brand-primary border-brand-primary'
           : 'bg-surface-card text-text-secondary border-border-default hover:bg-surface-sunken',
@@ -177,5 +203,118 @@ export function FilterChip({ active, onClick, children }: FilterChipProps) {
     >
       {children}
     </button>
+  )
+}
+
+interface FilterChipRowProps {
+  /** Chip that stays visible while the rest scroll horizontally (e.g. "All") */
+  pinned?: ReactNode
+  children: ReactNode
+  className?: string
+}
+
+/** Horizontal chip row — one line, scrolls when there are many filters */
+export function FilterChipRow({ pinned, children, className }: FilterChipRowProps) {
+  return (
+    <div className={cn('flex items-center gap-1.5 mb-3.5 min-w-0', className)}>
+      {pinned}
+      <div
+        className={cn(
+          'flex min-w-0 flex-1 gap-1.5 overflow-x-auto pb-0.5',
+          '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export type CategoryFilterOption = {
+  id: string
+  label: string
+  count?: number
+}
+
+/** Show all options as chips when ≤6; otherwise top chips + dropdown for the rest */
+const CATEGORY_CHIP_MAX = 6
+const CATEGORY_CHIP_VISIBLE = 5
+
+interface CategoryFilterBarProps {
+  value: string
+  onChange: (id: string) => void
+  options: CategoryFilterOption[]
+  allId?: string
+  allLabel?: string
+  moreLabel?: string
+  className?: string
+}
+
+export function CategoryFilterBar({
+  value,
+  onChange,
+  options,
+  allId = 'all',
+  allLabel = 'All categories',
+  moreLabel = 'More categories',
+  className,
+}: CategoryFilterBarProps) {
+  const useOverflow = options.length > CATEGORY_CHIP_MAX
+  const chipOptions = useOverflow ? options.slice(0, CATEGORY_CHIP_VISIBLE) : options
+  const menuOptions = useOverflow ? options.slice(CATEGORY_CHIP_VISIBLE) : []
+  const menuActive = menuOptions.some(o => o.id === value)
+
+  function optionLabel(o: CategoryFilterOption) {
+    return o.count != null ? `${o.label} (${o.count})` : o.label
+  }
+
+  return (
+    <FilterChipRow
+      className={className}
+      pinned={
+        <FilterChip active={value === allId} onClick={() => onChange(allId)}>
+          {allLabel}
+        </FilterChip>
+      }
+    >
+      {chipOptions.map(o => (
+        <FilterChip
+          key={o.id}
+          active={value === o.id}
+          onClick={() => onChange(value === o.id ? allId : o.id)}
+        >
+          {optionLabel(o)}
+        </FilterChip>
+      ))}
+      {useOverflow && (
+        <div
+          className={cn(
+            'relative shrink-0 rounded-lg border transition-colors duration-fast',
+            menuActive
+              ? 'bg-forest-50 border-brand-primary'
+              : 'bg-surface-card border-border-default hover:bg-surface-sunken',
+          )}
+        >
+          <Select
+            bare
+            variant="inline"
+            aria-label={moreLabel}
+            value={menuActive ? value : ''}
+            onChange={e => {
+              const next = e.target.value
+              onChange(next || allId)
+            }}
+            className={cn(
+              'min-w-[9.5rem] max-w-[11.5rem] py-1 pl-3 pr-8 text-xs font-medium',
+              menuActive ? 'text-brand-primary' : 'text-text-secondary',
+            )}
+            options={[
+              { value: '', label: moreLabel },
+              ...menuOptions.map(o => ({ value: o.id, label: optionLabel(o) })),
+            ]}
+          />
+        </div>
+      )}
+    </FilterChipRow>
   )
 }

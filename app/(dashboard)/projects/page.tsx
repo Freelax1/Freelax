@@ -6,19 +6,33 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchProjects, deleteProject, updateProject, type ProjectListRow } from '@/lib/api/projects'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar, FilterChip } from '@/components/ui'
+import {
+  PageHeader,
+  DropdownPanel,
+  ListStatusTabs,
+  ListMetrics,
+  ListMetricsSkeleton,
+  ListSearch,
+  ListBulkBar,
+  FilterChip,
+  TableRowsSkeleton,
+  ListMobileCardSkeleton,
+  TABLE_CELL_PRESETS,
+} from '@/components/ui'
 import Button from '@/components/ui/button'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
+import { Eye, PencilSimple, Trash } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
+import { SelectAllIconButton, SelectIconButton } from '@/components/ui/icon-button'
 import type { Project } from '@/types/database'
 import SlideOver from '@/components/slide-over'
 import ProjectForm from '@/components/project-form'
+import ListPageLayout from '@/components/list-page-layout'
 
 const PROJECT_STATUS_LABELS: Record<string, string> = {
   active: 'Active', completed: 'Completed', on_hold: 'On Hold', cancelled: 'Cancelled',
@@ -32,28 +46,15 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
   onEdit: (p: ProjectListRow) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const allStatuses = ['active', 'completed', 'on_hold', 'cancelled']
   const otherStatuses = allStatuses.filter(s => s !== project.status)
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Project actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
-      {open && (
-        <DropdownPanel>
+    <div className="relative">
+      <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
+      <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
           <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -79,8 +80,7 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
-      )}
+      </DropdownPanel>
     </div>
   )
 }
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
   const allSelected = searched.length > 0 && selected.size === searched.length
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Projects"
         subtitle={loading ? '' : `${projects.length} project${projects.length !== 1 ? 's' : ''}`}
@@ -191,7 +191,9 @@ export default function ProjectsPage() {
         }
       />
 
-      {!loading && projects.length > 0 && (
+      {loading ? (
+        <ListMetricsSkeleton count={2} />
+      ) : projects.length > 0 ? (
         <>
           <ListStatusTabs
             allCount={projects.length}
@@ -205,12 +207,20 @@ export default function ProjectsPage() {
           />
           <ListMetrics
             items={[
-              { label: 'Total projects', value: String(projects.length) },
-              { label: 'Combined rate value', value: totalValue > 0 ? formatCurrency(totalValue) : '—' },
+              {
+                label: 'Projects',
+                tooltip: 'All projects, any status.',
+                value: String(projects.length),
+              },
+              {
+                label: 'Rate figures',
+                tooltip: 'Sum of rate amounts on projects — not invoiced revenue.',
+                value: totalValue > 0 ? formatCurrency(totalValue) : '—',
+              },
             ]}
           />
         </>
-      )}
+      ) : null}
 
       <div className="flex gap-1.5 mb-4 flex-wrap">
         {[
@@ -259,9 +269,7 @@ export default function ProjectsPage() {
               <thead>
                 <tr>
                   <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                    <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                      {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                    </button>
+                    <SelectAllIconButton allSelected={allSelected} onClick={toggleAll} />
                   </th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Title</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Client</th>
@@ -273,18 +281,14 @@ export default function ProjectsPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? Array.from({ length: 3 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
-                    <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-24" /></td>
-                  ))}</tr>
-                )) : searched.map((p: ProjectListRow) => {
+                {loading ? (
+                  <TableRowsSkeleton rows={3} cells={TABLE_CELL_PRESETS.project} />
+                ) : searched.map((p: ProjectListRow) => {
                   const isSelected = selected.has(p.id)
                   return (
                     <tr key={p.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                       <td className="px-3 py-2.5 text-center">
-                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                        </button>
+                        <SelectIconButton selected={isSelected} onClick={() => toggleSelect(p.id)} />
                       </td>
                       <td className="px-4 py-2.5 font-medium text-sm">
                         <Link href={`/projects/${p.id}`} className="hover:text-forest-600">{p.title}</Link>
@@ -314,21 +318,19 @@ export default function ProjectsPage() {
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
-          {loading ? Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
-              <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ListMobileCardSkeleton key={i} variant="project" />
+              ))}
             </div>
-          )) : searched.map((p: ProjectListRow) => {
+          ) : searched.map((p: ProjectListRow) => {
             const isSelected = selected.has(p.id)
             return (
               <div key={p.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                      <button onClick={() => toggleSelect(p.id)} className="flex items-center flex-shrink-0">
-                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                      </button>
-                    </Tooltip>
+                    <SelectIconButton selected={isSelected} onClick={() => toggleSelect(p.id)} className="flex-shrink-0" />
                     <Link href={`/projects/${p.id}`} className="font-medium text-text-primary hover:text-forest-600 truncate">{p.title}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={p.status} /></div>
@@ -420,6 +422,6 @@ export default function ProjectsPage() {
       >
         <ProjectForm project={editProject as Partial<Project> | undefined} onSuccess={() => { setSlideOpen(false); load() }} />
       </SlideOver>
-    </div>
+    </ListPageLayout>
   )
 }

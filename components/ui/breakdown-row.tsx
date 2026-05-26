@@ -1,4 +1,5 @@
 import React from 'react'
+import { cardLabel } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 
 export interface BreakdownRowProps {
@@ -8,6 +9,24 @@ export interface BreakdownRowProps {
   red?: boolean
   green?: boolean
   hint?: string
+}
+
+/** Groups rows under a small label inside a breakdown card (e.g. Trading profit → Taxable income). */
+export function BreakdownGroup({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('space-y-0', className)}>
+      <p className={cn(cardLabel, 'mb-2')}>{label}</p>
+      {children}
+    </div>
+  )
 }
 
 /** Label/value row for P&L and tax breakdown sections inside SectionCard. */

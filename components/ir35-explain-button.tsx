@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Sparkle, CircleNotch, X, ArrowCounterClockwise } from '@phosphor-icons/react'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import Button from '@/components/ui/button'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 
 interface IR35ExplainButtonProps {
   projectId: string
@@ -111,14 +111,18 @@ export default function IR35ExplainButton({ projectId, answers, calculatedStatus
                 <span className="font-semibold text-text-primary text-sm">IR35 AI Analysis</span>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => handleExplain(true)} title="Refresh" className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
-                  <ArrowCounterClockwise weight="regular" className="w-4 h-4 text-text-secondary" />
-                </button>
-                <Tooltip label="Close">
-                  <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-surface-sunken rounded-full transition-colors">
-                    <X weight="regular" className="w-4 h-4 text-text-secondary" />
-                  </button>
-                </Tooltip>
+                <IconButton
+                  label="Refresh"
+                  onClick={() => handleExplain(true)}
+                  className="rounded-full"
+                  icon={<ArrowCounterClockwise weight="regular" className="w-4 h-4 text-text-secondary" />}
+                />
+                <IconButton
+                  label="Close"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full"
+                  icon={<X weight="regular" className="w-4 h-4 text-text-secondary" />}
+                />
               </div>
             </div>
 

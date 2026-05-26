@@ -18,7 +18,7 @@ export default function GlobalError({
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-surface-paper font-sans">
       <div className="max-w-[440px] w-full text-center">
-        <div className="w-14 h-14 rounded-full inline-flex items-center justify-center mb-5 bg-danger-50 border border-[color:var(--danger-200)]">
+        <div className="w-14 h-14 rounded-lg inline-flex items-center justify-center mb-5 bg-danger-50 border border-[color:var(--danger-200)]">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--danger-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />

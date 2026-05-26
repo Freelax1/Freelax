@@ -20,7 +20,7 @@ import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
 import { sectionTitle } from '@/lib/typography'
 import type { Client, Project } from '@/types/database'
 import { Input, Select, Textarea, Field } from '@/components/form-fields'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 
 interface LineItem {
   description: string
@@ -318,11 +318,12 @@ export default function NewQuotePage() {
                   <td className="py-1 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <Tooltip label="Remove line item">
-                        <button type="button" onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
-                          <X weight="regular" className="w-4 h-4" />
-                        </button>
-                      </Tooltip>
+                      <IconButton
+                        label="Remove line"
+                        onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
+                        className="hover:bg-transparent text-text-muted hover:text-danger-500"
+                        icon={<X weight="regular" className="w-4 h-4" />}
+                      />
                     )}
                   </td>
                 </tr>

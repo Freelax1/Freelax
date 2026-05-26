@@ -4,6 +4,7 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import MonthlyIncomeChart from '@/components/ui/monthly-income-chart'
 import { buildMonthlyIncomeBars } from '@/lib/logic/dashboard'
 import { Sparkle, CircleNotch, X } from '@phosphor-icons/react'
+import { IconButton } from '@/components/ui/icon-button'
 import Button from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import { cardLabel } from '@/lib/typography'
@@ -127,13 +128,12 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
                 AI insight · {monthName}
               </span>
             </div>
-            <button
+            <IconButton
+              label="Dismiss"
               onClick={dismissInsight}
-              className="bg-transparent border-none cursor-pointer p-px text-text-secondary flex items-center"
-              title="Dismiss"
-            >
-              <X weight="regular" className="w-[13px] h-[13px]" />
-            </button>
+              className="p-px hover:bg-transparent"
+              icon={<X weight="regular" className="w-[13px] h-[13px]" />}
+            />
           </div>
           {insight}
           <div className="mt-2.5">

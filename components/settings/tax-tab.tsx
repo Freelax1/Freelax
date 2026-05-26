@@ -46,7 +46,7 @@ export default function TaxTab({ profile, save, saving }: Props) {
           />
         </Field>
 
-        <Field label={<span>Student loan<InfoTooltip>Repayments at 9% on income over £29,385 per year (Plan 2). Most post-2012 UK undergraduates have Plan 2. Deducted automatically through Self Assessment.</InfoTooltip></span>} hint="Affects how much is deducted from your take-home through Self Assessment">
+        <Field label={<span>Student loan<InfoTooltip>9% on income above your plan threshold. Via Self Assessment.</InfoTooltip></span>} hint="Affects how much is deducted from your take-home through Self Assessment">
           <Select value={tp.student_loan_plan} onChange={e => setTp(p => ({ ...p, student_loan_plan: e.target.value }))}>
             <option value="none">No student loan</option>
             <option value="plan1">Plan 1 — started before Sep 2012 (threshold £24,990)</option>
@@ -90,7 +90,7 @@ export default function TaxTab({ profile, save, saving }: Props) {
               />
             </Field>
             <Field
-              label={<span>Annual dividends drawn (£)<InfoTooltip>Dividends from your company are taxed at lower rates than salary. First £500 is free, then 10.75% / 35.75% / 39.35% depending on your tax band.</InfoTooltip></span>}
+              label={<span>Annual dividends drawn (£)<InfoTooltip>Lower tax than salary. £500 free, then band rates.</InfoTooltip></span>}
               hint="Dividends are taxed at lower rates than salary (10.75% / 35.75% / 39.35%) with a £500 tax-free allowance."
             >
               <Input

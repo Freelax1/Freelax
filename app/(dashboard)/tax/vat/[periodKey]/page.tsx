@@ -16,6 +16,7 @@ import { fetchPaidInvoicesByUser } from '@/lib/api/invoices'
 import { fetchExpensesByUser } from '@/lib/api/expenses'
 import { formatCurrency } from '@/lib/tax-calculations'
 import PageHeader from '@/components/ui/page-header'
+import { PanelCardSkeleton } from '@/components/ui/content-skeletons'
 import SectionCard from '@/components/ui/section-card'
 import BreakdownRow from '@/components/ui/breakdown-row'
 import Alert from '@/components/ui/alert'
@@ -215,7 +216,7 @@ export default function VatReturnPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
-        <div className="h-40 bg-surface-card rounded-xl border border-border-default fd-skeleton" />
+        <PanelCardSkeleton className="min-h-[280px]" />
       </div>
     )
   }

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { ChatCircle, X, PaperPlaneTilt, CircleNotch, ArrowCounterClockwise } from '@phosphor-icons/react'
 import Link from 'next/link'
 import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
 
@@ -21,7 +22,7 @@ export default function TaxQAChat() {
   const [loading, setLoading] = useState(false)
   const [cooldown, setCooldown] = useState(false)
 
-  if (pathname?.startsWith('/settings')) return null
+  if (pathname?.startsWith('/settings') || pathname?.startsWith('/tax')) return null
 
   async function handleSend() {
     const q = input.trim()
@@ -78,16 +79,18 @@ export default function TaxQAChat() {
               <p className="text-xs text-text-secondary">Ask anything about your taxes</p>
             </div>
             <div className="flex items-center gap-1">
-              <Tooltip label="New question">
-                <button type="button" onClick={handleReset} className="p-1 hover:bg-surface-card rounded-lg text-text-secondary">
-                  <ArrowCounterClockwise weight="regular" className="w-4 h-4" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Close">
-                <button type="button" onClick={() => setOpen(false)} className="p-1 hover:bg-surface-card rounded-lg text-text-secondary">
-                  <X weight="regular" className="w-4 h-4" />
-                </button>
-              </Tooltip>
+              <IconButton
+                label="New chat"
+                onClick={handleReset}
+                className="hover:bg-surface-card"
+                icon={<ArrowCounterClockwise weight="regular" className="w-4 h-4" />}
+              />
+              <IconButton
+                label="Close"
+                onClick={() => setOpen(false)}
+                className="hover:bg-surface-card"
+                icon={<X weight="regular" className="w-4 h-4" />}
+              />
             </div>
           </div>
 
@@ -140,17 +143,18 @@ export default function TaxQAChat() {
                 aria-label="Tax question"
                 className="flex-1 min-w-0"
               />
-              <Button
-                type="button"
-                intent="primary"
-                size="sm"
-                onClick={handleSend}
-                disabled={!input.trim() || loading || cooldown}
-                aria-label="Send question"
-                className="p-2 rounded-full shrink-0"
-              >
-                <PaperPlaneTilt weight="regular" className="w-4 h-4" />
-              </Button>
+              <Tooltip label="Send">
+                <Button
+                  type="button"
+                  intent="primary"
+                  size="sm"
+                  onClick={handleSend}
+                  disabled={!input.trim() || loading || cooldown}
+                  className="p-2 rounded-full shrink-0"
+                >
+                  <PaperPlaneTilt weight="regular" className="w-4 h-4" />
+                </Button>
+              </Tooltip>
             </div>
             <p className="mt-1.5 text-center whitespace-nowrap overflow-hidden text-ellipsis text-caption text-text-secondary">
               AI estimates only · not professional advice ·{' '}

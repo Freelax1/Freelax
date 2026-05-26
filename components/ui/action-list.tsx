@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { IconButton } from '@/components/ui/icon-button'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Icon } from '@phosphor-icons/react'
 import {
   WarningCircle,
@@ -13,6 +15,7 @@ import {
   CheckCircle,
   Sparkle,
   Coins,
+  X,
 } from '@phosphor-icons/react'
 import { cardLabel } from '@/lib/typography'
 import { cn } from '@/lib/utils'
@@ -21,6 +24,8 @@ import { buttonVariants } from './button'
 export type ActionPriority = 'red' | 'amber' | 'green' | 'info'
 
 export interface ActionListItem {
+  /** Stable id for dismiss persistence; auto-generated from kind/href/title if omitted */
+  id?: string
   priority: ActionPriority
   title: string
   sub?: string
@@ -35,7 +40,31 @@ export interface ActionListProps {
   title?: string
   items: ActionListItem[]
   className?: string
+  /** Hide the whole block when there are no items (default true) */
   hideWhenEmpty?: boolean
+  /** Allow dismissing rows for this session (default true) */
+  dismissible?: boolean
+  /** sessionStorage key for dismissed ids */
+  dismissStorageKey?: string
+}
+
+const DISMISS_STORAGE_DEFAULT = 'freelax_dismissed_actions'
+
+export function actionItemId(item: ActionListItem): string {
+  if (item.id) return item.id
+  const kind = item.kind ?? item.type ?? 'action'
+  return `${kind}:${item.href}:${item.title}`
+}
+
+function readDismissed(key: string): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(key)
+    if (!raw) return new Set()
+    const parsed = JSON.parse(raw) as unknown
+    return new Set(Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : [])
+  } catch {
+    return new Set()
+  }
 }
 
 const ICON_TONE: Record<ActionPriority, { bg: string; fg: string }> = {
@@ -107,28 +136,58 @@ export default function ActionList({
   items,
   className,
   hideWhenEmpty = true,
+  dismissible = true,
+  dismissStorageKey = DISMISS_STORAGE_DEFAULT,
 }: ActionListProps) {
-  if (hideWhenEmpty && items.length === 0) return null
+  const [dismissed, setDismissed] = useState<Set<string>>(() =>
+    typeof window !== 'undefined' ? readDismissed(dismissStorageKey) : new Set(),
+  )
+
+  useEffect(() => {
+    setDismissed(readDismissed(dismissStorageKey))
+  }, [dismissStorageKey])
+
+  const dismiss = useCallback(
+    (id: string) => {
+      setDismissed(prev => {
+        const next = new Set(prev)
+        next.add(id)
+        try {
+          sessionStorage.setItem(dismissStorageKey, JSON.stringify([...next]))
+        } catch {}
+        return next
+      })
+    },
+    [dismissStorageKey],
+  )
+
+  const visibleItems = useMemo(
+    () => (dismissible ? items.filter(item => !dismissed.has(actionItemId(item))) : items),
+    [items, dismissed, dismissible],
+  )
+
+  if (hideWhenEmpty && visibleItems.length === 0) return null
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {title ? <p className={cardLabel}>{title}</p> : null}
 
       <div className="flex flex-col gap-3">
-        {items.map((item, i) => {
+        {visibleItems.map(item => {
+          const id = actionItemId(item)
           const IconComp = resolveIcon(item)
           const tone = ICON_TONE[item.priority]
 
           return (
             <div
-              key={i}
+              key={id}
               className={cn(
                 'flex items-center gap-2 w-full',
                 'bg-surface-card rounded-xl border border-border-default shadow-card',
                 'px-5 py-4 min-h-[72px]',
               )}
             >
-              <div className={cn('w-10 h-10 rounded-full flex items-center justify-center shrink-0', tone.bg)}>
+              <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', tone.bg)}>
                 <IconComp weight="regular" className={cn('w-[18px] h-[18px]', tone.fg)} />
               </div>
 
@@ -148,6 +207,15 @@ export default function ActionList({
               >
                 {resolveCta(item)}
               </Link>
+
+              {dismissible ? (
+                <IconButton
+                  label="Dismiss"
+                  onClick={() => dismiss(id)}
+                  className="shrink-0 text-text-muted hover:text-text-secondary"
+                  icon={<X weight="regular" className="w-4 h-4" />}
+                />
+              ) : null}
             </div>
           )
         })}

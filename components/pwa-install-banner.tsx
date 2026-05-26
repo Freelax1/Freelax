@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, DownloadSimple } from "@phosphor-icons/react";
+import { IconButton } from "@/components/ui/icon-button";
 
 const STORAGE_KEY = "freedesk-pwa-dismissed";
 const DISMISS_DAYS = 30;
@@ -116,13 +117,12 @@ export function PWAInstallBanner() {
             </button>
           )}
         </div>
-        <button
+        <IconButton
+          label="Dismiss"
           onClick={handleDismiss}
-          className="flex-shrink-0 text-text-muted hover:text-text-secondary -mt-0.5"
-          aria-label="Dismiss"
-        >
-          <X weight="regular" className="w-4 h-4" />
-        </button>
+          className="flex-shrink-0 -mt-0.5 hover:bg-transparent"
+          icon={<X weight="regular" className="w-4 h-4" />}
+        />
       </div>
     </div>
   );

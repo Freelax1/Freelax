@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sparkle, X, Receipt, PenNib, ChatDots, ChartBar } from '@phosphor-icons/react'
+import { IconButton } from '@/components/ui/icon-button'
 import type { Icon } from '@phosphor-icons/react'
 
 const DISMISS_KEY = 'freelax_ai_launcher_dismissed'
@@ -27,18 +28,18 @@ const FEATURES: { id: string; icon: Icon; title: string; desc: string; href: str
   {
     id:    'tax',
     icon:  ChatDots,
-    title: 'Tax Q&A',
-    desc:  'Ask anything about UK tax, IR35, or VAT',
+    title: 'Tax advisor',
+    desc:  'Follow-up questions on your briefing',
     href:  '/tax',
-    cta:   'Ask now',
+    cta:   'Open',
   },
   {
     id:    'summary',
     icon:  ChartBar,
-    title: 'SA narrative',
-    desc:  'Plain-English Self Assessment summary',
+    title: 'Tax briefing',
+    desc:  'Plain-English walkthrough of your tax year',
     href:  '/tax',
-    cta:   'View',
+    cta:   'Read',
   },
 ]
 
@@ -66,14 +67,12 @@ export default function AiLauncher() {
           <p className="text-sm font-medium text-text-primary">AI features in Freelax</p>
           <span className="text-caption text-text-secondary bg-surface-sunken px-2 py-0.5 rounded-lg font-medium">4 tools</span>
         </div>
-        <button
+        <IconButton
+          label="Dismiss"
           onClick={dismiss}
-          className="text-text-muted hover:text-text-secondary transition-colors p-1 rounded-lg hover:bg-surface-sunken"
-          title="Dismiss"
-          aria-label="Dismiss AI features panel"
-        >
-          <X weight="regular" className="w-4 h-4" />
-        </button>
+          className="text-text-muted hover:text-text-secondary"
+          icon={<X weight="regular" className="w-4 h-4" />}
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border-subtle">

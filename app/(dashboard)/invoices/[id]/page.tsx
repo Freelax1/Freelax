@@ -13,7 +13,8 @@ import Alert from '@/components/ui/alert'
 import { Field, Textarea } from '@/components/form-fields'
 import { cn } from '@/lib/utils'
 import { sectionTitle } from '@/lib/typography'
-import Tooltip from '@/components/tooltip'
+import { IconButton } from '@/components/ui/icon-button'
+import { DocumentDetailSkeleton } from '@/components/ui'
 
 // ── Chase modal ────────────────────────────────────────────────────────
 // ── Chase tiers ────────────────────────────────────────────────────────
@@ -114,11 +115,12 @@ function ChaseModal({
               {overdueDays > 0 && <span className="text-danger-500 ml-1">· {overdueDays}d overdue</span>}
             </p>
           </div>
-          <Tooltip label="Close">
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-surface-sunken">
-              <X weight="regular" className="w-4 h-4 text-text-muted" />
-            </button>
-          </Tooltip>
+          <IconButton
+            label="Close"
+            onClick={onClose}
+            className="rounded-full"
+            icon={<X weight="regular" className="w-4 h-4 text-text-muted" />}
+          />
         </div>
 
         <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -380,11 +382,7 @@ export default function InvoiceDetailPage() {
     setTimeout(() => setMsg(null), 4000)
   }
 
-  if (loading) return (
-    <div className="space-y-4 max-w-3xl">
-      {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse" />)}
-    </div>
-  )
+  if (loading) return <DocumentDetailSkeleton />
   if (!invoice) return <p className="text-text-muted">Invoice not found.</p>
 
   const client    = invoice.clients
@@ -487,7 +485,7 @@ export default function InvoiceDetailPage() {
           {/* Upgrade prompt — shown for plan restriction errors */}
           {msg.type === 'error' && msg.text.toLowerCase().includes('plan') ? (
             <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-warning-200 bg-warning-50">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
+              <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 4.8H15l-4 2.9 1.5 4.8L8 10.4 3.5 13.5l1.5-4.8L1 5.8h5.2L8 1z" fill="currentColor"/></svg>
               </div>
               <div className="flex-1 min-w-0">
@@ -497,11 +495,16 @@ export default function InvoiceDetailPage() {
               <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                </button>
-              </Tooltip>
+              <IconButton
+                label="Dismiss"
+                onClick={() => setMsg(null)}
+                className="flex-shrink-0 hover:bg-transparent text-warning-400 hover:text-warning-600"
+                icon={
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                }
+              />
             </div>
           ) : (
             /* Standard success / error toast */
@@ -516,11 +519,16 @@ export default function InvoiceDetailPage() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                </button>
-              </Tooltip>
+              <IconButton
+                label="Dismiss"
+                onClick={() => setMsg(null)}
+                className="opacity-50 hover:opacity-100 hover:bg-transparent"
+                icon={
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                    <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                }
+              />
             </div>
           )}
         </>
@@ -697,7 +705,7 @@ export default function InvoiceDetailPage() {
               const cfg = activityConfig(entry)
               return (
                 <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
+                  <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
                     <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -6,21 +6,34 @@ import { useRouter } from 'next/navigation'
 import { fetchClients } from '@/lib/api/clients'
 import { calcOutstanding } from '@/lib/logic/clients'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import {
+  PageHeader,
+  DropdownPanel,
+  ListStatusTabs,
+  ListMetrics,
+  ListMetricsSkeleton,
+  ListSearch,
+  ListBulkBar,
+  TableRowsSkeleton,
+  ListMobileCardSkeleton,
+  TABLE_CELL_PRESETS,
+} from '@/components/ui'
 import Button, { buttonVariants } from '@/components/ui/button'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ClientForm from '@/components/client-form'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
+import { Eye, PencilSimple, Trash } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import type { Client } from '@/types/database'
 import { useUndoDelete } from '@/hooks/use-undo-delete'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import ListPageLayout from '@/components/list-page-layout'
+import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
+import { SelectAllIconButton, SelectIconButton } from '@/components/ui/icon-button'
 
 interface ClientWithStats extends Client { outstanding: number }
 
@@ -34,27 +47,14 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
   onStatusChange: (c: ClientWithStats, status: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const otherStatuses = ['active', 'paused', 'archived'].filter(s => s !== client.status)
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Client actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
-      {open && (
-        <DropdownPanel>
+    <div className="relative">
+      <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
+      <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
           <Link href={`/clients/${client.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -83,8 +83,7 @@ function KebabMenu({ client, onEdit, onDelete, onStatusChange }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
-      )}
+      </DropdownPanel>
     </div>
   )
 }
@@ -216,7 +215,7 @@ export default function ClientsPage() {
   ] as const
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Clients"
         subtitle={loading ? '' : `${clients.length} clients`}
@@ -227,7 +226,9 @@ export default function ClientsPage() {
         }
       />
 
-      {!loading && clients.length > 0 && (
+      {loading ? (
+        <ListMetricsSkeleton count={2} />
+      ) : clients.length > 0 ? (
         <>
           <ListStatusTabs
             allCount={clients.length}
@@ -238,18 +239,21 @@ export default function ClientsPage() {
           <ListMetrics
             items={[
               {
-                label: 'Total outstanding',
+                label: 'Unpaid — all clients',
+                tooltip: 'Unpaid sent and overdue invoices, all clients.',
                 value: totalOutstanding > 0 ? formatCurrency(totalOutstanding) : '—',
                 highlight: totalOutstanding > 0 ? 'negative' : 'neutral',
               },
               {
-                label: 'Active outstanding',
-                value: formatCurrency(activeOutstanding),
+                label: 'Unpaid — active clients',
+                tooltip: 'Same, active clients only.',
+                value: activeOutstanding > 0 ? formatCurrency(activeOutstanding) : '—',
+                highlight: activeOutstanding > 0 ? 'negative' : 'neutral',
               },
             ]}
           />
         </>
-      )}
+      ) : null}
 
       <div className="mb-4 max-w-md">
         <ListSearch value={query} onChange={setQuery} placeholder="Search clients..." />
@@ -282,13 +286,7 @@ export default function ClientsPage() {
             <thead>
               <tr>
                 <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                  <Tooltip label={allSelected ? 'Deselect all' : 'Select all'}>
-                    <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                      {allSelected
-                        ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
-                        : <Square weight="regular" className="w-4 h-4" />}
-                    </button>
-                  </Tooltip>
+                  <SelectAllIconButton allSelected={allSelected} onClick={toggleAll} />
                 </th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Name</th>
                 <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Contact</th>
@@ -299,22 +297,14 @@ export default function ClientsPage() {
               </tr>
             </thead>
             <tbody>
-              {loading ? Array.from({ length: 4 }).map((_, i) => (
-                <tr key={i}>{Array.from({ length: 7 }).map((_, j) => (
-                  <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-24" /></td>
-                ))}</tr>
-              )) : filtered.map(c => {
+              {loading ? (
+                <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.client} />
+              ) : filtered.map(c => {
                 const isSelected = selected.has(c.id)
                 return (
                   <tr key={c.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                     <td className="px-3 py-2.5 text-center">
-                      <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                        <button onClick={() => toggleSelect(c.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                          {isSelected
-                            ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" />
-                            : <Square weight="regular" className="w-4 h-4" />}
-                        </button>
-                      </Tooltip>
+                      <SelectIconButton selected={isSelected} onClick={() => toggleSelect(c.id)} />
                     </td>
                     <td className="px-4 py-2.5 font-medium text-sm">
                       <Link href={`/clients/${c.id}`} className="hover:text-forest-600">{c.name}</Link>
@@ -344,21 +334,19 @@ export default function ClientsPage() {
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
-          {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
-              <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ListMobileCardSkeleton key={i} variant="client" />
+              ))}
             </div>
-          )) : filtered.map(c => {
+          ) : filtered.map(c => {
             const isSelected = selected.has(c.id)
             return (
               <div key={c.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                      <button onClick={() => toggleSelect(c.id)} className="flex items-center flex-shrink-0">
-                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                      </button>
-                    </Tooltip>
+                    <SelectIconButton selected={isSelected} onClick={() => toggleSelect(c.id)} className="flex-shrink-0" />
                     <Link href={`/clients/${c.id}`} className="font-medium text-text-primary hover:text-forest-700 truncate">{c.name}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={c.status} /></div>
@@ -420,6 +408,6 @@ export default function ClientsPage() {
           loading={bulkUpdating}
         />
       )}
-    </div>
+    </ListPageLayout>
   )
 }

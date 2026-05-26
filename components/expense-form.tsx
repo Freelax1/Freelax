@@ -222,7 +222,7 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
       <Toggle
         checked={form.vat_reclaimable}
         onChange={val => set('vat_reclaimable', val)}
-        label={<span>VAT reclaimable<InfoTooltip>If you are VAT-registered, you can reclaim the VAT on business expenses back from HMRC. Tick this if the expense included VAT and it is a genuine business cost.</InfoTooltip></span>}
+        label={<span>VAT reclaimable<InfoTooltip>Reclaim VAT if registered and it's a business cost.</InfoTooltip></span>}
       />
 
       <div className="pt-2">

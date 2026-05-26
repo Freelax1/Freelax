@@ -9,15 +9,13 @@ interface Props {
   taxTotal:     number
 }
 
-type State = 'onboarding' | 'clear' | 'nudge' | 'watch' | 'attention' | 'behind'
+type State = 'onboarding' | 'clear' | 'nudge' | 'behind'
 
-function getStatus(p: Props): { text: string; state: State } {
+function getStatus(p: Props): { text: string; state: State } | null {
   if (p.isNewUser)
     return { text: "Welcome. Let's get you set up.", state: 'onboarding' }
-  if (p.hasOverdue && p.actionCount >= 3)
-    return { text: "A few things are piling up. Let's clear them.", state: 'attention' }
   if (p.actionCount >= 2)
-    return { text: "You're mostly on track — a couple of things to check.", state: 'watch' }
+    return null
   if (p.hasOverdue || p.actionCount === 1)
     return { text: "Ticking along nicely — one thing waiting just below.", state: 'nudge' }
   if (p.taxProgress < 0.5 && p.taxTotal > 0)
@@ -47,49 +45,21 @@ function WeatherGlyph({ state }: { state: State }) {
     )
   }
 
-  // ── Cloud (nudge / watch / behind) ────────────────────────────────
-  // Clean cloud: three overlapping circles + flat bottom rectangle
-  if (state === 'nudge' || state === 'watch' || state === 'behind') {
-    const color = state === 'behind' ? red : amber
-    return (
-      <svg width="18" height="13" viewBox="0 0 18 13" fill="none" className="shrink-0">
-        {/* Cloud body — arc-based path that reliably looks like a cloud */}
-        <path
-          d="M3.5 11 C1.5 11 1 9.5 1 8.5 C1 7 2 6 3.5 6 C3.5 4 5 2.5 7 2.5 C8.5 2.5 9.7 3.4 10.2 4.7 C10.6 4.5 11 4.4 11.5 4.4 C13.4 4.4 15 6 15 7.9 C15 9.7 13.6 11 11.8 11 Z"
-          stroke={color}
-          strokeWidth="1.3"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        {/* Small sun ray peeking top-right */}
-        <circle cx="14" cy="2.5" r="1.5" stroke={color} strokeWidth="1.1" />
-        <line x1="14" y1="0.2" x2="14" y2="0.8" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
-        <line x1="15.9" y1="1.1" x2="15.5" y2="1.5" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
-        <line x1="16.5" y1="2.8" x2="15.9" y2="2.8" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
-      </svg>
-    )
-  }
-
-  // ── Storm cloud (attention) ───────────────────────────────────────
+  // ── Cloud (nudge / watch / behind) — default for non-clear states ─────
+  const color = state === 'behind' ? red : amber
   return (
-    <svg width="18" height="15" viewBox="0 0 18 15" fill="none" className="shrink-0">
-      {/* Cloud */}
+    <svg width="18" height="13" viewBox="0 0 18 13" fill="none" className="shrink-0">
       <path
-        d="M3.5 10 C1.5 10 1 8.5 1 7.5 C1 6 2 5 3.5 5 C3.5 3 5 1.5 7 1.5 C8.5 1.5 9.7 2.4 10.2 3.7 C10.6 3.5 11 3.4 11.5 3.4 C13.4 3.4 15 5 15 6.9 C15 8.7 13.6 10 11.8 10 Z"
-        stroke={red}
+        d="M3.5 11 C1.5 11 1 9.5 1 8.5 C1 7 2 6 3.5 6 C3.5 4 5 2.5 7 2.5 C8.5 2.5 9.7 3.4 10.2 4.7 C10.6 4.5 11 4.4 11.5 4.4 C13.4 4.4 15 6 15 7.9 C15 9.7 13.6 11 11.8 11 Z"
+        stroke={color}
         strokeWidth="1.3"
         strokeLinejoin="round"
         fill="none"
       />
-      {/* Lightning bolt */}
-      <polyline
-        points="8,10.5 6.5,12.5 8.5,12.5 7,14.5"
-        stroke={red}
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+      <circle cx="14" cy="2.5" r="1.5" stroke={color} strokeWidth="1.1" />
+      <line x1="14" y1="0.2" x2="14" y2="0.8" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
+      <line x1="15.9" y1="1.1" x2="15.5" y2="1.5" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
+      <line x1="16.5" y1="2.8" x2="15.9" y2="2.8" stroke={color} strokeWidth="1.1" strokeLinecap="round" />
     </svg>
   )
 }
@@ -137,7 +107,10 @@ function NudgeChevron() {
 
 export default function StatusLine(props: Props) {
   const [visible, setVisible] = useState(false)
-  const { text, state } = getStatus(props)
+  const status = getStatus(props)
+  if (!status) return null
+
+  const { text, state } = status
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 60)
@@ -152,10 +125,10 @@ export default function StatusLine(props: Props) {
     }}>
       <div className="flex items-center gap-2 flex-wrap">
         <WeatherGlyph state={state} />
-        <p className="font-semibold text-text-primary inline-flex items-center gap-1 text-lg font-sans tracking-tight leading-snug">
+        <h2 className="font-semibold text-text-primary inline-flex items-center gap-1 text-lg font-sans tracking-tight leading-snug m-0">
           {text}
           {state === 'nudge' && <NudgeChevron />}
-        </p>
+        </h2>
       </div>
     </div>
   )

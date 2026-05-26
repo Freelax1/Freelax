@@ -7,16 +7,29 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchQuotes, deleteQuote, type QuoteListRow } from '@/lib/api/quotes'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { groupByMonth } from '@/lib/logic/list-display'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
+import {
+  PageHeader,
+  DropdownPanel,
+  ListStatusTabs,
+  ListMetrics,
+  ListMetricsSkeleton,
+  ListSearch,
+  ListBulkBar,
+  TableRowsSkeleton,
+  ListMobileCardSkeleton,
+  TABLE_CELL_PRESETS,
+} from '@/components/ui'
 import Button, { buttonVariants } from '@/components/ui/button'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
+import { Eye, PencilSimple, Trash } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import ListPageLayout from '@/components/list-page-layout'
+import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
+import { SelectAllIconButton, SelectIconButton } from '@/components/ui/icon-button'
 
 const QUOTE_STATUS_LABELS: Record<string, string> = {
   draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined',
@@ -28,29 +41,16 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
   onStatusChange: (q: QuoteListRow, status: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const isDraft = quote.status === 'draft'
   const allStatuses = ['draft', 'sent', 'accepted', 'declined']
   const statusOptions = allStatuses.filter(s => s !== quote.status)
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Quote actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
-      {open && (
-        <DropdownPanel>
+    <div className="relative">
+      <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
+      <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
           <Link href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
             <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
@@ -78,8 +78,7 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
               <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
-      )}
+      </DropdownPanel>
     </div>
   )
 }
@@ -250,7 +249,7 @@ export default function QuotesPage() {
   }
 
   return (
-    <div>
+    <ListPageLayout>
       <PageHeader
         title="Quotes"
         subtitle={loading ? '' : `${quotes.length} quotes`}
@@ -261,7 +260,9 @@ export default function QuotesPage() {
         }
       />
 
-      {!loading && quotes.length > 0 && (
+      {loading ? (
+        <ListMetricsSkeleton count={2} />
+      ) : quotes.length > 0 ? (
         <>
           <ListStatusTabs
             allCount={quotes.length}
@@ -275,12 +276,22 @@ export default function QuotesPage() {
           />
           <ListMetrics
             items={[
-              { label: 'Accepted value', value: formatCurrency(totals.accepted), highlight: totals.accepted > 0 ? 'positive' : 'neutral' },
-              { label: 'Pending (sent)', value: formatCurrency(totals.sent) },
+              {
+                label: 'Accepted',
+                tooltip: 'Total of accepted quotes.',
+                value: formatCurrency(totals.accepted),
+                highlight: totals.accepted > 0 ? 'positive' : 'neutral',
+              },
+              {
+                label: 'Awaiting response',
+                tooltip: 'Sent quotes still waiting for a reply.',
+                value: formatCurrency(totals.sent),
+                highlight: totals.sent > 0 ? 'neutral' : 'neutral',
+              },
             ]}
           />
         </>
-      )}
+      ) : null}
 
       <div className="mb-4">
         <div className="flex items-center gap-2">
@@ -322,10 +333,10 @@ export default function QuotesPage() {
               <thead>
                 <tr>
                   <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                    <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(q => q.id)))}
-                      className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                      {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                    </button>
+                    <SelectAllIconButton
+                      allSelected={allSelected}
+                      onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(q => q.id)))}
+                    />
                   </th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default select-none cursor-pointer"
                     onClick={() => toggleQuoteSort('quote_number')}>
@@ -349,18 +360,16 @@ export default function QuotesPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-20" /></td>)}</tr>
-                )) : sorted.map(q => {
+                {loading ? (
+                  <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.quote} />
+                ) : sorted.map(q => {
                   const expired  = q.status === 'sent' && isQuoteExpired(q.expiry_date)
                   const days     = daysUntilExpiry(q.expiry_date)
                   const isSelected = selected.has(q.id)
                   return (
                     <tr key={q.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                       <td className="px-3 py-2.5 text-center">
-                        <button onClick={() => toggleSelect(q.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
-                        </button>
+                        <SelectIconButton selected={isSelected} onClick={() => toggleSelect(q.id)} />
                       </td>
                       <td className="px-4 py-2.5 font-medium text-sm">
                         <Link href={`/quotes/${q.id}`} className="text-forest-600 hover:underline">{q.quote_number}</Link>
@@ -390,11 +399,13 @@ export default function QuotesPage() {
 
         {/* Mobile cards — month sections only when sorted by issue date */}
         <div className="md:hidden space-y-4">
-          {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
-              <div className="h-4 fd-skeleton w-24 mb-3" /><div className="h-3 fd-skeleton w-32" />
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ListMobileCardSkeleton key={i} variant="invoice" />
+              ))}
             </div>
-          )) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
+          ) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
             <div key={label || `flat-${groupIdx}`}>
               {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}
               <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden divide-y divide-border-subtle">
@@ -406,11 +417,7 @@ export default function QuotesPage() {
               <div key={q.id} className={`p-4 transition-colors ${isSelected ? 'bg-forest-50/30' : ''}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                      <button onClick={() => toggleSelect(q.id)} className="flex items-center flex-shrink-0">
-                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                      </button>
-                    </Tooltip>
+                    <SelectIconButton selected={isSelected} onClick={() => toggleSelect(q.id)} className="flex-shrink-0" />
                     <Link href={`/quotes/${q.id}`} className="font-medium text-forest-700 hover:underline truncate">{q.quote_number}</Link>
                   </div>
                   <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(q.total)}</span>
@@ -508,6 +515,6 @@ export default function QuotesPage() {
           loading={statusUpdating}
         />
       )}
-    </div>
+    </ListPageLayout>
   )
 }
