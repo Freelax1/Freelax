@@ -49,7 +49,11 @@
       "PowerShell(node --use-system-ca \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" audit fix --force 2>&1)",
       "PowerShell(npm ls *)",
       "Bash(git *)",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(Get-ChildItem -Path 'C:\\\\Freelax' -Filter '*.json')",
+      "Bash(Select-Object Name, FullName)",
+      "Bash(grep -E \"\\\\.tsx$|/$\")",
+      "PowerShell(Select-String *)"
     ]
   }
 }

@@ -321,8 +321,10 @@ export default function QuotesPage() {
               </colgroup>
               <thead>
                 <tr>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                    <button onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(q => q.id)))}
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl" aria-label="Select">
+                    <button
+                      onClick={() => allSelected ? setSelected(new Set()) : setSelected(new Set(filtered.map(q => q.id)))}
+                      aria-label={allSelected ? 'Deselect all' : 'Select all'}
                       className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                       {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                     </button>
@@ -345,7 +347,7 @@ export default function QuotesPage() {
                     Amount{sortField === 'total' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
                   </th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
                 </tr>
               </thead>
               <tbody>
@@ -358,7 +360,7 @@ export default function QuotesPage() {
                   return (
                     <tr key={q.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                       <td className="px-3 py-2.5 text-center">
-                        <button onClick={() => toggleSelect(q.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                        <button onClick={() => toggleSelect(q.id)} aria-label={isSelected ? 'Deselect' : 'Select'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                           {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                         </button>
                       </td>

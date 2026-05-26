@@ -258,8 +258,8 @@ export default function ProjectsPage() {
               </colgroup>
               <thead>
                 <tr>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
-                    <button onClick={toggleAll} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl" aria-label="Select">
+                    <button onClick={toggleAll} aria-label={allSelected ? 'Deselect all' : 'Select all'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                       {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                     </button>
                   </th>
@@ -269,7 +269,7 @@ export default function ProjectsPage() {
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">End date</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">IR35</th>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
+                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
                 </tr>
               </thead>
               <tbody>
@@ -282,7 +282,7 @@ export default function ProjectsPage() {
                   return (
                     <tr key={p.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
                       <td className="px-3 py-2.5 text-center">
-                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
+                        <button onClick={() => toggleSelect(p.id)} aria-label={isSelected ? 'Deselect' : 'Select'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
                           {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
                         </button>
                       </td>
