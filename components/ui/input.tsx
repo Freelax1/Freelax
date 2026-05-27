@@ -1,6 +1,6 @@
 'use client'
 
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDown, Eye, EyeSlash } from '@phosphor-icons/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { floatingFieldLabel, floatingFieldValue } from '@/lib/typography'
 import { cn } from '@/lib/utils'
@@ -87,21 +87,58 @@ export interface InputProps
   error?: boolean
   /** Borderless inner control — used by floating Field shell */
   bare?: boolean
+  /** Show/hide toggle for password fields */
+  revealable?: boolean
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant = 'default', error, bare, className, ...props }, ref) => (
-    <input
-      ref={ref}
-      className={cn(
-        bare
-          ? inputControlVariants({ variant: error ? 'error' : variant })
-          : inputVariants({ variant: error ? 'error' : variant }),
-        className,
-      )}
-      {...props}
-    />
-  )
+  ({ variant = 'default', error, bare, revealable, className, type, ...props }, ref) => {
+    const [visible, setVisible] = useState(false)
+    const shellVariant = error ? 'error' : variant
+    const isAuth = shellVariant === 'auth'
+    const resolvedType = revealable ? (visible ? 'text' : 'password') : type
+
+    const inputEl = (
+      <input
+        ref={ref}
+        type={resolvedType}
+        className={cn(
+          bare
+            ? inputControlVariants({ variant: shellVariant })
+            : inputVariants({ variant: shellVariant }),
+          revealable && (bare ? 'pr-10' : 'pr-11'),
+          className,
+        )}
+        {...props}
+      />
+    )
+
+    if (!revealable) return inputEl
+
+    return (
+      <div className="relative w-full min-w-0">
+        {inputEl}
+        <button
+          type="button"
+          aria-label={visible ? 'Hide password' : 'Show password'}
+          aria-pressed={visible}
+          onClick={() => setVisible(v => !v)}
+          className={cn(
+            'absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 transition-colors',
+            isAuth
+              ? 'text-white/45 hover:text-white/80'
+              : 'text-text-muted hover:text-text-primary',
+          )}
+        >
+          {visible ? (
+            <EyeSlash weight="regular" className="w-4 h-4" aria-hidden />
+          ) : (
+            <Eye weight="regular" className="w-4 h-4" aria-hidden />
+          )}
+        </button>
+      </div>
+    )
+  },
 )
 Input.displayName = 'Input'
 
@@ -239,8 +276,8 @@ function FloatingFieldShell({
 }: FloatingFieldShellProps) {
   const [focused, setFocused] = useState(false)
   const childVariant = (children.props.variant as VariantProps<typeof inputVariants>['variant']) ?? 'default'
-  const shellVariant = error ? 'error' : childVariant
   const isAuth = labelVariant === 'auth' || childVariant === 'auth'
+  const shellVariant = error && !isAuth ? 'error' : childVariant
   const value = children.props.value ?? children.props.defaultValue
   const floated = focused || hasFieldValue(value)
 
@@ -273,6 +310,7 @@ function FloatingFieldShell({
         className={cn(
           fieldShellVariants({ variant: shellVariant }),
           'relative',
+          error && isAuth && 'border-danger-400 focus-within:border-danger-400',
         )}
       >
         <label
@@ -293,7 +331,9 @@ function FloatingFieldShell({
         {control}
       </div>
       {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
-      {error && <p className="text-xs text-danger-600">{error}</p>}
+      {error && (
+        <p className={cn('text-xs', isAuth ? 'text-danger-300' : 'text-danger-600')}>{error}</p>
+      )}
     </div>
   )
 }
@@ -345,6 +385,7 @@ function Field({
     )
   }
 
+  const isAuthLabel = labelVariant === 'auth'
   const stackedControl =
     child && isFormControl(child) && error
       ? cloneElement(child, { error: true })
@@ -360,7 +401,9 @@ function Field({
       )}
       {stackedControl}
       {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
-      {error && <p className="text-xs text-danger-600">{error}</p>}
+      {error && (
+        <p className={cn('text-xs', isAuthLabel ? 'text-danger-300' : 'text-danger-600')}>{error}</p>
+      )}
     </div>
   )
 }

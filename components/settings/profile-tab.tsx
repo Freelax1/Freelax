@@ -136,8 +136,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
         </Field>
       </div>
 
-      {/* Save footer */}
-      <div className="px-7 py-4 bg-surface-sunken flex justify-end">
+      <div className="px-7 py-4 flex justify-end border-t border-border-subtle">
         <SaveSettingsButton saving={saving} label="Save changes" onClick={() => save(pf)} />
       </div>
     </div>

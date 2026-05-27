@@ -13,11 +13,11 @@ function SignupForm() {
   const router = useRouter()
 
   const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [terms, setTerms]       = useState(false)
-  const [error, setError]       = useState<string | null>(null)
-  const [loading, setLoading]   = useState(false)
+  const [terms, setTerms] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +46,7 @@ function SignupForm() {
         .from('users')
         .upsert(
           { id: data.user.id, terms_accepted_at: new Date().toISOString() },
-          { onConflict: 'id' }
+          { onConflict: 'id' },
         )
     }
 
@@ -63,58 +63,51 @@ function SignupForm() {
       />
       <AuthError>{error}</AuthError>
 
-      <form onSubmit={handleSignup} className="flex flex-col gap-4">
-        <Field label="Full name" labelVariant="auth">
+      <form onSubmit={handleSignup} noValidate className="flex flex-col gap-4">
+        <Field label="Full name">
           <Input
-            variant="auth"
             type="text"
             autoComplete="name"
-            required
             value={fullName}
             onChange={e => setFullName(e.target.value)}
             placeholder="Jane Smith"
           />
         </Field>
 
-        <Field label="Email address" labelVariant="auth">
+        <Field label="Email address">
           <Input
-            variant="auth"
             type="email"
             autoComplete="email"
-            required
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="your@email.com"
           />
         </Field>
 
-        <Field label="Password" labelVariant="auth">
+        <Field label="Password">
           <Input
-            variant="auth"
-            type="password"
+            revealable
             autoComplete="new-password"
-            required
-            minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="At least 8 characters"
           />
         </Field>
 
-        <label className={`flex items-start gap-2.5 cursor-pointer px-3 py-2.5 rounded-lg transition-colors bg-white/[0.04] border ${terms ? 'border-brand-primary' : 'border-white/10'}`}>
+        <label className="flex items-start gap-2.5 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={terms}
             onChange={e => setTerms(e.target.checked)}
             className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer [accent-color:var(--brand-primary)]"
           />
-          <span className="text-xs leading-normal text-white/60">
+          <span className="text-xs leading-normal text-text-secondary">
             I agree to the{' '}
-            <Link href="/privacy" target="_blank" className="text-white font-semibold no-underline">
+            <Link href="/privacy" target="_blank" className="font-semibold text-brand-primary no-underline hover:text-forest-700">
               Privacy Policy
             </Link>
             {' '}and{' '}
-            <Link href="/terms" target="_blank" className="text-white font-semibold no-underline">
+            <Link href="/terms" target="_blank" className="font-semibold text-brand-primary no-underline hover:text-forest-700">
               Terms of Service
             </Link>
             <span className="hidden sm:inline">
@@ -126,13 +119,7 @@ function SignupForm() {
           </span>
         </label>
 
-        <Button
-          type="submit"
-          intent="auth"
-          size="auth"
-          fullWidth
-          disabled={loading || !terms}
-        >
+        <Button type="submit" intent="primary" size="lg" fullWidth disabled={loading || !terms}>
           {loading && <AuthSpinner />}
           {loading ? 'Creating account…' : 'Create account →'}
         </Button>
@@ -140,7 +127,7 @@ function SignupForm() {
 
       <AuthFooter>
         Already have an account?{' '}
-        <Link href="/auth/login" className="text-white font-semibold no-underline">
+        <Link href="/auth/login" className="font-semibold text-brand-primary no-underline hover:text-forest-700">
           Sign in
         </Link>
       </AuthFooter>

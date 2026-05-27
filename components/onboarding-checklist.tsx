@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { Check, CaretRight } from '@phosphor-icons/react'
+import { Check } from '@phosphor-icons/react'
+import { ButtonLink } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface Step {
@@ -88,36 +88,52 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
           <div
             key={s.label}
             className={cn(
-              'flex items-center gap-3 px-5 py-3',
-              i < steps.length - 1 && 'border-b border-b-border-subtle',
-              s.done ? 'bg-surface-sunken' : 'bg-surface-card'
+              'px-5 py-3',
+              i < steps.length - 1 && 'border-b border-border-subtle',
+              s.done ? 'bg-surface-sunken' : 'bg-surface-card',
             )}
           >
-            {/* Tick */}
-            <div className={cn('w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0', s.done ? 'bg-brand-primary' : 'bg-surface-sunken')}>
-              {s.done
-                ? <Check weight="regular" className="w-3 h-3 text-white" />
-                : <span className="w-2 h-2 rounded-full block bg-border-default" />
-              }
-            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div
+                  className={cn(
+                    'w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0 mt-0.5',
+                    s.done ? 'bg-brand-primary' : 'bg-surface-sunken',
+                  )}
+                >
+                  {s.done ? (
+                    <Check weight="regular" className="w-3 h-3 text-white" />
+                  ) : (
+                    <span className="w-2 h-2 rounded-full block bg-border-default" />
+                  )}
+                </div>
 
-            {/* Text */}
-            <div className="flex-1">
-              <p className={cn('text-sm font-medium', s.done ? 'text-text-muted line-through' : 'text-text-primary')}>
-                {s.label}
-              </p>
-              {!s.done && <p className="text-caption mt-px text-text-secondary">{s.desc}</p>}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={cn(
+                      'text-sm font-medium',
+                      s.done ? 'text-text-muted line-through' : 'text-text-primary',
+                    )}
+                  >
+                    {s.label}
+                  </p>
+                  {!s.done && (
+                    <p className="text-caption mt-0.5 text-text-secondary leading-relaxed">{s.desc}</p>
+                  )}
+                </div>
+              </div>
 
-            {/* CTA */}
-            {!s.done && (
-              <Link
-                href={s.href}
-                className="flex items-center gap-1 text-caption font-semibold rounded-md px-2.5 py-1 no-underline whitespace-nowrap text-text-primary bg-surface-sunken"
-              >
-                {s.cta} <CaretRight weight="regular" className="w-[11px] h-[11px]" />
-              </Link>
-            )}
+              {!s.done && (
+                <ButtonLink
+                  href={s.href}
+                  intent="secondary"
+                  size="xs"
+                  className="w-full sm:w-auto shrink-0 justify-center"
+                >
+                  {s.cta} →
+                </ButtonLink>
+              )}
+            </div>
           </div>
         ))}
       </div>

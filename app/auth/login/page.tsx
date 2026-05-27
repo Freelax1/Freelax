@@ -13,29 +13,77 @@ function LoginFallback() {
   return <div className="h-[200px]" />
 }
 
+type FieldErrors = {
+  email?: string
+  password?: string
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+function loginErrorMessage(message: string): string {
+  const lower = message.toLowerCase()
+  if (lower.includes('invalid login credentials') || lower.includes('invalid credentials')) {
+    return 'Email or password is incorrect.'
+  }
+  return message
+}
+
+function validateFields(email: string, password: string): FieldErrors {
+  const errors: FieldErrors = {}
+  const trimmedEmail = email.trim()
+
+  if (!trimmedEmail) {
+    errors.email = 'Enter your email'
+  } else if (!isValidEmail(trimmedEmail)) {
+    errors.email = 'Enter a valid email address'
+  }
+
+  if (!password) {
+    errors.password = 'Enter your password'
+  }
+
+  return errors
+}
+
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/dashboard'
 
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]       = useState<string | null>(null)
-  const [loading, setLoading]   = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
+
+    const validation = validateFields(email, password)
+    setFieldErrors(validation)
     setError(null)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      router.push(redirectTo)
-      router.refresh()
+
+    if (validation.email || validation.password) {
+      return
     }
+
+    setLoading(true)
+    const supabase = createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+    if (signInError) {
+      setError(loginErrorMessage(signInError.message))
+      setLoading(false)
+      return
+    }
+
+    router.push(redirectTo)
+    router.refresh()
   }
 
   return (
@@ -44,46 +92,49 @@ function LoginForm() {
       <AuthHeading title="Welcome back" subtitle="Sign in to your dashboard." />
       <AuthError>{error}</AuthError>
 
-      <form onSubmit={handleLogin} className="flex flex-col gap-4">
-        <Field label="Email" labelVariant="auth">
+      <form onSubmit={handleLogin} noValidate className="flex flex-col gap-4">
+        <Field label="Email" error={fieldErrors.email}>
           <Input
-            variant="auth"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={e => {
+              setEmail(e.target.value)
+              if (fieldErrors.email) {
+                setFieldErrors(prev => ({ ...prev, email: undefined }))
+              }
+              if (error) setError(null)
+            }}
             placeholder="you@example.com"
+            aria-invalid={!!fieldErrors.email}
           />
         </Field>
 
-        <Field label="Password" labelVariant="auth">
+        <Field label="Password" error={fieldErrors.password}>
           <Input
-            variant="auth"
-            type="password"
+            revealable
             autoComplete="current-password"
-            required
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={e => {
+              setPassword(e.target.value)
+              if (fieldErrors.password) {
+                setFieldErrors(prev => ({ ...prev, password: undefined }))
+              }
+              if (error) setError(null)
+            }}
+            aria-invalid={!!fieldErrors.password}
           />
         </Field>
         <div className="flex justify-end -mt-2">
           <Link
             href="/auth/forgot-password"
-            className="text-xs text-white/60 font-medium no-underline hover:text-white/80 transition-colors"
+            className="text-xs text-text-secondary font-medium no-underline hover:text-text-primary transition-colors"
           >
             Forgot password?
           </Link>
         </div>
 
-        <Button
-          type="submit"
-          intent="auth"
-          size="auth"
-          fullWidth
-          disabled={loading}
-          className="mt-1"
-        >
+        <Button type="submit" intent="primary" size="lg" fullWidth disabled={loading} className="mt-1">
           {loading && <AuthSpinner />}
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
@@ -91,7 +142,7 @@ function LoginForm() {
 
       <AuthFooter>
         No account?{' '}
-        <Link href="/auth/signup" className="text-white font-semibold no-underline">
+        <Link href="/auth/signup" className="font-semibold text-brand-primary no-underline hover:text-forest-700">
           Sign up free
         </Link>
       </AuthFooter>

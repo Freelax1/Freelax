@@ -6,6 +6,7 @@ import { IconButton } from '@/components/ui/icon-button'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import Alert from '@/components/ui/alert'
 import Button from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface Props {
   profile: any
@@ -189,39 +190,42 @@ export default function BillingTab({ profile }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
             {plans.map(plan => {
               const planOrder = ['free', 'solo', 'pro']
               const isCurrent = plan.id === currentPlan
               const isBelow   = planOrder.indexOf(plan.id) < planOrder.indexOf(currentPlan)
-              const isDark    = plan.id === 'pro' && !isCurrent && !isBelow
+              const isFeatured = plan.id === 'pro' && !isCurrent && !isBelow
               const isLoading = loading === plan.id
 
               return (
                 <div
                   key={plan.id}
-                  className={`relative rounded-xl border-2 p-5 flex flex-col transition-all ${
-                    isCurrent
-                      ? 'border-green-400 bg-success-50'
-                      : isBelow
-                      ? 'border-border-subtle bg-surface-sunken opacity-50'
-                      : isDark
-                      ? 'border-brand-primary bg-forest-50'
-                      : 'border-border-default bg-surface-card hover:border-border-strong'
-                  }`}
+                  className={cn(
+                    'relative overflow-visible rounded-xl border-2 p-5 flex flex-col transition-all',
+                    isCurrent && 'border-success-400 bg-success-50',
+                    isBelow && 'border-border-subtle bg-surface-sunken opacity-50',
+                    isFeatured && 'border-brand-primary bg-forest-50 shadow-card',
+                    !isCurrent && !isBelow && !isFeatured && 'border-border-default bg-surface-card hover:border-border-strong',
+                  )}
                 >
                   {isCurrent && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-success-500 text-white text-xs font-semibold px-3 py-0.5 rounded-lg whitespace-nowrap">
+                    <span className="absolute -top-3 left-1/2 z-[1] -translate-x-1/2 inline-flex items-center rounded-lg bg-success-600 px-3 py-0.5 text-xs font-semibold text-white whitespace-nowrap shadow-sm">
                       Current plan
-                    </div>
+                    </span>
                   )}
                   {plan.badge && !isCurrent && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-warning-400 text-warning-900 text-xs font-semibold px-3 py-0.5 rounded-lg whitespace-nowrap">
+                    <span className="absolute -top-3 left-1/2 z-[1] -translate-x-1/2 inline-flex items-center rounded-lg bg-brand-primary px-3 py-0.5 text-xs font-semibold text-white whitespace-nowrap shadow-sm">
                       {plan.badge}
-                    </div>
+                    </span>
                   )}
 
-                  <p className={`text-xs font-semiboldst mb-2 ${isDark ? 'text-text-secondary' : isCurrent ? 'text-success-600' : 'text-text-secondary'}`}>
+                  <p
+                    className={cn(
+                      'text-xs font-semibold uppercase tracking-wide mb-2',
+                      isCurrent ? 'text-success-700' : isFeatured ? 'text-brand-primary' : 'text-text-secondary',
+                    )}
+                  >
                     {plan.name}
                   </p>
 
@@ -229,25 +233,25 @@ export default function BillingTab({ profile }: Props) {
                     <span className="text-3xl font-serif font-normal leading-none tabular-nums text-text-primary">
                       £{yearly ? Math.round(plan.yearly / 12) : plan.monthly}
                     </span>
-                    <span className={`text-sm ml-1 ${isDark ? 'text-text-secondary' : 'text-text-secondary'}`}>/mo</span>
+                    <span className="text-sm ml-1 text-text-secondary">/mo</span>
                   </div>
                   {yearly && (
-                    <p className={`text-xs mb-3 ${isDark ? 'text-success-400' : 'text-success-600'}`}>
+                    <p className="text-xs mb-3 text-success-700">
                       £{plan.yearly}/year · save £{plan.yearlySaving}
                     </p>
                   )}
 
-                  <p className={`text-xs mb-4 leading-relaxed ${isDark ? 'text-text-secondary' : 'text-text-muted'}`}>
+                  <p className="text-xs mb-4 leading-relaxed text-text-muted">
                     {plan.description}
                   </p>
 
                   <ul className="space-y-2 mb-6 flex-1">
                     {plan.features.map(f => (
                       <li key={f} className="flex items-start gap-2 text-xs">
-                        <svg className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isDark ? 'text-success-400' : 'text-success-600'}`} viewBox="0 0 14 14" fill="none">
+                        <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-success-600" viewBox="0 0 14 14" fill="none">
                           <path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className={isDark ? 'text-text-muted' : 'text-text-secondary'}>{f}</span>
+                        <span className="text-text-secondary">{f}</span>
                       </li>
                     ))}
                     {plan.missing.map(f => (
@@ -272,9 +276,8 @@ export default function BillingTab({ profile }: Props) {
                     <Button
                       type="button"
                       fullWidth
-                      intent={isDark ? 'secondary' : 'primary'}
+                      intent="primary"
                       size="sm"
-                      className={isDark ? 'py-2.5 rounded-xl font-semibold' : 'py-2.5 rounded-xl font-semibold'}
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={!!loading}
                     >

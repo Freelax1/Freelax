@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { Field, Input } from '@/components/ui/input'
 import Button from '@/components/ui/button'
 import AuthSpinner from '@/components/auth-spinner'
-import { AuthWordmark, AuthHeading, AuthError, AuthFooter, AuthStateHeading } from '@/components/auth-ui'
+import { AuthWordmark, AuthHeading, AuthError, AuthFooter, AuthStateHeading, AuthStateIcon } from '@/components/auth-ui'
 
 function PasswordStrength({ password }: { password: string }) {
   const len = password.length
@@ -30,7 +30,7 @@ function PasswordStrength({ password }: { password: string }) {
           />
         ))}
       </div>
-      <span className={cn('text-caption font-medium whitespace-nowrap', met ? 'text-[color:var(--success-400)]' : 'text-[color:var(--warning-400)]')}>
+      <span className={cn('text-caption font-medium whitespace-nowrap', met ? 'text-success-700' : 'text-warning-700')}>
         {!met ? 'Too short' : len >= 12 ? 'Strong' : 'Good'}
       </span>
     </div>
@@ -40,11 +40,11 @@ function PasswordStrength({ password }: { password: string }) {
 export default function ResetPasswordPage() {
   const router = useRouter()
   const [password, setPassword] = useState('')
-  const [confirm, setConfirm]   = useState('')
-  const [error, setError]       = useState<string | null>(null)
-  const [loading, setLoading]   = useState(false)
-  const [done, setDone]         = useState(false)
-  const [ready, setReady]       = useState(false)
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+  const [ready, setReady] = useState(false)
   const [linkInvalid, setLinkInvalid] = useState(false)
 
   useEffect(() => {
@@ -62,9 +62,9 @@ export default function ResetPasswordPage() {
       const code = url.searchParams.get('code')
 
       if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
         if (cancelled) return
-        if (error) {
+        if (exchangeError) {
           setLinkInvalid(true)
           return
         }
@@ -79,7 +79,10 @@ export default function ResetPasswordPage() {
 
       const { data } = await supabase.auth.getSession()
       if (cancelled) return
-      if (data.session) { setReady(true); return }
+      if (data.session) {
+        setReady(true)
+        return
+      }
 
       setLinkInvalid(true)
     })()
@@ -105,9 +108,9 @@ export default function ResetPasswordPage() {
 
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) {
-      setError(error.message)
+    const { error: updateError } = await supabase.auth.updateUser({ password })
+    if (updateError) {
+      setError(updateError.message)
       setLoading(false)
       return
     }
@@ -120,16 +123,19 @@ export default function ResetPasswordPage() {
   if (done) {
     return (
       <div className="text-center py-3">
-        <div className="w-12 h-12 rounded-full inline-flex items-center justify-center mb-4 bg-white/[0.12]">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <AuthStateIcon tone="success">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success-600)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
-        </div>
+        </AuthStateIcon>
         <AuthStateHeading title="Password updated" />
-        <p className="text-sm leading-relaxed m-0 text-white/60">
+        <p className="text-sm leading-relaxed m-0 text-text-secondary">
           Redirecting you to sign in…
         </p>
-        <Link href="/auth/login" className="inline-block mt-6 text-sm text-white font-semibold no-underline">
+        <Link
+          href="/auth/login"
+          className="inline-block mt-6 text-sm font-semibold text-brand-primary no-underline hover:text-forest-700"
+        >
           Sign in now →
         </Link>
       </div>
@@ -139,18 +145,21 @@ export default function ResetPasswordPage() {
   if (linkInvalid) {
     return (
       <div className="text-center py-3">
-        <div className="w-12 h-12 rounded-full inline-flex items-center justify-center mb-4 bg-white/[0.12]">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--danger-400)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <AuthStateIcon tone="danger">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--danger-600)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-        </div>
+        </AuthStateIcon>
         <AuthStateHeading title="Link invalid or expired" />
-        <p className="text-sm leading-relaxed m-0 text-white/60">
+        <p className="text-sm leading-relaxed m-0 text-text-secondary">
           Reset links expire after a short window. Request a new one to continue.
         </p>
-        <Link href="/auth/forgot-password" className="inline-block mt-6 text-sm text-white font-semibold no-underline">
+        <Link
+          href="/auth/forgot-password"
+          className="inline-block mt-6 text-sm font-semibold text-brand-primary no-underline hover:text-forest-700"
+        >
           Request new link →
         </Link>
       </div>
@@ -166,47 +175,34 @@ export default function ResetPasswordPage() {
       />
       <AuthError>{error}</AuthError>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="New password" labelVariant="auth">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        <Field label="New password">
           <Input
-            variant="auth"
-            type="password"
+            revealable
             autoComplete="new-password"
-            required
-            minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
           <PasswordStrength password={password} />
         </Field>
 
-        <Field label="Confirm password" labelVariant="auth">
+        <Field label="Confirm password">
           <Input
-            variant="auth"
-            type="password"
+            revealable
             autoComplete="new-password"
-            required
-            minLength={8}
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
           />
         </Field>
 
-        <Button
-          type="submit"
-          intent="auth"
-          size="auth"
-          fullWidth
-          disabled={loading || !ready}
-          className="mt-1"
-        >
+        <Button type="submit" intent="primary" size="lg" fullWidth disabled={loading || !ready} className="mt-1">
           {loading && <AuthSpinner />}
           {loading ? 'Updating…' : ready ? 'Update password' : 'Verifying link…'}
         </Button>
       </form>
 
       <AuthFooter>
-        <Link href="/auth/login" className="text-white font-semibold no-underline">
+        <Link href="/auth/login" className="font-semibold text-brand-primary no-underline hover:text-forest-700">
           Back to sign in
         </Link>
       </AuthFooter>
