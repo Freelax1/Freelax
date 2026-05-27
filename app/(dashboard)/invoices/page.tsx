@@ -9,6 +9,10 @@ import { groupByMonth } from '@/lib/logic/list-display'
 import {
   PageHeader,
   DropdownPanel,
+  DropdownMenuItem,
+  DropdownMenuLink,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   ListStatusTabs,
   ListMetrics,
   ListMetricsSkeleton,
@@ -17,10 +21,12 @@ import {
   TableRowsSkeleton,
   ListMobileCardSkeleton,
   TABLE_CELL_PRESETS,
+  ListPageEmptyState,
+  ListTableEmptyRow,
+  ListTableEmptyCard,
 } from '@/components/ui'
 import Alert from '@/components/ui/alert'
-import Button, { buttonVariants } from '@/components/ui/button'
-import EmptyState from '@/components/empty-state'
+import Button, { ButtonLink } from '@/components/ui/button'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Eye, PencilSimple, Trash, Envelope } from '@phosphor-icons/react'
@@ -32,7 +38,7 @@ import ListPageLayout from '@/components/list-page-layout'
 import { KebabMenuTrigger } from '@/components/ui/kebab-menu-trigger'
 
 const INVOICE_STATUS_LABELS: Record<string, string> = {
-  sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
+  draft: 'Draft', sent: 'Sent', overdue: 'Overdue', paid: 'Paid', cancelled: 'Cancelled',
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
@@ -64,47 +70,42 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
     <div className="relative">
       <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
       <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
-          <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
-          </Link>
+          <DropdownMenuLink href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}>
+            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> View
+          </DropdownMenuLink>
           {isDraft && (
-            <Link href={`/invoices/${invoice.id}/edit`} onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-              <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
-            </Link>
+            <DropdownMenuLink href={`/invoices/${invoice.id}/edit`} onClick={() => setOpen(false)}>
+              <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> Edit
+            </DropdownMenuLink>
           )}
-          {/* Status options */}
           {statusOptions.length > 0 && (
-            <div className="border-t border-border-subtle">
-              <p className="text-micro font-semibold text-text-muted px-4 pt-2.5 pb-1 text-left">Change status</p>
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Change status</DropdownMenuLabel>
               {statusOptions.map(s => (
-                <button key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}
-                  className="flex items-center gap-2.5 px-4 py-2 text-sm text-text-primary hover:bg-surface-sunken w-full text-left border-none cursor-pointer bg-transparent"
-                >
+                <DropdownMenuItem key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}>
                   <span className="inline-block w-[7px] h-[7px] rounded-full shrink-0" style={{ background: tonePalette(s.key).dot }} />
                   {s.label}
-                </button>
+                </DropdownMenuItem>
               ))}
-            </div>
+            </>
           )}
-
           {invoice.status !== 'paid' && (
-            <div className="border-t border-border-subtle">
-              <button onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <Envelope weight="regular" className="w-3.5 h-3.5 text-text-secondary" />
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}>
+                <Envelope weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" />
                 {invoice.status === 'sent' || invoice.status === 'overdue' ? 'Resend by email' : 'Send by email'}
-              </button>
-            </div>
+              </DropdownMenuItem>
+            </>
           )}
-
-          <div className="border-t border-border-subtle">
-            <button onClick={e => { e.stopPropagation(); setOpen(false); onDelete(invoice) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
-            </button>
-          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="danger"
+            onClick={e => { e.stopPropagation(); setOpen(false); onDelete(invoice) }}
+          >
+            <Trash weight="regular" className="w-3.5 h-3.5 shrink-0" /> Delete
+          </DropdownMenuItem>
       </DropdownPanel>
     </div>
   )
@@ -331,6 +332,19 @@ export default function InvoicesPage() {
     .filter(i => i.status !== 'paid' && i.status !== 'cancelled')
     .reduce((s, i) => s + Number(i.total), 0)
 
+  const hasInvoices = invoices.length > 0
+  const tableEmpty = !loading && hasInvoices && sorted.length === 0
+
+  function clearInvoiceFilters() {
+    setQuery('')
+    setStatusFilter('all')
+  }
+
+  const statusTabLabel =
+    statusFilter === 'all'
+      ? undefined
+      : INVOICE_STATUS_LABELS[statusFilter] ?? statusFilter
+
   return (
     <ListPageLayout>
       <PageHeader
@@ -343,9 +357,9 @@ export default function InvoicesPage() {
                 {updating ? 'Updating...' : `Mark ${overdueCount} overdue`}
               </Button>
             )}
-            <Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
+            <ButtonLink href="/invoices/new" intent="primary" size="sm">
               New invoice
-            </Link>
+            </ButtonLink>
           </div>
         }
       />
@@ -408,8 +422,12 @@ export default function InvoicesPage() {
       )}
 
       {!loading && !invoices.length ? (
-        <EmptyState icon="invoice" title="No invoices yet" description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
-          action={<Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>Send your first invoice</Link>} />
+        <ListPageEmptyState
+          variant="invoice"
+          title="No invoices yet"
+          description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
+          action={<ButtonLink href="/invoices/new" intent="primary" size="sm">Send your first invoice</ButtonLink>}
+        />
       ) : (
         <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
           <table className="w-full border-separate border-spacing-0">
@@ -457,6 +475,17 @@ export default function InvoicesPage() {
             <tbody>
               {loading ? (
                 <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.invoice} />
+              ) : tableEmpty ? (
+                <ListTableEmptyRow
+                  colSpan={8}
+                  entityPlural="invoices"
+                  query={query}
+                  statusFilter={statusFilter}
+                  statusLabel={statusTabLabel}
+                  onClearSearch={() => setQuery('')}
+                  onClearStatus={() => setStatusFilter('all')}
+                  onClearAll={clearInvoiceFilters}
+                />
               ) : sorted.map(inv => {
                   const days = calcDaysOverdue(inv.due_date)
                   const pastDue = isPastDue(inv.status, inv.due_date, today)
@@ -498,6 +527,16 @@ export default function InvoicesPage() {
                 <ListMobileCardSkeleton key={i} variant="invoice" />
               ))}
             </div>
+          ) : tableEmpty ? (
+            <ListTableEmptyCard
+              entityPlural="invoices"
+              query={query}
+              statusFilter={statusFilter}
+              statusLabel={statusTabLabel}
+              onClearSearch={() => setQuery('')}
+              onClearStatus={() => setStatusFilter('all')}
+              onClearAll={clearInvoiceFilters}
+            />
           ) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
             <div key={label || `flat-${groupIdx}`}>
               {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}

@@ -1,6 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState, type AnchorHTMLAttributes, type ButtonHTMLAttributes, type ReactNode, type RefObject } from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import Link from 'next/link'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type ComponentProps,
+  type ReactNode,
+  type RefObject,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { useFloatingPosition } from '@/lib/use-floating-position'
@@ -67,21 +77,50 @@ export default function DropdownPanel({
   )
 }
 
+const dropdownMenuItemVariants = cva(
+  [
+    'flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-left',
+    'border-0 bg-transparent cursor-pointer font-[inherit] transition-colors duration-fast',
+  ],
+  {
+    variants: {
+      variant: {
+        default: 'text-text-primary hover:bg-surface-sunken',
+        danger: 'text-danger-600 hover:bg-danger-50',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+)
+
+const dropdownMenuLinkVariants = cva(
+  [
+    'flex w-full items-center gap-2.5 px-3.5 py-2 text-sm no-underline',
+    'transition-colors duration-fast',
+  ],
+  {
+    variants: {
+      variant: {
+        default: 'text-text-primary hover:bg-surface-sunken',
+        danger: 'text-danger-600 hover:bg-danger-50',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+)
+
 /** Standard row inside DropdownPanel — icon + label */
 export function DropdownMenuItem({
   className,
+  variant,
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { className?: string }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof dropdownMenuItemVariants>) {
   return (
     <button
       type="button"
-      className={cn(
-        'flex w-full items-center gap-2 px-3.5 py-2 text-sm text-text-primary',
-        'hover:bg-surface-sunken transition-colors duration-fast',
-        'border-0 bg-transparent cursor-pointer text-left font-[inherit]',
-        className,
-      )}
+      className={cn(dropdownMenuItemVariants({ variant }), className)}
       {...props}
     >
       {children}
@@ -89,22 +128,37 @@ export function DropdownMenuItem({
   )
 }
 
-/** Link row inside DropdownPanel */
+/** Next.js link row inside DropdownPanel */
 export function DropdownMenuLink({
   className,
+  variant,
   children,
   ...props
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { className?: string }) {
+}: ComponentProps<typeof Link> & VariantProps<typeof dropdownMenuLinkVariants>) {
   return (
-    <a
-      className={cn(
-        'flex w-full items-center gap-2 px-3.5 py-2 text-sm text-text-primary no-underline',
-        'hover:bg-surface-sunken transition-colors duration-fast',
-        className,
-      )}
+    <Link
+      className={cn(dropdownMenuLinkVariants({ variant }), className)}
       {...props}
     >
       {children}
-    </a>
+    </Link>
   )
+}
+
+/** Section label inside a dropdown (e.g. "Change status") */
+export function DropdownMenuLabel({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <p
+      className={cn(
+        'text-micro font-semibold text-text-secondary px-3.5 pt-1.5 pb-1 text-left m-0',
+        className,
+      )}
+    >
+      {children}
+    </p>
+  )
+}
+
+export function DropdownMenuSeparator({ className }: { className?: string }) {
+  return <div className={cn('border-t border-border-subtle my-1', className)} role="separator" />
 }

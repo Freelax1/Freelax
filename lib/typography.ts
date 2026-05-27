@@ -2,6 +2,14 @@
 export const serifDisplay =
   'font-serif font-normal tracking-tighter leading-none tabular-nums'
 
+/** Page `<h1>` — must match `PageHeader` (serif 2xl) */
+export const pageTitle =
+  'text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading'
+
+/** Onboarding / wizard step heading (serif xl) */
+export const stepTitle =
+  'text-xl font-serif font-normal text-text-primary tracking-normal leading-heading'
+
 /** DM Serif stats at text-2xl — tracking baked into the size token */
 export const serifStat =
   'font-serif font-normal leading-none tabular-nums'

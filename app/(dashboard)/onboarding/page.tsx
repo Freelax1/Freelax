@@ -7,8 +7,7 @@ import { Check, ArrowRight, ArrowLeft } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import { Field, Input, Select, Toggle } from '@/components/form-fields'
-
-const stepTitle = 'text-xl font-serif font-normal text-text-primary tracking-normal leading-heading'
+import { stepTitle } from '@/lib/typography'
 
 const STEPS = [
   { id: 1, label: 'About you' },

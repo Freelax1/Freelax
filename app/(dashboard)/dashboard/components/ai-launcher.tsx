@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sparkle, X, Receipt, PenNib, ChatDots, ChartBar } from '@phosphor-icons/react'
+import Button from '@/components/ui/button'
 import { IconButton } from '@/components/ui/icon-button'
 import type { Icon } from '@phosphor-icons/react'
 
@@ -77,10 +78,12 @@ export default function AiLauncher() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border-subtle">
         {FEATURES.map(f => (
-          <button
+          <Button
             key={f.id}
+            type="button"
+            intent="feature-tile"
+            fullWidth
             onClick={() => router.push(f.href)}
-            className="bg-surface-card text-left p-4 hover:bg-surface-sunken transition-colors group"
           >
             <f.icon weight="regular" className="w-5 h-5 mb-2 text-text-secondary group-hover:text-brand-primary transition-colors" />
             <p className="text-xs font-semibold text-text-primary mb-0.5">
@@ -90,7 +93,7 @@ export default function AiLauncher() {
             <span className="text-xs font-medium text-brand-primary">
               {f.cta} →
             </span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>

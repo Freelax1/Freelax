@@ -1,0 +1,116 @@
+---
+description: Freelax UI/UX and design-system conventions
+globs: "{app,components}/**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Design system
+
+**Tokens** (`app/globals.css`): Forest + cream brand, semantic surfaces/text/borders, status ramps. Tune globally via CSS variables — avoid new raw hex/rgba in components.
+
+**Tailwind**: Use token classes (`text-text-body`, `bg-surface-card`, `border-border-default`, `text-micro`/`text-sm`, `rounded-lg`, `shadow-card`). Spacing uses the overridden scale (`p-4`, `gap-3`) tied to `--space-*`.
+
+**Typography** (`@/lib/typography`): Outfit (UI), DM Serif Display (display only). KPI labels → `cardLabel`. Section headings → `sectionTitle` (see `@.cursor/rules/freelax-section-headers.mdc` — Mobbin/Mercury shells). Page titles → serif `text-2xl` via `PageHeader`.
+
+**Layout & spacing**: Mercury-style airy rhythm — see `@.cursor/rules/freelax-mercury-layout.mdc` (Mobbin: Mercury first; avoid Revolut density). KPI rows → `fd-cards-grid` (flex) or `fd-stat-grid` (CSS grid).
+
+**Z-index**: `z-sticky`, `z-overlay`, `z-dropdown`, `z-modal`, `z-command`, `z-toast` only.
+
+**Motion**: `duration-fast` / `duration-default` / `duration-slow` — not inline transition styles.
+
+# Preventing UI drift (required)
+
+Every repeated visual pattern uses **three layers** — same approach as Alert:
+
+| Layer | Purpose |
+|-------|---------|
+| **1. Shared primitive** | One component in `@/components/ui/` (or thin domain wrapper) |
+| **2. Cursor rule** | Document “never hand-roll X” in this file |
+| **3. CI guard** | `npm run check:design-system` fails on known drift patterns |
+
+When adding a new repeated pattern: create the primitive first, migrate call sites, add a check script, register it in `scripts/check-design-system.sh`.
+
+Current CI guards:
+
+| Pattern | Use | CI script |
+|---------|-----|-----------|
+| Alert banners | `Alert` | `check-hand-rolled-alerts.sh` |
+| KPI stat tiles | `StatCard` + grid class | `check-hand-rolled-stat-cards.sh` |
+| Local Card copies | `SectionCard` / `Card` from ui | `check-local-card-components.sh` |
+| Progress bars | `ProgressBar` | `check-hand-rolled-progress-bars.sh` |
+| P&L / tax rows | `BreakdownRow` | `check-hand-rolled-breakdown-rows.sh` |
+| Primary CTAs | `Button` (or `SaveSettingsButton` in settings) | `check-hand-rolled-primary-buttons.sh` |
+| Form/detail section shells | `FormSection`, `DetailSection`, `CollapsibleSection` | `check-hand-rolled-form-sections.sh` |
+| Input focus styling | `Input` / `Textarea` / `Select` from `@/components/ui/input` | `check-hand-rolled-input-focus.sh` |
+| Dashboard income chart | `MonthlyIncomeChart` from `@/components/ui/monthly-income-chart` | `check-hand-rolled-charts.sh` |
+
+Run locally: `npm run check:design-system` (also runs in `build`).
+
+# Components (required)
+
+| Need | Import |
+|------|--------|
+| Button | `@/components/ui/button` — `intent` + `size` variants; disabled → `bg-surface-sunken` + `text-text-disabled` |
+| Link / anchor as button | `ButtonLink` (Next `Link`) or `ButtonAnchor` (`<a>`, e.g. `/api/*`, external) — **not** `className={buttonVariants(...)}` on raw links |
+| Inputs, labels, fields | `@/components/ui/input` — **Field + Input**: floating label (`text-micro` raised / `text-sm` value). **Field + Select/Textarea**: stacked label above (`text-caption`). Custom chevron on `Select`. |
+| Auth submit | `Button` `intent="auth"` `size="auth"` `fullWidth` |
+| Generic card shell | `Card`, `CardHeader`, `CardTitle` from `@/components/ui/card` |
+| Section card (header + body) | `SectionCard` from `@/components/ui/section-card` — `variant="flat"` + optional `action` on dashboard/tax; default `sunken` in settings |
+| KPI / stat tile | `StatCard` from `@/components/ui/stat-card` in `fd-cards-grid` or `fd-stat-grid` |
+| Progress bar (5px track) | `ProgressBar` from `@/components/ui/progress-bar` |
+| Dashboard income bar chart | `MonthlyIncomeChart` from `@/components/ui/monthly-income-chart` |
+| P&L / breakdown row | `BreakdownRow` from `@/components/ui/breakdown-row` |
+| Settings save CTA | `SaveSettingsButton` from `@/components/settings/shared` |
+| Page shell (content + footer) | `PageLayout` from `@/components/page-layout` — `width`: `full` (default, list/dashboard/tax), `narrow` (`max-w-2xl`, notifications/simple forms), `document` (`max-w-3xl`, invoice/quote edit). Optional `syncedAt` for footer timestamp. Do not hand-roll `max-w-*` + `pb-14` on page roots. |
+| Page title row | `PageHeader` from `@/components/ui/page-header` — `back` (`href` + `label`) for detail/edit nav, `meta` for extra title line (status, contact), `subtitle` below title, `action` for header CTA |
+| Back link above title | `PageBackLink` from `@/components/ui/page-back-link` (or `PageHeader` `back` prop — preferred) |
+| Inline banner / callout | `Alert` from `@/components/ui/alert` — `helper` (white), `info` (blue), `warning`, `danger`, `success` |
+| Actionable next steps | `ActionList` from `@/components/ui/action-list` |
+| Status pill | `@/components/badge` |
+| Status colours | `@/lib/status-palette` |
+| Icon-only control | `@/components/ui/icon-button` (`IconButton`, `IconLink`, `SelectIconButton`) — wraps dark `@/components/tooltip` |
+| Loading placeholder | `@/components/ui/content-skeletons` — shape-match real UI (`StatCardSkeleton`, `TableRowsSkeleton`, `ListMobileCardSkeleton`, etc.) + `.fd-skeleton` shimmer |
+| Status confirm dialog | `@/components/status-confirm-modal` |
+| Row action menu | `DropdownPanel` + `DropdownMenuItem` / `DropdownMenuLink` (`variant="danger"` for delete) + `DropdownMenuLabel` / `DropdownMenuSeparator` |
+| Delete confirm | `@/components/confirm-delete-modal` |
+| Page empty (zero rows) | `ListPageEmptyState` from `@/components/ui` |
+| Table filter empty | `ListTableEmptyRow` / `ListTableEmptyCard` |
+| Error boundary hero | `ErrorPageSkeleton` |
+| Form page section | `FormSection` — `density`: `comfortable` (default), `compact` (line items), `none` (notes / embedded form) |
+| Form page footer | `FormFooter` + `FormCancelLink` (or custom actions inside footer) |
+| Detail page block | `DetailSection` — title + optional `action` + body |
+| Collapsible detail list | `CollapsibleSection` — `open` / `onOpenChange` + optional `headerAction` |
+| Invoice / quote activity log | `ActivitySection` — `eventCount`, `emptyHint`, children = event rows |
+| Modal title row | `ModalHeader` — title, subtitle, close `IconButton` |
+| Pill toggle (billing period, etc.) | `SegmentedControl` |
+| Stat “i” explainer | `InfoTipTrigger` — portal tooltip panel |
+| Chase tier picker | `ChaseTierPicker` + `CHASE_TIER_META` |
+| AI launcher / feature grid tile | `Button` `intent="feature-tile"` |
+| Nudge chevron / shortcut hint | `IconButton` `variant="nudge"` / `variant="hint"` |
+
+**Never hand-roll in `app/` or `components/`:**
+
+- Semantic alert banners (`bg-*-50 border border-*-200 rounded-xl`) → `Alert`
+- KPI tiles (`min-h-[152px]` / `min-h-[108px]` flex stat layouts) → `StatCard`
+- Local `function Card({ title` / `function StatCard` / `function Row({ label` → shared ui components
+- 5px progress tracks (`h-[5px] rounded-full overflow-hidden`) → `ProgressBar`
+- Primary CTAs on raw `<button>` (`btnClass`, `bg-brand-primary text-white`) → `Button`
+- `buttonVariants({...})` on `<Link>` / `<a>` → `ButtonLink` / `ButtonAnchor`
+- Kebab menu rows with hand-rolled `px-4 py-2.5 hover:bg-surface-sunken` → `DropdownMenuItem` / `DropdownMenuLink`
+- Form blocks `bg-surface-card rounded-xl border … p-6` + `h2` `sectionTitle` → `FormSection` / `DetailSection` / `CollapsibleSection`
+- Raw `<button>`, `<input>`, `<select>` for standard forms
+- Block-level status hex — use `@/lib/status-palette`
+
+Domain-specific copy (e.g. tax disclaimer) wraps a primitive in a thin named component; keep strings server-safe in `lib/` when API routes need them.
+
+# UX patterns
+
+- **Nav**: Sidebar — Overview (Dashboard, Tax), Money (Invoices, Quotes, Expenses, Mileage), Work (Clients, Projects).
+- **Status badges**: `whitespace-nowrap`; category labels as plain text where established.
+- **Modals / sheets**: `slide-over`, `settings-modal`; `shadow-modal`, `shadow-overlay`.
+- **Currency/dates**: `en-GB` (GBP, UK dates).
+
+# Icons
+
+- **Phosphor** in app chrome and nav.
+- **Lucide** only in existing shadcn/Radix wrappers — do not mix on the same control group.

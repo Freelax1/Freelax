@@ -5,9 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { fetchProjectById } from '@/lib/api/projects'
 import ProjectForm from '@/components/project-form'
 import Button from '@/components/ui/button'
-import { FormPageSkeleton } from '@/components/ui'
-import Link from 'next/link'
-import { ArrowLeft } from '@phosphor-icons/react'
+import PageHeader from '@/components/ui/page-header'
+import { FormPageSkeleton, FormSection } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
 import type { Project } from '@/types/database'
 
 export default function ProjectEditPage() {
@@ -23,19 +23,30 @@ export default function ProjectEditPage() {
     })
   }, [params.id])
 
-  if (loading) return <FormPageSkeleton className="max-w-2xl" />
-  if (!project) return <p className="text-text-muted">Project not found.</p>
+  if (loading) {
+    return (
+      <PageLayout width="document">
+        <FormPageSkeleton />
+      </PageLayout>
+    )
+  }
+
+  if (!project) {
+    return (
+      <PageLayout width="document">
+        <p className="text-text-muted">Project not found.</p>
+      </PageLayout>
+    )
+  }
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <Link href={`/projects/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to project
-        </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit project</h1>
-      </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: `/projects/${params.id}`, label: 'Back to project' }}
+        title="Edit project"
+      />
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
+      <FormSection density="none">
         <ProjectForm
           project={project}
           onSuccess={() => router.push(`/projects/${params.id}`)}
@@ -45,7 +56,7 @@ export default function ProjectEditPage() {
             Save changes
           </Button>
         </div>
-      </div>
-    </div>
+      </FormSection>
+    </PageLayout>
   )
 }

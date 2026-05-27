@@ -16,11 +16,12 @@ import { fetchPaidInvoicesByUser } from '@/lib/api/invoices'
 import { fetchExpensesByUser } from '@/lib/api/expenses'
 import { formatCurrency } from '@/lib/tax-calculations'
 import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
 import { PanelCardSkeleton } from '@/components/ui/content-skeletons'
 import SectionCard from '@/components/ui/section-card'
 import BreakdownRow from '@/components/ui/breakdown-row'
 import Alert from '@/components/ui/alert'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 
 type Boxes = {
@@ -214,28 +215,28 @@ export default function VatReturnPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <PageLayout className="space-y-6">
         <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
         <PanelCardSkeleton className="min-h-[280px]" />
-      </div>
+      </PageLayout>
     )
   }
 
   if (loadError) {
     return (
-      <div className="space-y-6">
+      <PageLayout className="space-y-6">
         <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
         <Alert intent="danger">{loadError}</Alert>
-        <Link href="/tax/vat" className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+        <ButtonLink href="/tax/vat" intent="secondary" size="sm">
           ← Back to VAT overview
-        </Link>
-      </div>
+        </ButtonLink>
+      </PageLayout>
     )
   }
 
   if (step === 'success') {
     return (
-      <div className="space-y-6">
+      <PageLayout className="space-y-6">
         <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
         <Alert intent="success">VAT return submitted successfully.</Alert>
         {periodLabel && (
@@ -252,16 +253,16 @@ export default function VatReturnPage() {
             )}
           </p>
         )}
-        <Link href="/tax/vat" className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+        <ButtonLink href="/tax/vat" intent="secondary" size="sm">
           Back to VAT overview
-        </Link>
-      </div>
+        </ButtonLink>
+      </PageLayout>
     )
   }
 
   if (step === 'declaration') {
     return (
-      <div className="space-y-6">
+      <PageLayout className="space-y-6">
         <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
 
         <SectionCard title="Summary — please review">
@@ -295,14 +296,16 @@ export default function VatReturnPage() {
         {submitError && <Alert intent="danger">{submitError}</Alert>}
 
         <div className="flex items-center justify-between gap-3 pt-2">
-          <button
+          <Button
             type="button"
+            intent="ghost"
+            size="sm"
             onClick={() => { setStep('form'); setSubmitError(null) }}
             disabled={submitting}
-            className="text-sm text-text-secondary hover:text-text-primary underline disabled:opacity-50"
+            className="underline"
           >
             Go back
-          </button>
+          </Button>
           <Button
             type="button"
             intent="primary"
@@ -314,13 +317,13 @@ export default function VatReturnPage() {
             {submitting ? 'Submitting…' : 'Submit to HMRC'}
           </Button>
         </div>
-      </div>
+      </PageLayout>
     )
   }
 
   // ── Step: 'form' ──
   return (
-    <div className="space-y-6">
+    <PageLayout className="space-y-6">
       <PageHeader title="VAT Return" subtitle={periodLabel || undefined} />
 
       <SectionCard title="VAT return — 9 boxes">
@@ -413,7 +416,7 @@ export default function VatReturnPage() {
           Review and submit
         </Button>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 

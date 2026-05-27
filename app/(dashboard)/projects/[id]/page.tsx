@@ -13,11 +13,11 @@ import IR35Questionnaire from '@/components/ir35-questionnaire'
 import ProjectForm from '@/components/project-form'
 import SlideOver from '@/components/slide-over'
 import Link from 'next/link'
-import Button, { buttonVariants } from '@/components/ui/button'
-import { ProjectDetailSkeleton } from '@/components/ui'
-import { sectionTitle } from '@/lib/typography'
-import { cn } from '@/lib/utils'
-import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
+import Button, { ButtonLink } from '@/components/ui/button'
+import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
+import { DetailSection, ProjectDetailSkeleton } from '@/components/ui'
+import { Lock, ArrowRight } from '@phosphor-icons/react'
 import type { IR35Answer, IR35Status, Project, Invoice } from '@/types/database'
 
 type ProjectInvoice = Pick<Invoice, 'id' | 'invoice_number' | 'status' | 'total' | 'issue_date'>
@@ -72,31 +72,28 @@ export default function ProjectDetailPage() {
   const client = project.clients
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div>
-        <Link href="/projects" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to projects
-        </Link>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{project.title}</h1>
-            {client && (
-              <Link href={`/clients/${client.id}`} className="text-sm text-forest-600 hover:underline mt-0.5 block">
-                {client.name}
-              </Link>
-            )}
-          </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: '/projects', label: 'Back to projects' }}
+        title={project.title}
+        meta={
+          client ? (
+            <Link href={`/clients/${client.id}`} className="text-sm text-forest-600 hover:underline">
+              {client.name}
+            </Link>
+          ) : undefined
+        }
+        action={
           <div className="flex gap-2 items-center">
             <Badge status={project.status} />
             <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
             </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <h2 className={cn(sectionTitle, 'mb-4')}>Details</h2>
+      <DetailSection title="Details">
         <div className="grid grid-cols-2 gap-4 text-sm">
           {project.description && (
             <div className="col-span-2">
@@ -126,13 +123,12 @@ export default function ProjectDetailPage() {
             </div>
           )}
         </div>
-      </div>
+      </DetailSection>
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className={sectionTitle}>IR35 assessment</h2>
-          {canUseIR35 && <Badge status={ir35Status} />}
-        </div>
+      <DetailSection
+        title="IR35 assessment"
+        action={canUseIR35 ? <Badge status={ir35Status} /> : undefined}
+      >
         {canUseIR35 ? (
           <IR35Questionnaire
             projectId={project.id}
@@ -148,21 +144,21 @@ export default function ProjectDetailPage() {
             <p className="text-sm font-medium text-text-secondary mb-1">
               IR35 assessment is available on the Pro plan
             </p>
-            <Link
-              href="/settings?tab=billing"
-              className={buttonVariants({ intent: 'primary', size: 'sm' })}
-            >
+            <ButtonLink href="/settings?tab=billing" intent="primary" size="sm">
               Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
-            </Link>
+            </ButtonLink>
           </div>
         )}
-      </div>
+      </DetailSection>
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className={sectionTitle}>Invoices</h2>
-          <Link href={`/invoices/new?project=${project.id}`} className="text-sm text-forest-600 hover:underline">New invoice</Link>
-        </div>
+      <DetailSection
+        title="Invoices"
+        action={
+          <Link href={`/invoices/new?project=${project.id}`} className="text-sm text-forest-600 hover:underline">
+            New invoice
+          </Link>
+        }
+      >
         {invoices.length ? (
           <table className="w-full text-sm">
             <thead>
@@ -184,8 +180,10 @@ export default function ProjectDetailPage() {
               ))}
             </tbody>
           </table>
-        ) : <p className="text-sm text-text-secondary">No invoices for this project.</p>}
-      </div>
+        ) : (
+          <p className="text-sm text-text-secondary">No invoices for this project.</p>
+        )}
+      </DetailSection>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit project"
         footer={
@@ -200,6 +198,6 @@ export default function ProjectDetailPage() {
           onSuccess={() => { setEditOpen(false); setProjectSaving(false); load() }}
         />
       </SlideOver>
-    </div>
+    </PageLayout>
   )
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IconButton } from '@/components/ui/icon-button'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import Alert from '@/components/ui/alert'
 import Button from '@/components/ui/button'
 
@@ -169,21 +170,23 @@ export default function BillingTab({ profile }: Props) {
               </h3>
               <p className="text-sm text-text-muted mt-0.5">More features, no spreadsheets, no January panic.</p>
             </div>
-            <div className="flex items-center gap-2 bg-surface-sunken rounded-xl p-1">
-              <button
-                onClick={() => setYearly(false)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${!yearly ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-muted'}`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setYearly(true)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${yearly ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-muted'}`}
-              >
-                Yearly
-                <span className="ml-1.5 text-success-600 font-semibold">Save 30%</span>
-              </button>
-            </div>
+            <SegmentedControl
+              aria-label="Billing period"
+              value={yearly ? 'yearly' : 'monthly'}
+              onChange={v => setYearly(v === 'yearly')}
+              options={[
+                { value: 'monthly', label: 'Monthly' },
+                {
+                  value: 'yearly',
+                  label: (
+                    <>
+                      Yearly
+                      <span className="ml-1.5 text-success-600 font-semibold">Save 30%</span>
+                    </>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

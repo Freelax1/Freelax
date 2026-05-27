@@ -1,0 +1,12 @@
+---
+description: Freelax product context — UK freelancer tax & invoicing app
+alwaysApply: true
+---
+
+# Freelax
+
+- **Product**: Tax, invoicing, expenses, mileage, and MTD-oriented workflows for UK freelancers.
+- **Stack**: Next.js App Router (`app/`), React 18, Tailwind, Radix, Supabase, Stripe.
+- **Active branch**: `feat/ui-redesign` — tokenised design system and shared UI primitives.
+- **Remote**: `https://github.com/Freelax1/Freelax.git` — use `git` for fetch/push; use `gh` for PRs/issues when authenticated.
+- **Scope**: Prefer minimal, design-system-aligned diffs. Do not commit `.env.local` or secrets.

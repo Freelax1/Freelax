@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { inputClass } from './shared'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 export default function AccountantTab() {

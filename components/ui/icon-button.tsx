@@ -15,7 +15,7 @@ type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string
   align?: 'center' | 'left' | 'right'
   icon: ReactElement
-  variant?: 'default' | 'danger'
+  variant?: 'default' | 'danger' | 'nudge' | 'hint'
 }
 
 /** Icon-only button with dark hover tooltip and accessible name */
@@ -30,10 +30,12 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
         type={type}
         className={cn(
           baseClass,
-          'p-1.5 rounded-lg',
+          variant === 'nudge' && 'p-1 ml-1 text-brand-primary rounded-full hover:bg-forest-50 fd-chevron-nudge',
+          variant === 'hint' && 'w-7 h-7 p-0 rounded-full bg-black/[0.06] hover:bg-black/10',
+          variant !== 'nudge' && variant !== 'hint' && 'p-1.5 rounded-lg',
           variant === 'danger'
             ? 'hover:bg-danger-50 hover:text-danger-600'
-            : 'hover:bg-surface-sunken',
+            : variant === 'default' && 'hover:bg-surface-sunken',
           className,
         )}
         {...props}

@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Button from '@/components/ui/button'
+import { ErrorPageSkeleton } from '@/components/ui'
 
 export default function DetailError({
   error,
@@ -15,14 +16,8 @@ export default function DetailError({
   }, [error])
 
   return (
-    <div className="px-6 py-16 flex flex-col items-center text-center gap-3">
-      <div className="w-10 h-10 rounded-lg inline-flex items-center justify-center bg-danger-50 border border-[color:var(--danger-200)]">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-      </div>
+    <div className="px-6 py-16 flex flex-col items-center text-center gap-3 max-w-md mx-auto">
+      <ErrorPageSkeleton size="sm" className="mb-2" />
       <p className="text-sm font-medium text-text-primary m-0">Failed to load</p>
       <p className="text-sm text-text-secondary m-0">Something went wrong loading this page.</p>
       <Button type="button" intent="primary" size="md" className="mt-1" onClick={reset}>

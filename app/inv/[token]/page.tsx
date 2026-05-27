@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { CreditCard, CheckCircle } from '@phosphor-icons/react/dist/ssr'
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import Button from '@/components/ui/button'
 
 export const dynamic = 'force-dynamic'
 
@@ -178,12 +177,15 @@ export default async function PublicInvoicePage({
               <div className="mt-8">
                 <form method="POST" action="/api/invoices/create-payment">
                   <input type="hidden" name="token" value={token} />
-                  <button
+                  <Button
                     type="submit"
-                    className={cn(buttonVariants({ intent: 'primary', size: 'lg', fullWidth: true }), 'py-4 cursor-pointer')}
+                    intent="primary"
+                    size="lg"
+                    fullWidth
+                    className="py-4 cursor-pointer"
                   >
                     <CreditCard weight="regular" className="w-4 h-4" /> Pay {formatCurrency(invoice.total)} securely
-                  </button>
+                  </Button>
                 </form>
                 <p className="text-center mt-2.5" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)' }}>
                   Secured by Stripe · Your card details are never stored

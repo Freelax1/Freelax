@@ -14,16 +14,16 @@ import { generateInvoiceNumber } from '@/lib/logic/invoices'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonAnchor, ButtonLink } from '@/components/ui/button'
+import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
 import Alert from '@/components/ui/alert'
-import { sectionTitle } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import { IconButton } from '@/components/ui/icon-button'
-import { DocumentDetailSkeleton } from '@/components/ui'
+import { ActivitySection, DocumentDetailSkeleton } from '@/components/ui'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
-import Link from 'next/link'
 import {
-  ArrowLeft, PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
+  PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
   PencilSimple, Trash, FileText, LinkSimple, X, Clock, ArrowRight,
 } from '@phosphor-icons/react'
 import type { Quote, QuoteLineItem, QuoteActivity } from '@/types/database'
@@ -233,30 +233,26 @@ export default function QuoteDetailPage() {
   const canConvert  = ['accepted'].includes(quote.status)
 
   return (
-    <div className="max-w-3xl space-y-6">
-      {/* Header */}
-      <div>
-        <Link href="/quotes" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quotes
-        </Link>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{quote.quote_number}</h1>
-            <Badge status={quote.status} />
-            {expired && quote.status === 'sent' && (
-              <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
-            )}
-            {!expired && days <= 3 && days >= 0 && quote.status === 'sent' && (
-              <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
-            )}
-          </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: '/quotes', label: 'Back to quotes' }}
+        title={quote.quote_number}
+        action={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge status={quote.status} />
+              {expired && quote.status === 'sent' && (
+                <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
+              )}
+              {!expired && days <= 3 && days >= 0 && quote.status === 'sent' && (
+                <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {canEdit && (
-                <Link href={`/quotes/${quote.id}/edit`}
-                  className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+                <ButtonLink href={`/quotes/${quote.id}/edit`} intent="secondary" size="sm">
                   <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
-                </Link>
+                </ButtonLink>
               )}
               {canSend && (
                 <Button
@@ -302,14 +298,15 @@ export default function QuoteDetailPage() {
                 <LinkSimple weight="regular" className="w-3.5 h-3.5" />
                 {linkCopied ? 'Copied!' : 'Client link'}
               </Button>
-              <a
+              <ButtonAnchor
                 href={`/api/quotes/pdf?id=${quote.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+                intent="secondary"
+                size="sm"
               >
                 <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-              </a>
+              </ButtonAnchor>
               <IconButton
                 label="Delete"
                 variant="danger"
@@ -319,8 +316,8 @@ export default function QuoteDetailPage() {
               />
             </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Message */}
       {msg && (
@@ -506,51 +503,36 @@ export default function QuoteDetailPage() {
         </div>
       </div>
 
-      {/* Activity log */}
-      <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
-        <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
-          <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
-          <h2 className={sectionTitle}>Activity</h2>
-          {activity.length > 0 && (
-            <span className="ml-auto text-xs text-text-secondary">
-              {activity.length} event{activity.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        {activity.length === 0 ? (
-          <div className="px-5 py-8 text-center">
-            <Clock weight="regular" className="w-6 h-6 text-text-muted mx-auto mb-2" />
-            <p className="text-sm text-text-secondary">No activity recorded yet.</p>
-            <p className="text-xs text-text-muted mt-1">Events will appear here when the quote is sent, accepted, declined, or expires.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border-subtle">
-            {[...activity].reverse().map((entry: QuoteActivity) => {
-              const cfg = activityConfig(entry)
-              return (
-                <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
-                  <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
-                    <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
-                  </div>
-                  <p className="text-xs text-text-secondary shrink-0 pt-0.5">
-                    {new Date(entry.created_at).toLocaleDateString('en-GB', {
-                      day: 'numeric', month: 'short', year: 'numeric',
-                    })}
-                    {' '}
-                    {new Date(entry.created_at).toLocaleTimeString('en-GB', {
-                      hour: '2-digit', minute: '2-digit',
-                    })}
-                  </p>
+      <ActivitySection
+        eventCount={activity.length}
+        emptyHint="Events will appear here when the quote is sent, accepted, declined, or expires."
+      >
+        <div className="divide-y divide-border-subtle">
+          {[...activity].reverse().map((entry: QuoteActivity) => {
+            const cfg = activityConfig(entry)
+            return (
+              <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
+                <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
+                  <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
+                  {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
+                </div>
+                <p className="text-xs text-text-secondary shrink-0 pt-0.5">
+                  {new Date(entry.created_at).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric',
+                  })}
+                  {' '}
+                  {new Date(entry.created_at).toLocaleTimeString('en-GB', {
+                    hour: '2-digit', minute: '2-digit',
+                  })}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </ActivitySection>
 
             {/* Delete modal */}
       {showDelete && (
@@ -562,6 +544,6 @@ export default function QuoteDetailPage() {
           loading={deleting}
         />
       )}
-    </div>
+    </PageLayout>
   )
 }

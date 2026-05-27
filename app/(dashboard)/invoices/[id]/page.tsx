@@ -4,27 +4,26 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
-import Link from 'next/link'
-import { ArrowLeft, ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, X, Clock, LinkSimple, Lock } from '@phosphor-icons/react'
-import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
 import Badge from '@/components/badge'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonAnchor, ButtonLink } from '@/components/ui/button'
+import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
 import Alert from '@/components/ui/alert'
+import { ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, Clock, LinkSimple } from '@phosphor-icons/react'
+import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
 import { Field, Textarea } from '@/components/form-fields'
 import { cn } from '@/lib/utils'
-import { sectionTitle } from '@/lib/typography'
-import { IconButton } from '@/components/ui/icon-button'
-import { DocumentDetailSkeleton } from '@/components/ui'
+import {
+  ActivitySection,
+  DocumentDetailSkeleton,
+  ModalHeader,
+  ChaseTierPicker,
+  CHASE_TIER_META,
+  IconButton,
+} from '@/components/ui'
+import type { ChaseTier } from '@/components/ui'
 
 // ── Chase modal ────────────────────────────────────────────────────────
-// ── Chase tiers ────────────────────────────────────────────────────────
-type ChaseTier = 'friendly' | 'formal' | 'legal'
-
-const TIER_META: Record<ChaseTier, { label: string; badge: string; badgeColor: string; badgeBg: string }> = {
-  friendly: { label: 'Friendly Reminder',  badge: '1st',  badgeColor: 'var(--info-600)',    badgeBg: 'var(--info-50)'    },
-  formal:   { label: 'Formal Notice',      badge: '2nd',  badgeColor: 'var(--warning-600)', badgeBg: 'var(--warning-50)' },
-  legal:    { label: 'Legal Notice',       badge: '3rd+', badgeColor: 'var(--danger-600)',  badgeBg: 'var(--danger-50)'  },
-}
 
 function getTierMessages(invoice: Invoice, businessName: string, dueDate: string, overdueDays: number): Record<ChaseTier, string> {
   const amt = formatCurrency(invoice.total)
@@ -54,8 +53,6 @@ function ChaseModal({
   const overdueDays  = Math.max(0, Math.floor((Date.now() - new Date(invoice.due_date).getTime()) / 86400000))
   const chaseCount   = invoice.chase_log?.length ?? 0
 
-  const formalAllowed = chaseCount >= 1
-  const legalAllowed  = chaseCount >= 2
   const lastChasedAt  = invoice.chase_log?.[chaseCount - 1]?.chased_at
   const daysSinceLast = lastChasedAt
     ? Math.floor((Date.now() - new Date(lastChasedAt).getTime()) / 86400000)
@@ -106,73 +103,19 @@ function ChaseModal({
         style={{ maxHeight: '90dvh' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle flex-shrink-0">
-          <div>
-            <h2 className={sectionTitle}>Chase invoice</h2>
-            <p className="text-xs text-text-muted mt-0.5">
+        <ModalHeader
+          title="Chase invoice"
+          onClose={onClose}
+          subtitle={
+            <>
               {invoice.invoice_number} · {formatCurrency(invoice.total)}
               {overdueDays > 0 && <span className="text-danger-500 ml-1">· {overdueDays}d overdue</span>}
-            </p>
-          </div>
-          <IconButton
-            label="Close"
-            onClick={onClose}
-            className="rounded-full"
-            icon={<X weight="regular" className="w-4 h-4 text-text-muted" />}
-          />
-        </div>
+            </>
+          }
+        />
 
         <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
-          {/* Tier selector */}
-          <div>
-            <p className="text-xs font-medium text-text-muted mb-2">Chase level</p>
-            <div className="flex gap-2">
-              {(Object.keys(TIER_META) as ChaseTier[]).map(t => {
-                const meta = TIER_META[t]
-                const isActive = tier === t
-                const locked =
-                  (t === 'formal' && !formalAllowed) ||
-                  (t === 'legal'  && !legalAllowed)
-                const lockReason = locked
-                  ? t === 'formal'
-                    ? 'Send a friendly chase first'
-                    : 'Needs 2 prior chases'
-                  : ''
-                return (
-                  <button
-                    key={t}
-                    onClick={() => { if (!locked) handleTierChange(t) }}
-                    disabled={locked}
-                    title={lockReason || undefined}
-                    className="py-2 px-1 rounded transition-all duration-150"
-                    style={{
-                      flex: 1,
-                      cursor: locked ? 'not-allowed' : 'pointer',
-                      border: `1.5px solid ${isActive ? meta.badgeColor : 'var(--border-default)'}`,
-                      background: isActive ? meta.badgeBg : 'var(--surface-card)',
-                      opacity: locked ? 0.45 : 1,
-                    }}
-                  >
-                    <p className="mb-0.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-muted)' }}>
-                      {meta.badge}{locked ? <Lock weight="regular" className="inline w-2.5 h-2.5 ml-0.5 align-middle" /> : ''}
-                    </p>
-                    <p style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-secondary)' }}>
-                      {meta.label}
-                    </p>
-                    {locked && (
-                      <p className="mt-0.5" style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{lockReason}</p>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-            {tier === 'legal' && (
-              <Alert intent="danger" className="text-xs mt-2">
-                ⚖️ This notice references the <strong>Late Payment of Commercial Debts Act 1998</strong> and warns of legal proceedings. Only use when you intend to escalate.
-              </Alert>
-            )}
-          </div>
+          <ChaseTierPicker tier={tier} onTierChange={handleTierChange} chaseCount={chaseCount} />
 
           {/* To field */}
           <div className="flex items-center gap-2 text-sm">
@@ -250,7 +193,7 @@ function ChaseModal({
               : onCooldown
                 ? `Wait ${cooldownDaysRemaining}d`
                 : client?.email
-                  ? `Send ${TIER_META[tier].label}`
+                  ? `Send ${CHASE_TIER_META[tier].label}`
                   : 'Log chase'}
           </Button>
         </div>
@@ -446,28 +389,25 @@ export default function InvoiceDetailPage() {
   const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
 
   return (
-    <div className="max-w-3xl space-y-6">
-      {/* Back + header */}
-      <div>
-        <Link href="/invoices" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoices
-        </Link>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{invoice.invoice_number}</h1>
-            <Badge status={invoice.status} />
-            {chaseLog.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
-                <Bell weight="regular" className="w-3 h-3" /> Chased {chaseLog.length}×
-              </span>
-            )}
-          </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: '/invoices', label: 'Back to invoices' }}
+        title={invoice.invoice_number}
+        action={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge status={invoice.status} />
+              {chaseLog.length > 0 && (
+                <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
+                  <Bell weight="regular" className="w-3 h-3" /> Chased {chaseLog.length}×
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {isDraft && (
-                <Link href={`/invoices/${invoice.id}/edit`} className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+                <ButtonLink href={`/invoices/${invoice.id}/edit`} intent="secondary" size="sm">
                   <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
-                </Link>
+                </ButtonLink>
               )}
               {canSend && (
                 <Button
@@ -526,14 +466,15 @@ export default function InvoiceDetailPage() {
                 !isDraft && 'border-l border-border-subtle pl-3',
               )}
             >
-              <a
+              <ButtonAnchor
                 href={`/api/invoices/pdf?id=${invoice.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+                intent="secondary"
+                size="sm"
               >
                 <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-              </a>
+              </ButtonAnchor>
               {!isDraft && (
                 <Button
                   type="button"
@@ -549,8 +490,8 @@ export default function InvoiceDetailPage() {
               )}
             </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Status message */}
       {msg && (
@@ -755,51 +696,36 @@ export default function InvoiceDetailPage() {
         </div>
       </div>
 
-      {/* Activity log */}
-      <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
-        <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
-          <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
-          <h2 className={sectionTitle}>Activity</h2>
-          {activity.length > 0 && (
-            <span className="ml-auto text-xs text-text-secondary">
-              {activity.length} event{activity.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        {activity.length === 0 ? (
-          <div className="px-5 py-8 text-center">
-            <Clock weight="regular" className="w-6 h-6 text-text-muted mx-auto mb-2" />
-            <p className="text-sm text-text-secondary">No activity recorded yet.</p>
-            <p className="text-xs text-text-muted mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border-subtle">
-            {[...activity].reverse().map((entry: InvoiceActivity) => {
-              const cfg = activityConfig(entry)
-              return (
-                <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
-                  <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
-                    <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
-                  </div>
-                  <p className="text-xs text-text-secondary shrink-0 pt-0.5">
-                    {new Date(entry.created_at).toLocaleDateString('en-GB', {
-                      day: 'numeric', month: 'short', year: 'numeric',
-                    })}
-                    {' '}
-                    {new Date(entry.created_at).toLocaleTimeString('en-GB', {
-                      hour: '2-digit', minute: '2-digit',
-                    })}
-                  </p>
+      <ActivitySection
+        eventCount={activity.length}
+        emptyHint="Events will appear here when the invoice is sent, paid, or chased."
+      >
+        <div className="divide-y divide-border-subtle">
+          {[...activity].reverse().map((entry: InvoiceActivity) => {
+            const cfg = activityConfig(entry)
+            return (
+              <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
+                <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
+                  <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
+                  {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
+                </div>
+                <p className="text-xs text-text-secondary shrink-0 pt-0.5">
+                  {new Date(entry.created_at).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric',
+                  })}
+                  {' '}
+                  {new Date(entry.created_at).toLocaleTimeString('en-GB', {
+                    hour: '2-digit', minute: '2-digit',
+                  })}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </ActivitySection>
 
       {/* Chase modal */}
       {chaseOpen && (
@@ -813,6 +739,6 @@ export default function InvoiceDetailPage() {
           }}
         />
       )}
-    </div>
+    </PageLayout>
   )
 }

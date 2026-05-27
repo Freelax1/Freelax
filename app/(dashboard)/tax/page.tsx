@@ -20,7 +20,7 @@ import {
 import SectionCard from '@/components/ui/section-card'
 import BreakdownRow, { BreakdownGroup } from '@/components/ui/breakdown-row'
 import ProgressBar from '@/components/ui/progress-bar'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import ActionList, { type ActionListItem } from '@/components/ui/action-list'
 import PageLayout from '@/components/page-layout'
@@ -171,12 +171,9 @@ function VatPositionCard({
       variant="flat"
       title="VAT position"
       action={
-        <Link
-          href="/tax/vat"
-          className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-        >
+        <ButtonLink href="/tax/vat" intent="secondary" size="sm">
           VAT Returns →
-        </Link>
+        </ButtonLink>
       }
     >
       {vatWarning && (
@@ -222,12 +219,9 @@ function MtdQuartersCard({
       variant="flat"
       title="Making Tax Digital"
       action={
-        <Link
-          href="/settings?tab=HMRC"
-          className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-        >
+        <ButtonLink href="/settings?tab=HMRC" intent="secondary" size="sm">
           Connect HMRC →
-        </Link>
+        </ButtonLink>
       }
       bodyClassName="space-y-0"
     >
@@ -514,14 +508,15 @@ export default function TaxPage() {
                 {exportLoading ? 'Preparing…' : `Download ${label} SA pack`}
               </Button>
             ) : (
-              <Link
+              <ButtonLink
                 href="/settings?tab=billing"
                 title="Export is available on the Solo plan and above. Upgrade to unlock."
-                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+                intent="secondary"
+                size="sm"
               >
                 <Lock weight="regular" className="w-3.5 h-3.5" />
                 Download {label} SA pack
-              </Link>
+              </ButtonLink>
             )}
           </div>
         }
@@ -563,11 +558,9 @@ export default function TaxPage() {
               <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
                 Log some invoices and expenses and we'll calculate your estimated Income Tax, National Insurance, and Corporation Tax — broken down clearly, with every deduction shown.
               </p>
-              <Link href="/invoices/new"
-                className={buttonVariants({ intent: 'primary', size: 'sm' })}
-              >
+              <ButtonLink href="/invoices/new" intent="primary" size="sm">
                 Send your first invoice →
-              </Link>
+              </ButtonLink>
             </div>
           )}
 
@@ -772,12 +765,9 @@ export default function TaxPage() {
                     variant="flat"
                     title="Profit & Loss"
                     action={
-                      <Link
-                        href="/settings?tab=Personal+tax+inputs"
-                        className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-                      >
+                      <ButtonLink href="/settings?tab=Personal+tax+inputs" intent="secondary" size="sm">
                         Edit inputs →
-                      </Link>
+                      </ButtonLink>
                     }
                     bodyClassName="space-y-0"
                   >

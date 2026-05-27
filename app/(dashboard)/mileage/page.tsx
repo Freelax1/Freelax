@@ -6,7 +6,7 @@ import { fetchMileageEntries, deleteMileageEntry, calcMileageRelief, calcMileage
 import { formatCurrency, getCurrentTaxYear } from '@/lib/tax-calculations'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { PageHeader, ListMetrics, MileagePageSkeleton } from '@/components/ui'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import SlideOver from '@/components/slide-over'
 import MileageForm from '@/components/mileage-form'
 import { Car, Trash, Lock, ArrowRight } from '@phosphor-icons/react'
@@ -82,12 +82,9 @@ export default function MileagePage() {
           <p className="text-sm font-medium text-text-primary mb-1">
             Mileage tracking is available on the Solo plan and above
           </p>
-          <Link
-            href="/settings?tab=billing"
-            className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), 'no-underline mt-3')}
-          >
+          <ButtonLink href="/settings?tab=billing" intent="primary" size="sm" className="mt-3">
             Upgrade to Solo <ArrowRight weight="regular" className="w-3.5 h-3.5" />
-          </Link>
+          </ButtonLink>
         </div>
       )}
 

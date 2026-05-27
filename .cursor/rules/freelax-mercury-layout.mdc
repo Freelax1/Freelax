@@ -1,0 +1,44 @@
+---
+description: Mercury-style airy layout, spacing, and Mobbin inspiration for dashboard UI
+globs: "{app,components}/**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Layout north star — Mercury (not Revolut)
+
+Freelax dashboards and app chrome should feel **calm, airy, and unhurried** — closest to **Mercury** (business banking). Use **Stripe** as a secondary reference. **Avoid Revolut-style density** (many small tiles, tight stacks, everything on one screen).
+
+When exploring layout, spacing, or new dashboard sections, check **Mobbin** first (e.g. Mercury, Mercury dashboard, fintech banking web) and align with the patterns below — not generic “bento” grids. Card/section titles → `@.cursor/rules/freelax-section-headers.mdc`.
+
+# Spacing defaults (prefer generous)
+
+| Context | Default | Token |
+|---------|---------|--------|
+| Between major page sections | `gap-8` | 32px |
+| Related pair (e.g. chart + sidebar list) | `gap-4` | 16px |
+| KPI / stat tile grids | `gap-3` | 12px |
+| Inside cards | `p-6` | 24px |
+| Page shell | `p-6 lg:p-8`, `max-w-7xl mx-auto` | — |
+| Bottom of scrollable pages | generous `pb` (chat FAB clearance) | — |
+
+Do **not** tighten to “fit more on screen” unless the user explicitly asks. When in doubt, **add space**, not widgets.
+
+# Layout structure
+
+- **One vertical story** per page: hero KPIs → actions (if any) → primary content band → secondary stats → footer.
+- **Hero KPIs**: `StatCard` in `fd-cards-grid` (3–4 equal tiles); stack on mobile.
+- **Primary band**: asymmetric split only where justified (e.g. `flex-[2]` + `flex-[1]` for chart + list).
+- **Secondary metrics**: smaller `StatCard` `size="sm"` lower on the page (`fd-stat-grid`), not competing with hero KPIs.
+- **Few blocks per viewport** — if a section feels busy, remove or defer content; don’t shrink gaps.
+
+# Visual tone
+
+- Plenty of **white/cream** (`surface-paper` / `surface-card`), soft borders, restrained colour.
+- **Serif for big numbers** only; sans for labels and body (`cardLabel`, `sectionTitle`).
+- Status/warnings: subtle tint (border/background), not loud panels everywhere.
+
+# Anti-patterns
+
+- Revolut-style mosaic of many equal tiles with `gap-2` / `gap-1`.
+- Cramming disclaimer, sync, and KPIs into one tight row without breathing room.
+- Hand-rolled stat layouts — use `StatCard` + grid utilities (see `freelax-ui-design.mdc`).

@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { IconButton } from '@/components/ui/icon-button'
+import { CaretDown } from '@phosphor-icons/react'
 
 interface Props {
   actionCount:  number
@@ -64,12 +66,8 @@ function WeatherGlyph({ state }: { state: State }) {
   )
 }
 
-// Soft brand-green chevron-down that nudges the eye toward the Do-this-now card.
-// Clickable — smoothly scrolls to the action section right below.
 function NudgeChevron() {
   function handleClick() {
-    // Scroll to the first element below the status line (the Do-this-now card,
-    // or the three-pots if no actions). Finds by querying parent siblings.
     if (typeof window !== 'undefined') {
       const root = document.querySelector('[data-fd-status-line]')
       const next = root?.parentElement?.nextElementSibling as HTMLElement | null
@@ -81,27 +79,12 @@ function NudgeChevron() {
     }
   }
   return (
-    <button
+    <IconButton
+      variant="nudge"
+      label="Scroll to the action below"
       onClick={handleClick}
-      aria-label="Scroll to the action below"
-      className="bg-transparent border-none cursor-pointer inline-flex items-center justify-center p-1 ml-1 text-brand-primary rounded-full transition-[background] duration-[120ms]"
-      style={{ animation: 'fd-chevron-nudge 1.8s ease-in-out infinite' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--forest-50)' }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
-    >
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="block">
-        <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <style>{`
-        @keyframes fd-chevron-nudge {
-          0%, 100% { transform: translateY(0); }
-          50%      { transform: translateY(3px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          button[aria-label="Scroll to the action below"] { animation: none !important; }
-        }
-      `}</style>
-    </button>
+      icon={<CaretDown weight="bold" className="w-5 h-5" />}
+    />
   )
 }
 

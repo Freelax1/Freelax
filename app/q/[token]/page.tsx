@@ -4,8 +4,7 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { notFound } from 'next/navigation'
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import Button from '@/components/ui/button'
 
 export default async function PublicQuotePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
@@ -177,20 +176,26 @@ export default async function PublicQuotePage({ params }: { params: Promise<{ to
                 </p>
                 <div className="qpub-cta flex gap-2.5">
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=accept`} className="flex-1">
-                    <button
+                    <Button
                       type="submit"
-                      className={cn(buttonVariants({ intent: 'primary', size: 'md', fullWidth: true }), 'py-3 cursor-pointer')}
+                      intent="primary"
+                      size="md"
+                      fullWidth
+                      className="py-3 cursor-pointer"
                     >
                       Accept quote →
-                    </button>
+                    </Button>
                   </form>
                   <form method="POST" action={`/api/quotes/respond?token=${token}&action=decline`} className="flex-1">
-                    <button
+                    <Button
                       type="submit"
-                      className={cn(buttonVariants({ intent: 'secondary', size: 'md', fullWidth: true }), 'py-3 cursor-pointer')}
+                      intent="secondary"
+                      size="md"
+                      fullWidth
+                      className="py-3 cursor-pointer"
                     >
                       Decline
-                    </button>
+                    </Button>
                   </form>
                 </div>
               </div>

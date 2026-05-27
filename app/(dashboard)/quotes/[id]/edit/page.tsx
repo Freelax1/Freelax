@@ -11,15 +11,15 @@ import { fetchQuoteById, updateQuote, deleteQuoteLineItems, createQuoteLineItems
 import { fetchClientsForDropdown } from '@/lib/api/clients'
 import { fetchProjectsForClient } from '@/lib/api/projects'
 import { calcQuoteSubtotal, calcQuoteVat, calcQuoteTotal } from '@/lib/logic/quotes'
-import Link from 'next/link'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
-import { ArrowLeft, Plus, X } from '@phosphor-icons/react'
-import { sectionTitle } from '@/lib/typography'
+import { Plus, X } from '@phosphor-icons/react'
 import type { Client, Project, QuoteLineItem } from '@/types/database'
 import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import { IconButton } from '@/components/ui/icon-button'
-import { FormPageSkeleton } from '@/components/ui'
+import PageHeader from '@/components/ui/page-header'
+import { FormPageSkeleton, FormSection, FormFooter, FormCancelLink } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
 
 interface LineItem {
   description: string
@@ -118,22 +118,24 @@ export default function EditQuotePage() {
     }
   }
 
-  if (loading) return <FormPageSkeleton />
+  if (loading) {
+    return (
+      <PageLayout width="document">
+        <FormPageSkeleton />
+      </PageLayout>
+    )
+  }
 
   return (
-    <div className="max-w-3xl space-y-6 pb-12">
-      <div>
-        <Link href={`/quotes/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to quote
-        </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit quote</h1>
-      </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: `/quotes/${params.id}`, label: 'Back to quote' }}
+        title="Edit quote"
+      />
 
       {error && <Alert intent="danger">{error}</Alert>}
 
-      {/* Quote details */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className={sectionTitle}>Quote details</h2>
+      <FormSection title="Quote details">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Client">
             <Select value={clientId} onChange={e => setClientId(e.target.value)}>
@@ -154,11 +156,9 @@ export default function EditQuotePage() {
             <Input type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
           </Field>
         </div>
-      </div>
+      </FormSection>
 
-      {/* Line items */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <h2 className={sectionTitle}>Line items</h2>
+      <FormSection title="Line items" density="compact">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -214,21 +214,20 @@ export default function EditQuotePage() {
           <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
           <div className="flex justify-between border-t border-border-subtle pt-1"><span className="font-semibold text-text-secondary">Total</span><span className="font-semibold text-text-primary text-base">{formatCurrency(total)}</span></div>
         </div>
-      </div>
+      </FormSection>
 
-      {/* Notes */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
+      <FormSection density="none">
         <Field label="Notes">
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
         </Field>
-      </div>
+      </FormSection>
 
-      <div className="flex justify-end gap-3">
-        <Link href={`/quotes/${params.id}`} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
+      <FormFooter>
+        <FormCancelLink href={`/quotes/${params.id}`} />
         <Button type="button" intent="primary" size="md" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
         </Button>
-      </div>
-    </div>
+      </FormFooter>
+    </PageLayout>
   )
 }

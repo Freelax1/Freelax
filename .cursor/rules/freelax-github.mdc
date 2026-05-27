@@ -1,0 +1,13 @@
+---
+description: Git and GitHub workflow for Freelax
+alwaysApply: false
+---
+
+# Git / GitHub
+
+- **Default remote**: `origin` → `https://github.com/Freelax1/Freelax.git`
+- **UI work**: branch `feat/ui-redesign` unless the user specifies otherwise.
+- **Never** force-push `main`/`master`, amend unpushed commits, or skip hooks unless explicitly asked.
+- **Never** commit `.env.local`, keys, or credentials.
+- **Push / PR**: Only when the user explicitly requests. For PRs prefer `gh pr create` with a summary and test plan.
+- **CLI**: `gh` is installed at `~/.local/bin/gh`. If `gh` is not found, use `export PATH="$HOME/.local/bin:$PATH"`.

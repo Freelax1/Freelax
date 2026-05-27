@@ -15,12 +15,13 @@ import { calcSubtotal, calcVatAmount, calcTotal, generateInvoiceNumber } from '@
 import AIFlag from '@/components/ai-flag'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
-import { Sparkle, Plus, X, ArrowLeft } from '@phosphor-icons/react'
+import PageHeader from '@/components/ui/page-header'
+import { FormSection, FormFooter, FormCancelLink } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
+import { Sparkle, Plus, X } from '@phosphor-icons/react'
 import type { Client, Project } from '@/types/database'
 import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import { IconButton } from '@/components/ui/icon-button'
-import Link from 'next/link'
-import { sectionTitle } from '@/lib/typography'
 
 interface LineItem {
   description: string
@@ -306,24 +307,22 @@ export default function NewInvoicePage() {
     setSaving(false)
   }
 
+  const draftMeta =
+    lastSavedAt ? (
+      <p className="text-xs text-text-secondary">
+        {autoSaving ? 'Saving...' : `Draft saved ${lastSavedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
+      </p>
+    ) : clientId ? (
+      <p className="text-xs text-text-secondary">Auto-saves every 10s once a client is selected</p>
+    ) : undefined
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-12">
-      <div>
-        <Link href="/invoices" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoices
-        </Link>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New invoice</h1>
-            {lastSavedAt && (
-              <p className="text-xs text-text-secondary mt-1">
-                {autoSaving ? 'Saving...' : `Draft saved ${lastSavedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
-              </p>
-            )}
-            {!lastSavedAt && clientId && (
-              <p className="text-xs text-text-secondary mt-1">Auto-saves every 10s once a client is selected</p>
-            )}
-          </div>
+    <PageLayout width="document" className="space-y-6">
+      <PageHeader
+        back={{ href: '/invoices', label: 'Back to invoices' }}
+        title="New invoice"
+        meta={draftMeta}
+        action={
           <Button
             type="button"
             size="sm"
@@ -334,8 +333,8 @@ export default function NewInvoicePage() {
             <Sparkle weight="regular" className="w-4 h-4" />
             AI Invoice Assistant
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {saveError && <Alert intent="warning">{saveError}</Alert>}
 
@@ -359,9 +358,7 @@ export default function NewInvoicePage() {
         </Alert>
       )}
 
-      {/* Invoice details */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className={sectionTitle}>Invoice details</h2>
+      <FormSection title="Invoice details">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Client">
             <>
@@ -445,14 +442,14 @@ export default function NewInvoicePage() {
             <Input aria-label="Payment terms" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
           </Field>
         </div>
-      </div>
+      </FormSection>
 
-      {/* Line items */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className={sectionTitle}>Line items</h2>
-          {lineItemsFromAI && <AIFlag />}
-        </div>
+      <FormSection title="Line items" density="compact">
+        {lineItemsFromAI && (
+          <div className="flex justify-end">
+            <AIFlag />
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -510,25 +507,23 @@ export default function NewInvoicePage() {
           <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
           <div className="flex justify-between border-t border-border-subtle pt-1"><span className="font-semibold text-text-secondary">Total</span><span className="font-semibold text-text-primary text-base">{formatCurrency(total)}</span></div>
         </div>
-      </div>
+      </FormSection>
 
-      {/* Notes */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
+      <FormSection density="none">
         <Field label="Notes">
           <Textarea aria-label="Notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
         </Field>
-      </div>
+      </FormSection>
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button type="button" intent="secondary" size="md" onClick={() => router.back()}>Cancel</Button>
+      <FormFooter>
+        <FormCancelLink href="/invoices" />
         <Button type="button" intent="outline" size="md" onClick={() => handleSave(false)} disabled={saving}>
           Save as draft
         </Button>
         <Button type="button" intent="primary" size="md" onClick={() => handleSave(true)} disabled={saving}>
           {saving ? 'Saving...' : 'Send invoice'}
         </Button>
-      </div>
-    </div>
+      </FormFooter>
+    </PageLayout>
   )
 }

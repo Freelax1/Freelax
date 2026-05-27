@@ -436,6 +436,21 @@ select option {
   100% { background-position:  400px 0; }
 }
 
+@keyframes fd-chevron-nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(3px); }
+}
+
+.fd-chevron-nudge {
+  animation: fd-chevron-nudge 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fd-chevron-nudge {
+    animation: none;
+  }
+}
+
 /* ── Animation utility classes ──────────────────────────────────────────── */
 
 .fd-skeleton {

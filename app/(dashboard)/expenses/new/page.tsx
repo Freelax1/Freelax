@@ -8,11 +8,12 @@ import { useRouter } from 'next/navigation'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { createExpense, uploadReceipt } from '@/lib/api/expenses'
 import { Field, Input, Select, Toggle, SaveButton } from '@/components/form-fields'
-import { Scan, UploadSimple, CircleNotch, ArrowLeft } from '@phosphor-icons/react'
-import { sectionTitle } from '@/lib/typography'
-import Link from 'next/link'
+import { Scan, UploadSimple, CircleNotch } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
+import PageHeader from '@/components/ui/page-header'
+import { FormSection, FormFooter, FormCancelLink } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
 
 const CATEGORIES = [
   { value: 'office_supplies',   label: 'Office & Supplies' },
@@ -133,13 +134,11 @@ export default function NewExpensePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-12">
-      <div>
-        <Link href="/expenses" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to expenses
-        </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New expense</h1>
-      </div>
+    <PageLayout width="narrow" className="space-y-6">
+      <PageHeader
+        back={{ href: '/expenses', label: 'Back to expenses' }}
+        title="New expense"
+      />
 
       {error && (
         <Alert intent="danger">{error}</Alert>
@@ -178,10 +177,7 @@ export default function NewExpensePage() {
           </div>
         </Alert>
 
-        {/* Main fields */}
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className={sectionTitle}>Expense details</h2>
-
+        <FormSection title="Expense details">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Date" required error={errors.date}>
               <Input type="date" value={form.date} onChange={e => set('date', e.target.value)} error={!!errors.date} />
@@ -212,15 +208,13 @@ export default function NewExpensePage() {
           </div>
 
           <Toggle checked={form.vat_reclaimable} onChange={val => set('vat_reclaimable', val)} label="VAT reclaimable" />
-        </div>
+        </FormSection>
 
-        <div className="flex justify-end gap-3">
-          <Link href="/expenses" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
-            Cancel
-          </Link>
+        <FormFooter>
+          <FormCancelLink href="/expenses" />
           <SaveButton loading={saving} label="Save expense" />
-        </div>
+        </FormFooter>
       </form>
-    </div>
+    </PageLayout>
   )
 }

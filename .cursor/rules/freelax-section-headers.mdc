@@ -1,0 +1,79 @@
+---
+description: Section and card header hierarchy (Mobbin — Mercury, accounting peers)
+globs: "{app,components}/**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Mobbin first
+
+Before adding or restyling section/card headers, run **Mobbin** `search_screens` (web):
+
+- Mercury: `Mercury dashboard card header`, `Mercury money movement transactions`
+- Accounting peers: `QuickBooks profit loss dashboard`, `fintech tax breakdown web`
+
+Prefer **Mercury** for Freelax dashboard/tax/compliance. Use QuickBooks/Bonsai only for P&L *content* patterns, not their ALL-CAPS widget chrome.
+
+# Three levels (do not mix roles)
+
+| Level | Token / component | Use for | Shell |
+|-------|-------------------|---------|--------|
+| **Page** | `PageHeader` (serif `text-2xl`) | Page name + **one** subtitle (tax year, date, entity) | Outside cards |
+| **Section** | `sectionTitle` on `h2` | Named block: Profit & Loss, VAT position, MTD | See shells below |
+| **Eyebrow** | `cardLabel` on `p` | Optional group label only: At a glance, Suggested next steps | No `h2`; never duplicate a section title |
+
+Do **not** add a fourth hero title (`text-lg`) on the same page unless it replaces the page subtitle.
+
+# Section shells — pick one per surface
+
+## A. Flat money card (Mercury default — dashboard, tax, compliance)
+
+Use `SectionCard` with `variant="flat"` and optional `action`:
+
+```tsx
+<SectionCard
+  variant="flat"
+  title="VAT position"
+  action={<Link className={buttonVariants({ intent: 'secondary', size: 'sm' })} href="…">VAT Returns →</Link>}
+  bodyClassName="py-1"
+>
+  {/* hero metric, breakdown, chart */}
+</SectionCard>
+```
+
+- Title **without** tax year in the card (year lives in `PageHeader` subtitle).
+- **One** header CTA — `Button` / `Link` + `secondary` `sm`. No footer duplicate links to the same destination.
+- Optional in-card footer: quiet `View →` text link (Mercury), not a second paragraph of instructions.
+
+## B. Section band above a grid (Mercury — Money movement, Transactions)
+
+For a **group** of cards, not a single card:
+
+```tsx
+<div className="flex items-center justify-between gap-3 mb-3">
+  <h2 className={sectionTitle}>Important dates</h2>
+  <Link className="text-sm text-brand-primary …">View all →</Link>
+</div>
+<div className="grid …">{/* cards */}</div>
+```
+
+Spacing separates the band from the grid (`mb-3` / `gap-8` between bands). No sunken header strip.
+
+## C. Sunken header (`SectionCard`) — settings & dense breakdown only
+
+Use for **long label/value tables** (P&L rows, NI breakdown, settings tabs) where the body is mostly `BreakdownRow` lines.
+
+Do **not** use sunken `SectionCard` headers next to flat Mercury-style cards on the **same row** (e.g. VAT flat + P&L sunken). Prefer migrating breakdown blocks to a flat header variant when touching that page.
+
+# Mercury patterns to copy
+
+- Card title top-left; actions top-right on **same row**.
+- Section labels between card groups; **whitespace** > extra chrome.
+- Summary stat cards: small label above big number (`cardLabel` + `serifStat`), not a second `sectionTitle`.
+
+# Anti-patterns
+
+- Gray sunken header + inline white-body title on the same viewport band.
+- `sectionTitle` + `cardLabel` for the same block.
+- Repeating `— 2026/27` on every card when the page subtitle already has the tax year.
+- Text-link “Connect HMRC” in the card footer when the header already has `Connect HMRC →`.
+- QuickBooks-style ALL-CAPS widget titles on Freelax UI.

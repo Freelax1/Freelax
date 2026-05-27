@@ -12,12 +12,11 @@ import Badge from '@/components/badge'
 import ClientForm from '@/components/client-form'
 import SlideOver from '@/components/slide-over'
 import Button from '@/components/ui/button'
+import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
 import Link from 'next/link'
-import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
-import { sectionTitle } from '@/lib/typography'
 import StatCard from '@/components/ui/stat-card'
-import { ClientDetailSkeleton } from '@/components/ui'
+import { ClientDetailSkeleton, CollapsibleSection, DetailSection } from '@/components/ui'
 import type { Client, Project, Invoice, Quote } from '@/types/database'
 
 type ClientProject = Pick<Project, 'id' | 'title' | 'status' | 'ir35_status' | 'rate_type' | 'rate_amount'>
@@ -77,10 +76,6 @@ export default function ClientDetailPage() {
   const outstanding    = calcOutstanding(invoices)
   const quotesPipeline = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
 
-  const chevron = (open: boolean) => (
-    <CaretDown weight="regular" className={cn('w-4 h-4 text-text-secondary shrink-0 transition-transform duration-200', open ? 'rotate-0' : 'rotate-180')} />
-  )
-
   const sectionCount = (n: number) => (
     <span className="text-sm text-text-secondary font-normal ml-1.5">({n})</span>
   )
@@ -109,28 +104,26 @@ export default function ClientDetailPage() {
   )
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href="/clients" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to clients
-        </Link>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{client.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-text-muted">
-              {client.contact_name && <span>{client.contact_name}</span>}
-              {client.email && <a href={`mailto:${client.email}`} className="text-forest-600 hover:underline">{client.email}</a>}
-              {client.phone && <span>{client.phone}</span>}
-            </div>
+    <PageLayout width="full" className="space-y-6">
+      <PageHeader
+        back={{ href: '/clients', label: 'Back to clients' }}
+        title={client.name}
+        meta={
+          <div className="flex items-center gap-3 text-sm text-text-muted">
+            {client.contact_name && <span>{client.contact_name}</span>}
+            {client.email && <a href={`mailto:${client.email}`} className="text-forest-600 hover:underline">{client.email}</a>}
+            {client.phone && <span>{client.phone}</span>}
           </div>
+        }
+        action={
           <div className="flex gap-2 items-center">
             <Badge status={client.status} />
             <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Edit
             </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 fd-stat-grid">
@@ -163,8 +156,7 @@ export default function ClientDetailPage() {
       </div>
 
       {(client.address_line1 || client.notes) && (
-        <div className="bg-surface-card rounded-xl border border-border-default p-6">
-          <h2 className={cn(sectionTitle, 'mb-3')}>Details</h2>
+        <DetailSection title="Details">
           {client.address_line1 && (
             <div className="text-sm text-text-secondary mb-3">
               <p>{client.address_line1}</p>
@@ -174,39 +166,39 @@ export default function ClientDetailPage() {
             </div>
           )}
           {client.notes && <p className="text-sm text-text-muted mt-2">{client.notes}</p>}
-        </div>
+        </DetailSection>
       )}
 
-      {/* Projects */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', projectsOpen && 'mb-4')}
-          onClick={() => setProjectsOpen(o => !o)}>
-          <h2 className={sectionTitle}>Projects{sectionCount(projects.length)}</h2>
-          <div className="flex items-center gap-4">
-            <Link href={`/projects/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">Add project</Link>
-            {chevron(projectsOpen)}
-          </div>
-        </div>
-        {projectsOpen && (() => {
-          if (!projects.length) return <p className="text-sm text-text-secondary">No projects.</p>
-          if (projects.length > 10) return <div className="max-h-[420px] overflow-y-auto">{projectTable}</div>
-          return projectTable
-        })()}
-      </div>
+      <CollapsibleSection
+        title={<>Projects{sectionCount(projects.length)}</>}
+        open={projectsOpen}
+        onOpenChange={setProjectsOpen}
+        headerAction={
+          <Link href={`/projects/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+            Add project
+          </Link>
+        }
+      >
+        {!projects.length ? (
+          <p className="text-sm text-text-secondary">No projects.</p>
+        ) : projects.length > 10 ? (
+          <div className="max-h-[420px] overflow-y-auto">{projectTable}</div>
+        ) : (
+          projectTable
+        )}
+      </CollapsibleSection>
 
-      {/* Quotes */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', quotesOpen && 'mb-4')}
-          onClick={() => setQuotesOpen(o => !o)}>
-          <h2 className={sectionTitle}>Quotes{sectionCount(quotes.length)}</h2>
-          <div className="flex items-center gap-4">
-            <Link href={`/quotes/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">New quote</Link>
-            {chevron(quotesOpen)}
-          </div>
-        </div>
-        {quotesOpen && (() => {
+      <CollapsibleSection
+        title={<>Quotes{sectionCount(quotes.length)}</>}
+        open={quotesOpen}
+        onOpenChange={setQuotesOpen}
+        headerAction={
+          <Link href={`/quotes/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+            New quote
+          </Link>
+        }
+      >
+        {(() => {
           const quoteTable = (
             <table className="w-full text-sm">
               <thead>
@@ -238,20 +230,19 @@ export default function ClientDetailPage() {
           if (quotes.length > 10) return <div className="max-h-[420px] overflow-y-auto">{quoteTable}</div>
           return quoteTable
         })()}
-      </div>
+      </CollapsibleSection>
 
-      {/* Invoices */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', invoicesOpen && 'mb-4')}
-          onClick={() => setInvoicesOpen(o => !o)}>
-          <h2 className={sectionTitle}>Invoices{sectionCount(invoices.length)}</h2>
-          <div className="flex items-center gap-4">
-            <Link href={`/invoices/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">New invoice</Link>
-            {chevron(invoicesOpen)}
-          </div>
-        </div>
-        {invoicesOpen && (() => {
+      <CollapsibleSection
+        title={<>Invoices{sectionCount(invoices.length)}</>}
+        open={invoicesOpen}
+        onOpenChange={setInvoicesOpen}
+        headerAction={
+          <Link href={`/invoices/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+            New invoice
+          </Link>
+        }
+      >
+        {(() => {
           const invoiceTable = (
             <table className="w-full text-sm">
               <thead>
@@ -280,7 +271,7 @@ export default function ClientDetailPage() {
           if (invoices.length > 10) return <div className="max-h-[420px] overflow-y-auto">{invoiceTable}</div>
           return invoiceTable
         })()}
-      </div>
+      </CollapsibleSection>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit client"
         footer={
@@ -291,6 +282,6 @@ export default function ClientDetailPage() {
       >
         <ClientForm client={client} hideInlineSubmit onSuccess={() => { setEditOpen(false); load() }} />
       </SlideOver>
-    </div>
+    </PageLayout>
   )
 }

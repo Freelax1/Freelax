@@ -1,6 +1,7 @@
 ﻿import React, { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import PageHeader from '@/components/ui/page-header'
+import PageLayout from '@/components/page-layout'
 import SettingsForm from '@/components/settings-form'
 
 export default async function SettingsPage() {
@@ -9,11 +10,11 @@ export default async function SettingsPage() {
   const { data: profile } = await supabase.from('users').select('*').eq('id', user!.id).single()
 
   return (
-    <div>
+    <PageLayout width="full">
       <PageHeader title="Settings" subtitle="Profile, billing, and app preferences" />
       <Suspense fallback={<div />}>
         <SettingsForm profile={profile} email={user?.email ?? ''} />
       </Suspense>
-    </div>
+    </PageLayout>
   )
 }

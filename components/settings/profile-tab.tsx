@@ -107,13 +107,10 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
               {logoUploading ? 'Uploading…' : logoUrl ? 'Replace logo' : 'Upload logo'}
             </Button>
             {logoUrl && (
-              <button
-                onClick={removeLogo}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-danger-500 hover:text-danger-700 hover:bg-danger-50 rounded-xl transition-all"
-              >
+              <Button type="button" intent="danger-subtle" size="sm" onClick={removeLogo}>
                 <X weight="regular" className="w-3.5 h-3.5" />
                 Remove
-              </button>
+              </Button>
             )}
             <p className="text-xs text-text-secondary leading-relaxed">
               PNG, JPG or SVG · max 2 MB<br/>

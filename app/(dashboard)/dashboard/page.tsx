@@ -13,6 +13,7 @@ import OnboardingChecklist from '@/components/onboarding-checklist'
 import PageLayout from '@/components/page-layout'
 import {
   PageHeader,
+  IconButton,
   StatCardSkeleton,
   StatusLineSkeleton,
   PanelCardSkeleton,
@@ -27,7 +28,7 @@ import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button'
 import ActionList from '@/components/ui/action-list'
 import { Plus, Question } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
@@ -117,12 +118,12 @@ function ShortcutHint() {
   const [open, setOpen] = useState(false)
   return (
     <div className="fd-shortcut-hint fixed bottom-5 right-5 z-dropdown">
-      <button onClick={() => setOpen(o => !o)}
-        className="w-7 h-7 rounded-full border-none cursor-pointer flex items-center justify-center bg-black/[0.06]"
-        title="Keyboard shortcuts"
-        aria-label="Keyboard shortcuts">
-        <Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />
-      </button>
+      <IconButton
+        variant="hint"
+        label="Keyboard shortcuts"
+        onClick={() => setOpen(o => !o)}
+        icon={<Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />}
+      />
       {open && (
         <div className="absolute bottom-9 right-0 bg-surface-card border border-border-default rounded-lg px-3.5 py-2.5 min-w-[200px] shadow-popover">
           {[
@@ -355,13 +356,10 @@ export default function DashboardPage() {
     : todayLabel
 
   const newInvoiceAction = (
-    <Link
-      href="/invoices/new"
-      className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), 'no-underline')}
-    >
+    <ButtonLink href="/invoices/new" intent="primary" size="sm">
       <Plus weight="regular" className="w-[13px] h-[13px]" />
       New invoice
-    </Link>
+    </ButtonLink>
   )
 
   return (

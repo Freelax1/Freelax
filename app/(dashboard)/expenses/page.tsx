@@ -9,6 +9,8 @@ import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import {
   PageHeader,
   DropdownPanel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   ListMetrics,
   ListMetricsSkeleton,
   ListSearch,
@@ -17,10 +19,12 @@ import {
   TableRowsSkeleton,
   ListMobileCardSkeleton,
   TABLE_CELL_PRESETS,
+  ListPageEmptyState,
+  ListTableEmptyRow,
+  ListTableEmptyCard,
 } from '@/components/ui'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
-import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
 import { Paperclip, Trash, PencilSimple } from '@phosphor-icons/react'
@@ -41,16 +45,13 @@ function KebabMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => v
     <div className="relative">
       <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
       <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)} className="min-w-[130px]">
-          <button onClick={() => { setOpen(false); onEdit() }}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
-          </button>
-          <div className="border-t border-border-subtle">
-            <button onClick={() => { setOpen(false); onDelete() }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
-            </button>
-          </div>
+          <DropdownMenuItem onClick={() => { setOpen(false); onEdit() }}>
+            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="danger" onClick={() => { setOpen(false); onDelete() }}>
+            <Trash weight="regular" className="w-3.5 h-3.5 shrink-0" /> Delete
+          </DropdownMenuItem>
       </DropdownPanel>
     </div>
   )
@@ -144,6 +145,18 @@ export default function ExpensesPage() {
   })
 
   const allSelected = filtered.length > 0 && selected.size === filtered.length
+  const hasExpenses = expenses.length > 0
+  const tableEmpty = !loading && hasExpenses && filtered.length === 0
+
+  function clearExpenseFilters() {
+    setQuery('')
+    setCategoryFilter('all')
+  }
+
+  const categoryLabel =
+    categoryFilter === 'all'
+      ? undefined
+      : CATEGORY_LABELS[categoryFilter] ?? categoryFilter
 
   return (
     <ListPageLayout>
@@ -209,7 +222,9 @@ export default function ExpensesPage() {
 
       {/* Table / empty state */}
       {!loading && !expenses.length ? (
-        <EmptyState icon="expense" title="No expenses yet"
+        <ListPageEmptyState
+          variant="expense"
+          title="No expenses yet"
           description="Every business cost you log reduces your tax bill. We handle the VAT split and keep your receipts in one place for Self Assessment."
           action={
             <Button type="button" intent="primary" size="sm" onClick={() => { setEditExpense(undefined); setSlideOpen(true) }}>
@@ -252,6 +267,17 @@ export default function ExpensesPage() {
               <tbody>
                 {loading ? (
                   <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.expense} />
+                ) : tableEmpty ? (
+                  <ListTableEmptyRow
+                    colSpan={8}
+                    entityPlural="expenses"
+                    query={query}
+                    categoryFilter={categoryFilter}
+                    categoryLabel={categoryLabel}
+                    onClearSearch={() => setQuery('')}
+                    onClearCategory={() => setCategoryFilter('all')}
+                    onClearAll={clearExpenseFilters}
+                  />
                 ) : filtered.map(exp => {
                   const isSelected = selected.has(exp.id)
                   return (
@@ -296,6 +322,16 @@ export default function ExpensesPage() {
                   <ListMobileCardSkeleton key={i} variant="expense" />
                 ))}
               </div>
+            ) : tableEmpty ? (
+              <ListTableEmptyCard
+                entityPlural="expenses"
+                query={query}
+                categoryFilter={categoryFilter}
+                categoryLabel={categoryLabel}
+                onClearSearch={() => setQuery('')}
+                onClearCategory={() => setCategoryFilter('all')}
+                onClearAll={clearExpenseFilters}
+              />
             ) : filtered.map(exp => {
               const isSelected = selected.has(exp.id)
               return (

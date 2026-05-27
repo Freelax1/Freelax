@@ -9,6 +9,10 @@ import { formatCurrency } from '@/lib/tax-calculations'
 import {
   PageHeader,
   DropdownPanel,
+  DropdownMenuItem,
+  DropdownMenuLink,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   ListStatusTabs,
   ListMetrics,
   ListMetricsSkeleton,
@@ -18,11 +22,13 @@ import {
   TableRowsSkeleton,
   ListMobileCardSkeleton,
   TABLE_CELL_PRESETS,
+  ListPageEmptyState,
+  ListTableEmptyRow,
+  ListTableEmptyCard,
 } from '@/components/ui'
 import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import Badge from '@/components/badge'
-import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
 import { Eye, PencilSimple, Trash } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
@@ -56,31 +62,24 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
     <div className="relative">
       <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
       <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
-          <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
-          </Link>
-          <button onClick={() => { setOpen(false); onEdit(project) }}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
-          </button>
-          {/* Status options */}
-          <div className="border-t border-border-subtle py-1.5">
-            <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
-            {otherStatuses.map(s => (
-              <button key={s} onClick={() => { setOpen(false); onStatusChange(project, s) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
-                {s === 'on_hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
-          </div>
-          <div className="border-t border-border-subtle">
-            <button onClick={() => { setOpen(false); onDelete(project) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
-            </button>
-          </div>
+          <DropdownMenuLink href={`/projects/${project.id}`} onClick={() => setOpen(false)}>
+            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> View
+          </DropdownMenuLink>
+          <DropdownMenuItem onClick={() => { setOpen(false); onEdit(project) }}>
+            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Change status</DropdownMenuLabel>
+          {otherStatuses.map(s => (
+            <DropdownMenuItem key={s} onClick={() => { setOpen(false); onStatusChange(project, s) }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
+              {s === 'on_hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="danger" onClick={() => { setOpen(false); onDelete(project) }}>
+            <Trash weight="regular" className="w-3.5 h-3.5 shrink-0" /> Delete
+          </DropdownMenuItem>
       </DropdownPanel>
     </div>
   )
@@ -198,6 +197,27 @@ export default function ProjectsPage() {
   const onHold    = projects.filter(p => p.status === 'on_hold')
   const totalValue = projects.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0)
   const allSelected = searched.length > 0 && selected.size === searched.length
+  const hasProjects = projects.length > 0
+  const tableEmpty = !loading && hasProjects && searched.length === 0
+
+  const IR35_FILTER_LABELS: Record<string, string> = {
+    outside_ir35: 'Outside IR35',
+    inside_ir35: 'Inside IR35',
+    needs_review: 'Needs review',
+  }
+
+  function clearProjectFilters() {
+    setQuery('')
+    setStatusFilter('all')
+    setIr35Filter('all')
+  }
+
+  const statusTabLabel =
+    statusFilter === 'all'
+      ? undefined
+      : statusFilter === 'on_hold'
+        ? 'On hold'
+        : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)
 
   return (
     <ListPageLayout>
@@ -273,8 +293,12 @@ export default function ProjectsPage() {
       {/* Table */}
       <div>
         {!loading && !projects.length ? (
-          <EmptyState icon="projects" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
-            action={<Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>Create your first project</Button>} />
+          <ListPageEmptyState
+            variant="project"
+            title="No projects yet"
+            description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
+            action={<Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>Create your first project</Button>}
+          />
         ) : (
           <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
             <table className="w-full border-separate border-spacing-0">
@@ -346,6 +370,19 @@ export default function ProjectsPage() {
                 <ListMobileCardSkeleton key={i} variant="project" />
               ))}
             </div>
+          ) : tableEmpty ? (
+            <ListTableEmptyCard
+              entityPlural="projects"
+              query={query}
+              statusFilter={statusFilter}
+              statusLabel={statusTabLabel}
+              ir35Filter={ir35Filter}
+              ir35Label={IR35_FILTER_LABELS[ir35Filter]}
+              onClearSearch={() => setQuery('')}
+              onClearStatus={() => setStatusFilter('all')}
+              onClearIr35={() => setIr35Filter('all')}
+              onClearAll={clearProjectFilters}
+            />
           ) : searched.map((p: ProjectListRow) => {
             const isSelected = selected.has(p.id)
             return (

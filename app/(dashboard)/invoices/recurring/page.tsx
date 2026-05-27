@@ -5,15 +5,13 @@ import { createClient } from '@/lib/supabase/client'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { fetchClientsForDropdown } from '@/lib/api/clients'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { PageHeader, TableCardSkeleton, TABLE_CELL_PRESETS } from '@/components/ui'
+import { PageHeader, TableCardSkeleton, TABLE_CELL_PRESETS, FormSection, FormFooter } from '@/components/ui'
 import Button from '@/components/ui/button'
 import Badge from '@/components/badge'
-import Link from 'next/link'
 import { Plus, Pause, Play, Trash } from '@phosphor-icons/react'
 import type { InvoiceTemplate, Client } from '@/types/database'
 import { Input, Select, Field } from '@/components/ui/input'
 import { IconButton } from '@/components/ui/icon-button'
-import { sectionTitle } from '@/lib/typography'
 import ListPageLayout from '@/components/list-page-layout'
 
 type RecurringTemplateRow = InvoiceTemplate & {
@@ -107,8 +105,7 @@ export default function RecurringInvoicesPage() {
 
       {/* New template form */}
       {showForm && (
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 mb-6 space-y-4">
-          <h2 className={sectionTitle}>New recurring template</h2>
+        <FormSection title="New recurring template" className="mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field label="Client">
               <Select value={clientId} onChange={e => setClientId(e.target.value)}>
@@ -152,13 +149,13 @@ export default function RecurringInvoicesPage() {
             </Button>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <FormFooter className="pt-2">
             <Button type="button" intent="secondary" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
             <Button type="button" intent="primary" size="sm" onClick={handleSave} disabled={saving || !clientId}>
               {saving ? 'Saving...' : 'Create template'}
             </Button>
-          </div>
-        </div>
+          </FormFooter>
+        </FormSection>
       )}
 
       {/* Template list */}

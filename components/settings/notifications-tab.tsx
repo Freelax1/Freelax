@@ -33,7 +33,9 @@ export default function NotificationsTab({ profile, save, saving }: Props) {
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-text-muted">Email reminders sent to your account email.</p>
+      <p className="text-sm text-text-muted">
+        Email reminders sent to your account email once per day when enabled (requires Resend on the server).
+      </p>
       {PREFS.map(n => (
         <div key={n.key} className="flex items-start justify-between py-3 border-b border-border-subtle last:border-0">
           <div>

@@ -15,6 +15,7 @@ bash scripts/check-hand-rolled-breakdown-rows.sh || FAILED=1
 bash scripts/check-hand-rolled-primary-buttons.sh || FAILED=1
 bash scripts/check-hand-rolled-input-focus.sh    || FAILED=1
 bash scripts/check-hand-rolled-charts.sh         || FAILED=1
+bash scripts/check-hand-rolled-form-sections.sh  || FAILED=1
 
 if ((FAILED)); then
   echo "" >&2

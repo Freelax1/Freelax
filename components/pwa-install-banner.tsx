@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, DownloadSimple } from "@phosphor-icons/react";
+import Button from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 
 const STORAGE_KEY = "freedesk-pwa-dismissed";
@@ -109,12 +110,15 @@ export function PWAInstallBanner() {
             </p>
           )}
           {!isIOSDevice && (
-            <button
+            <Button
+              type="button"
+              intent="ghost"
+              size="xs"
               onClick={handleInstall}
-              className="mt-2 text-xs font-semibold text-brand-primary hover:underline"
+              className="mt-2 px-0 text-brand-primary hover:text-forest-700"
             >
               Install now
-            </button>
+            </Button>
           )}
         </div>
         <IconButton

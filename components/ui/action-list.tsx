@@ -19,7 +19,7 @@ import {
 } from '@phosphor-icons/react'
 import { cardLabel } from '@/lib/typography'
 import { cn } from '@/lib/utils'
-import { buttonVariants } from './button'
+import { ButtonLink } from './button'
 
 export type ActionPriority = 'red' | 'amber' | 'green' | 'info'
 
@@ -198,15 +198,14 @@ export default function ActionList({
                 ) : null}
               </div>
 
-              <Link
+              <ButtonLink
                 href={item.href}
-                className={cn(
-                  buttonVariants({ intent: 'secondary', size: 'sm' }),
-                  'shrink-0 no-underline whitespace-nowrap',
-                )}
+                intent="secondary"
+                size="sm"
+                className="shrink-0 whitespace-nowrap"
               >
                 {resolveCta(item)}
-              </Link>
+              </ButtonLink>
 
               {dismissible ? (
                 <IconButton

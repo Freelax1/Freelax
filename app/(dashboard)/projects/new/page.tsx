@@ -10,11 +10,12 @@ import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
-import Link from 'next/link'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
-import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
-import { sectionTitle } from '@/lib/typography'
+import PageHeader from '@/components/ui/page-header'
+import { FormSection, FormFooter, FormCancelLink } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
+import { Lock, ArrowRight } from '@phosphor-icons/react'
 import type { Client, IR35Answer } from '@/types/database'
 
 export default function NewProjectPage() {
@@ -128,22 +129,18 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-12">
-      <div>
-        <Link href="/projects" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to projects
-        </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New project</h1>
-      </div>
+    <PageLayout width="narrow" className="space-y-6">
+      <PageHeader
+        back={{ href: '/projects', label: 'Back to projects' }}
+        title="New project"
+      />
 
       {error && (
         <Alert intent="danger">{error}</Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className={sectionTitle}>Project details</h2>
-
+        <FormSection title="Project details">
           <Field label="Project title" required>
             <Input
               value={form.title}
@@ -225,17 +222,15 @@ export default function NewProjectPage() {
               <Input type="date" value={form.end_date} onChange={e => set('end_date', e.target.value)} />
             </Field>
           </div>
-        </div>
+        </FormSection>
 
-        {/* IR35 */}
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className={sectionTitle}>IR35 questionnaire</h2>
-              {canUseIR35 && <p className="text-xs text-text-secondary mt-0.5">Answer all 8 questions to get a calculated status</p>}
+        <FormSection title="IR35 questionnaire">
+          {canUseIR35 && (
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-xs text-text-secondary">Answer all 8 questions to get a calculated status</p>
+              {allAnswered && <Badge status={ir35Status} />}
             </div>
-            {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
-          </div>
+          )}
 
           {canUseIR35 ? (
             <div className="space-y-3">
@@ -274,20 +269,18 @@ export default function NewProjectPage() {
                 <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
               </div>
               <p className="text-sm font-medium text-text-secondary mb-1">IR35 assessment is available on the Pro plan</p>
-              <Link href="/settings?tab=billing" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
+              <ButtonLink href="/settings?tab=billing" intent="primary" size="sm">
                 Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
-              </Link>
+              </ButtonLink>
             </div>
           )}
-        </div>
+        </FormSection>
 
-        <div className="flex justify-end gap-3">
-          <Link href="/projects" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
-            Cancel
-          </Link>
+        <FormFooter>
+          <FormCancelLink href="/projects" />
           <SaveButton loading={saving} label="Add project" />
-        </div>
+        </FormFooter>
       </form>
-    </div>
+    </PageLayout>
   )
 }

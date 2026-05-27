@@ -38,16 +38,12 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
 
 // ── SaveButton ─────────────────────────────────────────────────────────────
 
-import { buttonVariants } from '@/components/ui/button'
+import Button from '@/components/ui/button'
 
 export function SaveButton({ loading, label = 'Save', className }: { loading?: boolean; label?: string; className?: string }) {
   return (
-    <button
-      type="submit"
-      disabled={loading}
-      className={cn(buttonVariants({ intent: 'primary', fullWidth: true }), className)}
-    >
+    <Button type="submit" intent="primary" fullWidth disabled={loading} className={className}>
       {loading ? 'Saving…' : label}
-    </button>
+    </Button>
   )
 }

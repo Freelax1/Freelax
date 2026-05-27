@@ -1,6 +1,6 @@
 'use client'
 
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button, { ButtonAnchor } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 
 import { useState, useEffect, useRef } from 'react'
@@ -172,9 +172,9 @@ export default function HmrcTab() {
               {disconnecting ? 'Disconnecting…' : 'Disconnect'}
             </Button>
           ) : (
-            <a href="/api/auth/hmrc" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
+            <ButtonAnchor href="/api/auth/hmrc" intent="primary" size="sm">
               Connect to HMRC
-            </a>
+            </ButtonAnchor>
           )}
         </div>
 

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { buildNotifications, TYPE_LABEL, READ_KEY } from '@/lib/notifications'
 import type { Notification } from '@/lib/notifications'
 import { PageHeader, FilterChip, NotificationListSkeleton } from '@/components/ui'
+import PageLayout from '@/components/page-layout'
 
 const BADGE_STYLE: Record<Notification['priority'], { bg: string; color: string }> = {
   red:   { bg: 'var(--danger-50)',  color: 'var(--danger-600)'  },
@@ -53,7 +54,7 @@ export default function NotificationsPage() {
   const displayed = unreadOnly ? notifications.filter(n => !readIds.has(n.id)) : notifications
 
   return (
-    <div className="max-w-2xl">
+    <PageLayout width="narrow">
       <PageHeader title="Notifications" />
 
       <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
@@ -109,6 +110,6 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   )
 }

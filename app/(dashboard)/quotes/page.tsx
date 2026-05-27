@@ -10,6 +10,10 @@ import { groupByMonth } from '@/lib/logic/list-display'
 import {
   PageHeader,
   DropdownPanel,
+  DropdownMenuItem,
+  DropdownMenuLink,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   ListStatusTabs,
   ListMetrics,
   ListMetricsSkeleton,
@@ -18,10 +22,12 @@ import {
   TableRowsSkeleton,
   ListMobileCardSkeleton,
   TABLE_CELL_PRESETS,
+  ListPageEmptyState,
+  ListTableEmptyRow,
+  ListTableEmptyCard,
 } from '@/components/ui'
-import Button, { buttonVariants } from '@/components/ui/button'
+import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
-import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
 import { Eye, PencilSimple, Trash } from '@phosphor-icons/react'
@@ -52,33 +58,29 @@ function KebabMenu({ quote, onDelete, onStatusChange }: {
     <div className="relative">
       <KebabMenuTrigger ref={triggerRef} label="More" onClick={e => { e.stopPropagation(); setOpen(o => !o) }} />
       <DropdownPanel anchorRef={triggerRef} open={open} onClose={() => setOpen(false)}>
-          <Link href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
-          </Link>
+          <DropdownMenuLink href={`/quotes/${quote.id}`} onClick={() => setOpen(false)}>
+            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> View
+          </DropdownMenuLink>
           {isDraft && (
-            <Link href={`/quotes/${quote.id}/edit`} onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-              <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
-            </Link>
+            <DropdownMenuLink href={`/quotes/${quote.id}/edit`} onClick={() => setOpen(false)}>
+              <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary shrink-0" /> Edit
+            </DropdownMenuLink>
           )}
-          {/* Status options */}
-          <div className="border-t border-border-subtle py-1.5">
-            <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
-            {statusOptions.map(s => (
-              <button key={s} onClick={() => { setOpen(false); onStatusChange(quote, s) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
-          </div>
-          <div className="border-t border-border-subtle">
-            <button onClick={e => { e.stopPropagation(); setOpen(false); onDelete(quote) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
-            </button>
-          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Change status</DropdownMenuLabel>
+          {statusOptions.map(s => (
+            <DropdownMenuItem key={s} onClick={() => { setOpen(false); onStatusChange(quote, s) }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="danger"
+            onClick={e => { e.stopPropagation(); setOpen(false); onDelete(quote) }}
+          >
+            <Trash weight="regular" className="w-3.5 h-3.5 shrink-0" /> Delete
+          </DropdownMenuItem>
       </DropdownPanel>
     </div>
   )
@@ -250,6 +252,20 @@ export default function QuotesPage() {
     sortField === 'issue_date' ? groupByMonth(sorted, q => q.issue_date) : null
 
   const allSelected = filtered.length > 0 && selected.size === filtered.length
+  const hasQuotes = quotes.length > 0
+  const tableEmpty = !loading && hasQuotes && sorted.length === 0
+
+  function clearQuoteFilters() {
+    setQuery('')
+    setStatusFilter('all')
+  }
+
+  const statusTabLabel =
+    statusFilter === 'all'
+      ? undefined
+      : statusFilter === 'expired'
+        ? 'Expired'
+        : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)
 
   const stats = {
     draft:    quotes.filter(q => q.status === 'draft').length,
@@ -335,8 +351,12 @@ export default function QuotesPage() {
 
       <div>
         {!loading && !quotes.length ? (
-          <EmptyState icon="invoices" title="No quotes yet" description="Quotes let you price work before starting. Accept one and we'll convert it to an invoice automatically."
-            action={<Button type="button" intent="primary" size="sm" onClick={() => router.push('/quotes/new')}>Create a quote</Button>} />
+          <ListPageEmptyState
+            variant="quote"
+            title="No quotes yet"
+            description="Quotes let you price work before starting. Accept one and we'll convert it to an invoice automatically."
+            action={<Button type="button" intent="primary" size="sm" onClick={() => router.push('/quotes/new')}>Create a quote</Button>}
+          />
         ) : (
           <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
             <table className="w-full border-separate border-spacing-0">
@@ -382,6 +402,17 @@ export default function QuotesPage() {
               <tbody>
                 {loading ? (
                   <TableRowsSkeleton rows={4} cells={TABLE_CELL_PRESETS.quote} />
+                ) : tableEmpty ? (
+                  <ListTableEmptyRow
+                    colSpan={8}
+                    entityPlural="quotes"
+                    query={query}
+                    statusFilter={statusFilter}
+                    statusLabel={statusTabLabel}
+                    onClearSearch={() => setQuery('')}
+                    onClearStatus={() => setStatusFilter('all')}
+                    onClearAll={clearQuoteFilters}
+                  />
                 ) : sorted.map(q => {
                   const expired  = q.status === 'sent' && isQuoteExpired(q.expiry_date)
                   const days     = daysUntilExpiry(q.expiry_date)
@@ -425,6 +456,16 @@ export default function QuotesPage() {
                 <ListMobileCardSkeleton key={i} variant="invoice" />
               ))}
             </div>
+          ) : tableEmpty ? (
+            <ListTableEmptyCard
+              entityPlural="quotes"
+              query={query}
+              statusFilter={statusFilter}
+              statusLabel={statusTabLabel}
+              onClearSearch={() => setQuery('')}
+              onClearStatus={() => setStatusFilter('all')}
+              onClearAll={clearQuoteFilters}
+            />
           ) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
             <div key={label || `flat-${groupIdx}`}>
               {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}

@@ -12,7 +12,7 @@ import {
 } from '@/lib/logic/sa-narrative'
 import { buildTaxBriefingTeaser, type TaxBriefingTeaserInput } from '@/lib/logic/tax-briefing-teaser'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button'
 import { TextLinesSkeleton } from '@/components/ui/content-skeletons'
 
 export type TaxBriefingHook = TaxBriefingTeaserInput
@@ -111,12 +111,12 @@ export default function TaxBriefingCard({
               Log paid invoices and expenses for this tax year, then run a check. Your copilot uses that data to flag missed claims, set-aside gaps, and filing reminders.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
+              <ButtonLink href="/invoices/new" intent="primary" size="sm">
                 Add invoice
-              </Link>
-              <Link href="/expenses/new" className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+              </ButtonLink>
+              <ButtonLink href="/expenses/new" intent="secondary" size="sm">
                 Log expense
-              </Link>
+              </ButtonLink>
             </div>
           </div>
         ) : loading ? (
