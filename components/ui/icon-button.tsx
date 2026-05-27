@@ -64,6 +64,17 @@ export function IconLink({ label, align, icon, className, ...props }: IconLinkPr
   )
 }
 
+/** Icon-only native anchor — PDF, external, or `/api/*` routes */
+export function IconAnchor({ label, align, icon, className, ...props }: IconLinkProps) {
+  return (
+    <Tooltip label={label} align={align}>
+      <a className={cn(baseClass, 'p-1.5 rounded-lg hover:bg-surface-sunken no-underline', className)} {...props}>
+        {icon}
+      </a>
+    </Tooltip>
+  )
+}
+
 /** Row bulk-select checkbox control */
 export function SelectIconButton({
   selected,

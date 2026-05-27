@@ -10,6 +10,8 @@ export interface PageHeaderBack {
 
 interface PageHeaderProps {
   title: string
+  /** Inline with the title — status badge, chased count, etc. */
+  titleAddon?: ReactNode
   subtitle?: string
   /** Extra line under the title (contact row, draft status, etc.) */
   meta?: ReactNode
@@ -20,6 +22,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({
   title,
+  titleAddon,
   subtitle,
   meta,
   back,
@@ -35,7 +38,10 @@ export default function PageHeader({
       )}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className={pageTitle}>{title}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className={pageTitle}>{title}</h1>
+            {titleAddon}
+          </div>
           {meta ? <div className="mt-1">{meta}</div> : null}
           {subtitle ? <p className="text-sm text-text-secondary mt-1">{subtitle}</p> : null}
         </div>

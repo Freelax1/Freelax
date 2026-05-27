@@ -76,6 +76,7 @@ export default function ProjectDetailPage() {
       <PageHeader
         back={{ href: '/projects', label: 'Back to projects' }}
         title={project.title}
+        titleAddon={<Badge status={project.status} />}
         meta={
           client ? (
             <Link href={`/clients/${client.id}`} className="text-sm text-forest-600 hover:underline">
@@ -84,12 +85,9 @@ export default function ProjectDetailPage() {
           ) : undefined
         }
         action={
-          <div className="flex gap-2 items-center">
-            <Badge status={project.status} />
-            <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
-              Edit
-            </Button>
-          </div>
+          <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
+            Edit
+          </Button>
         }
       />
 

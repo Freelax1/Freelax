@@ -14,17 +14,16 @@ import { generateInvoiceNumber } from '@/lib/logic/invoices'
 import { isQuoteExpired, daysUntilExpiry } from '@/lib/logic/quotes'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/badge'
-import Button, { ButtonAnchor, ButtonLink } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import PageHeader from '@/components/ui/page-header'
 import PageLayout from '@/components/page-layout'
 import Alert from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
-import { IconButton } from '@/components/ui/icon-button'
-import { ActivitySection, DocumentDetailSkeleton } from '@/components/ui'
+import { ActivitySection, DocumentDetailSkeleton, IconButton, IconAnchor } from '@/components/ui'
 import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import {
-  PaperPlaneTilt, CheckCircle, XCircle, ArrowSquareOut,
-  PencilSimple, Trash, FileText, LinkSimple, X, Clock, ArrowRight,
+  PaperPlaneTilt, CheckCircle, XCircle,
+  PencilSimple, Trash, FileText, LinkSimple, FilePdf, X, Clock, ArrowRight,
 } from '@phosphor-icons/react'
 import type { Quote, QuoteLineItem, QuoteActivity } from '@/types/database'
 
@@ -237,17 +236,19 @@ export default function QuoteDetailPage() {
       <PageHeader
         back={{ href: '/quotes', label: 'Back to quotes' }}
         title={quote.quote_number}
+        titleAddon={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge status={quote.status} />
+            {expired && quote.status === 'sent' && (
+              <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
+            )}
+            {!expired && days <= 3 && days >= 0 && quote.status === 'sent' && (
+              <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
+            )}
+          </div>
+        }
         action={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge status={quote.status} />
-              {expired && quote.status === 'sent' && (
-                <span className="text-xs text-danger-600 bg-danger-50 border border-danger-200 px-2 py-0.5 rounded-lg">Expired</span>
-              )}
-              {!expired && days <= 3 && days >= 0 && quote.status === 'sent' && (
-                <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
-              )}
-            </div>
             <div className="flex flex-wrap gap-2">
               {canEdit && (
                 <ButtonLink href={`/quotes/${quote.id}/edit`} intent="secondary" size="sm">
@@ -290,29 +291,27 @@ export default function QuoteDetailPage() {
             </div>
             <div
               className={cn(
-                'flex flex-wrap gap-2',
+                'flex items-center gap-1',
                 quote.status !== 'draft' && 'border-l border-border-subtle pl-3',
               )}
             >
-              <Button type="button" intent="secondary" size="sm" onClick={handleCopyLink}>
-                <LinkSimple weight="regular" className="w-3.5 h-3.5" />
-                {linkCopied ? 'Copied!' : 'Client link'}
-              </Button>
-              <ButtonAnchor
+              <IconButton
+                label={linkCopied ? 'Copied!' : 'Copy client link'}
+                onClick={handleCopyLink}
+                icon={<LinkSimple weight="regular" className="w-4 h-4" />}
+              />
+              <IconAnchor
                 href={`/api/quotes/pdf?id=${quote.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                intent="secondary"
-                size="sm"
-              >
-                <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-              </ButtonAnchor>
+                label="Share PDF"
+                icon={<FilePdf weight="regular" className="w-4 h-4" />}
+              />
               <IconButton
-                label="Delete"
+                label="Delete quote"
                 variant="danger"
                 onClick={() => setShowDelete(true)}
-                className="rounded-lg bg-danger-50 text-danger-700 hover:bg-danger-100"
-                icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
+                icon={<Trash weight="regular" className="w-4 h-4" />}
               />
             </div>
           </div>

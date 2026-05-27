@@ -1,15 +1,20 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { deleteInvoice } from '@/lib/api/invoices'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
 import Badge from '@/components/badge'
-import Button, { ButtonAnchor, ButtonLink } from '@/components/ui/button'
+import Button, { ButtonLink } from '@/components/ui/button'
 import PageHeader from '@/components/ui/page-header'
 import PageLayout from '@/components/page-layout'
 import Alert from '@/components/ui/alert'
-import { ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, Clock, LinkSimple } from '@phosphor-icons/react'
+import {
+  ArrowRight, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, Clock,
+  LinkSimple, CreditCard, FilePdf, Trash,
+} from '@phosphor-icons/react'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
 import { Field, Textarea } from '@/components/form-fields'
 import { cn } from '@/lib/utils'
@@ -20,6 +25,7 @@ import {
   ChaseTierPicker,
   CHASE_TIER_META,
   IconButton,
+  IconAnchor,
 } from '@/components/ui'
 import type { ChaseTier } from '@/components/ui'
 
@@ -252,15 +258,21 @@ function activityConfig(entry: InvoiceActivity): {
 // ── Main page ──────────────────────────────────────────────────────────
 export default function InvoiceDetailPage() {
   const params = useParams<{ id: string }>()
+  const router = useRouter()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [activity, setActivity] = useState<InvoiceActivity[]>([])
   const [loading, setLoading]  = useState(true)
   const [sending, setSending]  = useState(false)
   const [marking, setMarking]  = useState(false)
   const [chaseOpen, setChaseOpen] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [msg, setMsg]             = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [payLink, setPayLink]     = useState<string | null>(null)
   const [copyingLink, setCopyingLink] = useState(false)
+  const [copyingClientLink, setCopyingClientLink] = useState(false)
+  const [clientLinkCopied, setClientLinkCopied] = useState(false)
+  const [paymentLinkCopied, setPaymentLinkCopied] = useState(false)
 
   async function load() {
     const supabase = createClient()
@@ -300,8 +312,10 @@ export default function InvoiceDetailPage() {
     setTimeout(() => setMsg(null), 4000)
   }
 
-  async function getPaymentLink() {
-    setCopyingLink(true)
+  async function copyInvoicePublicLink(kind: 'client' | 'payment') {
+    const setBusy = kind === 'client' ? setCopyingClientLink : setCopyingLink
+    const setCopied = kind === 'client' ? setClientLinkCopied : setPaymentLinkCopied
+    setBusy(true)
     try {
       const res = await fetch('/api/invoices/public-token', {
         method: 'POST',
@@ -310,29 +324,47 @@ export default function InvoiceDetailPage() {
       })
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
       if (!res.ok) {
-        setMsg({ type: 'error', text: data.error ?? 'Could not generate payment link' })
+        setMsg({ type: 'error', text: data.error ?? 'Could not generate link' })
         setTimeout(() => setMsg(null), 4000)
         return
       }
       if (!data.url) {
-        setMsg({ type: 'error', text: 'No payment link returned' })
+        setMsg({ type: 'error', text: 'No link returned' })
         setTimeout(() => setMsg(null), 4000)
         return
       }
       setPayLink(data.url)
       try {
         await navigator.clipboard.writeText(data.url)
-        setMsg({ type: 'success', text: '✓ Payment link copied to clipboard' })
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+        setMsg({
+          type: 'success',
+          text: kind === 'client' ? '✓ Client link copied' : '✓ Payment link copied',
+        })
       } catch {
-        setMsg({ type: 'success', text: 'Payment link ready — use the link shown in the button tooltip' })
+        setMsg({ type: 'success', text: 'Link ready — copy from the page URL bar after opening' })
       }
       setTimeout(() => setMsg(null), 4000)
     } catch (e) {
       console.error(e)
-      setMsg({ type: 'error', text: 'Could not generate payment link' })
+      setMsg({ type: 'error', text: 'Could not generate link' })
       setTimeout(() => setMsg(null), 4000)
     } finally {
-      setCopyingLink(false)
+      setBusy(false)
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await deleteInvoice(params.id)
+      router.push('/invoices')
+    } catch {
+      setMsg({ type: 'error', text: 'Failed to delete invoice' })
+      setTimeout(() => setMsg(null), 4000)
+      setDeleting(false)
+      setShowDelete(false)
     }
   }
 
@@ -393,16 +425,18 @@ export default function InvoiceDetailPage() {
       <PageHeader
         back={{ href: '/invoices', label: 'Back to invoices' }}
         title={invoice.invoice_number}
+        titleAddon={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge status={invoice.status} />
+            {chaseLog.length > 0 && (
+              <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
+                <Bell weight="regular" className="w-3 h-3" /> Chased {chaseLog.length}×
+              </span>
+            )}
+          </div>
+        }
         action={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge status={invoice.status} />
-              {chaseLog.length > 0 && (
-                <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
-                  <Bell weight="regular" className="w-3 h-3" /> Chased {chaseLog.length}×
-                </span>
-              )}
-            </div>
             <div className="flex flex-wrap gap-2">
               {isDraft && (
                 <ButtonLink href={`/invoices/${invoice.id}/edit`} intent="secondary" size="sm">
@@ -462,32 +496,53 @@ export default function InvoiceDetailPage() {
             </div>
             <div
               className={cn(
-                'flex flex-wrap gap-2',
+                'flex items-center gap-1',
                 !isDraft && 'border-l border-border-subtle pl-3',
               )}
             >
-              <ButtonAnchor
+              {!isDraft && (
+                <>
+                  <IconButton
+                    label={
+                      copyingClientLink
+                        ? 'Generating link…'
+                        : clientLinkCopied
+                          ? 'Copied!'
+                          : 'Copy client link'
+                    }
+                    onClick={() => copyInvoicePublicLink('client')}
+                    disabled={copyingClientLink}
+                    icon={<LinkSimple weight="regular" className="w-4 h-4" />}
+                  />
+                  <IconButton
+                    label={
+                      copyingLink
+                        ? 'Generating link…'
+                        : paymentLinkCopied
+                          ? 'Copied!'
+                          : payLink
+                            ? 'Copy payment link'
+                            : 'Copy payment link for client'
+                    }
+                    onClick={() => copyInvoicePublicLink('payment')}
+                    disabled={copyingLink}
+                    icon={<CreditCard weight="regular" className="w-4 h-4" />}
+                  />
+                </>
+              )}
+              <IconAnchor
                 href={`/api/invoices/pdf?id=${invoice.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                intent="secondary"
-                size="sm"
-              >
-                <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-              </ButtonAnchor>
-              {!isDraft && (
-                <Button
-                  type="button"
-                  intent="secondary"
-                  size="sm"
-                  onClick={getPaymentLink}
-                  disabled={copyingLink}
-                  title={payLink ?? 'Copy client payment link'}
-                >
-                  <LinkSimple weight="regular" className="w-3.5 h-3.5" />
-                  {copyingLink ? 'Generating…' : 'Payment link'}
-                </Button>
-              )}
+                label="Share PDF"
+                icon={<FilePdf weight="regular" className="w-4 h-4" />}
+              />
+              <IconButton
+                label="Delete invoice"
+                variant="danger"
+                onClick={() => setShowDelete(true)}
+                icon={<Trash weight="regular" className="w-4 h-4" />}
+              />
             </div>
           </div>
         }
@@ -737,6 +792,16 @@ export default function InvoiceDetailPage() {
             setTimeout(() => setMsg(null), 5000)
             load()
           }}
+        />
+      )}
+
+      {showDelete && (
+        <ConfirmDeleteModal
+          title="Delete invoice?"
+          description={`Invoice ${invoice.invoice_number} will be permanently removed.`}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDelete(false)}
+          loading={deleting}
         />
       )}
     </PageLayout>

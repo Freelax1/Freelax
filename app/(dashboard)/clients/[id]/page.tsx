@@ -108,6 +108,7 @@ export default function ClientDetailPage() {
       <PageHeader
         back={{ href: '/clients', label: 'Back to clients' }}
         title={client.name}
+        titleAddon={<Badge status={client.status} />}
         meta={
           <div className="flex items-center gap-3 text-sm text-text-muted">
             {client.contact_name && <span>{client.contact_name}</span>}
@@ -116,12 +117,9 @@ export default function ClientDetailPage() {
           </div>
         }
         action={
-          <div className="flex gap-2 items-center">
-            <Badge status={client.status} />
-            <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
-              Edit
-            </Button>
-          </div>
+          <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
+            Edit
+          </Button>
         }
       />
 

@@ -39,7 +39,7 @@ export {
 } from './list-toolbar'
 export type { CategoryFilterOption, ListMetricItem } from './list-toolbar'
 export { MetricWithTooltip } from './metric-hint'
-export { IconButton, IconLink, SelectIconButton, SelectAllIconButton } from './icon-button'
+export { IconButton, IconLink, IconAnchor, SelectIconButton, SelectAllIconButton } from './icon-button'
 export { ModalHeader } from './modal-header'
 export type { ModalHeaderProps } from './modal-header'
 export { SegmentedControl } from './segmented-control'
