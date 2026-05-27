@@ -48,7 +48,6 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
 
   // Status options — never show paid for already-paid invoices
   const allStatuses = [
-    { key: 'sent',      label: 'Mark as Sent' },
     { key: 'paid',      label: 'Paid'         },
     { key: 'cancelled', label: 'Cancelled'    },
     { key: 'draft',     label: 'Draft'        },
@@ -90,11 +89,12 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
             </div>
           )}
 
-          {invoice.status !== 'sent' && invoice.status !== 'paid' && (
+          {invoice.status !== 'paid' && (
             <div className="border-t border-border-subtle">
               <button onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <Envelope weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Send by email
+                <Envelope weight="regular" className="w-3.5 h-3.5 text-text-secondary" />
+                {invoice.status === 'sent' || invoice.status === 'overdue' ? 'Resend by email' : 'Send by email'}
               </button>
             </div>
           )}
@@ -181,12 +181,17 @@ export default function InvoicesPage() {
     })
     if (!unpaidIds.length) return
     setBulkMarking(true)
-    await Promise.all(unpaidIds.map(id =>
+    const results = await Promise.all(unpaidIds.map(id =>
       fetch('/api/invoices/mark-paid', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invoiceId: id }),
       })
     ))
+    const failed = results.filter(r => !r.ok).length
+    if (failed) {
+      setMsg(failed === unpaidIds.length ? 'Failed to mark as paid' : `Could not mark ${failed} invoice${failed > 1 ? 's' : ''} as paid`)
+      setTimeout(() => setMsg(null), 5000)
+    }
     setSelected(new Set()); setBulkMarking(false)
     window.dispatchEvent(new Event('fd:data-invalidate'))
     load()
@@ -194,38 +199,53 @@ export default function InvoicesPage() {
 
   async function handleStatusChange() {
     if (!statusTarget) return
-    const wasSent = statusTarget.status === 'sent'
     setStatusUpdating(true)
     try {
-      if (statusTarget.status === 'paid') {
-        await fetch('/api/invoices/mark-paid', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invoiceId: statusTarget.invoice.id }),
-        })
-      } else {
-        await fetch('/api/invoices/update-status', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invoiceId: statusTarget.invoice.id, status: statusTarget.status }),
-        })
+      const res = statusTarget.status === 'paid'
+        ? await fetch('/api/invoices/mark-paid', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ invoiceId: statusTarget.invoice.id }),
+          })
+        : await fetch('/api/invoices/update-status', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ invoiceId: statusTarget.invoice.id, status: statusTarget.status }),
+          })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setMsg((data as { error?: string }).error ?? 'Failed to update status')
+        setTimeout(() => setMsg(null), 5000)
+        setStatusUpdating(false)
+        return
       }
       setStatusTarget(null); setStatusUpdating(false); load()
-      if (wasSent) {
-        setMsg('Marked as sent — no email was dispatched. Use Send by email to notify the client.')
-        setTimeout(() => setMsg(null), 5000)
-      }
-    } catch { setStatusUpdating(false) }
+      window.dispatchEvent(new Event('fd:data-invalidate'))
+    } catch {
+      setMsg('Failed to update status')
+      setTimeout(() => setMsg(null), 5000)
+      setStatusUpdating(false)
+    }
   }
 
   async function handleSendByEmail(inv: InvoiceListRow) {
     try {
-      await fetch('/api/invoices/send', {
+      const res = await fetch('/api/invoices/send', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invoiceId: inv.id }),
       })
-      setMsg('Invoice sent by email.')
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMsg((data as { error?: string }).error ?? 'Failed to send invoice')
+        setTimeout(() => setMsg(null), 5000)
+        return
+      }
+      setMsg((data as { message?: string }).message ?? 'Invoice sent.')
       setTimeout(() => setMsg(null), 5000)
       load()
-    } catch (e) { console.error('Send by email failed', e) }
+      window.dispatchEvent(new Event('fd:data-invalidate'))
+    } catch {
+      setMsg('Failed to send invoice')
+      setTimeout(() => setMsg(null), 5000)
+    }
   }
 
   async function handleUpdateOverdue() {

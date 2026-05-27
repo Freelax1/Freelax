@@ -9,6 +9,7 @@ import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/types/database'
 import { Input, Select, Textarea, Field } from '@/components/form-fields'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import { IconButton } from '@/components/ui/icon-button'
 import { FormPageSkeleton } from '@/components/ui'
 import { sectionTitle } from '@/lib/typography'
@@ -39,6 +40,7 @@ export default function InvoiceEditPage() {
   const [lineItems, setLineItems] = useState<LineItem[]>([])
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -86,9 +88,10 @@ export default function InvoiceEditPage() {
 
   async function handleSave() {
     setSaving(true)
+    setError(null)
     const supabase = createClient()
 
-    await supabase.from('invoices').update({
+    const { error: invErr } = await supabase.from('invoices').update({
       client_id: clientId || null,
       project_id: projectId || null,
       issue_date: issueDate,
@@ -101,9 +104,20 @@ export default function InvoiceEditPage() {
       updated_at: new Date().toISOString(),
     }).eq('id', params.id)
 
-    // Delete old line items and re-insert
-    await supabase.from('invoice_line_items').delete().eq('invoice_id', params.id)
-    await supabase.from('invoice_line_items').insert(
+    if (invErr) {
+      setError(invErr.message)
+      setSaving(false)
+      return
+    }
+
+    const { error: delErr } = await supabase.from('invoice_line_items').delete().eq('invoice_id', params.id)
+    if (delErr) {
+      setError(delErr.message)
+      setSaving(false)
+      return
+    }
+
+    const { error: lineErr } = await supabase.from('invoice_line_items').insert(
       lineItems.map(l => ({
         invoice_id: params.id,
         description: l.description,
@@ -113,6 +127,12 @@ export default function InvoiceEditPage() {
         line_total: Number(l.quantity) * Number(l.unit_price),
       }))
     )
+
+    if (lineErr) {
+      setError(lineErr.message)
+      setSaving(false)
+      return
+    }
 
     setSaving(false)
     router.push(`/invoices/${params.id}`)
@@ -128,6 +148,8 @@ export default function InvoiceEditPage() {
         </Link>
         <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit {invoice?.invoice_number}</h1>
       </div>
+
+      {error && <Alert intent="danger">{error}</Alert>}
 
       <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
         <h2 className={sectionTitle}>Invoice details</h2>
@@ -165,7 +187,7 @@ export default function InvoiceEditPage() {
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
-                <th className="pb-2 font-medium w-16">VAT%</th>
+                <th className="pb-2 font-medium w-[5.5rem]">VAT%</th>
                 <th className="pb-2 font-medium w-20 text-right">Total</th>
                 <th className="pb-2 w-8"></th>
               </tr>
@@ -176,8 +198,8 @@ export default function InvoiceEditPage() {
                   <td className="py-1 pr-2"><Input variant="inline" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} /></td>
                   <td className="py-1 pr-2"><Input variant="inline" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
                   <td className="py-1 pr-2"><Input variant="inline" type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
-                  <td className="py-1 pr-2">
-                    <Select variant="inline" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
+                  <td className="py-1 pr-2 w-[5.5rem]">
+                    <Select variant="inline" className="w-full" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>

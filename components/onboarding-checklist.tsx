@@ -46,7 +46,7 @@ export default function OnboardingChecklist({ hasClients, hasProjects, hasInvoic
     {
       label: 'Log an expense',
       desc: 'Every business cost you log reduces your tax bill.',
-      href: '/expenses',
+      href: '/expenses/new',
       done: hasExpenses,
       cta: 'Add expense',
     },

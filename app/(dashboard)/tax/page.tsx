@@ -319,6 +319,7 @@ export default function TaxPage() {
   const [potAmount, setPotAmount]           = useState('')
   const [potNote, setPotNote]               = useState('')
   const [savingPot, setSavingPot]           = useState(false)
+  const [potFeedback, setPotFeedback]       = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [exportLoading, setExportLoading]   = useState(false)
   const [canExport, setCanExport]           = useState(false)
   const [syncedAt, setSyncedAt]             = useState<Date | null>(null)
@@ -421,42 +422,64 @@ export default function TaxPage() {
   const mtdQuarters = getCurrentYearQuartersWithStatus()
   const endYear = new Date(end).getFullYear()
 
+  function flashPot(type: 'success' | 'error', text: string) {
+    setPotFeedback({ type, text })
+    setTimeout(() => setPotFeedback(null), 5000)
+  }
+
   async function addPotContribution() {
-    if (!potAmount || Number(potAmount) <= 0) return
+    if (!potAmount || Number(potAmount) <= 0) {
+      flashPot('error', 'Enter an amount greater than zero')
+      return
+    }
     setSavingPot(true)
     try {
       const user = await fetchCurrentUser()
-      const uid  = user?.id ?? ''
+      if (!user) {
+        flashPot('error', 'You must be signed in to save to your tax pot')
+        setSavingPot(false)
+        return
+      }
       await addTaxPotEntry({
-        user_id:        uid,
+        user_id:        user.id,
         amount:         Number(potAmount),
         note:           potNote.trim() || undefined,
         date:           new Date().toISOString().slice(0, 10),
         tax_year_start: taxYearStart,
       })
       const [newTotal, newEntries] = await Promise.all([
-        fetchTaxPotTotal(uid, taxYearStart),
-        fetchTaxPotEntries(uid, taxYearStart),
+        fetchTaxPotTotal(user.id, taxYearStart),
+        fetchTaxPotEntries(user.id, taxYearStart),
       ])
       setTaxPotTotal(newTotal)
       setTaxPotEntries(newEntries)
       setPotAmount('')
       setPotNote('')
-    } catch (e) { console.error(e) }
+      flashPot('success', 'Contribution added to your tax pot')
+      window.dispatchEvent(new Event('fd:data-invalidate'))
+    } catch (e) {
+      flashPot('error', e instanceof Error ? e.message : 'Failed to add contribution')
+    }
     setSavingPot(false)
   }
 
   async function deletePotEntry(id: string) {
     const supabase = createClient()
-    await supabase.from('tax_pot_entries').delete().eq('id', id)
+    const { error } = await supabase.from('tax_pot_entries').delete().eq('id', id)
+    if (error) {
+      flashPot('error', error.message)
+      return
+    }
     const user = await fetchCurrentUser()
-    const uid  = user?.id ?? ''
+    if (!user) return
     const [newTotal, newEntries] = await Promise.all([
-      fetchTaxPotTotal(uid, taxYearStart),
-      fetchTaxPotEntries(uid, taxYearStart),
+      fetchTaxPotTotal(user.id, taxYearStart),
+      fetchTaxPotEntries(user.id, taxYearStart),
     ])
     setTaxPotTotal(newTotal)
     setTaxPotEntries(newEntries)
+    flashPot('success', 'Contribution removed')
+    window.dispatchEvent(new Event('fd:data-invalidate'))
   }
 
   async function downloadSAPack() {
@@ -503,6 +526,12 @@ export default function TaxPage() {
           </div>
         }
       />
+
+      {potFeedback && (
+        <Alert intent={potFeedback.type === 'error' ? 'danger' : 'success'}>
+          {potFeedback.text}
+        </Alert>
+      )}
 
       {loading || !pageData ? (
         <div className="space-y-6" aria-busy aria-label="Loading tax summary">

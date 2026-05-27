@@ -289,7 +289,7 @@ export default function ClientDetailPage() {
           </Button>
         }
       >
-        <ClientForm client={client} onSuccess={() => { setEditOpen(false); load() }} />
+        <ClientForm client={client} hideInlineSubmit onSuccess={() => { setEditOpen(false); load() }} />
       </SlideOver>
     </div>
   )

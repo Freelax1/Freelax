@@ -347,27 +347,50 @@ export default function InvoiceDetailPage() {
       body: JSON.stringify({ invoiceId: params.id }),
     })
     setSending(false)
-    if (res.ok) { setMsg({ type: 'success', text: 'Invoice sent successfully' }); load() }
-    else { const d = await res.json(); setMsg({ type: 'error', text: d.error ?? 'Failed to send' }) }
+    if (res.ok) {
+      setMsg({ type: 'success', text: 'Invoice sent successfully' })
+      load()
+    } else {
+      const d = (await res.json().catch(() => ({}))) as { error?: string }
+      setMsg({ type: 'error', text: d.error ?? 'Failed to send' })
+    }
     setTimeout(() => setMsg(null), 4000)
   }
 
   async function getPaymentLink() {
     setCopyingLink(true)
     try {
-      const res  = await fetch('/api/invoices/public-token', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/invoices/public-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invoiceId: params.id }),
       })
-      const data = await res.json()
-      if (data.url) {
-        setPayLink(data.url)
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
+      if (!res.ok) {
+        setMsg({ type: 'error', text: data.error ?? 'Could not generate payment link' })
+        setTimeout(() => setMsg(null), 4000)
+        return
+      }
+      if (!data.url) {
+        setMsg({ type: 'error', text: 'No payment link returned' })
+        setTimeout(() => setMsg(null), 4000)
+        return
+      }
+      setPayLink(data.url)
+      try {
         await navigator.clipboard.writeText(data.url)
         setMsg({ type: 'success', text: '✓ Payment link copied to clipboard' })
-        setTimeout(() => setMsg(null), 4000)
+      } catch {
+        setMsg({ type: 'success', text: 'Payment link ready — use the link shown in the button tooltip' })
       }
-    } catch (e) { console.error(e) }
-    setCopyingLink(false)
+      setTimeout(() => setMsg(null), 4000)
+    } catch (e) {
+      console.error(e)
+      setMsg({ type: 'error', text: 'Could not generate payment link' })
+      setTimeout(() => setMsg(null), 4000)
+    } finally {
+      setCopyingLink(false)
+    }
   }
 
   async function handleMarkPaid() {
@@ -377,8 +400,13 @@ export default function InvoiceDetailPage() {
       body: JSON.stringify({ invoiceId: params.id }),
     })
     setMarking(false)
-    if (res.ok) { setMsg({ type: 'success', text: '✓ Invoice marked as paid' }); load() }
-    else { setMsg({ type: 'error', text: 'Failed to mark as paid' }) }
+    if (res.ok) {
+      setMsg({ type: 'success', text: '✓ Invoice marked as paid' })
+      load()
+    } else {
+      const d = (await res.json().catch(() => ({}))) as { error?: string }
+      setMsg({ type: 'error', text: d.error ?? 'Failed to mark as paid' })
+    }
     setTimeout(() => setMsg(null), 4000)
   }
 
@@ -393,6 +421,26 @@ export default function InvoiceDetailPage() {
   const canSend    = ['draft', 'sent', 'overdue'].includes(invoice.status)
   const canChase   = ['sent', 'overdue'].includes(invoice.status)
   const canMarkPaid = ['sent', 'overdue'].includes(invoice.status)
+  const isDraft    = invoice.status === 'draft'
+  const isOverdue  = invoice.status === 'overdue'
+
+  const lastChasedAt = chaseLog[chaseLog.length - 1]?.chased_at
+  const chaseCooldownDays = lastChasedAt
+    ? Math.max(0, 7 - Math.floor((Date.now() - new Date(lastChasedAt).getTime()) / 86400000))
+    : 0
+  const chaseOnCooldown = chaseCooldownDays > 0
+
+  function openChaseModal() {
+    if (chaseOnCooldown) {
+      setMsg({
+        type: 'error',
+        text: `You can chase again in ${chaseCooldownDays} day${chaseCooldownDays === 1 ? '' : 's'}.`,
+      })
+      setTimeout(() => setMsg(null), 5000)
+      return
+    }
+    setChaseOpen(true)
+  }
 
   // Bank details
   const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
@@ -414,67 +462,92 @@ export default function InvoiceDetailPage() {
               </span>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {invoice.status === 'draft' && (
-              <Link href={`/invoices/${invoice.id}/edit`} className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
-                <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
-              </Link>
-            )}
-            {canSend && (
-              <Button type="button" intent="primary" size="sm" onClick={handleSend} disabled={sending}>
-                <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
-                {sending ? 'Sending...' : invoice.status === 'draft' ? 'Send invoice' : 'Resend'}
-              </Button>
-            )}
-            {canChase && (
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setChaseOpen(true)}
-                className="bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 border-transparent focus-visible:ring-warning-500/40"
-              >
-                <Bell weight="regular" className="w-3.5 h-3.5" />
-                Chase{chaseLog.length > 0 ? ` (${chaseLog.length})` : ''}
-              </Button>
-            )}
-            <a
-              href={`/api/invoices/pdf?id=${invoice.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-wrap gap-2">
+              {isDraft && (
+                <Link href={`/invoices/${invoice.id}/edit`} className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+                  <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
+                </Link>
+              )}
+              {canSend && (
+                <Button
+                  type="button"
+                  intent={isDraft ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={handleSend}
+                  disabled={sending}
+                >
+                  <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
+                  {sending ? 'Sending...' : isDraft ? 'Send invoice' : 'Resend'}
+                </Button>
+              )}
+              {canChase && (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={openChaseModal}
+                  className={cn(
+                    'border focus-visible:ring-2',
+                    isOverdue
+                      ? 'bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 border-transparent focus-visible:ring-warning-500/40'
+                      : 'bg-warning-50 text-warning-800 border-warning-200 hover:bg-warning-100 focus-visible:ring-warning-500/30',
+                  )}
+                >
+                  <Bell weight="regular" className="w-3.5 h-3.5" />
+                  Chase{chaseLog.length > 0 ? ` (${chaseLog.length})` : ''}
+                </Button>
+              )}
+              {canMarkPaid && (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleMarkPaid}
+                  disabled={marking}
+                  intent={isOverdue ? 'secondary' : 'primary'}
+                  className={
+                    isOverdue
+                      ? undefined
+                      : '!bg-success-700 hover:!bg-success-800 active:!bg-success-900 focus-visible:ring-success-700/40'
+                  }
+                >
+                  <CheckCircle weight="regular" className="w-4 h-4" />
+                  {marking ? 'Saving...' : 'Mark as paid'}
+                </Button>
+              )}
+              {invoice.status === 'paid' && (
+                <span className="flex items-center gap-1.5 px-4 py-2 bg-success-50 text-success-700 rounded-xl text-sm font-semibold border border-success-200">
+                  <CheckCircle weight="regular" className="w-4 h-4" /> Paid
+                </span>
+              )}
+            </div>
+            <div
+              className={cn(
+                'flex flex-wrap gap-2',
+                !isDraft && 'border-l border-border-subtle pl-3',
+              )}
             >
-              <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-            </a>
-            {invoice.status !== 'draft' && (
-              <Button
-                type="button"
-                intent="secondary"
-                size="sm"
-                onClick={getPaymentLink}
-                disabled={copyingLink}
-                title={payLink ?? 'Copy client payment link'}
+              <a
+                href={`/api/invoices/pdf?id=${invoice.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
               >
-                <LinkSimple weight="regular" className="w-3.5 h-3.5" />
-                {copyingLink ? 'Generating…' : 'Payment link'}
-              </Button>
-            )}
-            {canMarkPaid && invoice.status !== 'paid' && (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleMarkPaid}
-                disabled={marking}
-                className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
-              >
-                <CheckCircle weight="regular" className="w-4 h-4" />
-                {marking ? 'Saving...' : 'Mark as paid'}
-              </Button>
-            )}
-            {invoice.status === 'paid' && (
-              <span className="flex items-center gap-1.5 px-4 py-2 bg-success-50 text-success-700 rounded-xl text-sm font-semibold border border-success-200">
-                <CheckCircle weight="regular" className="w-4 h-4" /> Paid
-              </span>
-            )}
+                <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
+              </a>
+              {!isDraft && (
+                <Button
+                  type="button"
+                  intent="secondary"
+                  size="sm"
+                  onClick={getPaymentLink}
+                  disabled={copyingLink}
+                  title={payLink ?? 'Copy client payment link'}
+                >
+                  <LinkSimple weight="regular" className="w-3.5 h-3.5" />
+                  {copyingLink ? 'Generating…' : 'Payment link'}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -137,7 +137,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         {tab === 'Invoice Defaults'    && <InvoiceDefaultsTab profile={profile} save={save} saving={saving} />}
         {tab === 'Quote Defaults'      && <QuoteDefaultsTab   profile={profile} save={save} saving={saving} />}
         {tab === 'Banking'             && <BankingTab         profile={profile} save={save} saving={saving} />}
-        {tab === 'Notifications'       && <NotificationsTab />}
+        {tab === 'Notifications'       && <NotificationsTab profile={profile} save={save} saving={saving} />}
         {tab === 'Billing'             && (
           <Suspense fallback={<div />}>
             <BillingTab profile={profile} />

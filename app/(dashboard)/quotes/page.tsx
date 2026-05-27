@@ -20,6 +20,7 @@ import {
   TABLE_CELL_PRESETS,
 } from '@/components/ui'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
@@ -139,6 +140,12 @@ export default function QuotesPage() {
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [sortField, setSortField] = useState<QuoteSortField>('issue_date')
   const [sortDir, setSortDir]     = useState<'desc' | 'asc'>('desc')
+  const [msg, setMsg]             = useState<string | null>(null)
+
+  function flash(text: string) {
+    setMsg(text)
+    setTimeout(() => setMsg(null), 5000)
+  }
 
   async function load() { setQuotes(await fetchQuotes()); setLoading(false) }
   useEffect(() => { load() }, [])
@@ -147,7 +154,7 @@ export default function QuotesPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try { await deleteQuote(deleteTarget.id); setDeleteTarget(null); load() }
-    catch (e) { console.error(e) }
+    catch { flash('Failed to delete quote') }
     finally { setDeleting(false) }
   }
 
@@ -156,36 +163,47 @@ export default function QuotesPage() {
     try {
       await Promise.all(Array.from(selected).map(id => deleteQuote(id)))
       setSelected(new Set()); setBulkDeleteOpen(false); setBulkDeleting(false); load()
-    } catch { setBulkDeleting(false) }
+    } catch {
+      flash('Failed to delete quotes')
+      setBulkDeleting(false)
+    }
   }
 
   async function handleBulkStatus() {
     if (!bulkStatusTarget) return
     setStatusUpdating(true)
-    try {
-      const ids = Array.from(selected)
-      await Promise.all(ids.map(id =>
-        fetch('/api/quotes/update-status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quoteId: id, status: bulkStatusTarget }),
-        })
-      ))
-      setSelected(new Set()); setBulkStatusTarget(null); setStatusUpdating(false); load()
-    } catch { setStatusUpdating(false) }
+    const ids = Array.from(selected)
+    const results = await Promise.all(ids.map(id =>
+      fetch('/api/quotes/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: id, status: bulkStatusTarget }),
+      })
+    ))
+    const failed = results.filter(r => !r.ok).length
+    if (failed) {
+      flash(failed === ids.length ? 'Failed to update status' : `Could not update ${failed} quote${failed > 1 ? 's' : ''}`)
+      setStatusUpdating(false)
+      return
+    }
+    setSelected(new Set()); setBulkStatusTarget(null); setStatusUpdating(false); load()
   }
 
   async function handleStatusChange() {
     if (!statusTarget) return
     setStatusUpdating(true)
-    try {
-      await fetch('/api/quotes/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quoteId: statusTarget.quote.id, status: statusTarget.status }),
-      })
-      setStatusTarget(null); setStatusUpdating(false); load()
-    } catch { setStatusUpdating(false) }
+    const res = await fetch('/api/quotes/update-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quoteId: statusTarget.quote.id, status: statusTarget.status }),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      flash((data as { error?: string }).error ?? 'Failed to update status')
+      setStatusUpdating(false)
+      return
+    }
+    setStatusTarget(null); setStatusUpdating(false); load()
   }
 
   function toggleSelect(id: string) {
@@ -259,6 +277,8 @@ export default function QuotesPage() {
           </Button>
         }
       />
+
+      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
       {loading ? (
         <ListMetricsSkeleton count={2} />

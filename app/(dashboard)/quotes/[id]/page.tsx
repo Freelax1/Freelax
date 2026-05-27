@@ -159,7 +159,7 @@ export default function QuoteDetailPage() {
     setConverting(true)
     try {
       const user  = await fetchCurrentUser()
-      if (!user) return
+      if (!user) { setConverting(false); return }
       const maxNumber = await fetchMaxInvoiceNumber(user.id)
       const invNum  = generateInvoiceNumber(maxNumber)
       const dueDate = new Date(); dueDate.setDate(dueDate.getDate() + 30)
@@ -197,12 +197,24 @@ export default function QuoteDetailPage() {
     }
   }
 
-  function handleCopyLink() {
-    if (!quote?.public_token) return
-    const url = `${window.location.origin}/q/${quote.public_token}`
-    navigator.clipboard.writeText(url)
-    setLinkCopied(true)
-    setTimeout(() => setLinkCopied(false), 2500)
+  async function handleCopyLink() {
+    try {
+      const res = await fetch('/api/quotes/public-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: params.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        flash('error', data.error ?? 'Failed to copy link')
+        return
+      }
+      await navigator.clipboard.writeText(data.url)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2500)
+    } catch {
+      flash('error', 'Failed to copy link')
+    }
   }
 
   if (loading) return <DocumentDetailSkeleton />
@@ -238,59 +250,74 @@ export default function QuoteDetailPage() {
               <span className="text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">{days}d left</span>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {canEdit && (
-              <Link href={`/quotes/${quote.id}/edit`}
-                className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
-                <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
-              </Link>
-            )}
-            {canSend && (
-              <Button type="button" intent="primary" size="sm" onClick={handleSend} disabled={sending}>
-                <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
-                {sending ? 'Sending...' : quote.status === 'draft' ? 'Send quote' : 'Resend'}
-              </Button>
-            )}
-            {canAccept && (
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => handleStatusChange('accepted')}
-                className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
-              >
-                <CheckCircle weight="regular" className="w-3.5 h-3.5" /> Mark accepted
-              </Button>
-            )}
-            {canDecline && (
-              <Button type="button" intent="danger-subtle" size="sm" onClick={() => handleStatusChange('declined')}>
-                <XCircle weight="regular" className="w-3.5 h-3.5" /> Mark declined
-              </Button>
-            )}
-            {canConvert && (
-              <Button type="button" intent="primary" size="sm" onClick={handleConvertToInvoice} disabled={converting}>
-                <FileText weight="regular" className="w-3.5 h-3.5" />
-                {converting ? 'Creating...' : 'Create invoice'}
-              </Button>
-            )}
-            <Button type="button" intent="secondary" size="sm" onClick={handleCopyLink}>
-              <LinkSimple weight="regular" className="w-3.5 h-3.5" />
-              {linkCopied ? 'Copied!' : 'Client link'}
-            </Button>
-            <a
-              href={`/api/quotes/pdf?id=${quote.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-wrap gap-2">
+              {canEdit && (
+                <Link href={`/quotes/${quote.id}/edit`}
+                  className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
+                  <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
+                </Link>
+              )}
+              {canSend && (
+                <Button
+                  type="button"
+                  intent={quote.status === 'draft' ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={handleSend}
+                  disabled={sending}
+                >
+                  <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
+                  {sending ? 'Sending...' : quote.status === 'draft' ? 'Send quote' : 'Resend'}
+                </Button>
+              )}
+              {canAccept && (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => handleStatusChange('accepted')}
+                  className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
+                >
+                  <CheckCircle weight="regular" className="w-3.5 h-3.5" /> Mark accepted
+                </Button>
+              )}
+              {canDecline && (
+                <Button type="button" intent="danger-subtle" size="sm" onClick={() => handleStatusChange('declined')}>
+                  <XCircle weight="regular" className="w-3.5 h-3.5" /> Mark declined
+                </Button>
+              )}
+              {canConvert && (
+                <Button type="button" intent="primary" size="sm" onClick={handleConvertToInvoice} disabled={converting}>
+                  <FileText weight="regular" className="w-3.5 h-3.5" />
+                  {converting ? 'Creating...' : 'Create invoice'}
+                </Button>
+              )}
+            </div>
+            <div
+              className={cn(
+                'flex flex-wrap gap-2',
+                quote.status !== 'draft' && 'border-l border-border-subtle pl-3',
+              )}
             >
-              <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
-            </a>
-            <IconButton
-              label="Delete"
-              variant="danger"
-              onClick={() => setShowDelete(true)}
-              className="rounded-lg bg-danger-50 text-danger-700 hover:bg-danger-100"
-              icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
-            />
+              <Button type="button" intent="secondary" size="sm" onClick={handleCopyLink}>
+                <LinkSimple weight="regular" className="w-3.5 h-3.5" />
+                {linkCopied ? 'Copied!' : 'Client link'}
+              </Button>
+              <a
+                href={`/api/quotes/pdf?id=${quote.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
+              >
+                <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
+              </a>
+              <IconButton
+                label="Delete"
+                variant="danger"
+                onClick={() => setShowDelete(true)}
+                className="rounded-lg bg-danger-50 text-danger-700 hover:bg-danger-100"
+                icon={<Trash weight="regular" className="w-3.5 h-3.5" />}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -104,7 +104,7 @@ export default function NewProjectPage() {
 
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) { setSaving(false); return }
 
     const { data, error: err } = await supabase.from('projects').insert({
       title: form.title,

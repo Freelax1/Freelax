@@ -20,6 +20,7 @@ import {
   TABLE_CELL_PRESETS,
 } from '@/components/ui'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
@@ -91,7 +92,7 @@ function BulkBar({ count, onDelete, onStatusChange, onClear }: {
 }) {
   return (
     <ListBulkBar count={count} onClear={onClear}>
-      {['active', 'completed', 'on_hold'].map(s => (
+      {['active', 'completed', 'on_hold', 'cancelled'].map(s => (
         <Button key={s} type="button" intent="secondary" size="xs" onClick={() => onStatusChange(s)} className="capitalize">
           Mark as {s.replace('_', ' ')}
         </Button>
@@ -119,6 +120,13 @@ export default function ProjectsPage() {
   const [bulkUpdating, setBulkUpdating]   = useState(false)
   const [slideOpen, setSlideOpen]         = useState(false)
   const [editProject, setEditProject]     = useState<Partial<ProjectListRow> | undefined>()
+  const [projectSaving, setProjectSaving] = useState(false)
+  const [msg, setMsg]                     = useState<string | null>(null)
+
+  function flash(text: string) {
+    setMsg(text)
+    setTimeout(() => setMsg(null), 5000)
+  }
 
   useEffect(() => {
     const f = searchParams.get('filter')
@@ -132,7 +140,7 @@ export default function ProjectsPage() {
     if (!deleteTarget) return
     setDeleting(true)
     try { await deleteProject(deleteTarget.id); setDeleteTarget(null); load() }
-    catch (e) { console.error(e) }
+    catch { flash('Failed to delete project') }
     finally { setDeleting(false) }
   }
 
@@ -141,21 +149,33 @@ export default function ProjectsPage() {
     try {
       await Promise.all(Array.from(selected).map(id => deleteProject(id)))
       setSelected(new Set()); setBulkDeleteOpen(false); setBulkUpdating(false); load()
-    } catch { setBulkUpdating(false) }
+    } catch {
+      flash('Failed to delete projects')
+      setBulkUpdating(false)
+    }
   }
 
   async function handleStatusChange(project: ProjectListRow, newStatus: string) {
-    await updateProject(project.id, { status: newStatus })
-    load()
+    try {
+      await updateProject(project.id, { status: newStatus })
+      load()
+    } catch (e) {
+      flash(e instanceof Error ? e.message : 'Failed to update status')
+    }
   }
 
   async function handleBulkStatus() {
     if (!bulkStatusTarget) return
     setBulkUpdating(true)
-    try {
-      await Promise.all(Array.from(selected).map(id => updateProject(id, { status: bulkStatusTarget })))
-      setSelected(new Set()); setBulkStatusTarget(null); setBulkUpdating(false); load()
-    } catch { setBulkUpdating(false) }
+    const ids = Array.from(selected)
+    const results = await Promise.allSettled(ids.map(id => updateProject(id, { status: bulkStatusTarget })))
+    const failed = results.filter(r => r.status === 'rejected').length
+    if (failed) {
+      flash(failed === ids.length ? 'Failed to update status' : `Could not update ${failed} project${failed > 1 ? 's' : ''}`)
+      setBulkUpdating(false)
+      return
+    }
+    setSelected(new Set()); setBulkStatusTarget(null); setBulkUpdating(false); load()
   }
 
   function toggleSelect(id: string) {
@@ -190,6 +210,8 @@ export default function ProjectsPage() {
           </Button>
         }
       />
+
+      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
       {loading ? (
         <ListMetricsSkeleton count={2} />
@@ -415,12 +437,16 @@ export default function ProjectsPage() {
         title={editProject ? 'Edit project' : 'Add project'}
         width="lg"
         footer={
-          <Button form="project-form" type="submit" intent="primary" size="md" fullWidth>
-            {editProject ? 'Save changes' : 'Add project'}
+          <Button form="project-form" type="submit" intent="primary" size="md" fullWidth disabled={projectSaving}>
+            {projectSaving ? 'Saving…' : editProject ? 'Save changes' : 'Add project'}
           </Button>
         }
       >
-        <ProjectForm project={editProject as Partial<Project> | undefined} onSuccess={() => { setSlideOpen(false); load() }} />
+        <ProjectForm
+          project={editProject as Partial<Project> | undefined}
+          onSavingChange={setProjectSaving}
+          onSuccess={() => { setSlideOpen(false); setProjectSaving(false); load() }}
+        />
       </SlideOver>
     </ListPageLayout>
   )

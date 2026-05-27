@@ -13,9 +13,10 @@ interface ProjectFormProps {
   project?: Partial<Project>
   defaultClientId?: string
   onSuccess?: () => void
+  onSavingChange?: (saving: boolean) => void
 }
 
-export default function ProjectForm({ project, defaultClientId, onSuccess }: ProjectFormProps) {
+export default function ProjectForm({ project, defaultClientId, onSuccess, onSavingChange }: ProjectFormProps) {
   const router = useRouter()
   const isEdit = !!project?.id
 
@@ -35,6 +36,10 @@ export default function ProjectForm({ project, defaultClientId, onSuccess }: Pro
   )
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    onSavingChange?.(saving)
+  }, [saving, onSavingChange])
 
   useEffect(() => {
     const supabase = createClient()
@@ -68,7 +73,7 @@ export default function ProjectForm({ project, defaultClientId, onSuccess }: Pro
 
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) { setSaving(false); return }
 
     const payload = {
       title: form.title,

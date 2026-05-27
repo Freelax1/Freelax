@@ -9,9 +9,11 @@ import type { Client } from '@/types/database'
 interface ClientFormProps {
   client?: Partial<Client>
   onSuccess?: () => void
+  /** Hide inline save when the parent provides a slide-over footer submit */
+  hideInlineSubmit?: boolean
 }
 
-export default function ClientForm({ client, onSuccess }: ClientFormProps) {
+export default function ClientForm({ client, onSuccess, hideInlineSubmit }: ClientFormProps) {
   const router = useRouter()
   const isEdit = !!client?.id
 
@@ -49,7 +51,7 @@ export default function ClientForm({ client, onSuccess }: ClientFormProps) {
 
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) { setSaving(false); return }
 
     const payload = { ...form, updated_at: new Date().toISOString() }
 
@@ -64,7 +66,7 @@ export default function ClientForm({ client, onSuccess }: ClientFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form id="client-form" onSubmit={handleSubmit} className="space-y-4">
       {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
 
       <Field label="Business name" required error={errors.name}>
@@ -116,9 +118,11 @@ export default function ClientForm({ client, onSuccess }: ClientFormProps) {
         <Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} placeholder="Any notes about this client..." />
       </Field>
 
-      <div className="pt-2">
-        <SaveButton loading={saving} label={isEdit ? 'Update client' : 'Add client'} />
-      </div>
+      {!hideInlineSubmit && (
+        <div className="pt-2">
+          <SaveButton loading={saving} label={isEdit ? 'Update client' : 'Add client'} />
+        </div>
+      )}
     </form>
   )
 }

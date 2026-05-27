@@ -81,6 +81,12 @@ export interface User {
   other_income: number | null
   investment_dividends: number | null
 
+  // Email notification preferences
+  notify_invoices_overdue?: boolean | null
+  notify_vat_threshold?: boolean | null
+  notify_sa_deadline?: boolean | null
+  notify_tax_year_end?: boolean | null
+
   // Stripe / subscription
   stripe_customer_id: string | null
   stripe_subscription_id: string | null

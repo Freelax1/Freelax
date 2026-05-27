@@ -52,7 +52,7 @@ export default function NewClientPage() {
 
     try {
       const user = await fetchCurrentUser()
-      if (!user) return
+      if (!user) { setSaving(false); return }
       await createClientRecord({ ...form, user_id: user.id, updated_at: new Date().toISOString() })
       router.push('/clients')
     } catch (err: any) {

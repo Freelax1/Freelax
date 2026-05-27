@@ -153,7 +153,7 @@ export default function NewQuotePage() {
     setError(null)
     try {
       const user = await fetchCurrentUser()
-      if (!user) return
+      if (!user) { setSaving(false); return }
 
       const count       = await fetchQuoteCount(user.id)
       const quoteNumber = generateQuoteNumber(count, quotePrefix || 'QUO')
@@ -297,7 +297,7 @@ export default function NewQuotePage() {
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
-                <th className="pb-2 font-medium w-16">VAT%</th>
+                <th className="pb-2 font-medium w-[5.5rem]">VAT%</th>
                 <th className="pb-2 font-medium w-20 text-right">Total</th>
                 <th className="pb-2 w-8"><span className="sr-only">Actions</span></th>
               </tr>
@@ -308,8 +308,8 @@ export default function NewQuotePage() {
                   <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item description" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" /></td>
                   <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item quantity" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
                   <td className="py-1 pr-2"><Input variant="inline" aria-label="Line item unit price" type="number" step="0.01" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
-                  <td className="py-1 pr-2">
-                    <Select variant="inline" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
+                  <td className="py-1 pr-2 w-[5.5rem]">
+                    <Select variant="inline" className="w-full" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>

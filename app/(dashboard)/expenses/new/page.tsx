@@ -106,7 +106,7 @@ export default function NewExpensePage() {
 
     try {
       const user = await fetchCurrentUser()
-      if (!user) return
+      if (!user) { setSaving(false); return }
 
       // Upload receipt via API layer if provided
       const receipt_url = receiptFile ? await uploadReceipt(user.id, receiptFile) : null

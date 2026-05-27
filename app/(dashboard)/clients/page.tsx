@@ -19,6 +19,7 @@ import {
   TABLE_CELL_PRESETS,
 } from '@/components/ui'
 import Button, { buttonVariants } from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
@@ -123,6 +124,12 @@ export default function ClientsPage() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkStatusTarget, setBulkStatusTarget] = useState<string | null>(null)
   const [bulkUpdating, setBulkUpdating]   = useState(false)
+  const [msg, setMsg]                     = useState<string | null>(null)
+
+  function flash(text: string) {
+    setMsg(text)
+    setTimeout(() => setMsg(null), 5000)
+  }
 
   async function load() {
     const raw = await fetchClients()
@@ -142,33 +149,40 @@ export default function ClientsPage() {
 
   async function handleBulkDelete() {
     setBulkUpdating(true)
-    try {
-      const supabase = createClient()
-      await supabase.from('clients').delete().in('id', Array.from(selected))
-      setSelected(new Set())
-      setBulkDeleteOpen(false)
+    const supabase = createClient()
+    const { error } = await supabase.from('clients').delete().in('id', Array.from(selected))
+    if (error) {
+      flash(error.message)
       setBulkUpdating(false)
-      load()
-    } catch { setBulkUpdating(false) }
+      return
+    }
+    setSelected(new Set())
+    setBulkDeleteOpen(false)
+    setBulkUpdating(false)
+    load()
   }
 
   async function handleStatusChange(client: ClientWithStats, newStatus: string) {
     const supabase = createClient()
-    await supabase.from('clients').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', client.id)
+    const { error } = await supabase.from('clients').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', client.id)
+    if (error) { flash(error.message); return }
     load()
   }
 
   async function handleBulkStatus() {
     if (!bulkStatusTarget) return
     setBulkUpdating(true)
-    try {
-      const supabase = createClient()
-      await supabase.from('clients').update({ status: bulkStatusTarget, updated_at: new Date().toISOString() }).in('id', Array.from(selected))
-      setSelected(new Set())
-      setBulkStatusTarget(null)
+    const supabase = createClient()
+    const { error } = await supabase.from('clients').update({ status: bulkStatusTarget, updated_at: new Date().toISOString() }).in('id', Array.from(selected))
+    if (error) {
+      flash(error.message)
       setBulkUpdating(false)
-      load()
-    } catch { setBulkUpdating(false) }
+      return
+    }
+    setSelected(new Set())
+    setBulkStatusTarget(null)
+    setBulkUpdating(false)
+    load()
   }
 
   function toggleSelect(id: string) {
@@ -225,6 +239,8 @@ export default function ClientsPage() {
           </Button>
         }
       />
+
+      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
       {loading ? (
         <ListMetricsSkeleton count={2} />

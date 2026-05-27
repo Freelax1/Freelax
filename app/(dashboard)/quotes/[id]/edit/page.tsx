@@ -48,21 +48,26 @@ export default function EditQuotePage() {
 
   useEffect(() => {
     fetchClientsForDropdown().then(setClients)
-    fetchQuoteById(params.id).then(q => {
-      if (!q) return
-      setClientId(q.client_id ?? '')
-      setProjectId(q.project_id ?? '')
-      setIssueDate(q.issue_date)
-      setExpiryDate(q.expiry_date)
-      setNotes(q.notes ?? '')
-      setLineItems((q.quote_line_items as QuoteLineItem[] | undefined ?? []).map((l) => ({
-        description: l.description,
-        quantity:    l.quantity,
-        unit_price:  l.unit_price,
-        vat_rate:    l.vat_rate,
-      })))
-      setLoading(false)
-    })
+    fetchQuoteById(params.id)
+      .then(q => {
+        if (!q) {
+          setError('Quote not found')
+          return
+        }
+        setClientId(q.client_id ?? '')
+        setProjectId(q.project_id ?? '')
+        setIssueDate(q.issue_date)
+        setExpiryDate(q.expiry_date)
+        setNotes(q.notes ?? '')
+        setLineItems((q.quote_line_items as QuoteLineItem[] | undefined ?? []).map((l) => ({
+          description: l.description,
+          quantity:    l.quantity,
+          unit_price:  l.unit_price,
+          vat_rate:    l.vat_rate,
+        })))
+      })
+      .catch(() => setError('Failed to load quote'))
+      .finally(() => setLoading(false))
   }, [params.id])
 
   useEffect(() => {
@@ -161,7 +166,7 @@ export default function EditQuotePage() {
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
-                <th className="pb-2 font-medium w-16">VAT%</th>
+                <th className="pb-2 font-medium w-[5.5rem]">VAT%</th>
                 <th className="pb-2 font-medium w-20 text-right">Total</th>
                 <th className="pb-2 w-8"></th>
               </tr>
@@ -172,8 +177,8 @@ export default function EditQuotePage() {
                   <td className="py-1 pr-2"><Input variant="inline" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} placeholder="Description" /></td>
                   <td className="py-1 pr-2"><Input variant="inline" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
                   <td className="py-1 pr-2"><Input variant="inline" type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
-                  <td className="py-1 pr-2">
-                    <Select variant="inline" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
+                  <td className="py-1 pr-2 w-[5.5rem]">
+                    <Select variant="inline" className="w-full" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>

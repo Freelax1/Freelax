@@ -42,7 +42,7 @@ export default function RecurringInvoicesPage() {
   async function load() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) { setLoading(false); return }
     const { data } = await supabase
       .from('invoice_templates')
       .select('*, clients(name)')
@@ -61,8 +61,8 @@ export default function RecurringInvoicesPage() {
     setSaving(true)
     const supabase = createClient()
     const user = await fetchCurrentUser()
-    if (!user) return
-    await supabase.from('invoice_templates').insert({
+    if (!user) { setSaving(false); return }
+    const { error } = await supabase.from('invoice_templates').insert({
       user_id:       user.id,
       client_id:     clientId || null,
       frequency,
@@ -70,6 +70,7 @@ export default function RecurringInvoicesPage() {
       line_items:    lineItems,
       active:        true,
     })
+    if (error) { setSaving(false); return }
     setShowForm(false)
     setClientId(''); setFrequency('monthly')
     setLineItems([{ description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])

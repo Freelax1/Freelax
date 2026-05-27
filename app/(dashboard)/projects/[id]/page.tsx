@@ -29,6 +29,7 @@ export default function ProjectDetailPage() {
   const [invoices, setInvoices] = useState<ProjectInvoice[]>([])
   const [loading, setLoading]   = useState(true)
   const [editOpen, setEditOpen] = useState(false)
+  const [projectSaving, setProjectSaving] = useState(false)
   const [ir35Status, setIr35Status] = useState<IR35Status>('needs_review')
   const [canUseIR35, setCanUseIR35] = useState(false)
 
@@ -188,12 +189,16 @@ export default function ProjectDetailPage() {
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit project"
         footer={
-          <Button type="submit" form="project-form" intent="primary" size="md" fullWidth>
-            Update project
+          <Button type="submit" form="project-form" intent="primary" size="md" fullWidth disabled={projectSaving}>
+            {projectSaving ? 'Saving…' : 'Update project'}
           </Button>
         }
       >
-        <ProjectForm project={project} onSuccess={() => { setEditOpen(false); load() }} />
+        <ProjectForm
+          project={project}
+          onSavingChange={setProjectSaving}
+          onSuccess={() => { setEditOpen(false); setProjectSaving(false); load() }}
+        />
       </SlideOver>
     </div>
   )

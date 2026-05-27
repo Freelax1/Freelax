@@ -19,6 +19,7 @@ import {
   TABLE_CELL_PRESETS,
 } from '@/components/ui'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import EmptyState from '@/components/empty-state'
 import SlideOver from '@/components/slide-over'
 import ExpenseForm from '@/components/expense-form'
@@ -79,6 +80,12 @@ export default function ExpensesPage() {
   const [selected, setSelected]         = useState<Set<string>>(new Set())
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  function flash(text: string) {
+    setMsg(text)
+    setTimeout(() => setMsg(null), 5000)
+  }
 
   const { start, end, label } = getCurrentTaxYear()
 
@@ -104,7 +111,10 @@ export default function ExpensesPage() {
     try {
       await Promise.all(Array.from(selected).map(id => deleteExpense(id)))
       setSelected(new Set()); setBulkDeleteOpen(false); setBulkDeleting(false); load()
-    } catch { setBulkDeleting(false) }
+    } catch {
+      flash('Failed to delete expenses')
+      setBulkDeleting(false)
+    }
   }
 
   function toggleSelect(id: string) {
@@ -146,6 +156,8 @@ export default function ExpensesPage() {
           </Button>
         }
       />
+
+      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
 
       {loading ? (
         <ListMetricsSkeleton count={3} />

@@ -2,6 +2,7 @@
 // Sends a quote email using the user's saved template + client portal link
 
 import { NextRequest, NextResponse } from 'next/server'
+import { randomBytes } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { canSendByEmail } from '@/lib/plan-limits'
@@ -45,6 +46,12 @@ export async function POST(req: NextRequest) {
   if (!quote) return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
   if (quote.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  let publicToken = quote.public_token as string | null
+  if (!publicToken) {
+    publicToken = randomBytes(20).toString('hex')
+    await supabase.from('quotes').update({ public_token: publicToken }).eq('id', quoteId)
+  }
+
   const emailCheck = await canSendByEmail(user.id)
   if (!emailCheck.allowed) return NextResponse.json({ error: emailCheck.reason }, { status: 403 })
 
@@ -75,7 +82,7 @@ export async function POST(req: NextRequest) {
       const businessName = sender?.business_name || sender?.full_name || 'Freelax User'
       const expiryDate   = new Date(quote.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       const clientName   = client.contact_name || client.name
-      const portalLink   = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://freelax.co.uk'}/q/${quote.public_token}`
+      const portalLink   = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://freelax.co.uk'}/q/${publicToken}`
 
       // Template variables
       const vars: Record<string, string> = {

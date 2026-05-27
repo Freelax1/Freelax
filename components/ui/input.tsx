@@ -142,7 +142,7 @@ export interface SelectProps
 }
 
 const selectNativeClasses =
-  'appearance-none cursor-pointer truncate bg-transparent [color-scheme:light]'
+  'appearance-none cursor-pointer bg-transparent [color-scheme:light]'
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ variant = 'default', error, bare, options, className, children, ...props }, ref) => {
@@ -159,7 +159,9 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               ? inputControlVariants({ variant: shellVariant })
               : inputVariants({ variant: shellVariant }),
             selectNativeClasses,
+            !isInline && 'truncate',
             bare ? 'pr-8' : isInline ? 'pr-7' : 'pr-9',
+            isInline && 'min-w-[4.5rem]',
             className,
           )}
           {...props}

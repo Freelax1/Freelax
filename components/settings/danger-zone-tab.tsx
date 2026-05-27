@@ -1,15 +1,21 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Alert from '@/components/ui/alert'
 import Button from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import ConfirmDeleteModal from '@/components/confirm-delete-modal'
 
 type ExportState = 'idle' | 'loading' | 'success' | 'error'
 
 export default function DangerZoneTab() {
+  const router = useRouter()
   const [exportState, setExportState] = useState<ExportState>('idle')
   const [exportError, setExportError] = useState<string | null>(null)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   async function handleExport() {
     setExportState('loading')
@@ -35,6 +41,25 @@ export default function DangerZoneTab() {
     }
   }
 
+  async function handleDeleteAccount() {
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      const res = await fetch('/api/account/delete', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setDeleteError((data as { error?: string }).error ?? 'Failed to delete account')
+        setDeleting(false)
+        return
+      }
+      router.push('/auth/login')
+      router.refresh()
+    } catch {
+      setDeleteError('Failed to delete account. Please try again or contact support@freelax.co.uk.')
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
 
@@ -48,7 +73,6 @@ export default function DangerZoneTab() {
               your legal right under UK GDPR. Opens in Excel or Google Sheets.
             </p>
 
-            {/* What's included */}
             <div className="flex flex-wrap gap-2 mb-4">
               {[
                 'Invoices', 'Line items', 'Quotes',
@@ -121,11 +145,26 @@ export default function DangerZoneTab() {
               Permanently delete your account and all associated data. This cannot be undone.
             </p>
           </div>
-          <Button type="button" intent="danger-subtle" size="sm">
+          <Button type="button" intent="danger-subtle" size="sm" onClick={() => setDeleteOpen(true)}>
             Delete account
           </Button>
         </div>
+        {deleteError && !deleteOpen && (
+          <Alert intent="danger" className="mt-3">{deleteError}</Alert>
+        )}
       </div>
+
+      {deleteOpen && (
+        <ConfirmDeleteModal
+          title="Delete your account?"
+          description="All invoices, clients, expenses, and tax data will be permanently removed."
+          warning="Export your data first if you need a copy. You will be signed out immediately."
+          confirmLabel={deleting ? 'Deleting…' : 'Yes, delete my account'}
+          onConfirm={handleDeleteAccount}
+          onCancel={() => { setDeleteOpen(false); setDeleteError(null) }}
+          loading={deleting}
+        />
+      )}
 
     </div>
   )

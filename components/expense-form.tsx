@@ -49,6 +49,7 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
   const [scanning, setScanning] = useState(false)
   const [scanConfidence, setScanConfidence] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [scanError, setScanError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   function set(field: string, value: string | boolean) {
@@ -84,6 +85,7 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
     }
     setScanning(true)
     setScanConfidence(null)
+    setScanError(null)
 
     const fd = new FormData()
     fd.append('image', receiptFile)
@@ -91,6 +93,11 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
     try {
       const res = await fetch('/api/ai/scan-receipt', { method: 'POST', body: fd })
       const data = await res.json()
+      if (!res.ok) {
+        setScanError((data as { error?: string }).error ?? 'Could not read receipt')
+        setScanning(false)
+        return
+      }
       if (data.date) set('date', data.date)
       if (data.merchant) set('merchant', data.merchant)
       if (data.amount_ex_vat) set('amount', data.amount_ex_vat.toString())
@@ -98,8 +105,8 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
       if (data.category) set('category', data.category)
       if (data.description) set('description', data.description)
       if (data.confidence) setScanConfidence(data.confidence)
-    } catch (e) {
-      console.error(e)
+    } catch {
+      setScanError('Could not connect to scan service. Try again.')
     }
     setScanning(false)
   }
@@ -128,11 +135,14 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
     if (receiptFile) {
       const ext = receiptFile.name.split('.').pop()
       const path = `${user.id}/${Date.now()}.${ext}`
-      const { data: uploaded } = await supabase.storage.from('receipts').upload(path, receiptFile)
-      if (uploaded) {
-        const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(path)
-        receipt_url = publicUrl
+      const { error: uploadErr } = await supabase.storage.from('receipts').upload(path, receiptFile)
+      if (uploadErr) {
+        setErrors({ _: uploadErr.message })
+        setSaving(false)
+        return
       }
+      const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(path)
+      receipt_url = publicUrl
     }
 
     const payload = {
@@ -165,6 +175,7 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
       {/* Scan receipt button */}
       <Alert intent="info" title="Scan receipt with AI" className="p-4">
         <p className="text-xs text-forest-600 mb-3 -mt-1">Upload a receipt image and AI will auto-fill the fields below.</p>
+        {scanError && <Alert intent="danger" className="mb-3">{scanError}</Alert>}
 
         <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} {...(isMobile ? { capture: "environment" as const } : {})} />
 

@@ -30,10 +30,11 @@ export async function addTaxPotEntry(entry: {
   tax_year_start: number
 }) {
   const supabase = createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('tax_pot_entries')
     .insert(entry)
     .select()
     .single()
+  if (error) throw error
   return data
 }

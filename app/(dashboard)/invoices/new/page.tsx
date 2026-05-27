@@ -48,6 +48,7 @@ export default function NewInvoicePage() {
     { description: '', quantity: 1, unit_price: 0, vat_rate: 20 },
   ])
   const [saving, setSaving]     = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [aiInput, setAiInput]   = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [aiCooldown, setAiCooldown] = useState(false)
@@ -251,8 +252,9 @@ export default function NewInvoicePage() {
 
   async function handleSave(sendAfter = false) {
     setSaving(true)
+    setSaveError(null)
     const user = await fetchCurrentUser()
-    if (!user) return
+    if (!user) { setSaving(false); return }
 
     let invoiceId = draftId
     if (invoiceId) {
@@ -284,11 +286,19 @@ export default function NewInvoicePage() {
         vat_rate: l.vat_rate, line_total: l.quantity * l.unit_price,
       })))
       if (sendAfter) {
-        await fetch('/api/invoices/send', {
+        const res = await fetch('/api/invoices/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ invoiceId }),
         })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          setSaving(false)
+          setSaveError((data as { error?: string }).error ?? 'Invoice saved but email failed to send. Open the invoice to resend.')
+          window.dispatchEvent(new Event('fd:data-invalidate'))
+          router.push(`/invoices/${invoiceId}`)
+          return
+        }
       }
       window.dispatchEvent(new Event('fd:data-invalidate'))
       router.push(`/invoices/${invoiceId}`)
@@ -326,6 +336,8 @@ export default function NewInvoicePage() {
           </Button>
         </div>
       </div>
+
+      {saveError && <Alert intent="warning">{saveError}</Alert>}
 
       {/* AI Assistant */}
       {showAI && (
@@ -448,7 +460,7 @@ export default function NewInvoicePage() {
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
-                <th className="pb-2 font-medium w-16">VAT%</th>
+                <th className="pb-2 font-medium w-[5.5rem]">VAT%</th>
                 <th className="pb-2 font-medium w-20 text-right">Total</th>
                 <th className="pb-2 w-8"><span className="sr-only">Actions</span></th>
               </tr>
@@ -465,8 +477,8 @@ export default function NewInvoicePage() {
                   <td className="py-1 pr-2">
                     <Input variant="inline" aria-label="Line item unit price" type="number" placeholder="0.00" value={item.unit_price || ''} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} />
                   </td>
-                  <td className="py-1 pr-2">
-                    <Select variant="inline" aria-label="Line item VAT rate" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
+                  <td className="py-1 pr-2 w-[5.5rem]">
+                    <Select variant="inline" aria-label="Line item VAT rate" className="w-full" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
