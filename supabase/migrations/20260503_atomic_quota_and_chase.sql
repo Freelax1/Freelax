@@ -33,8 +33,8 @@ BEGIN
   v_limit := CASE v_plan
     WHEN 'pro'    THEN -1   -- unlimited
     WHEN 'studio' THEN -1   -- unlimited
-    WHEN 'solo'   THEN -1   -- unlimited
-    ELSE                3   -- free
+    WHEN 'solo'   THEN 10
+    ELSE                10  -- free
   END;
 
   IF v_limit = -1 THEN RETURN NEW; END IF;
@@ -73,7 +73,7 @@ BEGIN
   v_limit := CASE v_plan
     WHEN 'pro'    THEN -1
     WHEN 'studio' THEN -1
-    WHEN 'solo'   THEN  5
+    WHEN 'solo'   THEN  3
     ELSE                1   -- free
   END;
 
@@ -113,8 +113,8 @@ BEGIN
   v_limit := CASE v_plan
     WHEN 'pro'    THEN -1
     WHEN 'studio' THEN -1
-    WHEN 'solo'   THEN -1   -- unlimited
-    ELSE               10   -- free
+    WHEN 'solo'   THEN 20
+    ELSE               20   -- free
   END;
 
   IF v_limit = -1 THEN RETURN NEW; END IF;
@@ -145,50 +145,6 @@ CREATE OR REPLACE TRIGGER trg_clients_total_limit
 CREATE OR REPLACE TRIGGER trg_expenses_monthly_limit
   BEFORE INSERT ON expenses
   FOR EACH ROW EXECUTE FUNCTION enforce_expense_monthly_limit();
-
-CREATE OR REPLACE FUNCTION enforce_quote_monthly_limit()
-RETURNS trigger
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  v_plan  text;
-  v_limit integer;
-  v_count integer;
-BEGIN
-  PERFORM pg_advisory_xact_lock(hashtext('quo_quota:' || NEW.user_id::text));
-
-  SELECT COALESCE(subscription_plan, 'free')
-  INTO   v_plan
-  FROM   users
-  WHERE  id = NEW.user_id;
-
-  v_limit := CASE v_plan
-    WHEN 'pro'    THEN -1   -- unlimited
-    WHEN 'studio' THEN -1   -- unlimited
-    WHEN 'solo'   THEN -1   -- unlimited
-    ELSE                1   -- free
-  END;
-
-  IF v_limit = -1 THEN RETURN NEW; END IF;
-
-  SELECT count(*)
-  INTO   v_count
-  FROM   quotes
-  WHERE  user_id    = NEW.user_id
-    AND  created_at >= date_trunc('month', now());
-
-  IF v_count >= v_limit THEN
-    RAISE EXCEPTION 'quote_quota_exceeded: % plan allows % quotes per month',
-      v_plan, v_limit;
-  END IF;
-
-  RETURN NEW;
-END;
-$$;
-
-CREATE OR REPLACE TRIGGER trg_quotes_monthly_limit
-  BEFORE INSERT ON quotes
-  FOR EACH ROW EXECUTE FUNCTION enforce_quote_monthly_limit();
 
 
 -- ── H2: Atomic invoice chase cooldown ────────────────────────────────────────

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
@@ -51,6 +53,9 @@ export async function POST(req: NextRequest) {
       metadata: { invoice_id: invoice.id, user_id: invoice.user_id, token },
     })
 
+    await trackServer(invoice.user_id, Events.INVOICE_PAYMENT_LINK_CREATED, {
+      invoice_id: invoice.id,
+    })
     if (contentType.includes('application/json')) {
       return NextResponse.json({ url: session.url })
     }

@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { UploadSimple, X } from '@phosphor-icons/react'
-import Button from '@/components/ui/button'
+import { Upload, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { Field, Input, SaveSettingsButton, labelClass } from './shared'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
+import { Field, inputClass, btnClass, labelClass } from './shared'
 
 interface Props {
   profile: any
@@ -23,12 +24,6 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
-    if (!ALLOWED.includes(file.type)) {
-      setLogoError('Only JPEG, PNG, WebP, or SVG files are allowed.')
-      if (fileRef.current) fileRef.current.value = ''
-      return
-    }
     setLogoUploading(true)
     setLogoError(null)
     const form = new FormData()
@@ -50,45 +45,33 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
     setLogoUrl(null)
     const supabase = createClient()
     await supabase.from('users').update({ logo_url: null, updated_at: new Date().toISOString() }).eq('id', profile.id)
+    track(profile.id, Events.LOGO_REMOVED)
   }
 
   return (
-    <div className="divide-y divide-border-subtle -mx-7 -my-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <h2 className="font-semibold text-slate-900">Profile</h2>
+
       {/* Logo upload */}
-      <div className="px-7 py-6">
+      <div>
         <label className={labelClass}>Business logo</label>
-        <p className="text-xs text-text-secondary mb-3">Appears on all invoices and quotes sent to clients.</p>
-        <div className="flex items-start gap-5">
-
-          {/* Preview */}
-          <div
-            className="relative flex-shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border-default bg-surface-sunken flex items-center justify-center overflow-hidden group cursor-pointer hover:border-border-strong hover:bg-surface-sunken transition-all"
-            onClick={() => !logoUploading && fileRef.current?.click()}
-          >
-            {logoUrl ? (
-              <>
-                <img src={logoUrl} alt="Business logo" className="w-full h-full object-contain p-2" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                  <span className="text-white text-xs font-medium">Change</span>
-                </div>
-              </>
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
-                {(profile?.business_name || profile?.full_name || 'F').slice(0, 2).toUpperCase()}
-              </div>
-            )}
-            {logoUploading && (
-              <div className="absolute inset-0 bg-surface-card/80 flex items-center justify-center rounded-xl">
-                <svg className="animate-spin w-5 h-5 text-text-secondary" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2"/>
-                  <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </div>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="pt-1 space-y-2">
+        <div className="flex items-center gap-4">
+          {logoUrl ? (
+            <div className="relative w-16 h-16 rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+              <button
+                onClick={removeLogo}
+                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow flex items-center justify-center border border-slate-200 hover:bg-red-50 hover:border-red-200"
+              >
+                <X className="w-3 h-3 text-slate-500" />
+              </button>
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50">
+              <Upload className="w-5 h-5 text-slate-300" />
+            </div>
+          )}
+          <div>
             <input
               ref={fileRef}
               type="file"
@@ -96,53 +79,32 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
               className="hidden"
               onChange={handleLogoUpload}
             />
-            <Button
-              type="button"
-              intent="secondary"
-              size="sm"
+            <button
               onClick={() => fileRef.current?.click()}
               disabled={logoUploading}
+              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"
             >
-              <UploadSimple weight="regular" className="w-3.5 h-3.5" />
-              {logoUploading ? 'Uploading…' : logoUrl ? 'Replace logo' : 'Upload logo'}
-            </Button>
-            {logoUrl && (
-              <button
-                onClick={removeLogo}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-danger-500 hover:text-danger-700 hover:bg-danger-50 rounded-xl transition-all"
-              >
-                <X weight="regular" className="w-3.5 h-3.5" />
-                Remove
-              </button>
-            )}
-            <p className="text-xs text-text-secondary leading-relaxed">
-              PNG, JPG or SVG · max 2 MB<br/>
-              Recommended: 400×400px, transparent background
-            </p>
-            {logoError && (
-              <p className="text-xs text-danger-500">{logoError}</p>
-            )}
+              {logoUploading ? 'Uploading…' : logoUrl ? 'Change logo' : 'Upload logo'}
+            </button>
+            <p className="text-xs text-slate-400 mt-1">PNG, JPG or SVG · max 2 MB</p>
+            {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
           </div>
         </div>
       </div>
 
-      {/* Contact details */}
-      <div className="px-7 py-6 space-y-4">
-        <Field label="Full name">
-          <Input value={pf.full_name} onChange={e => setPf(p => ({ ...p, full_name: e.target.value }))} />
-        </Field>
-        <Field label="Email" hint="Email cannot be changed here">
-          <Input value={email} readOnly disabled />
-        </Field>
-        <Field label="Phone">
-          <Input value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />
-        </Field>
-      </div>
-
-      {/* Save footer */}
-      <div className="px-7 py-4 bg-surface-sunken flex justify-end">
-        <SaveSettingsButton saving={saving} label="Save changes" onClick={() => save(pf)} />
-      </div>
+      <Field label="Full name">
+        <input className={inputClass} value={pf.full_name} onChange={e => setPf(p => ({ ...p, full_name: e.target.value }))} />
+      </Field>
+      <Field label="Email">
+        <input className={`${inputClass} bg-slate-50 text-slate-400`} value={email} readOnly />
+        <p className="text-xs text-slate-400 mt-1">Email cannot be changed here</p>
+      </Field>
+      <Field label="Phone">
+        <input className={inputClass} value={pf.phone} onChange={e => setPf(p => ({ ...p, phone: e.target.value }))} placeholder="07700 000000" />
+      </Field>
+      <button className={btnClass} disabled={saving} onClick={() => save(pf)}>
+        {saving ? 'Saving...' : 'Save profile'}
+      </button>
     </div>
   )
 }

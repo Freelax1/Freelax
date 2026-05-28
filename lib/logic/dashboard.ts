@@ -21,6 +21,17 @@ export function calcMonthlyChart(
   })
 }
 
+export function calcInvoiceStatusData(invoices: { status: string }[], overdueColor: string) {
+  const counts = { paid: 0, sent: 0, draft: 0, overdue: 0 }
+  invoices.forEach(i => { if (i.status in counts) counts[i.status as keyof typeof counts]++ })
+  return [
+    { name: 'Paid',    value: counts.paid,    color: '#111111' },
+    { name: 'Sent',    value: counts.sent,    color: '#888888' },
+    { name: 'Draft',   value: counts.draft,   color: '#CCCCCC' },
+    { name: 'Overdue', value: counts.overdue, color: overdueColor },
+  ].filter(d => d.value > 0)
+}
+
 export function calcExpenseCategoryData(expenses: { category: string; amount: number }[]) {
   const catMap: Record<string, number> = {}
   expenses.forEach(e => { catMap[e.category] = (catMap[e.category] ?? 0) + Number(e.amount) })

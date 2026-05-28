@@ -1,4 +1,4 @@
-﻿// app/api/plan/check/route.ts
+// app/api/plan/check/route.ts
 // Checks if the current user can perform an action based on their plan.
 // Called from the frontend before creating invoices, clients, expenses, or using AI.
 //
@@ -21,11 +21,13 @@ import {
   getUserPlan,
   getLimits,
 } from '@/lib/plan-limits'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 type Resource = 'invoice' | 'client' | 'expense' | 'ai' | 'email' | 'recurring'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -56,12 +58,17 @@ export async function POST(req: NextRequest) {
       result = { allowed: true }
   }
 
+  await trackServer(user.id, Events.PLAN_LIMIT_CHECKED, {
+    resource,
+    allowed: result.allowed,
+  })
+
   return NextResponse.json(result)
 }
 
 // GET — returns the user's full plan summary (current usage + limits)
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 

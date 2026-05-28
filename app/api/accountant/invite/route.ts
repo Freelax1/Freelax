@@ -1,8 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { escapeHtml } from '@/lib/escape-html'
-import { EMAIL_TEXT_MUTED, EMAIL_CTA_BG, EMAIL_CTA_TEXT } from '@/lib/email-colours'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function POST(req: NextRequest) {
   const resendKey = process.env.RESEND_API_KEY
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
   }
   const resend = new Resend(resendKey)
 
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -50,18 +51,19 @@ export async function POST(req: NextRequest) {
       subject: `${senderName} has invited you to view their Freelax account`,
       html:    `<p>Hi,</p>
                <p><strong>${escapeHtml(senderName)}</strong> has invited you to view their Freelax financial data as a read-only accountant.</p>
-               <p><a href="${escapeHtml(acceptUrl)}" style="background:${EMAIL_CTA_BG};color:${EMAIL_CTA_TEXT};padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
-               <p style="color:${EMAIL_TEXT_MUTED};font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
+               <p><a href="${escapeHtml(acceptUrl)}" style="background:#111;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin:16px 0">Accept invitation</a></p>
+               <p style="color:#888;font-size:12px">This link expires after first use. If you didn't expect this, you can ignore this email.</p>`,
     })
   } catch (e) {
     console.error('Email send failed:', e)
   }
 
+  await trackServer(user.id, Events.ACCOUNTANT_INVITE_SENT, { invite_id: invite.id })
   return NextResponse.json({ success: true, token: invite.token })
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -75,11 +77,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const { id } = await req.json()
   await supabase.from('accountant_invites').update({ revoked_at: new Date().toISOString() }).eq('id', id).eq('owner_id', user.id)
+  await trackServer(user.id, Events.ACCOUNTANT_INVITE_REVOKED, { invite_id: id })
   return NextResponse.json({ success: true })
 }

@@ -1,4 +1,4 @@
-﻿// app/api/auth/hmrc/route.ts
+// app/api/auth/hmrc/route.ts
 // GET  — initiates HMRC OAuth flow (redirects user to HMRC authorization page)
 // DELETE — disconnects HMRC account (deletes tokens from oauth_connections)
 
@@ -6,11 +6,13 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { HMRC_URLS, HMRC_SCOPES, getHmrcRedirectUri } from '@/lib/hmrc/client'
 import { createHash, randomBytes } from 'crypto'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 // ── GET — initiate OAuth ───────────────────────────────────────────────────────
 
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
@@ -43,6 +45,8 @@ export async function GET() {
 
   const authorizeUrl = `${HMRC_URLS.authorize}?${params.toString()}`
 
+  await trackServer(user.id, Events.HMRC_CONNECT_STARTED)
+
   // Store state + code_verifier in a short-lived HttpOnly cookie
   // These are verified and consumed in the callback route
   const cookieValue = JSON.stringify({ state, codeVerifier })
@@ -61,7 +65,7 @@ export async function GET() {
 // ── DELETE — disconnect HMRC account ──────────────────────────────────────────
 
 export async function DELETE() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
@@ -77,5 +81,6 @@ export async function DELETE() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  await trackServer(user.id, Events.HMRC_DISCONNECTED)
   return NextResponse.json({ success: true })
 }

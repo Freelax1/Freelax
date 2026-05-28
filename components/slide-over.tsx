@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { X } from '@phosphor-icons/react'
+import { X } from 'lucide-react'
 
 interface SlideOverProps {
   open: boolean
@@ -18,7 +18,7 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
 
   useEffect(() => {
     function measure() {
-      setAvailableHeight(window.innerHeight)
+      setAvailableHeight(window.innerHeight - 48)
       setIsMobile(window.innerWidth < 640)
     }
     measure()
@@ -42,76 +42,114 @@ export default function SlideOver({ open, onClose, title, children, footer, widt
   const panelWidth = width === 'lg' ? 640 : 440
 
   return (
-    <div className="fixed inset-0 z-overlay">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)' }}
       />
 
       {isMobile ? (
         /* ── Mobile: bottom sheet ── */
-        <div className="fixed bottom-0 left-0 right-0 bg-white flex flex-col shadow-sheet-bottom max-h-[92dvh] rounded-t-[16px]">
+        <div style={{
+          position: 'fixed',
+          bottom: 0, left: 0, right: 0,
+          maxHeight: '92dvh',
+          background: '#fff',
+          borderRadius: '16px 16px 0 0',
+          boxShadow: '0 -4px 32px rgba(0,0,0,0.15)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
           {/* Drag handle */}
-          <div className="flex justify-center pt-2.5 pb-0.5 shrink-0">
-            <div className="w-9 h-1 rounded-full bg-border-default" />
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 2, flexShrink: 0 }}>
+            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 99 }} />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-2.5 pb-3.5 shrink-0 border-b border-b-border-subtle">
-            <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 20px 14px',
+            borderBottom: '1px solid #E8E8E8',
+            flexShrink: 0,
+          }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: 0 }}>{title}</h2>
             <button
               onClick={onClose}
-              aria-label="Close"
-              className="p-1.5 rounded-lg border-none cursor-pointer flex items-center justify-center bg-surface-sunken text-text-secondary"
+              style={{
+                padding: 6, borderRadius: 8, border: 'none',
+                background: '#F1F5F9', cursor: 'pointer', color: '#64748B',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
             >
-              <X weight="regular" size={18} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto p-5 min-h-0">
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', minHeight: 0 }}>
             {children}
           </div>
 
           {/* Footer */}
           {footer && (
-            <div className="shrink-0 bg-surface-card border-t border-t-border-subtle" style={{ padding: `12px 20px max(env(safe-area-inset-bottom), 16px)` }}>
+            <div style={{
+              flexShrink: 0,
+              padding: `12px 20px max(env(safe-area-inset-bottom), 16px)`,
+              borderTop: '1px solid #F1F5F9',
+              background: '#fff',
+            }}>
               {footer}
             </div>
           )}
         </div>
       ) : (
         /* ── Desktop: right-side panel ── */
-        <div
-          className="fixed top-0 right-0 bg-surface-card flex flex-col"
-          style={{
-            height: availableHeight,
-            width: panelWidth,
-            borderRadius: '16px 0 0 16px',
-            boxShadow: '-8px 0 32px rgba(0,0,0,0.14), -1px 0 0 rgba(0,0,0,0.06)',
-          }}
-        >
+        <div style={{
+          position: 'fixed',
+          top: 48, right: 0,
+          height: availableHeight,
+          width: panelWidth,
+          background: '#fff',
+          boxShadow: '-4px 0 24px rgba(0,0,0,0.12)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 shrink-0 border-b border-b-border-subtle">
-            <h2 className="text-base font-semibold m-0 text-text-primary">{title}</h2>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '16px 24px',
+            borderBottom: '1px solid #E8E8E8',
+            flexShrink: 0,
+          }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: 0 }}>{title}</h2>
             <button
               onClick={onClose}
-              aria-label="Close"
-              className="p-1.5 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center text-text-secondary hover:bg-surface-sunken transition-colors"
+              style={{
+                padding: 6, borderRadius: 8, border: 'none', background: 'none',
+                cursor: 'pointer', color: '#64748B',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#F1F5F9')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
             >
-              <X weight="regular" size={16} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', minHeight: 0 }}>
             {children}
           </div>
 
           {/* Footer */}
           {footer && (
-            <div className="shrink-0 px-6 pt-3 pb-5 bg-surface-card border-t border-t-border-subtle">
+            <div style={{
+              flexShrink: 0,
+              padding: '12px 24px 16px',
+              borderTop: '1px solid #F1F5F9',
+              background: '#fff',
+            }}>
               {footer}
             </div>
           )}

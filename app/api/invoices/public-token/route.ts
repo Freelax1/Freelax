@@ -1,9 +1,11 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { randomBytes } from 'crypto'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -18,6 +20,7 @@ export async function POST(req: NextRequest) {
   const token = invoice.public_token ?? randomBytes(20).toString('hex')
   if (!invoice.public_token) {
     await supabase.from('invoices').update({ public_token: token }).eq('id', invoiceId)
+    await trackServer(user.id, Events.INVOICE_PUBLIC_LINK_CREATED, { invoice_id: invoiceId })
   }
 
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/inv/${token}`

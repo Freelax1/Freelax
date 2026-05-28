@@ -1,12 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanKey } from '@/lib/stripe'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -33,6 +35,7 @@ export async function POST(req: NextRequest) {
       metadata: { user_id: user.id, plan },
     })
 
+    await trackServer(user.id, Events.STRIPE_CHECKOUT_STARTED, { plan, billing })
     return NextResponse.json({ url: session.url })
   } catch (e) {
     console.error('Stripe checkout error:', e)

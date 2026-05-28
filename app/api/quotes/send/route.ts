@@ -1,4 +1,4 @@
-﻿// app/api/quotes/send/route.ts — v2.0
+// app/api/quotes/send/route.ts — v2.0
 // Sends a quote email using the user's saved template + client portal link
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -8,10 +8,6 @@ import { canSendByEmail } from '@/lib/plan-limits'
 import { generateQuotePdfBuffer } from '@/lib/pdf/generate-invoice-pdf'
 import { logQuoteActivity } from '@/lib/api/quote-activity'
 import { escapeHtml } from '@/lib/escape-html'
-import {
-  EMAIL_TEXT_PRIMARY, EMAIL_TEXT_SECONDARY, EMAIL_TEXT_MUTED, EMAIL_TEXT_BODY,
-  EMAIL_BORDER_DEFAULT, EMAIL_CTA_BG, EMAIL_CTA_TEXT,
-} from '@/lib/email-colours'
 
 // Plain-text substitution — used for the email subject line.
 function applyTemplate(template: string, vars: Record<string, string>): string {
@@ -30,7 +26,7 @@ function applyTemplateHtml(template: string, vars: Record<string, string>): stri
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -98,24 +94,24 @@ export async function POST(req: NextRequest) {
       const expiryFmt = new Date(quote.expiry_date).toLocaleDateString('en-GB')
       const summaryTable = `
         <table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;">
-          <tr><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};color:${EMAIL_TEXT_SECONDARY};width:40%;">Quote number</td><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};font-weight:600;">${escapeHtml(quote.quote_number)}</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};color:${EMAIL_TEXT_SECONDARY};">Amount</td><td style="padding:8px 0;border-bottom:1px solid ${EMAIL_BORDER_DEFAULT};font-weight:600;">${escapeHtml(formatCurrency(quote.total))}</td></tr>
-          <tr><td style="padding:8px 0;color:${EMAIL_TEXT_SECONDARY};">Valid until</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(expiryDate)}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;width:40%;">Quote number</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(quote.quote_number)}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#64748b;">Amount</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;">${escapeHtml(formatCurrency(quote.total))}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Valid until</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(expiryDate)}</td></tr>
         </table>`
 
       const html = `
-        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:${EMAIL_TEXT_PRIMARY};">
+        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1e293b;">
           ${sender?.logo_url ? `<img src="${escapeHtml(sender.logo_url)}" alt="${escapeHtml(businessName)}" style="height:40px;object-fit:contain;margin-bottom:20px;display:block;" />` : ''}
           <h2 style="font-size:20px;font-weight:700;margin-bottom:4px;">Quote ${escapeHtml(quote.quote_number)}</h2>
-          <p style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;margin-bottom:20px;">${escapeHtml(businessName)}</p>
-          <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:${EMAIL_TEXT_BODY};margin-bottom:8px;">${bodyText.replace(/\n/g, '<br/>')}</div>
+          <p style="color:#64748b;font-size:13px;margin-bottom:20px;">${escapeHtml(businessName)}</p>
+          <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:#334155;margin-bottom:8px;">${bodyText.replace(/\n/g, '<br/>')}</div>
           ${summaryTable}
           <div style="margin:28px 0;">
-            <a href="${escapeHtml(portalLink)}" style="display:inline-block;background:${EMAIL_CTA_BG};color:${EMAIL_CTA_TEXT};text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">
+            <a href="${escapeHtml(portalLink)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">
               View full quote →
             </a>
           </div>
-          <p style="font-size:12px;color:${EMAIL_TEXT_MUTED};margin-top:32px;border-top:1px solid ${EMAIL_BORDER_DEFAULT};padding-top:16px;">
+          <p style="font-size:12px;color:#94a3b8;margin-top:32px;border-top:1px solid #e2e8f0;padding-top:16px;">
             ${escapeHtml(businessName)}${sender?.email ? ` · ${escapeHtml(sender.email)}` : ''}
           </p>
         </div>`
@@ -127,7 +123,7 @@ export async function POST(req: NextRequest) {
       ).catch(() => null)
 
       await resend.emails.send({
-        from:    'Freelax <noreply@freelax.co.uk>',
+        from:    'Freelax <onboarding@resend.dev>',
         reply_to: sender?.email || undefined,
         to:      client.email,
         subject,

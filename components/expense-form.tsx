@@ -5,10 +5,10 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, Toggle, SaveButton } from '@/components/form-fields'
-import Button from '@/components/ui/button'
-import Alert from '@/components/ui/alert'
-import { Scan, UploadSimple, CircleNotch, Camera } from '@phosphor-icons/react'
+import { ScanLine, Upload, Loader2, Camera } from 'lucide-react'
 import type { Expense } from '@/types/database'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 const CATEGORIES = [
   { value: 'office_supplies', label: 'Office & Supplies' },
@@ -154,25 +154,30 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
 
     setSaving(false)
     if (error) { setErrors({ _: error.message }); return }
+    track(user.id, isEdit ? Events.EXPENSE_UPDATED : Events.EXPENSE_CREATED, {
+      expense_id: isEdit ? expense!.id : undefined,
+      ai_scanned: scanConfidence !== null,
+    })
     onSuccess?.()
     router.refresh()
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <Alert intent="danger">{errors._}</Alert>}
+      {errors._ && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errors._}</p>}
 
       {/* Scan receipt button */}
-      <Alert intent="info" title="Scan receipt with AI" className="p-4">
-        <p className="text-xs text-forest-600 mb-3 -mt-1">Upload a receipt image and AI will auto-fill the fields below.</p>
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-sm font-medium text-blue-800 mb-2">Scan receipt with AI</p>
+        <p className="text-xs text-blue-600 mb-3">Upload a receipt image and AI will auto-fill the fields below.</p>
 
         <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} {...(isMobile ? { capture: "environment" as const } : {})} />
 
         {receiptPreview && receiptFile && (
           <div className="mb-3">
-            <img src={receiptPreview} alt="Receipt preview" className="max-h-32 rounded-xl border border-forest-200 object-contain" />
+            <img src={receiptPreview} alt="Receipt preview" className="max-h-32 rounded-lg border border-blue-200 object-contain" />
             {scanConfidence && (
-              <p className="text-xs mt-1 text-forest-600">
+              <p className="text-xs mt-1 text-blue-600">
                 Scan confidence: <span className="font-medium capitalize">{scanConfidence}</span>
               </p>
             )}
@@ -180,18 +185,27 @@ export default function ExpenseForm({ expense, vatRegistered, onSuccess }: Expen
         )}
 
         <div className="flex gap-2">
-          <Button type="button" intent="secondary" size="xs" onClick={() => fileRef.current?.click()}>
-            {isMobile ? <Camera weight="regular" className="w-3.5 h-3.5" /> : <UploadSimple weight="regular" className="w-3.5 h-3.5" />}
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-300 bg-white text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-50"
+          >
+            {isMobile ? <Camera className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
             {receiptFile ? 'Change image' : isMobile ? 'Take photo' : 'Upload receipt'}
-          </Button>
+          </button>
           {receiptFile && (
-            <Button type="button" intent="primary" size="xs" onClick={handleScanReceipt} disabled={scanning}>
-              {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
+            <button
+              type="button"
+              onClick={handleScanReceipt}
+              disabled={scanning}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ScanLine className="w-3.5 h-3.5" />}
               {scanning ? 'Reading receipt...' : 'Scan with AI'}
-            </Button>
+            </button>
           )}
         </div>
-      </Alert>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Date" required error={errors.date}>

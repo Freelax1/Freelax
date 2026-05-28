@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
+import { ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 interface TocItem { id: string; label: string }
@@ -17,9 +17,12 @@ interface Props {
 export default async function LegalLayout({
   title, eyebrow, subtitle, updated, toc, hero, children,
 }: Props) {
+  // Auth-aware CTA — signed-in users see "Dashboard", signed-out see "Sign in".
+  // Use getSession() (local cookie read) not getUser() (network call + cookie refresh)
+  // so we don't trigger a cookie write from a Server Component.
   let signedIn = false
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { session } } = await supabase.auth.getSession()
     signedIn = !!session?.user
   } catch {
@@ -27,74 +30,93 @@ export default async function LegalLayout({
   }
   const ctaHref  = signedIn ? '/dashboard' : '/auth/login'
   const ctaLabel = signedIn ? 'Dashboard'  : 'Sign in'
-
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--surface-paper)', color: 'var(--text-primary)' }}>
-
+    <div style={{
+      minHeight: '100vh',
+      background: '#FAFAF7',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      color: '#0F172A',
+    }}>
       {/* Top header */}
-      <header className="sticky top-0 z-sticky border-b border-border-subtle" style={{
-        background: 'rgba(255,255,255,0.88)',
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 40,
+        background: 'rgba(250,250,247,0.88)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}>
-        <div className="flex items-center justify-between gap-4 py-3.5 px-6" style={{
+        <div style={{
           maxWidth: 1200, margin: '0 auto',
+          padding: '14px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: 16,
         }}>
           <Link href="/" style={{
-            fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)',
-            textDecoration: 'none', letterSpacing: '-0.03em', fontFamily: 'var(--font-serif)',
+            fontSize: 20, fontWeight: 800, color: '#0F172A',
+            textDecoration: 'none', letterSpacing: '-0.03em',
           }}>
-            Freelax<span style={{ color: 'var(--brand-primary)' }}>.</span>
+            Freelax<span style={{ color: '#1D6B35' }}>.</span>
           </Link>
 
-          <nav className="flex items-center gap-6">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <Link href="/security" className="fd-legal-link" style={{
-              fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
+              fontSize: 13.5, color: '#475569', textDecoration: 'none', fontWeight: 500,
             }}>Security</Link>
             <Link href="/privacy" className="fd-legal-link" style={{
-              fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
+              fontSize: 13.5, color: '#475569', textDecoration: 'none', fontWeight: 500,
             }}>Privacy</Link>
             <Link href="/terms" className="fd-legal-link" style={{
-              fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500,
+              fontSize: 13.5, color: '#475569', textDecoration: 'none', fontWeight: 500,
             }}>Terms</Link>
-            <Link href={ctaHref} className="inline-flex items-center gap-1.5 py-2 px-3.5 rounded" style={{
-              fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-on-dark)',
-              background: 'var(--brand-primary)',
+            <Link href={ctaHref} style={{
+              fontSize: 13, fontWeight: 600, color: '#fff',
+              background: '#0F172A', padding: '8px 14px', borderRadius: 8,
               textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 5,
             }}>
-              {ctaLabel} <ArrowRight weight="regular" className="w-3 h-3" />
+              {ctaLabel} <ArrowRight style={{ width: 12, height: 12 }} />
             </Link>
           </nav>
         </div>
       </header>
 
-      {/* Page container */}
-      <main className="mx-auto pt-14 px-6 pb-24" style={{ maxWidth: 1200 }}>
-
+      {/* Page container — grid with sticky TOC */}
+      <div style={{
+        maxWidth: 1200, margin: '0 auto',
+        padding: '56px 24px 96px',
+      }}>
         {/* Title block */}
         <div style={{ marginBottom: hero ? 40 : 56, maxWidth: 780 }}>
           {eyebrow && (
-            <p className="mb-3" style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--brand-primary)' }}>
+            <p style={{
+              fontSize: 11, fontWeight: 600, color: '#1D6B35',
+              textTransform: 'uppercase', letterSpacing: '0.14em',
+              margin: '0 0 12px',
+            }}>
               {eyebrow}
             </p>
           )}
-          <h1 className="m-0" style={{
+          <h1 style={{
             fontSize: 'clamp(32px, 5vw, 44px)',
-            fontWeight: 600, color: 'var(--text-primary)',
-            letterSpacing: '-0.03em', lineHeight: 1.1,
-            fontFamily: 'var(--font-serif)',
+            fontWeight: 800, color: '#0F172A',
+            letterSpacing: '-0.025em', lineHeight: 1.1,
+            margin: 0,
           }}>
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-4 mb-0" style={{
-              fontSize: 'var(--text-lg)', color: 'var(--text-secondary)',
-              lineHeight: 1.55, maxWidth: 640,
+            <p style={{
+              fontSize: 17, color: '#475569',
+              lineHeight: 1.55, marginTop: 16, marginBottom: 0,
+              maxWidth: 640,
             }}>
               {subtitle}
             </p>
           )}
-          <p className="mt-4 mb-0" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+          <p style={{
+            fontSize: 13, color: '#94A3B8',
+            marginTop: 16, marginBottom: 0, letterSpacing: '0.01em',
+          }}>
             Last updated {updated}
           </p>
         </div>
@@ -102,29 +124,43 @@ export default async function LegalLayout({
         {hero}
 
         {/* Content + sticky TOC */}
-        <div className="fd-legal-grid gap-12" style={{
+        <div className="fd-legal-grid" style={{
           display: 'grid',
           gridTemplateColumns: toc ? '240px 1fr' : '1fr',
+          gap: 48,
           alignItems: 'start',
           marginTop: hero ? 56 : 0,
         }}>
           {toc && (
-            <aside className="fd-legal-toc sticky top-20">
-              <p className="mb-3" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>
+            <aside className="fd-legal-toc" style={{
+              position: 'sticky',
+              top: 80,
+              fontSize: 13,
+            }}>
+              <p style={{
+                fontSize: 10, fontWeight: 700, color: '#94A3B8',
+                textTransform: 'uppercase', letterSpacing: '0.12em',
+                margin: '0 0 12px',
+              }}>
                 On this page
               </p>
-              <ul className="list-none p-0 m-0 flex flex-col gap-0.5" style={{
-                borderLeft: '1px solid var(--border-subtle)',
+              <ul style={{
+                listStyle: 'none', padding: 0, margin: 0,
+                display: 'flex', flexDirection: 'column', gap: 2,
+                borderLeft: '1px solid rgba(0,0,0,0.08)',
               }}>
                 {toc.map(t => (
                   <li key={t.id}>
                     <a
                       href={`#${t.id}`}
-                      className="block py-1.5 px-3.5 -ml-px leading-body transition-colors duration-fast"
                       style={{
-                        fontSize: 'var(--text-sm)', color: 'var(--text-secondary)',
-                        textDecoration: 'none',
+                        display: 'block',
+                        fontSize: 13, color: '#475569',
+                        textDecoration: 'none', lineHeight: 1.5,
+                        padding: '6px 14px',
+                        marginLeft: -1,
                         borderLeft: '2px solid transparent',
+                        transition: 'color 120ms, border-color 120ms',
                       }}
                     >
                       {t.label}
@@ -134,33 +170,41 @@ export default async function LegalLayout({
               </ul>
             </aside>
           )}
-          <div style={{ maxWidth: 720, minWidth: 0 }}>
-            {children}
-          </div>
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="mx-auto px-6 pb-24" style={{ maxWidth: 1200 }}>
-        <div className="mt-20 pt-7 border-t border-border-subtle flex flex-wrap items-center justify-between gap-4">
-          <p className="m-0" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+          <main style={{ maxWidth: 720, minWidth: 0 }}>
+            {children}
+          </main>
+        </div>
+
+        {/* Footer row */}
+        <div style={{
+          marginTop: 80, paddingTop: 28,
+          borderTop: '1px solid rgba(0,0,0,0.06)',
+          display: 'flex', flexWrap: 'wrap',
+          alignItems: 'center', justifyContent: 'space-between',
+          gap: 16,
+        }}>
+          <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
             Built in the UK · Your data is encrypted and never sold.
           </p>
-          <div className="flex gap-5 flex-wrap">
-            <Link href="/security" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Security</Link>
-            <Link href="/privacy"  style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy</Link>
-            <Link href="/terms"    style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Terms</Link>
-            <a href="mailto:support@freelax.co.uk" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textDecoration: 'none' }}>Contact</a>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            <Link href="/security" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Security</Link>
+            <Link href="/privacy" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Privacy</Link>
+            <Link href="/terms" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Terms</Link>
+            <a href="mailto:support@freelax.co.uk" style={{ fontSize: 13, color: '#64748B', textDecoration: 'none' }}>Contact</a>
           </div>
         </div>
-      </footer>
+      </div>
 
+      {/* Inline styles for hover/mobile */}
       <style>{`
-        .fd-legal-link:hover { color: var(--text-primary) !important; }
-        .fd-legal-toc a:hover { color: var(--text-primary) !important; border-left-color: var(--brand-primary) !important; }
+        .fd-legal-link:hover { color: #0F172A !important; }
+        .fd-legal-toc a:hover { color: #0F172A !important; border-left-color: #1D6B35 !important; }
 
         @media (max-width: 900px) {
-          .fd-legal-grid { grid-template-columns: 1fr !important; }
+          .fd-legal-grid {
+            grid-template-columns: 1fr !important;
+          }
           .fd-legal-toc { display: none; }
         }
 

@@ -1,12 +1,14 @@
-﻿// app/api/quotes/update-expired/route.ts
+// app/api/quotes/update-expired/route.ts
 // Marks sent quotes as expired when past their expiry date
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logQuoteActivity } from '@/lib/api/quote-activity'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function POST() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -28,6 +30,7 @@ export async function POST() {
         quoteNumber: q.quote_number,
       }))
     )
+    await trackServer(user.id, Events.QUOTES_MARKED_EXPIRED, { count: data.length })
   }
 
   return NextResponse.json({ updated: data?.length ?? 0, quotes: data })

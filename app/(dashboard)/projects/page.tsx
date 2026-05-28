@@ -1,35 +1,84 @@
 'use client'
 export const dynamic = 'force-dynamic'
 
-import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { fetchProjects, deleteProject, updateProject, type ProjectListRow } from '@/lib/api/projects'
+import { fetchProjects, deleteProject, updateProject } from '@/lib/api/projects'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar, FilterChip } from '@/components/ui'
-import Button from '@/components/ui/button'
+import PageHeader from '@/components/page-header'
 import Badge from '@/components/badge'
 import EmptyState from '@/components/empty-state'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, CheckSquare, Square } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
-import ConfirmDeleteModal from '@/components/confirm-delete-modal'
-import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import { MoreVertical, Eye, Pencil, Trash2, CheckSquare, Square } from 'lucide-react'
 import type { Project } from '@/types/database'
-import SlideOver from '@/components/slide-over'
-import ProjectForm from '@/components/project-form'
 
-const PROJECT_STATUS_LABELS: Record<string, string> = {
-  active: 'Active', completed: 'Completed', on_hold: 'On Hold', cancelled: 'Cancelled',
+// ── Delete modal ──────────────────────────────────────────────────────
+function DeleteModal({ title, count, onConfirm, onCancel, loading }: {
+  title: string; count?: number; onConfirm: () => void; onCancel: () => void; loading: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+            <Trash2 className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <h2 className="font-bold text-slate-900">{count && count > 1 ? `Delete ${count} projects?` : 'Delete project?'}</h2>
+            <p className="text-sm text-slate-500 mt-0.5">{count && count > 1 ? `${count} projects` : title} will be permanently removed.</p>
+          </div>
+        </div>
+        <p className="text-sm text-slate-500 mt-3 mb-5">This action cannot be undone.</p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+            {loading ? 'Deleting...' : 'Yes, delete'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Status modal ──────────────────────────────────────────────────────
+function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
+  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
+}) {
+  const cfg: Record<string, { label: string; color: string }> = {
+    active:    { label: 'Active',    color: '#1D6B35' },
+    completed: { label: 'Completed', color: '#1A5E8A' },
+    on_hold:   { label: 'On Hold',   color: '#9A7B0A' },
+    cancelled: { label: 'Cancelled', color: '#C0392B' },
+  }
+  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-bold text-slate-900 mb-1">
+          Change status to <span style={{ color }}>{label}</span>?
+        </h2>
+        <p className="text-sm text-slate-500 mb-5">
+          {count} project{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onConfirm} disabled={loading}
+            style={{ flex: 1, padding: '10px 16px', background: color, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Updating...' : `Mark as ${label}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
-function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
-  project: ProjectListRow
-  onDelete: (p: ProjectListRow) => void
-  onStatusChange: (p: ProjectListRow, status: string) => void
-  onEdit: (p: ProjectListRow) => void
+function KebabMenu({ project, onDelete, onStatusChange }: {
+  project: Project
+  onDelete: (p: Project) => void
+  onStatusChange: (p: Project, status: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -41,84 +90,124 @@ function KebabMenu({ project, onDelete, onStatusChange, onEdit }: {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const allStatuses = ['active', 'completed', 'on_hold', 'cancelled']
-  const otherStatuses = allStatuses.filter(s => s !== project.status)
+  const allStatuses = [
+    { key: 'active',    label: 'Active',    dot: '#1D6B35' },
+    { key: 'completed', label: 'Completed', dot: '#1A5E8A' },
+    { key: 'on_hold',   label: 'On Hold',   dot: '#9A7B0A' },
+    { key: 'cancelled', label: 'Cancelled', dot: '#C0392B' },
+  ]
+  const otherStatuses = allStatuses.filter(s => s.key !== project.status)
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Project actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        <MoreVertical className="w-4 h-4" />
+      </button>
       {open && (
-        <DropdownPanel>
+        <div style={{
+          position: 'absolute', right: 0, top: 'calc(100% + 4px)',
+          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 50,
+          minWidth: 160, overflow: 'hidden',
+        }}>
           <Link href={`/projects/${project.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
           </Link>
-          <button onClick={() => { setOpen(false); onEdit(project) }}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-            <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
-          </button>
+          <Link href={`/projects/${project.id}/edit`} onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+            <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
+          </Link>
           {/* Status options */}
-          <div className="border-t border-border-subtle py-1.5">
-            <p className="text-micro font-semibold text-text-secondary px-4 pt-1 pb-1.5">Change status</p>
+          <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 16px 6px' }}>Change status</p>
             {otherStatuses.map(s => (
-              <button key={s} onClick={() => { setOpen(false); onStatusChange(project, s) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tonePalette(s).dot }} />
-                {s === 'on_hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+              <button key={s.key} onClick={() => { setOpen(false); onStatusChange(project, s.key) }}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
+                {s.label}
               </button>
             ))}
           </div>
-          <div className="border-t border-border-subtle">
+          <div style={{ borderTop: '1px solid #F1F5F9' }}>
             <button onClick={() => { setOpen(false); onDelete(project) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+              <Trash2 className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
+        </div>
       )}
     </div>
   )
 }
 
 // ── Bulk bar ──────────────────────────────────────────────────────────
-function BulkBar({ count, onDelete, onStatusChange, onClear }: {
-  count: number; onDelete: () => void; onStatusChange: (s: string) => void; onClear: () => void
+function BulkBar({ count, onDelete, onStatusChange }: {
+  count: number; onDelete: () => void; onStatusChange: (s: string) => void
 }) {
   return (
-    <ListBulkBar count={count} onClear={onClear}>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      background: '#0F172A', borderRadius: 10, padding: '10px 16px', marginBottom: 12,
+    }}>
+      <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', marginRight: 4 }}>{count} selected</span>
+      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
       {['active', 'completed', 'on_hold'].map(s => (
-        <Button key={s} type="button" intent="secondary" size="xs" onClick={() => onStatusChange(s)} className="capitalize">
+        <button key={s} onClick={() => onStatusChange(s)} style={{
+          fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
+          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+          color: '#fff', cursor: 'pointer', transition: 'background 0.1s',
+          textTransform: 'capitalize',
+        }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+        >
           Mark as {s.replace('_', ' ')}
-        </Button>
+        </button>
       ))}
-      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete}>
-        <Trash weight="regular" className="w-3 h-3" /> Delete
-      </Button>
-    </ListBulkBar>
+      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
+      <button onClick={onDelete} style={{
+        fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
+        background: 'rgba(192,57,43,0.25)', border: '1px solid rgba(192,57,43,0.4)',
+        color: '#FF8A80', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+      }}
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.4)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.25)')}
+      >
+        <Trash2 style={{ width: 12, height: 12 }} /> Delete
+      </button>
+    </div>
+  )
+}
+
+// ── Stat card ─────────────────────────────────────────────────────────
+function StatCard({ label, count, value, color, bg, border }: {
+  label: string; count: number; value?: string; color: string; bg: string; border: string
+}) {
+  return (
+    <div style={{ flex: 1, background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: '16px 20px' }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</p>
+      <p style={{ fontSize: 28, fontWeight: 700, color, letterSpacing: '-0.02em', lineHeight: 1 }}>{count}</p>
+      {value && <p style={{ fontSize: 12, color, opacity: 0.7, marginTop: 4 }}>{value}</p>}
+    </div>
   )
 }
 
 export default function ProjectsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [projects, setProjects]           = useState<ProjectListRow[]>([])
+  const [projects, setProjects]           = useState<any[]>([])
   const [loading, setLoading]             = useState(true)
   const [query, setQuery]                 = useState('')
   const [ir35Filter, setIr35Filter]       = useState<string>('all')
   const [statusFilter, setStatusFilter]     = useState<string>('all')
   const [selected, setSelected]           = useState<Set<string>>(new Set())
-  const [deleteTarget, setDeleteTarget]   = useState<ProjectListRow | null>(null)
+  const [deleteTarget, setDeleteTarget]   = useState<any | null>(null)
   const [deleting, setDeleting]           = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [bulkStatusTarget, setBulkStatusTarget] = useState<string | null>(null)
   const [bulkUpdating, setBulkUpdating]   = useState(false)
-  const [slideOpen, setSlideOpen]         = useState(false)
-  const [editProject, setEditProject]     = useState<Partial<ProjectListRow> | undefined>()
 
   useEffect(() => {
     const f = searchParams.get('filter')
@@ -144,7 +233,7 @@ export default function ProjectsPage() {
     } catch { setBulkUpdating(false) }
   }
 
-  async function handleStatusChange(project: ProjectListRow, newStatus: string) {
+  async function handleStatusChange(project: Project, newStatus: string) {
     await updateProject(project.id, { status: newStatus })
     load()
   }
@@ -163,7 +252,7 @@ export default function ProjectsPage() {
   }
   function toggleAll() {
     if (selected.size === searched.length) setSelected(new Set())
-    else setSelected(new Set(searched.map((p: ProjectListRow) => p.id)))
+    else setSelected(new Set(searched.map((p: Project) => p.id)))
   }
 
   const filtered = projects
@@ -181,127 +270,132 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader className="fd-page-enter"
         title="Projects"
         subtitle={loading ? '' : `${projects.length} project${projects.length !== 1 ? 's' : ''}`}
-        action={
-          <Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>
-            Add project
-          </Button>
-        }
+        action={<button onClick={() => router.push('/projects/new')} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Add project</button>}
       />
 
+      {/* Stat cards */}
       {!loading && projects.length > 0 && (
-        <>
-          <ListStatusTabs
-            allCount={projects.length}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            tabs={[
-              { id: 'active', label: 'Active', count: active.length },
-              { id: 'completed', label: 'Completed', count: completed.length },
-              { id: 'on_hold', label: 'On hold', count: onHold.length },
-            ]}
-          />
-          <ListMetrics
-            items={[
-              { label: 'Total projects', value: String(projects.length) },
-              { label: 'Combined rate value', value: totalValue > 0 ? formatCurrency(totalValue) : '—' },
-            ]}
-          />
-        </>
+        <div className="fd-stat-grid" style={{ marginBottom: 24 }}>
+          {[
+            { key: 'active',    label: 'Active',    count: active.length,    value: active.length > 0 ? `${formatCurrency(active.reduce((s, p) => s + (p.rate_amount ? Number(p.rate_amount) : 0), 0))} total rate` : undefined, color: '#1D6B35', bg: '#F0FDF4', activeBg: '#1D6B35', border: 'rgba(29,107,53,0.15)' },
+            { key: 'completed', label: 'Completed', count: completed.length, value: undefined, color: '#1A5E8A', bg: '#EBF4FD', activeBg: '#1A5E8A', border: 'rgba(26,94,138,0.15)' },
+            { key: 'on_hold',   label: 'On hold',   count: onHold.length,    value: undefined, color: '#9A7B0A', bg: '#FEFCE8', activeBg: '#9A7B0A', border: 'rgba(154,123,10,0.15)' },
+          ].map(({ key, label, count, value, color, bg, activeBg, border }) => {
+            const isActive = statusFilter === key
+            return (
+              <button key={key}
+                onClick={() => setStatusFilter(isActive ? 'all' : key)}
+                style={{
+                  flex: 1, background: isActive ? '#111' : bg,
+                  border: `1px solid ${isActive ? '#111' : border}`,
+                  borderRadius: 12, padding: '16px 20px',
+                  textAlign: 'left' as const, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                }}>
+                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : color, marginBottom: 6 }}>{label}</p>
+                <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : color, letterSpacing: '-0.02em', marginBottom: 2 }}>{count}</p>
+                {value && <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.6)' : color, opacity: isActive ? 1 : 0.8 }}>{value}</p>}
+              </button>
+            )
+          })}
+          {/* Total rate value — non-clickable */}
+          <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 12, padding: '16px 20px' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999', marginBottom: 6 }}>Total rate value</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>{projects.length}</p>
+            {totalValue > 0 && <p style={{ fontSize: 11, fontWeight: 500, color: '#666', opacity: 0.8 }}>{formatCurrency(totalValue)}</p>}
+          </div>
+        </div>
       )}
 
-      <div className="flex gap-1.5 mb-4 flex-wrap">
+      {/* IR35 filters */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' as const }}>
         {[
           { key: 'all', label: 'All projects' },
           { key: 'outside_ir35', label: 'Outside IR35' },
           { key: 'inside_ir35', label: 'Inside IR35' },
           { key: 'needs_review', label: 'Needs review' },
         ].map(({ key, label }) => (
-          <FilterChip key={key} active={ir35Filter === key} onClick={() => setIr35Filter(key)}>
-            {label}
-          </FilterChip>
+          <button key={key} onClick={() => setIr35Filter(key)} style={{
+            padding: '5px 12px', borderRadius: 20, fontSize: 12, cursor: 'pointer',
+            border: `1px solid ${ir35Filter === key ? '#111' : '#E0E0E0'}`,
+            background: ir35Filter === key ? '#111' : '#fff',
+            color: ir35Filter === key ? '#fff' : '#666',
+            fontWeight: ir35Filter === key ? 600 : 400, transition: 'all 0.12s',
+          }}>{label}</button>
         ))}
       </div>
 
-      <div className="mb-4 max-w-md">
-        <ListSearch value={query} onChange={setQuery} placeholder="Search projects..." />
+      {/* Search */}
+      <div style={{ position: 'relative', marginBottom: 16, maxWidth: 360 }}>
+        <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
+        </svg>
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search projects..."
+          style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
+          onKeyDown={e => e.key === 'Escape' && setQuery('')}
+        />
+        {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
       </div>
 
+      {/* Bulk bar */}
       {selected.size > 0 && (
-        <BulkBar
-          count={selected.size}
-          onDelete={() => setBulkDeleteOpen(true)}
-          onStatusChange={s => setBulkStatusTarget(s)}
-          onClear={() => setSelected(new Set())}
-        />
+        <BulkBar count={selected.size} onDelete={() => setBulkDeleteOpen(true)} onStatusChange={s => setBulkStatusTarget(s)} />
       )}
 
       {/* Table */}
-      <div>
+      <div className="fd-page-enter">
         {!loading && !projects.length ? (
-          <EmptyState icon="projects" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
-            action={<Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>Create your first project</Button>} />
+          <EmptyState icon="📁" title="No projects yet" description="Each project lets you track time, link expenses, and get an IR35 status on the contract. Start with your current piece of work."
+            action={<button onClick={() => router.push('/projects/new')} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Create your first project</button>} />
         ) : (
-          <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
-            <table className="w-full border-separate border-spacing-0">
-              <colgroup>
-                <col className="w-10" />
-                <col />
-                <col className="w-36" />
-                <col className="w-32" />
-                <col className="w-28" />
-                <col className="w-36" />
-                <col className="w-36" />
-                <col className="w-10" />
-              </colgroup>
-              <thead>
+          <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-visible">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl" aria-label="Select">
-                    <button onClick={toggleAll} aria-label={allSelected ? 'Deselect all' : 'Select all'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                      {allSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
+                  <th className="px-4 py-3 w-10">
+                    <button onClick={toggleAll} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                      {allSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                     </button>
                   </th>
-                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Title</th>
-                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Client</th>
-                  <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Rate</th>
-                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">End date</th>
-                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
-                  <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">IR35</th>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
+                  {['Title', 'Client', 'Rate', 'End date', 'Status', 'IR35', ''].map((h, i) => (
+                    <th key={i} className={`px-4 py-3 font-medium text-slate-600 ${h === '' ? 'w-10' : 'text-left'}`}>{h}</th>
+                  ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {loading ? Array.from({ length: 3 }).map((_, i) => (
                   <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
-                    <td key={j} className="px-4 py-2.5"><div className="h-4 fd-skeleton w-24" /></td>
+                    <td key={j} className="px-4 py-3"><div className="h-4 bg-slate-100 rounded animate-pulse w-24" /></td>
                   ))}</tr>
-                )) : searched.map((p: ProjectListRow) => {
+                )) : searched.map((p: Project) => {
                   const isSelected = selected.has(p.id)
                   return (
-                    <tr key={p.id} className={cn('border-t border-border-subtle hover:bg-surface-sunken transition-colors', isSelected && 'bg-surface-sunken')}>
-                      <td className="px-3 py-2.5 text-center">
-                        <button onClick={() => toggleSelect(p.id)} aria-label={isSelected ? 'Deselect' : 'Select'} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
-                          {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4" />}
+                    <tr key={p.id} className="hover:bg-slate-50" style={{ background: isSelected ? '#F8FAFC' : undefined }}>
+                      <td className="px-4 py-3">
+                        <button onClick={() => toggleSelect(p.id)} className="flex items-center justify-center text-slate-400 hover:text-slate-700">
+                          {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4" />}
                         </button>
                       </td>
-                      <td className="px-4 py-2.5 font-medium text-sm">
-                        <Link href={`/projects/${p.id}`} className="hover:text-forest-600">{p.title}</Link>
+                      <td className="px-4 py-3 font-medium">
+                        <Link href={`/projects/${p.id}`} className="hover:text-blue-600">{p.title}</Link>
                       </td>
-                      <td className="px-4 py-2.5 text-sm text-text-secondary">
+                      <td className="px-4 py-3 text-slate-500">
                         {p.clients?.id
-                          ? <Link href={`/clients/${p.clients.id}`} className="hover:text-forest-600 hover:underline">{p.clients.name}</Link>
+                          ? <Link href={`/clients/${p.clients.id}`} className="hover:text-blue-600 hover:underline">{p.clients.name}</Link>
                           : '—'}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-sm text-text-secondary tabular-nums">
+                      <td className="px-4 py-3 text-slate-600">
                         {p.rate_amount ? `${formatCurrency(p.rate_amount)}${p.rate_type === 'day_rate' ? '/day' : p.rate_type === 'hourly' ? '/hr' : ''}` : '—'}
                       </td>
-                      <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : '—'}</td>
-                      <td className="px-4 py-2.5"><Badge status={p.status} /></td>
-                      <td className="px-4 py-2.5">{p.ir35_status ? <Badge status={p.ir35_status} /> : <span className="text-sm text-text-muted">—</span>}</td>
-                      <td className="px-3 py-2.5 text-right">
-                        <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} onEdit={p => { setEditProject(p); setSlideOpen(true) }} />
+                      <td className="px-4 py-3 text-slate-500">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : '—'}</td>
+                      <td className="px-4 py-3"><Badge status={p.status} /></td>
+                      <td className="px-4 py-3"><Badge status={p.ir35_status} /></td>
+                      <td className="px-4 py-3 text-right">
+                        <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
                       </td>
                     </tr>
                   )
@@ -315,31 +409,29 @@ export default function ProjectsPage() {
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
           {loading ? Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
+            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
               <div className="h-4 fd-skeleton w-32 mb-3" /><div className="h-3 fd-skeleton w-24" />
             </div>
-          )) : searched.map((p: ProjectListRow) => {
+          )) : searched.map((p: Project) => {
             const isSelected = selected.has(p.id)
             return (
-              <div key={p.id} className={`bg-surface-card rounded-xl border p-4 ${isSelected ? 'border-forest-300 bg-forest-50/30' : 'border-border-default'}`}>
+              <div key={p.id} className={`bg-white rounded-xl border p-4 ${isSelected ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200'}`}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Tooltip label={isSelected ? 'Deselect' : 'Select'}>
-                      <button onClick={() => toggleSelect(p.id)} className="flex items-center flex-shrink-0">
-                        {isSelected ? <CheckSquare weight="regular" className="w-4 h-4 text-text-primary" /> : <Square weight="regular" className="w-4 h-4 text-text-secondary" />}
-                      </button>
-                    </Tooltip>
-                    <Link href={`/projects/${p.id}`} className="font-medium text-text-primary hover:text-forest-600 truncate">{p.title}</Link>
+                    <button onClick={() => toggleSelect(p.id)} className="flex items-center flex-shrink-0">
+                      {isSelected ? <CheckSquare className="w-4 h-4 text-slate-900" /> : <Square className="w-4 h-4 text-slate-400" />}
+                    </button>
+                    <Link href={`/projects/${p.id}`} className="font-medium text-slate-900 hover:text-blue-600 truncate">{p.title}</Link>
                   </div>
                   <div className="flex-shrink-0"><Badge status={p.status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                  <span className="text-sm text-text-secondary truncate">{p.clients?.name ?? '—'}</span>
-                  <div className="flex-shrink-0">{p.ir35_status ? <Badge status={p.ir35_status} /> : null}</div>
+                  <span className="text-sm text-slate-500 truncate">{p.clients?.name ?? '—'}</span>
+                  <div className="flex-shrink-0"><Badge status={p.ir35_status} /></div>
                 </div>
                 <div className="flex items-center justify-between gap-3 pl-7">
-                  <span className="text-xs text-text-secondary">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
-                  <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} onEdit={p => { setEditProject(p); setSlideOpen(true) }} />
+                  <span className="text-xs text-slate-400">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-GB') : 'No end date'}</span>
+                  <KebabMenu project={p} onDelete={setDeleteTarget} onStatusChange={handleStatusChange} />
                 </div>
               </div>
             )
@@ -348,78 +440,23 @@ export default function ProjectsPage() {
 
         {/* IR35 empty state */}
         {ir35Filter !== 'all' && searched.length === 0 && !loading && (
-          <div className="bg-surface-card rounded-xl border border-border-default p-8 text-center">
-            <h3 className="text-base font-semibold text-text-primary mb-2">
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+            <h3 className="text-base font-semibold text-slate-900 mb-2">
               IR35 assessment
             </h3>
-            <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">
+            <p className="text-sm text-slate-500 mb-5 max-w-md mx-auto">
               For each project, we ask 8 questions based on UK case law and give you an Outside / Inside / Needs Review result. Add a project to get your first assessment.
             </p>
-            <Button type="button" intent="primary" size="sm" onClick={() => { setEditProject(undefined); setSlideOpen(true) }}>
+            <button onClick={() => router.push('/projects/new')}
+              className="inline-block bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
               Add a project →
-            </Button>
+            </button>
           </div>
         )}
 
-      {deleteTarget && (
-        <ConfirmDeleteModal
-          title="Delete project?"
-          description={`${deleteTarget.title} will be permanently removed.`}
-          onConfirm={handleDelete}
-          onCancel={() => setDeleteTarget(null)}
-          loading={deleting}
-        />
-      )}
-      {bulkDeleteOpen && (
-        <ConfirmDeleteModal
-          title={selected.size > 1 ? `Delete ${selected.size} projects?` : 'Delete project?'}
-          description={`${selected.size} project${selected.size !== 1 ? 's' : ''} will be permanently removed.`}
-          onConfirm={handleBulkDelete}
-          onCancel={() => setBulkDeleteOpen(false)}
-          loading={bulkUpdating}
-        />
-      )}
-      {bulkStatusTarget && (
-        <StatusConfirmModal
-          statusKey={bulkStatusTarget}
-          title={
-            <>
-              Change status to{' '}
-              <span style={{ color: tonePalette(bulkStatusTarget).text }}>
-                {PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
-              </span>
-              ?
-            </>
-          }
-          description={
-            <>
-              {selected.size} project{selected.size !== 1 ? 's' : ''} will be marked as{' '}
-              <span className="font-semibold" style={{ color: tonePalette(bulkStatusTarget).text }}>
-                {PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}
-              </span>
-              .
-            </>
-          }
-          confirmLabel={`Mark as ${PROJECT_STATUS_LABELS[bulkStatusTarget] ?? bulkStatusTarget}`}
-          onConfirm={handleBulkStatus}
-          onCancel={() => setBulkStatusTarget(null)}
-          loading={bulkUpdating}
-        />
-      )}
-
-      <SlideOver
-        open={slideOpen}
-        onClose={() => setSlideOpen(false)}
-        title={editProject ? 'Edit project' : 'Add project'}
-        width="lg"
-        footer={
-          <Button form="project-form" type="submit" intent="primary" size="md" fullWidth>
-            {editProject ? 'Save changes' : 'Add project'}
-          </Button>
-        }
-      >
-        <ProjectForm project={editProject as Partial<Project> | undefined} onSuccess={() => { setSlideOpen(false); load() }} />
-      </SlideOver>
+      {deleteTarget && <DeleteModal title={deleteTarget.title} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}
+      {bulkDeleteOpen && <DeleteModal title="" count={selected.size} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkUpdating} />}
+      {bulkStatusTarget && <StatusModal count={selected.size} newStatus={bulkStatusTarget} onConfirm={handleBulkStatus} onCancel={() => setBulkStatusTarget(null)} loading={bulkUpdating} />}
     </div>
   )
 }

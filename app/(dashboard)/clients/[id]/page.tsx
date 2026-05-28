@@ -3,7 +3,6 @@
 // app/(dashboard)/clients/[id]/page.tsx — v1.4
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { fetchClientById, fetchClientProjects, fetchClientInvoices } from '@/lib/api/clients'
 import { createClient } from '@/lib/supabase/client'
@@ -11,24 +10,21 @@ import { calcOutstanding, calcTotalInvoiced, calcTotalPaid } from '@/lib/logic/c
 import Badge from '@/components/badge'
 import ClientForm from '@/components/client-form'
 import SlideOver from '@/components/slide-over'
-import Button from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
-import { sectionTitle } from '@/lib/typography'
-import StatCard from '@/components/ui/stat-card'
-import type { Client, Project, Invoice, Quote } from '@/types/database'
+import { ArrowLeft, ChevronDown } from 'lucide-react'
 
-type ClientProject = Pick<Project, 'id' | 'title' | 'status' | 'ir35_status' | 'rate_type' | 'rate_amount'>
-type ClientInvoice = Pick<Invoice, 'id' | 'invoice_number' | 'status' | 'total' | 'issue_date' | 'due_date'>
-type ClientQuote   = Pick<Quote,   'id' | 'quote_number' | 'issue_date' | 'expiry_date' | 'total' | 'status'>
-
-// Badge component uses bg-surface-sunken/text-text-secondary for "completed" which reads as grey.
+// Badge component uses bg-slate-100/text-slate-700 for "completed" which reads as grey.
 // Override it here with a proper blue pill to match the completed project colour.
 function ProjectStatusBadge({ status }: { status: string }) {
   if (status === 'completed') {
     return (
-      <span className="text-caption font-semibold px-2 py-px rounded-xl bg-forest-50 text-forest-700 inline-flex items-center border border-forest-200">
+      <span style={{
+        fontSize: 11, fontWeight: 600,
+        padding: '2px 8px', borderRadius: 20,
+        background: '#EFF6FF', color: '#1A5E8A',
+        border: '1px solid rgba(26,94,138,0.2)',
+        display: 'inline-flex', alignItems: 'center',
+      }}>
         Completed
       </span>
     )
@@ -36,12 +32,11 @@ function ProjectStatusBadge({ status }: { status: string }) {
   return <Badge status={status} />
 }
 
-export default function ClientDetailPage() {
-  const params = useParams<{ id: string }>()
-  const [client, setClient]     = useState<Client | null>(null)
-  const [projects, setProjects] = useState<ClientProject[]>([])
-  const [invoices, setInvoices] = useState<ClientInvoice[]>([])
-  const [quotes, setQuotes]     = useState<ClientQuote[]>([])
+export default function ClientDetailPage({ params }: { params: { id: string } }) {
+  const [client, setClient]     = useState<any>(null)
+  const [projects, setProjects] = useState<any[]>([])
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [quotes, setQuotes]     = useState<any[]>([])
   const [loading, setLoading]   = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
@@ -70,7 +65,7 @@ export default function ClientDetailPage() {
 
   if (loading) return (
     <div className="space-y-4">
-      {[1,2,3].map(i => <div key={i} className="h-24 bg-surface-sunken rounded-xl animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />)}
     </div>
   )
   if (!client) return null
@@ -81,27 +76,27 @@ export default function ClientDetailPage() {
   const quotesPipeline = quotes.filter(q => q.status === 'sent' || q.status === 'accepted').reduce((s, q) => s + Number(q.total), 0)
 
   const chevron = (open: boolean) => (
-    <CaretDown weight="regular" className={cn('w-4 h-4 text-text-secondary shrink-0 transition-transform duration-200', open ? 'rotate-0' : 'rotate-180')} />
+    <ChevronDown className="w-4 h-4 text-slate-400" style={{ transform: `rotate(${open ? '0deg' : '180deg'})`, transition: 'transform 200ms', flexShrink: 0 }} />
   )
 
   const sectionCount = (n: number) => (
-    <span className="text-sm text-text-secondary font-normal ml-1.5">({n})</span>
+    <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 400, marginLeft: 6 }}>({n})</span>
   )
 
   const projectTable = (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-border-subtle">
-          <th className="py-2 text-xs font-medium text-text-secondary text-left">Project</th>
-          <th className="py-2 text-xs font-medium text-text-secondary text-right">IR35</th>
-          <th className="py-2 text-xs font-medium text-text-secondary text-right">Status</th>
+        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'left' }}>Project</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>IR35</th>
+          <th style={{ padding: '8px 0', fontSize: 12, fontWeight: 500, color: '#94A3B8', textAlign: 'right' }}>Status</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-border-subtle">
+      <tbody className="divide-y divide-slate-50">
         {projects.map(p => (
           <tr key={p.id}>
             <td className="py-2">
-              <Link href={`/projects/${p.id}`} className="text-forest-600 hover:underline font-medium">{p.title}</Link>
+              <Link href={`/projects/${p.id}`} className="text-blue-600 hover:underline font-medium">{p.title}</Link>
             </td>
             <td className="py-2 text-right"><Badge status={p.ir35_status} /></td>
             <td className="py-2 text-right"><ProjectStatusBadge status={p.status} /></td>
@@ -114,81 +109,88 @@ export default function ClientDetailPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/clients" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to clients
+        <Link href="/clients" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
+          <ArrowLeft className="w-4 h-4" /> Back to clients
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{client.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-text-muted">
+            <h1 className="text-2xl font-bold text-slate-900">{client.name}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
               {client.contact_name && <span>{client.contact_name}</span>}
-              {client.email && <a href={`mailto:${client.email}`} className="text-forest-600 hover:underline">{client.email}</a>}
+              {client.email && <a href={`mailto:${client.email}`} className="text-blue-600 hover:underline">{client.email}</a>}
               {client.phone && <span>{client.phone}</span>}
             </div>
           </div>
           <div className="flex gap-2 items-center">
             <Badge status={client.status} />
-            <Button type="button" intent="secondary" size="sm" onClick={() => setEditOpen(true)}>
+            <button onClick={() => setEditOpen(true)} className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
               Edit
-            </Button>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 fd-stat-grid">
-        <StatCard size="sm" label="Total invoiced" value={formatCurrency(totalInvoiced)} />
-        <StatCard size="sm" label="Total paid" value={formatCurrency(totalPaid)} valueColor="var(--success-700)" />
-        <StatCard
-          size="sm"
-          label="Outstanding"
-          value={formatCurrency(outstanding)}
-          valueColor={outstanding > 0 ? 'var(--danger-600)' : undefined}
-        />
-        <StatCard size="sm" label="Quotes pipeline" value={formatCurrency(quotesPipeline)} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Total invoiced</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(totalInvoiced)}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Total paid</p>
+          <p className="text-2xl font-bold text-green-700 mt-1">{formatCurrency(totalPaid)}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Outstanding</p>
+          <p className={`text-2xl font-bold mt-1 ${outstanding > 0 ? 'text-red-600' : 'text-slate-900'}`}>{formatCurrency(outstanding)}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Quotes pipeline</p>
+          <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{formatCurrency(quotesPipeline)}</p>
+        </div>
       </div>
 
       {(client.address_line1 || client.notes) && (
-        <div className="bg-surface-card rounded-xl border border-border-default p-6">
-          <h2 className={cn(sectionTitle, 'mb-3')}>Details</h2>
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h2 className="font-semibold text-slate-900 mb-3">Details</h2>
           {client.address_line1 && (
-            <div className="text-sm text-text-secondary mb-3">
+            <div className="text-sm text-slate-600 mb-3">
               <p>{client.address_line1}</p>
               {client.address_line2 && <p>{client.address_line2}</p>}
               {client.city && <p>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
               <p>{client.country}</p>
             </div>
           )}
-          {client.notes && <p className="text-sm text-text-muted mt-2">{client.notes}</p>}
+          {client.notes && <p className="text-sm text-slate-500 mt-2">{client.notes}</p>}
         </div>
       )}
 
       {/* Projects */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', projectsOpen && 'mb-4')}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: projectsOpen ? 16 : 0 }}
           onClick={() => setProjectsOpen(o => !o)}>
-          <h2 className={sectionTitle}>Projects{sectionCount(projects.length)}</h2>
-          <div className="flex items-center gap-4">
+          <h2 className="font-semibold text-slate-900">Projects{sectionCount(projects.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/projects/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">Add project</Link>
+              className="text-sm text-blue-600 hover:underline">Add project</Link>
             {chevron(projectsOpen)}
           </div>
         </div>
         {projectsOpen && (() => {
-          if (!projects.length) return <p className="text-sm text-text-secondary">No projects.</p>
-          if (projects.length > 10) return <div className="max-h-[420px] overflow-y-auto">{projectTable}</div>
+          if (!projects.length) return <p className="text-sm text-slate-400">No projects.</p>
+          if (projects.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{projectTable}</div>
           return projectTable
         })()}
       </div>
 
       {/* Quotes */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', quotesOpen && 'mb-4')}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: quotesOpen ? 16 : 0 }}
           onClick={() => setQuotesOpen(o => !o)}>
-          <h2 className={sectionTitle}>Quotes{sectionCount(quotes.length)}</h2>
-          <div className="flex items-center gap-4">
+          <h2 className="font-semibold text-slate-900">Quotes{sectionCount(quotes.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/quotes/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">New quote</Link>
+              className="text-sm text-blue-600 hover:underline">New quote</Link>
             {chevron(quotesOpen)}
           </div>
         </div>
@@ -196,7 +198,7 @@ export default function ClientDetailPage() {
           const quoteTable = (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-text-muted border-b border-border-subtle">
+                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
                   <th className="pb-2 font-medium">Quote #</th>
                   <th className="pb-2 font-medium">Issued</th>
                   <th className="pb-2 font-medium">Valid until</th>
@@ -204,14 +206,14 @@ export default function ClientDetailPage() {
                   <th className="pb-2 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-slate-50">
                 {quotes.map(q => {
-                  const expired = q.status === 'sent' && q.expiry_date != null && new Date(q.expiry_date) < new Date()
+                  const expired = q.status === 'sent' && new Date(q.expiry_date) < new Date()
                   return (
                     <tr key={q.id}>
-                      <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-forest-600 hover:underline font-medium">{q.quote_number}</Link></td>
-                      <td className="py-2 text-text-muted">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
-                      <td className={`py-2 ${expired ? 'text-danger-600 font-medium' : 'text-text-muted'}`}>{q.expiry_date ? new Date(q.expiry_date).toLocaleDateString('en-GB') : '—'}</td>
+                      <td className="py-2"><Link href={`/quotes/${q.id}`} className="text-blue-600 hover:underline font-medium">{q.quote_number}</Link></td>
+                      <td className="py-2 text-slate-500">{new Date(q.issue_date).toLocaleDateString('en-GB')}</td>
+                      <td className={`py-2 ${expired ? 'text-red-600 font-medium' : 'text-slate-500'}`}>{new Date(q.expiry_date).toLocaleDateString('en-GB')}</td>
                       <td className="py-2 font-medium">{formatCurrency(q.total)}</td>
                       <td className="py-2"><Badge status={q.status} /></td>
                     </tr>
@@ -220,20 +222,20 @@ export default function ClientDetailPage() {
               </tbody>
             </table>
           )
-          if (!quotes.length) return <p className="text-sm text-text-secondary">No quotes yet.</p>
-          if (quotes.length > 10) return <div className="max-h-[420px] overflow-y-auto">{quoteTable}</div>
+          if (!quotes.length) return <p className="text-sm text-slate-400">No quotes yet.</p>
+          if (quotes.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{quoteTable}</div>
           return quoteTable
         })()}
       </div>
 
       {/* Invoices */}
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <div className={cn('flex items-center justify-between cursor-pointer', invoicesOpen && 'mb-4')}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between" style={{ cursor: 'pointer', marginBottom: invoicesOpen ? 16 : 0 }}
           onClick={() => setInvoicesOpen(o => !o)}>
-          <h2 className={sectionTitle}>Invoices{sectionCount(invoices.length)}</h2>
-          <div className="flex items-center gap-4">
+          <h2 className="font-semibold text-slate-900">Invoices{sectionCount(invoices.length)}</h2>
+          <div className="flex items-center" style={{ gap: 16 }}>
             <Link href={`/invoices/new?client=${client.id}`} onClick={e => e.stopPropagation()}
-              className="text-sm text-forest-600 hover:underline">New invoice</Link>
+              className="text-sm text-blue-600 hover:underline">New invoice</Link>
             {chevron(invoicesOpen)}
           </div>
         </div>
@@ -241,7 +243,7 @@ export default function ClientDetailPage() {
           const invoiceTable = (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-text-muted border-b border-border-subtle">
+                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
                   <th className="pb-2 font-medium">Invoice</th>
                   <th className="pb-2 font-medium">Issued</th>
                   <th className="pb-2 font-medium">Due</th>
@@ -249,12 +251,12 @@ export default function ClientDetailPage() {
                   <th className="pb-2 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-slate-50">
                 {invoices.map(inv => (
                   <tr key={inv.id}>
-                    <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-forest-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
-                    <td className="py-2 text-text-muted">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
-                    <td className="py-2 text-text-muted">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
+                    <td className="py-2"><Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline font-medium">{inv.invoice_number}</Link></td>
+                    <td className="py-2 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
+                    <td className="py-2 text-slate-500">{new Date(inv.due_date).toLocaleDateString('en-GB')}</td>
                     <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
                     <td className="py-2"><Badge status={inv.status} /></td>
                   </tr>
@@ -262,18 +264,14 @@ export default function ClientDetailPage() {
               </tbody>
             </table>
           )
-          if (!invoices.length) return <p className="text-sm text-text-secondary">No invoices.</p>
-          if (invoices.length > 10) return <div className="max-h-[420px] overflow-y-auto">{invoiceTable}</div>
+          if (!invoices.length) return <p className="text-sm text-slate-400">No invoices.</p>
+          if (invoices.length > 10) return <div style={{ maxHeight: 420, overflowY: 'auto' }}>{invoiceTable}</div>
           return invoiceTable
         })()}
       </div>
 
       <SlideOver open={editOpen} onClose={() => setEditOpen(false)} title="Edit client"
-        footer={
-          <Button type="submit" form="client-form" intent="primary" size="md" fullWidth>
-            Update client
-          </Button>
-        }
+        footer={<button type="submit" form="client-form" className="w-full bg-slate-900 text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-slate-800">Update client</button>}
       >
         <ClientForm client={client} onSuccess={() => { setEditOpen(false); load() }} />
       </SlideOver>

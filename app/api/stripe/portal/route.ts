@@ -1,15 +1,17 @@
-﻿// app/api/stripe/portal/route.ts
+// app/api/stripe/portal/route.ts
 // Creates a Stripe Customer Portal session so users can manage,
 // cancel, or change their subscription directly through Stripe.
 
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
 export async function POST() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -31,6 +33,7 @@ export async function POST() {
       customer: userData.stripe_customer_id,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?tab=billing`,
     })
+    await trackServer(user.id, Events.STRIPE_PORTAL_OPENED)
     return NextResponse.json({ url: session.url })
   } catch (e) {
     console.error('Stripe portal error:', e)

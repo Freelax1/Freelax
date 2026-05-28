@@ -1,28 +1,35 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, ArrowSquareOut, PaperPlaneTilt, CheckCircle, PencilSimple, Bell, X, Clock, LinkSimple, Lock } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, ExternalLink, Send, CheckCircle, Pencil, Bell, X, Clock, Link2 } from 'lucide-react'
 import type { Invoice, InvoiceLineItem, InvoiceActivity, ChaseEntry } from '@/types/database'
-import Badge from '@/components/badge'
-import Button, { buttonVariants } from '@/components/ui/button'
-import Alert from '@/components/ui/alert'
-import { Field, Textarea } from '@/components/form-fields'
-import { cn } from '@/lib/utils'
-import { sectionTitle } from '@/lib/typography'
-import Tooltip from '@/components/tooltip'
+
+function Badge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    draft:     'bg-gray-100 text-gray-600 border border-gray-200',
+    sent:      'bg-blue-100 text-blue-700 border border-blue-200',
+    paid:      'bg-green-100 text-green-700 border border-green-200',
+    overdue:   'bg-red-100 text-red-700 border border-red-200',
+    cancelled: 'bg-gray-100 text-gray-400 border border-gray-200',
+  }
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-semibold ${map[status] ?? 'bg-gray-100 text-gray-600'}`}>
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </span>
+  )
+}
 
 // ── Chase modal ────────────────────────────────────────────────────────
 // ── Chase tiers ────────────────────────────────────────────────────────
 type ChaseTier = 'friendly' | 'formal' | 'legal'
 
 const TIER_META: Record<ChaseTier, { label: string; badge: string; badgeColor: string; badgeBg: string }> = {
-  friendly: { label: 'Friendly Reminder',  badge: '1st',  badgeColor: 'var(--info-600)',    badgeBg: 'var(--info-50)'    },
-  formal:   { label: 'Formal Notice',      badge: '2nd',  badgeColor: 'var(--warning-600)', badgeBg: 'var(--warning-50)' },
-  legal:    { label: 'Legal Notice',       badge: '3rd+', badgeColor: 'var(--danger-600)',  badgeBg: 'var(--danger-50)'  },
+  friendly: { label: 'Friendly Reminder',  badge: '1st',  badgeColor: '#1A5E8A', badgeBg: '#EBF4FD' },
+  formal:   { label: 'Formal Notice',      badge: '2nd',  badgeColor: '#9A7B0A', badgeBg: '#FEF9E7' },
+  legal:    { label: 'Legal Notice',       badge: '3rd+', badgeColor: '#C0392B', badgeBg: '#FDECEA' },
 }
 
 function getTierMessages(invoice: Invoice, businessName: string, dueDate: string, overdueDays: number): Record<ChaseTier, string> {
@@ -97,34 +104,33 @@ function ChaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-modal flex items-center justify-center px-4 bg-black/45"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.45)' }}
       onClick={onClose}
     >
       <div
-        className="bg-surface-card rounded-xl shadow-xl w-full max-w-lg flex flex-col"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col"
         style={{ maxHeight: '90dvh' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
           <div>
-            <h2 className={sectionTitle}>Chase invoice</h2>
-            <p className="text-xs text-text-muted mt-0.5">
+            <h2 className="font-bold text-slate-900 text-base">Chase invoice</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
               {invoice.invoice_number} · {formatCurrency(invoice.total)}
-              {overdueDays > 0 && <span className="text-danger-500 ml-1">· {overdueDays}d overdue</span>}
+              {overdueDays > 0 && <span className="text-red-500 ml-1">· {overdueDays}d overdue</span>}
             </p>
           </div>
-          <Tooltip label="Close">
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-surface-sunken">
-              <X weight="regular" className="w-4 h-4 text-text-muted" />
-            </button>
-          </Tooltip>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100">
+            <X className="w-4 h-4 text-slate-500" />
+          </button>
         </div>
 
         <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           {/* Tier selector */}
           <div>
-            <p className="text-xs font-medium text-text-muted mb-2">Chase level</p>
+            <p className="text-xs font-medium text-slate-500 mb-2">Chase level</p>
             <div className="flex gap-2">
               {(Object.keys(TIER_META) as ChaseTier[]).map(t => {
                 const meta = TIER_META[t]
@@ -143,106 +149,112 @@ function ChaseModal({
                     onClick={() => { if (!locked) handleTierChange(t) }}
                     disabled={locked}
                     title={lockReason || undefined}
-                    className="py-2 px-1 rounded transition-all duration-150"
                     style={{
-                      flex: 1,
+                      flex: 1, padding: '8px 4px', borderRadius: 8,
                       cursor: locked ? 'not-allowed' : 'pointer',
-                      border: `1.5px solid ${isActive ? meta.badgeColor : 'var(--border-default)'}`,
-                      background: isActive ? meta.badgeBg : 'var(--surface-card)',
+                      border: `1.5px solid ${isActive ? meta.badgeColor : '#E2E8F0'}`,
+                      background: isActive ? meta.badgeBg : '#fff',
                       opacity: locked ? 0.45 : 1,
+                      transition: 'all 0.15s',
                     }}
                   >
-                    <p className="mb-0.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-muted)' }}>
-                      {meta.badge}{locked ? <Lock weight="regular" className="inline w-2.5 h-2.5 ml-0.5 align-middle" /> : ''}
+                    <p style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? meta.badgeColor : '#AAA', marginBottom: 2 }}>
+                      {meta.badge}{locked ? ' 🔒' : ''}
                     </p>
-                    <p style={{ fontSize: 'var(--text-caption)', fontWeight: 600, color: isActive ? meta.badgeColor : 'var(--text-secondary)' }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: isActive ? meta.badgeColor : '#666' }}>
                       {meta.label}
                     </p>
                     {locked && (
-                      <p className="mt-0.5" style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{lockReason}</p>
+                      <p style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>{lockReason}</p>
                     )}
                   </button>
                 )
               })}
             </div>
             {tier === 'legal' && (
-              <Alert intent="danger" className="text-xs mt-2">
+              <p className="text-xs text-red-600 mt-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                 ⚖️ This notice references the <strong>Late Payment of Commercial Debts Act 1998</strong> and warns of legal proceedings. Only use when you intend to escalate.
-              </Alert>
+              </p>
             )}
           </div>
 
           {/* To field */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-text-secondary w-8">To</span>
-            <span className="font-medium text-text-secondary">
+            <span className="text-slate-400 w-8">To</span>
+            <span className="font-medium text-slate-700">
               {client?.contact_name || client?.name}
-              {client?.email && <span className="text-text-secondary font-normal ml-1">&lt;{client.email}&gt;</span>}
+              {client?.email && <span className="text-slate-400 font-normal ml-1">&lt;{client.email}&gt;</span>}
             </span>
           </div>
 
           {/* Subject preview */}
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-text-secondary w-8 pt-0.5">Re</span>
-            <span className="text-text-muted text-xs bg-surface-sunken px-2 py-1 rounded">
+            <span className="text-slate-400 w-8 pt-0.5">Re</span>
+            <span className="text-slate-500 text-xs bg-slate-50 px-2 py-1 rounded">
               {tier === 'legal' ? 'Notice of Intended Legal Proceedings' : tier === 'formal' ? 'Formal Payment Notice' : 'Payment Reminder'}: Invoice {invoice.invoice_number} — {formatCurrency(invoice.total)}
             </span>
           </div>
 
           {/* Editable message body */}
-          <Field label="Message" hint="Bank details and invoice summary will be appended automatically.">
-            <Textarea
-              aria-label="Message"
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">Message</label>
+            <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={7}
-              className="leading-relaxed"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none leading-relaxed"
             />
-          </Field>
+            <p className="text-xs text-slate-400 mt-1">
+              Bank details and invoice summary will be appended automatically.
+            </p>
+          </div>
 
           {/* Bank details notice */}
           {sender?.bank_sort_code && (
-            <div className="bg-surface-sunken rounded-xl px-4 py-3 text-xs text-text-muted border border-border-subtle">
-              <p className="font-medium text-text-secondary mb-1">Payment details included automatically</p>
-              <p>Account: <span className="font-medium text-text-secondary">{sender.bank_account_name || businessName}</span></p>
-              <p>Sort code: <span className="font-medium text-text-secondary">{sender.bank_sort_code}</span> · Account: <span className="font-medium text-text-secondary">{sender.bank_account_number}</span></p>
+            <div className="bg-slate-50 rounded-lg px-4 py-3 text-xs text-slate-500 border border-slate-100">
+              <p className="font-medium text-slate-600 mb-1">Payment details included automatically</p>
+              <p>Account: <span className="font-medium text-slate-700">{sender.bank_account_name || businessName}</span></p>
+              <p>Sort code: <span className="font-medium text-slate-700">{sender.bank_sort_code}</span> · Account: <span className="font-medium text-slate-700">{sender.bank_account_number}</span></p>
             </div>
           )}
 
           {!client?.email && (
-            <Alert intent="warning" className="text-xs">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-700">
               No email address on file for this client. Chase will be logged but no email will be sent.
-            </Alert>
+            </div>
           )}
 
           {onCooldown && (
-            <Alert intent="warning" className="text-xs">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-800">
               You can chase this invoice again in <strong>{cooldownDaysRemaining} day{cooldownDaysRemaining === 1 ? '' : 's'}</strong>. To prevent spam, Freelax enforces a 7-day gap between chases.
-            </Alert>
+            </div>
           )}
 
           {error && (
-            <Alert intent="danger" className="text-xs">
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-700">
               {error}
-            </Alert>
+            </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border-subtle gap-3 flex-shrink-0">
-          <Button type="button" intent="secondary" onClick={onClose}>
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 gap-3 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
+          >
             Cancel
-          </Button>
-          <Button
-            type="button"
+          </button>
+          <button
             onClick={handleSend}
             disabled={sending || !message.trim() || onCooldown}
-            className="text-white rounded-xl"
             style={{
-              background: tier === 'legal' ? 'var(--danger-600)' : tier === 'formal' ? 'var(--warning-600)' : 'var(--text-primary)',
+              background: tier === 'legal' ? '#C0392B' : tier === 'formal' ? '#9A7B0A' : '#111',
+              opacity: (sending || !message.trim() || onCooldown) ? 0.5 : 1,
             }}
+            className="flex items-center gap-2 px-5 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
           >
-            <Bell weight="regular" className="w-3.5 h-3.5" />
+            <Bell className="w-3.5 h-3.5" />
             {sending
               ? 'Sending...'
               : onCooldown
@@ -250,7 +262,7 @@ function ChaseModal({
                 : client?.email
                   ? `Send ${TIER_META[tier].label}`
                   : 'Log chase'}
-          </Button>
+          </button>
         </div>
       </div>
     </div>
@@ -265,13 +277,13 @@ function activityConfig(entry: InvoiceActivity): {
   switch (entry.action) {
     case 'sent':
       return {
-        Icon: PaperPlaneTilt, bg: 'bg-forest-50', iconColor: 'text-forest-600',
+        Icon: Send, bg: 'bg-blue-50', iconColor: 'text-blue-500',
         label: m.emailSent ? `Sent to ${m.clientEmail}` : 'Marked as sent',
         sub:   !m.emailSent ? 'No email sent — add a client email or Resend API key' : undefined,
       }
     case 'paid':
       return {
-        Icon: CheckCircle, bg: 'bg-success-50', iconColor: 'text-success-600',
+        Icon: CheckCircle, bg: 'bg-green-50', iconColor: 'text-green-600',
         label: 'Marked as paid',
         sub:   typeof m.paidDate === 'string'
           ? `Paid date: ${new Date(m.paidDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
@@ -280,35 +292,34 @@ function activityConfig(entry: InvoiceActivity): {
     case 'chased': {
       const tierLabel = m.tier === 'legal' ? 'Legal Notice' : m.tier === 'formal' ? 'Formal Notice' : 'Friendly Reminder'
       return {
-        Icon: Bell, bg: 'bg-warning-50', iconColor: 'text-amber-500',
+        Icon: Bell, bg: 'bg-amber-50', iconColor: 'text-amber-500',
         label: `Chased — ${tierLabel}`,
         sub:   m.emailSent ? `Email sent to ${m.clientEmail}` : 'No email sent',
       }
     }
     case 'status_changed':
       return {
-        Icon: ArrowRight, bg: 'bg-surface-sunken', iconColor: 'text-text-secondary',
+        Icon: ArrowRight, bg: 'bg-slate-100', iconColor: 'text-slate-400',
         label: `Status changed to ${m.to ? (m.to as string).charAt(0).toUpperCase() + (m.to as string).slice(1) : m.to}`,
         sub:   m.from ? `Previous status: ${m.from}` : undefined,
       }
     case 'overdue':
       return {
-        Icon: Clock, bg: 'bg-danger-50', iconColor: 'text-danger-500',
+        Icon: Clock, bg: 'bg-red-50', iconColor: 'text-red-500',
         label: 'Marked as overdue',
       }
     default:
       return {
-        Icon: Clock, bg: 'bg-surface-sunken', iconColor: 'text-text-secondary',
+        Icon: Clock, bg: 'bg-slate-100', iconColor: 'text-slate-400',
         label: entry.action,
       }
   }
 }
 
 // ── Main page ──────────────────────────────────────────────────────────
-export default function InvoiceDetailPage() {
-  const params = useParams<{ id: string }>()
+export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
-  const [activity, setActivity] = useState<InvoiceActivity[]>([])
+  const [activity, setActivity] = useState<any[]>([])
   const [loading, setLoading]  = useState(true)
   const [sending, setSending]  = useState(false)
   const [marking, setMarking]  = useState(false)
@@ -382,10 +393,10 @@ export default function InvoiceDetailPage() {
 
   if (loading) return (
     <div className="space-y-4 max-w-3xl">
-      {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-16 bg-slate-100 rounded-xl animate-pulse" />)}
     </div>
   )
-  if (!invoice) return <p className="text-text-muted">Invoice not found.</p>
+  if (!invoice) return <p className="text-slate-500">Invoice not found.</p>
 
   const client    = invoice.clients
   const sender    = invoice.users
@@ -403,78 +414,63 @@ export default function InvoiceDetailPage() {
     <div className="max-w-3xl space-y-6">
       {/* Back + header */}
       <div>
-        <Link href="/invoices" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoices
+        <Link href="/invoices" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
+          <ArrowLeft className="w-4 h-4" /> Back to invoices
         </Link>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">{invoice.invoice_number}</h1>
+            <h1 className="text-2xl font-bold text-slate-900">{invoice.invoice_number}</h1>
             <Badge status={invoice.status} />
             {chaseLog.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-warning-600 bg-warning-50 border border-warning-200 px-2 py-0.5 rounded-lg">
-                <Bell weight="regular" className="w-3 h-3" /> Chased {chaseLog.length}×
+              <span className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <Bell className="w-3 h-3" /> Chased {chaseLog.length}×
               </span>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
             {invoice.status === 'draft' && (
-              <Link href={`/invoices/${invoice.id}/edit`} className={buttonVariants({ intent: 'secondary', size: 'sm' })}>
-                <PencilSimple weight="regular" className="w-3.5 h-3.5" /> Edit
+              <Link href={`/invoices/${invoice.id}/edit`} className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
+                <Pencil className="w-3.5 h-3.5" /> Edit
               </Link>
             )}
             {canSend && (
-              <Button type="button" intent="primary" size="sm" onClick={handleSend} disabled={sending}>
-                <PaperPlaneTilt weight="regular" className="w-3.5 h-3.5" />
+              <button onClick={handleSend} disabled={sending}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 disabled:opacity-50">
+                <Send className="w-3.5 h-3.5" />
                 {sending ? 'Sending...' : invoice.status === 'draft' ? 'Send invoice' : 'Resend'}
-              </Button>
+              </button>
             )}
             {canChase && (
-              <Button
-                type="button"
-                size="sm"
+              <button
                 onClick={() => setChaseOpen(true)}
-                className="bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 border-transparent focus-visible:ring-warning-500/40"
+                className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600"
               >
-                <Bell weight="regular" className="w-3.5 h-3.5" />
+                <Bell className="w-3.5 h-3.5" />
                 Chase{chaseLog.length > 0 ? ` (${chaseLog.length})` : ''}
-              </Button>
+              </button>
             )}
-            <a
-              href={`/api/invoices/pdf?id=${invoice.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }), 'no-underline')}
-            >
-              <ArrowSquareOut weight="regular" className="w-3.5 h-3.5" /> PDF
+            <a href={`/api/invoices/pdf?id=${invoice.id}`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50">
+              <ExternalLink className="w-3.5 h-3.5" /> PDF
             </a>
             {invoice.status !== 'draft' && (
-              <Button
-                type="button"
-                intent="secondary"
-                size="sm"
-                onClick={getPaymentLink}
-                disabled={copyingLink}
-                title={payLink ?? 'Copy client payment link'}
-              >
-                <LinkSimple weight="regular" className="w-3.5 h-3.5" />
+              <button onClick={getPaymentLink} disabled={copyingLink}
+                className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-sm hover:bg-slate-50 disabled:opacity-50"
+                title={payLink ?? 'Copy client payment link'}>
+                <Link2 className="w-3.5 h-3.5" />
                 {copyingLink ? 'Generating…' : 'Payment link'}
-              </Button>
+              </button>
             )}
             {canMarkPaid && invoice.status !== 'paid' && (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleMarkPaid}
-                disabled={marking}
-                className="bg-success-700 text-white hover:bg-success-800 active:bg-success-900 border-transparent focus-visible:ring-success-700/40"
-              >
-                <CheckCircle weight="regular" className="w-4 h-4" />
+              <button onClick={handleMarkPaid} disabled={marking}
+                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50">
+                <CheckCircle className="w-4 h-4" />
                 {marking ? 'Saving...' : 'Mark as paid'}
-              </Button>
+              </button>
             )}
             {invoice.status === 'paid' && (
-              <span className="flex items-center gap-1.5 px-4 py-2 bg-success-50 text-success-700 rounded-xl text-sm font-semibold border border-success-200">
-                <CheckCircle weight="regular" className="w-4 h-4" /> Paid
+              <span className="flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-semibold border border-green-200">
+                <CheckCircle className="w-4 h-4" /> Paid
               </span>
             )}
           </div>
@@ -486,48 +482,44 @@ export default function InvoiceDetailPage() {
         <>
           {/* Upgrade prompt — shown for plan restriction errors */}
           {msg.type === 'error' && msg.text.toLowerCase().includes('plan') ? (
-            <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-warning-200 bg-warning-50">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warning-100 border border-warning-200 flex items-center justify-center text-warning-600">
+            <div className="flex items-start gap-4 px-5 py-4 rounded-xl border border-amber-200 bg-amber-50">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 4.8H15l-4 2.9 1.5 4.8L8 10.4 3.5 13.5l1.5-4.8L1 5.8h5.2L8 1z" fill="currentColor"/></svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-warning-900 mb-0.5">Upgrade required</p>
-                <p className="text-sm text-warning-800">{msg.text}</p>
+                <p className="text-sm font-semibold text-amber-900 mb-0.5">Upgrade required</p>
+                <p className="text-sm text-amber-700">{msg.text}</p>
               </div>
-              <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-semibold rounded-lg transition-colors">
+              <a href="/settings?tab=billing" className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
                 Upgrade
               </a>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="flex-shrink-0 text-warning-400 hover:text-warning-600 transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                </button>
-              </Tooltip>
+              <button onClick={() => setMsg(null)} className="flex-shrink-0 text-amber-400 hover:text-amber-600 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
             </div>
           ) : (
             /* Standard success / error toast */
             <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium border ${
               msg.type === 'success'
-                ? 'bg-success-50 text-success-800 border-success-200'
-                : 'bg-danger-50 text-danger-700 border-danger-200'
+                ? 'bg-green-50 text-green-800 border-green-200'
+                : 'bg-red-50 text-red-700 border-red-200'
             }`}>
               {msg.type === 'success' ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               )}
               <span className="flex-1">{msg.text}</span>
-              <Tooltip label="Dismiss">
-                <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                </button>
-              </Tooltip>
+              <button onClick={() => setMsg(null)} className="opacity-50 hover:opacity-100 transition-opacity">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
             </div>
           )}
         </>
       )}
 
       {/* Invoice — Letterhead design */}
-      <div className="bg-surface-card rounded-xl border border-border-default shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <style>{`
           @media (max-width: 640px) {
             .inv-header { flex-direction: column !important; gap: 16px !important; }
@@ -540,122 +532,122 @@ export default function InvoiceDetailPage() {
         `}</style>
 
         {/* Header */}
-        <div className="pt-8 px-10 pb-7" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <div style={{ padding: '32px 40px 28px', borderBottom: '1px solid #f1f5f9' }}>
           <div className="inv-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               {sender?.logo_url
-                ? <img src={sender.logo_url} alt="" className="mb-2.5 block" style={{ height: 40, objectFit: 'contain' }} />
-                : <p className="mb-1" style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{sender?.business_name || sender?.full_name || ''}</p>
+                ? <img src={sender.logo_url} alt="" style={{ height: 40, objectFit: 'contain', marginBottom: 10, display: 'block' }} />
+                : <p style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: 4 }}>{sender?.business_name || sender?.full_name || ''}</p>
               }
-              {sender?.email && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.email}</p>}
-              {sender?.address_line1 && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
-              {sender?.vat_number && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>VAT: {sender.vat_number}</p>}
+              {sender?.email && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{sender.email}</p>}
+              {sender?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8' }}>{sender.address_line1}{sender?.city ? `, ${sender.city}` : ''}</p>}
+              {sender?.vat_number && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>VAT: {sender.vat_number}</p>}
             </div>
-            <div className="text-right">
-              <p className="mb-1.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Invoice</p>
-              <p style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Invoice</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{invoice.invoice_number}</p>
             </div>
           </div>
         </div>
 
         {/* Bill to + dates */}
-        <div className="py-6 px-10" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <div style={{ padding: '24px 40px', borderBottom: '1px solid #f1f5f9' }}>
           <div className="inv-bill-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <p className="mb-2" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Bill to</p>
-              <p className="mb-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em' }}>{client?.name ?? '—'}</p>
-              {client?.contact_name && <p className="mt-0.5" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{client.contact_name}</p>}
-              {client?.email && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{client.email}</p>}
-              {client?.address_line1 && <p className="mt-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.address_line1}</p>}
-              {client?.city && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Bill to</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em', marginBottom: 3 }}>{client?.name ?? '—'}</p>
+              {client?.contact_name && <p style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{client.contact_name}</p>}
+              {client?.email && <p style={{ fontSize: 12, color: '#64748b' }}>{client.email}</p>}
+              {client?.address_line1 && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{client.address_line1}</p>}
+              {client?.city && <p style={{ fontSize: 12, color: '#94a3b8' }}>{client.city}{client.postcode ? `, ${client.postcode}` : ''}</p>}
             </div>
-            <div className="inv-bill-dates flex flex-col gap-2.5" style={{ textAlign: 'right' }}>
+            <div className="inv-bill-dates" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
-                <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Issue date</p>
-                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Issue date</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{new Date(invoice.issue_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div>
-                <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Due date</p>
-                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: invoice.status === 'overdue' ? 'var(--danger-600)' : 'var(--text-primary)' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Due date</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: invoice.status === 'overdue' ? '#dc2626' : '#0f172a' }}>{new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               {invoice.paid_date && (
                 <div>
-                  <p className="mb-1" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Paid on</p>
-                  <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--success-600)' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 3 }}>Paid on</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>{new Date(invoice.paid_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
               )}
-              <div className="mt-1">
-                {invoice.status === 'paid' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--success-600)', border: '1.5px solid var(--success-600)' }}>Paid</span>}
-                {invoice.status === 'overdue' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--danger-600)', border: '1.5px solid var(--danger-600)' }}>Overdue</span>}
-                {invoice.status === 'draft' && <span className="py-1 px-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)' }}>Draft</span>}
+              <div style={{ marginTop: 4 }}>
+                {invoice.status === 'paid' && <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', border: '1.5px solid #16a34a', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Paid</span>}
+                {invoice.status === 'overdue' && <span style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', border: '1.5px solid #dc2626', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Overdue</span>}
+                {invoice.status === 'draft' && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', border: '1.5px solid #e2e8f0', padding: '3px 10px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Draft</span>}
               </div>
             </div>
           </div>
         </div>
 
         {/* Line items */}
-        <div className="py-6 px-10">
-          <table className="inv-table w-full mb-6" style={{ borderCollapse: 'collapse' }}>
+        <div style={{ padding: '24px 40px' }}>
+          <table className="inv-table w-full" style={{ borderCollapse: 'collapse', marginBottom: 24 }}>
             <thead>
-              <tr style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
-                <th className="py-2 text-left text-micro font-semibold text-text-secondary">Description</th>
-                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Qty</th>
-                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Unit price</th>
-                <th className="py-2 text-right text-micro font-semibold text-text-secondary">VAT</th>
-                <th className="py-2 text-right text-micro font-semibold text-text-secondary">Total</th>
+              <tr style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'left' }}>Description</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Qty</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Unit price</th>
+                <th className="hide-sm" style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>VAT</th>
+                <th style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '9px 0', textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((item: InvoiceLineItem) => (
-                <tr key={item.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <td className="py-3" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>{item.description}</td>
-                  <td className="hide-sm py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.quantity}</td>
-                  <td className="hide-sm py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
-                  <td className="hide-sm py-3" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', textAlign: 'right' }}>{item.vat_rate}%</td>
-                  <td className="py-3" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
+                <tr key={item.id} style={{ borderBottom: '1px solid #f8fafc' }}>
+                  <td style={{ padding: '12px 0', fontSize: 13, color: '#334155' }}>{item.description}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.quantity}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                  <td className="hide-sm" style={{ padding: '12px 0', fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{item.vat_rate}%</td>
+                  <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{formatCurrency(item.line_total)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {/* Footer row: payment details + totals */}
-          <div className="inv-footer-row flex justify-between items-start gap-6">
+          <div className="inv-footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
 
             {/* Payment details */}
             {hasBankDetails ? (
               <div>
-                <p className="mb-2.5" style={{ fontSize: 'var(--text-micro)', fontWeight: 600, color: 'var(--text-muted)' }}>Payment details</p>
-                <div className="flex flex-col gap-1.5">
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 10 }}>Payment details</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {[
                     { label: 'Account name',   value: sender.bank_account_name || sender.business_name || sender.full_name },
                     { label: 'Sort code',      value: sender.bank_sort_code },
                     { label: 'Account number', value: sender.bank_account_number },
                     { label: 'Reference',      value: sender.bank_reference_note || invoice.invoice_number },
                   ].map(r => (
-                    <div key={r.label} className="flex gap-4">
-                      <span className="text-caption" style={{ color: 'var(--text-muted)', width: 110, flexShrink: 0 }}>{r.label}</span>
-                      <span className="text-caption font-semibold" style={{ color: 'var(--text-body)' }}>{r.value}</span>
+                    <div key={r.label} style={{ display: 'flex', gap: 16 }}>
+                      <span style={{ fontSize: 11.5, color: '#64748b', width: 110, flexShrink: 0 }}>{r.label}</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 600, color: '#334155' }}>{r.value}</span>
                     </div>
                   ))}
                 </div>
-                {invoice.payment_terms && <p className="mt-3" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)' }}>{invoice.payment_terms}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12 }}>{invoice.payment_terms}</p>}
               </div>
             ) : (
               <div>
-                {invoice.payment_terms && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)' }}>{invoice.payment_terms}</p>}
-                {invoice.notes && <p className="mt-1" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{invoice.notes}</p>}
+                {invoice.payment_terms && <p style={{ fontSize: 11, color: '#94a3b8' }}>{invoice.payment_terms}</p>}
+                {invoice.notes && <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>{invoice.notes}</p>}
               </div>
             )}
 
             {/* Totals */}
             <div className="inv-totals" style={{ width: 220, flexShrink: 0 }}>
-              <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span>Subtotal</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
+                <span>Subtotal</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(invoice.subtotal)}</span>
               </div>
-              <div className="flex justify-between py-1" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span>VAT</span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, color: '#475569', borderBottom: '1px solid #f1f5f9' }}>
+                <span>VAT</span><span style={{ color: '#475569', fontWeight: 500 }}>{formatCurrency(invoice.vat_amount)}</span>
               </div>
-              <div className="flex justify-between pt-3 mt-1" style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--text-primary)', borderTop: '1.5px solid var(--text-primary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontSize: 15, fontWeight: 800, color: '#0f172a', borderTop: '1.5px solid #0f172a', marginTop: 4 }}>
                 <span>Total due</span><span>{formatCurrency(invoice.total)}</span>
               </div>
             </div>
@@ -663,48 +655,48 @@ export default function InvoiceDetailPage() {
 
           {/* Notes if bank details shown */}
           {hasBankDetails && invoice.notes && (
-            <p className="mt-5" style={{ fontSize: 'var(--text-caption)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{invoice.notes}</p>
+            <p style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 20 }}>{invoice.notes}</p>
           )}
 
           {/* Doc footer */}
-          <div className="mt-8 pt-4 flex justify-between items-center" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
-            <span style={{ fontSize: 'var(--text-micro)', color: 'var(--text-secondary)' }}>Powered by Freelax</span>
+          <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 10, color: '#94a3b8' }}>{invoice.invoice_number} · {sender?.business_name || sender?.full_name || ''}</span>
+            <span style={{ fontSize: 10, color: '#94a3b8' }}>Powered by Freelax</span>
           </div>
         </div>
       </div>
 
       {/* Activity log */}
-      <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden">
-        <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-2">
-          <Clock weight="regular" className="w-4 h-4 text-text-secondary" />
-          <h2 className={sectionTitle}>Activity</h2>
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+          <Clock className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-800">Activity</h2>
           {activity.length > 0 && (
-            <span className="ml-auto text-xs text-text-secondary">
+            <span className="ml-auto text-xs text-slate-400">
               {activity.length} event{activity.length !== 1 ? 's' : ''}
             </span>
           )}
         </div>
         {activity.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <Clock weight="regular" className="w-6 h-6 text-text-muted mx-auto mb-2" />
-            <p className="text-sm text-text-secondary">No activity recorded yet.</p>
-            <p className="text-xs text-text-muted mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
+            <Clock className="w-6 h-6 text-slate-200 mx-auto mb-2" />
+            <p className="text-sm text-slate-400">No activity recorded yet.</p>
+            <p className="text-xs text-slate-300 mt-1">Events will appear here when the invoice is sent, paid, or chased.</p>
           </div>
         ) : (
-          <div className="divide-y divide-border-subtle">
+          <div className="divide-y divide-slate-50">
             {[...activity].reverse().map((entry: InvoiceActivity) => {
               const cfg = activityConfig(entry)
               return (
                 <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
-                    <cfg.Icon weight="regular" className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
+                    <cfg.Icon className={`w-3.5 h-3.5 ${cfg.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-text-secondary font-medium">{cfg.label}</p>
-                    {cfg.sub && <p className="text-xs text-text-secondary mt-0.5">{cfg.sub}</p>}
+                    <p className="text-sm text-slate-700 font-medium">{cfg.label}</p>
+                    {cfg.sub && <p className="text-xs text-slate-400 mt-0.5">{cfg.sub}</p>}
                   </div>
-                  <p className="text-xs text-text-secondary shrink-0 pt-0.5">
+                  <p className="text-xs text-slate-400 shrink-0 pt-0.5">
                     {new Date(entry.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'short', year: 'numeric',
                     })}

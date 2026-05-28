@@ -2,6 +2,8 @@
 // All Supabase queries for clients. No UI, no calculations.
 
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 export async function fetchClients() {
   const supabase = createClient()
@@ -60,11 +62,14 @@ export async function createClientRecord(payload: Record<string, unknown>) {
   const supabase = createClient()
   const { data, error } = await supabase.from('clients').insert(payload).select().single()
   if (error) throw error
+  track(String(payload.user_id), Events.CLIENT_CREATED, { client_id: data.id })
   return data
 }
 
 export async function updateClientRecord(id: string, payload: Record<string, unknown>) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const { error } = await supabase.from('clients').update(payload).eq('id', id)
   if (error) throw error
+  if (user) track(user.id, Events.CLIENT_UPDATED, { client_id: id })
 }

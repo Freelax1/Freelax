@@ -4,19 +4,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
+export async function GET(_req: NextRequest, { params }: { params: { token: string } }) {
   const supabase = createServiceClient()
 
   const { data: quote, error } = await supabase
     .from('quotes')
     .select('*, clients(*), quote_line_items(*), users(business_name, full_name, email, logo_url, address_line1, city)')
-    .eq('public_token', token)
+    .eq('public_token', params.token)
     .single()
 
   if (!quote || error) {
     console.log('[quotes/public] DIAGNOSTIC', {
-      token,
+      token: params.token,
       hasQuote: !!quote,
       error: error ? { message: error.message, code: error.code, details: error.details, hint: error.hint } : null,
       supabaseUrlPresent: !!process.env.NEXT_PUBLIC_SUPABASE_URL,

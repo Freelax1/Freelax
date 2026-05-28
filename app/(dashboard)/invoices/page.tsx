@@ -1,32 +1,89 @@
 'use client'
 
-import { tonePalette, toneFor } from '@/lib/status-palette'
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { fetchInvoices, deleteInvoice, type InvoiceListRow } from '@/lib/api/invoices'
+import { fetchInvoices, deleteInvoice } from '@/lib/api/invoices'
 import { calcDaysOverdue, isPastDue } from '@/lib/logic/invoices'
-import { groupByMonth } from '@/lib/logic/list-display'
-import { PageHeader, DropdownPanel, ListStatusTabs, ListMetrics, ListSearch, ListBulkBar } from '@/components/ui'
-import Alert from '@/components/ui/alert'
-import Button, { buttonVariants } from '@/components/ui/button'
+import PageHeader from '@/components/page-header'
 import EmptyState from '@/components/empty-state'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import { DotsThreeVertical, Eye, PencilSimple, Trash, Envelope } from '@phosphor-icons/react'
-import { useUndoDelete } from '@/hooks/use-undo-delete'
-import { cn } from '@/lib/utils'
-import ConfirmDeleteModal from '@/components/confirm-delete-modal'
-import StatusConfirmModal from '@/components/status-confirm-modal'
-import Tooltip from '@/components/tooltip'
+import { MoreVertical, Eye, Pencil, Trash2, Mail } from 'lucide-react'
+import type { Invoice } from '@/types/database'
 
-const INVOICE_STATUS_LABELS: Record<string, string> = {
-  sent: 'Sent', paid: 'Paid', cancelled: 'Cancelled', draft: 'Draft',
+// ── Delete modal ──────────────────────────────────────────────────────
+function DeleteModal({ invoiceNumber, count, paidCount, onConfirm, onCancel, loading }: {
+  invoiceNumber: string; count?: number; paidCount?: number; onConfirm: () => void; onCancel: () => void; loading: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+            <Trash2 className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <h2 className="font-bold text-slate-900">{count && count > 1 ? `Delete ${count} invoices?` : 'Delete invoice?'}</h2>
+            <p className="text-sm text-slate-500 mt-0.5">{count && count > 1 ? `${count} invoices` : invoiceNumber} will be permanently removed.</p>
+          </div>
+        </div>
+        {paidCount && paidCount > 0 ? (
+          <div className="mt-3 mb-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+            <p className="text-sm text-amber-800 font-medium">⚠ {paidCount} paid invoice{paidCount !== 1 ? 's' : ''} selected</p>
+            <p className="text-xs text-amber-700 mt-0.5">Deleting paid invoices will permanently remove them from your income totals on the dashboard and tax pages.</p>
+          </div>
+        ) : null}
+        <p className="text-sm text-slate-500 mt-3 mb-5">This action cannot be undone.</p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onConfirm} disabled={loading} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+            {loading ? 'Deleting...' : 'Yes, delete'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Status modal ──────────────────────────────────────────────────────
+function StatusModal({ count, newStatus, onConfirm, onCancel, loading }: {
+  count: number; newStatus: string; onConfirm: () => void; onCancel: () => void; loading: boolean
+}) {
+  const cfg: Record<string, { label: string; color: string }> = {
+    sent:      { label: 'Sent',      color: '#1A5E8A' },
+    paid:      { label: 'Paid',      color: '#1D6B35' },
+    cancelled: { label: 'Cancelled', color: '#C0392B' },
+    draft:     { label: 'Draft',     color: '#64748B' },
+  }
+  const { label, color } = cfg[newStatus] ?? { label: newStatus, color: '#64748B' }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onCancel}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-bold text-slate-900 mb-1">
+          Mark as <span style={{ color }}>{label}</span>?
+        </h2>
+        <p className="text-sm text-slate-500 mb-5">
+          {count} invoice{count !== 1 ? 's' : ''} will be marked as <span style={{ fontWeight: 600, color }}>{label}</span>.
+          {newStatus === 'paid' && <span className="block mt-1 text-amber-700 text-xs">Paid date will be set to today for any unpaid invoices.</span>}
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onClick={onConfirm} disabled={loading}
+            style={{ flex: 1, padding: '10px 16px', background: color, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Updating...' : `Mark as ${label}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ── Kebab menu ────────────────────────────────────────────────────────
 function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
-  invoice: InvoiceListRow; onDelete: (inv: InvoiceListRow) => void
-  onStatusChange: (inv: InvoiceListRow, status: string) => void; onSendByEmail: (inv: InvoiceListRow) => void
+  invoice: Invoice; onDelete: (inv: Invoice) => void
+  onStatusChange: (inv: Invoice, status: string) => void; onSendByEmail: (inv: Invoice) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -43,10 +100,10 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
 
   // Status options — never show paid for already-paid invoices
   const allStatuses = [
-    { key: 'sent',      label: 'Mark as Sent' },
-    { key: 'paid',      label: 'Paid'         },
-    { key: 'cancelled', label: 'Cancelled'    },
-    { key: 'draft',     label: 'Draft'        },
+    { key: 'sent',      label: 'Mark as Sent', dot: '#1A5E8A' },
+    { key: 'paid',      label: 'Paid',         dot: '#1D6B35' },
+    { key: 'cancelled', label: 'Cancelled',    dot: '#C0392B' },
+    { key: 'draft',     label: 'Draft',        dot: '#94A3B8' },
   ]
   const statusOptions = allStatuses.filter(s => {
     if (s.key === invoice.status) return false   // hide current status
@@ -57,34 +114,38 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
   })
 
   return (
-    <div ref={ref} className="relative">
-      <Tooltip label="Invoice actions">
-        <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-          className="p-1.5 rounded-xl hover:bg-surface-sunken text-text-secondary hover:text-text-primary transition-colors">
-          <DotsThreeVertical weight="regular" className="w-4 h-4" />
-        </button>
-      </Tooltip>
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+        <MoreVertical className="w-4 h-4" />
+      </button>
       {open && (
-        <DropdownPanel>
+        <div style={{
+          position: 'absolute', right: 0, top: 'calc(100% + 4px)',
+          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 50,
+          minWidth: 160, overflow: 'hidden',
+        }}>
           <Link href={`/invoices/${invoice.id}`} onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-            <Eye weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> View
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+            <Eye className="w-3.5 h-3.5 text-slate-400" /> View
           </Link>
           {isDraft && (
             <Link href={`/invoices/${invoice.id}/edit`} onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken">
-              <PencilSimple weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Edit
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+              <Pencil className="w-3.5 h-3.5 text-slate-400" /> Edit
             </Link>
           )}
           {/* Status options */}
           {statusOptions.length > 0 && (
-            <div className="border-t border-border-subtle">
-              <p className="text-micro font-semibold text-text-muted px-4 pt-2.5 pb-1 text-left">Change status</p>
+            <div style={{ borderTop: '1px solid #F1F5F9', padding: '6px 8px' }}>
+              <p style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 8px 6px' }}>Change status</p>
               {statusOptions.map(s => (
                 <button key={s.key} onClick={() => { setOpen(false); onStatusChange(invoice, s.key) }}
-                  className="flex items-center gap-2.5 px-4 py-2 text-sm text-text-primary hover:bg-surface-sunken w-full text-left border-none cursor-pointer bg-transparent"
+                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left rounded-md"
+                  style={{ border: 'none', cursor: 'pointer', background: 'transparent' }}
                 >
-                  <span className="inline-block w-[7px] h-[7px] rounded-full shrink-0" style={{ background: tonePalette(s.key).dot }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, flexShrink: 0, display: 'inline-block' }} />
                   {s.label}
                 </button>
               ))}
@@ -92,21 +153,21 @@ function KebabMenu({ invoice, onDelete, onStatusChange, onSendByEmail }: {
           )}
 
           {invoice.status !== 'sent' && invoice.status !== 'paid' && (
-            <div className="border-t border-border-subtle">
+            <div style={{ borderTop: '1px solid #F1F5F9' }}>
               <button onClick={e => { e.stopPropagation(); setOpen(false); onSendByEmail(invoice) }}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-sunken w-full text-left">
-                <Envelope weight="regular" className="w-3.5 h-3.5 text-text-secondary" /> Send by email
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+                <Mail className="w-3.5 h-3.5 text-slate-400" /> Send by email
               </button>
             </div>
           )}
 
-          <div className="border-t border-border-subtle">
+          <div style={{ borderTop: '1px solid #F1F5F9' }}>
             <button onClick={e => { e.stopPropagation(); setOpen(false); onDelete(invoice) }}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 w-full text-left">
-              <Trash weight="regular" className="w-3.5 h-3.5" /> Delete
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+              <Trash2 className="w-3.5 h-3.5" /> Delete
             </button>
           </div>
-        </DropdownPanel>
+        </div>
       )}
     </div>
   )
@@ -119,16 +180,33 @@ function BulkBar({ count, unpaidCount, onMarkPaid, onDelete, onClear, marking, d
   marking: boolean; deleting: boolean
 }) {
   return (
-    <ListBulkBar count={count} onClear={onClear}>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      background: '#0F172A', borderRadius: 10, padding: '10px 16px', marginBottom: 12,
+    }}>
+      <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', marginRight: 4 }}>{count} selected</span>
+      <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
       {unpaidCount > 0 && (
-        <Button type="button" intent="secondary" size="xs" onClick={onMarkPaid} disabled={marking}>
+        <button onClick={onMarkPaid} disabled={marking} style={{
+          fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
+          background: 'rgba(29,107,53,0.3)', border: '1px solid rgba(29,107,53,0.5)',
+          color: '#6EE7A0', cursor: marking ? 'default' : 'pointer', opacity: marking ? 0.6 : 1,
+        }}>
           {marking ? 'Marking…' : `Mark ${unpaidCount} as paid`}
-        </Button>
+        </button>
       )}
-      <Button type="button" intent="danger-subtle" size="xs" onClick={onDelete} disabled={deleting}>
-        <Trash weight="regular" className="w-3 h-3" /> Delete
-      </Button>
-    </ListBulkBar>
+      <button onClick={onDelete} disabled={deleting} style={{
+        fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
+        background: 'rgba(192,57,43,0.25)', border: '1px solid rgba(192,57,43,0.4)',
+        color: '#FF8A80', cursor: deleting ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+      }}>
+        <Trash2 style={{ width: 12, height: 12 }} /> Delete
+      </button>
+      <button onClick={onClear} style={{
+        marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,0.4)',
+        background: 'none', border: 'none', cursor: 'pointer',
+      }}>Clear</button>
+    </div>
   )
 }
 
@@ -142,18 +220,19 @@ const INV_SORT_OPTIONS: { label: string; field: InvSortField; dir: 'asc' | 'desc
 ]
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices]         = useState<InvoiceListRow[]>([])
+  const [invoices, setInvoices]         = useState<any[]>([])
   const [loading, setLoading]           = useState(true)
   const [updating, setUpdating]         = useState(false)
   const [msg, setMsg]                   = useState<string | null>(null)
   const [query, setQuery]               = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null)
   const [deleting, setDeleting]         = useState(false)
   const [selected, setSelected]         = useState<Set<string>>(new Set())
   const [bulkMarking, setBulkMarking]   = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
-  const [statusTarget, setStatusTarget] = useState<{ invoice: InvoiceListRow; status: string } | null>(null)
+  const [statusTarget, setStatusTarget] = useState<{ invoice: Invoice; status: string } | null>(null)
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [sortField, setSortField] = useState<InvSortField>('issue_date')
   const [sortDir, setSortDir]     = useState<'desc' | 'asc'>('desc')
@@ -161,11 +240,13 @@ export default function InvoicesPage() {
   async function load() { setInvoices(await fetchInvoices()); setLoading(false) }
   useEffect(() => { load() }, [])
 
-  const { pendingIds: deletePending, scheduleDelete } = useUndoDelete(
-    async (inv: InvoiceListRow) => deleteInvoice(inv.id),
-    (inv: InvoiceListRow) => String(inv.invoice_number),
-    load,
-  )
+  async function handleDelete() {
+    if (!deleteTarget) return
+    setDeleting(true)
+    try { await deleteInvoice(deleteTarget.id); setDeleteTarget(null); load() }
+    catch (e) { console.error(e) }
+    finally { setDeleting(false) }
+  }
 
   async function handleBulkDelete() {
     setBulkDeleting(true)
@@ -218,7 +299,7 @@ export default function InvoicesPage() {
     } catch { setStatusUpdating(false) }
   }
 
-  async function handleSendByEmail(inv: InvoiceListRow) {
+  async function handleSendByEmail(inv: Invoice) {
     try {
       await fetch('/api/invoices/send', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -245,7 +326,7 @@ export default function InvoicesPage() {
   }
   function toggleSelectAll() {
     if (selected.size === filtered.length) setSelected(new Set())
-    else setSelected(new Set(filtered.map((i: InvoiceListRow) => i.id)))
+    else setSelected(new Set(filtered.map((i: Invoice) => i.id)))
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -261,7 +342,7 @@ export default function InvoicesPage() {
       new Date(i.issue_date).toLocaleDateString('en-GB').includes(q)
     )
     const matchesStatus = statusFilter === 'all' || i.status === statusFilter
-    return matchesQuery && matchesStatus && !deletePending.has(i.id)
+    return matchesQuery && matchesStatus
   })
 
   function toggleInvSort(field: InvSortField) {
@@ -281,10 +362,6 @@ export default function InvoicesPage() {
     if (av > bv) return sortDir === 'asc' ? 1 : -1
     return 0
   })
-
-  /** Month headers on mobile only when sorted by issue date (Stripe/Mercury-style flat desktop table). */
-  const mobileGroupedByMonth =
-    sortField === 'issue_date' ? groupByMonth(sorted, inv => inv.issue_date) : null
 
   const overdueCount = invoices.filter(i => i.status === 'sent' && i.due_date < today).length
   const unpaidSelectedCount = Array.from(selected).filter(id => {
@@ -309,66 +386,74 @@ export default function InvoicesPage() {
     }
   })
 
-  const outstandingTotal = invoices
-    .filter(i => i.status !== 'paid' && i.status !== 'cancelled')
-    .reduce((s, i) => s + Number(i.total), 0)
-
   return (
     <div>
-      <PageHeader
+      <PageHeader className="fd-page-enter"
         title="Invoices"
         subtitle={loading ? '' : `${invoices.length} invoices`}
         action={
           <div className="flex gap-2">
             {overdueCount > 0 && (
-              <Button type="button" intent="danger-subtle" size="sm" onClick={handleUpdateOverdue} disabled={updating}>
+              <button onClick={handleUpdateOverdue} disabled={updating}
+                className="px-3 py-2 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 disabled:opacity-50">
                 {updating ? 'Updating...' : `Mark ${overdueCount} overdue`}
-              </Button>
+              </button>
             )}
-            <Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
+            <Link href="/invoices/new" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">
               New invoice
             </Link>
           </div>
         }
       />
 
-      {msg && <Alert intent="warning" className="mb-4">{msg}</Alert>}
+      {msg && <div className="fd-page-enter mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-2.5 rounded-lg">{msg}</div>}
 
+      {/* Status cards */}
       {!loading && invoices.length > 0 && (
-        <>
-          <ListStatusTabs
-            allCount={invoices.length}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            tabs={(['draft', 'sent', 'overdue', 'paid'] as const).map(key => ({
-              id: key,
-              label: key.charAt(0).toUpperCase() + key.slice(1),
-              count: stats[key].count,
-            }))}
-          />
-          <ListMetrics
-            items={[
-              {
-                label: 'Outstanding',
-                value: formatCurrency(outstandingTotal),
-                highlight: outstandingTotal > 0 ? 'negative' : 'neutral',
-              },
-              {
-                label: 'Paid this period',
-                value: formatCurrency(stats.paid.total),
-                highlight: stats.paid.total > 0 ? 'positive' : 'neutral',
-              },
-            ]}
-          />
-        </>
+        <div className="fd-stat-grid fd-page-enter">
+          {([
+            { key: 'draft',   label: 'Draft',   bgColor: '#F8F8F8', hoverColor: '#F0F0F0', borderColor: '#E2E8F0', labelColor: '#999',    valueColor: '#111' },
+            { key: 'sent',    label: 'Sent',    bgColor: '#EBF4FD', hoverColor: '#D6ECFB', borderColor: '#B8D9F0', labelColor: '#1A5E8A', valueColor: '#1A5E8A' },
+            { key: 'overdue', label: 'Overdue', bgColor: '#FDECEA', hoverColor: '#FAD7D4', borderColor: '#F5C0BB', labelColor: '#C0392B', valueColor: '#C0392B' },
+            { key: 'paid',    label: 'Paid',    bgColor: '#EAFAF0', hoverColor: '#D4F5E2', borderColor: '#B8DFC3', labelColor: '#1D6B35', valueColor: '#1D6B35' },
+          ] as const).map(({ key, label, bgColor, hoverColor, borderColor, labelColor, valueColor }) => {
+            const isActive = statusFilter === key
+            return (
+              <button key={key} onClick={() => setStatusFilter(isActive ? 'all' : key)}
+                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = hoverColor }}
+                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = bgColor }}
+                style={{
+                  background: isActive ? '#111' : bgColor,
+                  border: `1px solid ${isActive ? '#111' : borderColor}`,
+                  borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+                  textAlign: 'left' as const, transition: 'background 0.15s',
+                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
+                }}>
+                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.5)' : labelColor, marginBottom: 6 }}>{label}</p>
+                <p style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#fff' : valueColor, letterSpacing: '-0.02em', marginBottom: 2 }}>{stats[key].count}</p>
+                <p style={{ fontSize: 11, fontWeight: 500, color: isActive ? 'rgba(255,255,255,0.6)' : valueColor, opacity: isActive ? 1 : 0.8 }}>{formatCurrency(stats[key].total)}</p>
+              </button>
+            )
+          })}
+        </div>
       )}
 
-      <div className="mb-4">
+      {/* Search + mobile sort */}
+      <div className="fd-page-enter" style={{ marginBottom: 16 }}>
         <div className="flex items-center gap-2">
-          <ListSearch value={query} onChange={setQuery} placeholder="Search invoices..." />
-          <Button type="button" intent="secondary" size="xs" className="md:hidden flex-shrink-0 whitespace-nowrap" onClick={cycleInvSort}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+            <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#AAA' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search invoices..."
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 13, background: '#fff', outline: 'none', fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' as const }}
+              onKeyDown={e => e.key === 'Escape' && setQuery('')}
+            />
+            {query && <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#AAA', fontSize: 16 }}>×</button>}
+          </div>
+          <button className="md:hidden flex-shrink-0" onClick={cycleInvSort} style={{ padding: '9px 12px', border: '1px solid #E2E2E2', borderRadius: 10, fontSize: 12, fontWeight: 500, color: '#555', background: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
             {mobileSortLabel}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -386,181 +471,130 @@ export default function InvoicesPage() {
       )}
 
       {!loading && !invoices.length ? (
-        <EmptyState icon="invoice" title="No invoices yet" description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
-          action={<Link href="/invoices/new" className={buttonVariants({ intent: 'primary', size: 'sm' })}>Send your first invoice</Link>} />
+        <EmptyState className="fd-page-enter" icon="invoice" title="No invoices yet" description="Invoices here will feed your tax estimates and chase overdue payments automatically. Send your first to get the dashboard working."
+          action={<Link href="/invoices/new" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Send your first invoice</Link>} />
       ) : (
-        <div className="hidden md:block bg-surface-card rounded-xl border border-border-default">
-          <table className="w-full border-separate border-spacing-0">
-            <colgroup>
-              <col className="w-10" />
-              <col className="w-36" />
-              <col />
-              <col className="w-28" />
-              <col className="w-28" />
-              <col className="w-32" />
-              <col className="w-36" />
-              <col className="w-10" />
-            </colgroup>
-            <thead>
+        <div className="hidden md:block fd-page-enter bg-white rounded-xl border border-slate-200 overflow-visible">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tl-xl">
+                <th className="px-4 py-3 w-8">
                   <input type="checkbox"
-                    aria-label="Select all invoices"
                     checked={filtered.length > 0 && selected.size === filtered.length}
                     onChange={toggleSelectAll}
-                    className="rounded border-border-strong cursor-pointer"
+                    className="rounded border-slate-300 cursor-pointer"
                   />
                 </th>
-                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default select-none cursor-pointer"
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'invoice_number' ? 700 : 500, color: sortField === 'invoice_number' ? '#1E293B' : '#475569' }}
                   onClick={() => toggleInvSort('invoice_number')}>
-                  Invoice #{sortField === 'invoice_number' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                  Invoice # <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'invoice_number' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'invoice_number' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
                 </th>
-                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Client</th>
-                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default select-none cursor-pointer"
+                <th className="px-4 py-3 font-medium text-slate-600 text-left">Client</th>
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'issue_date' ? 700 : 500, color: sortField === 'issue_date' ? '#1E293B' : '#475569' }}
                   onClick={() => toggleInvSort('issue_date')}>
-                  Issued{sortField === 'issue_date' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                  Issued <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'issue_date' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'issue_date' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
                 </th>
-                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default select-none cursor-pointer"
+                <th className="px-4 py-3 text-left select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'due_date' ? 700 : 500, color: sortField === 'due_date' ? '#1E293B' : '#475569' }}
                   onClick={() => toggleInvSort('due_date')}>
-                  Due{sortField === 'due_date' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                  Due <span style={{ fontSize: 10, marginLeft: 2, color: sortField === 'due_date' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'due_date' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
                 </th>
-                <th className="px-4 py-2.5 text-right text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default select-none cursor-pointer"
+                <th className="px-4 py-3 text-right select-none cursor-pointer"
+                  style={{ fontWeight: sortField === 'total' ? 700 : 500, color: sortField === 'total' ? '#1E293B' : '#475569' }}
                   onClick={() => toggleInvSort('total')}>
-                  Amount{sortField === 'total' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                  <span style={{ fontSize: 10, marginRight: 2, color: sortField === 'total' ? '#1E293B' : '#CBD5E1' }}>{sortField === 'total' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>Total
                 </th>
-                <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
-                <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl" aria-label="Actions"></th>
+                <th className="px-4 py-3 font-medium text-slate-600 text-left">Status</th>
+                <th className="px-4 py-3 w-10"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {loading ? Array.from({ length: 4 }).map((_, i) => (
-                <tr key={i} className="border-t border-border-subtle">{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-2.5"><div className="h-3.5 fd-skeleton w-20" /></td>)}</tr>
+                <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 fd-skeleton w-20" /></td>)}</tr>
               )) : sorted.map(inv => {
-                  const days = calcDaysOverdue(inv.due_date)
-                  const pastDue = isPastDue(inv.status, inv.due_date, today)
-                  return (
-                    <tr key={inv.id} className={`border-t border-border-subtle hover:bg-surface-sunken transition-colors ${pastDue ? 'bg-danger-50/30' : ''} ${selected.has(inv.id) ? 'bg-forest-50/50' : ''}`}>
-                      <td className="px-3 py-2.5 text-center">
-                        <input type="checkbox" aria-label={`Select invoice ${inv.invoice_number}`} checked={selected.has(inv.id)} onChange={() => toggleSelect(inv.id)} className="rounded border-border-strong cursor-pointer" />
-                      </td>
-                      <td className="px-4 py-2.5 font-medium text-sm">
-                        <Link href={`/invoices/${inv.id}`} className="text-forest-600 hover:underline">{inv.invoice_number}</Link>
-                      </td>
-                      <td className="px-4 py-2.5 text-sm text-text-secondary">{inv.clients?.name ?? '—'}</td>
-                      <td className="px-4 py-2.5 text-sm text-text-secondary tabular-nums">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
-                      <td className={`px-4 py-2.5 text-sm tabular-nums ${pastDue ? 'text-danger-600 font-medium' : 'text-text-secondary'}`}>
-                        {new Date(inv.due_date).toLocaleDateString('en-GB')}
-                        {pastDue && <span className="ml-1.5 text-caption font-medium">{days}d late</span>}
-                      </td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-sm text-text-primary tabular-nums">{formatCurrency(inv.total)}</td>
-                      <td className="px-4 py-2.5"><Badge status={inv.status} /></td>
-                      <td className="px-3 py-2.5 text-right">
-                        <KebabMenu invoice={inv} onDelete={scheduleDelete}
-                          onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
-                          onSendByEmail={handleSendByEmail} />
-                      </td>
-                    </tr>
-                  )
-                })}
+                const days = calcDaysOverdue(inv.due_date)
+                const pastDue = isPastDue(inv.status, inv.due_date, today)
+                return (
+                  <tr key={inv.id} className={`hover:bg-slate-50 ${pastDue ? 'bg-red-50/30' : ''} ${selected.has(inv.id) ? 'bg-blue-50/50' : ''}`}>
+                    <td className="px-4 py-3">
+                      <input type="checkbox" checked={selected.has(inv.id)} onChange={() => toggleSelect(inv.id)} className="rounded border-slate-300 cursor-pointer" />
+                    </td>
+                    <td className="px-4 py-3 font-medium">
+                      <Link href={`/invoices/${inv.id}`} className="text-blue-600 hover:underline">{inv.invoice_number}</Link>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{inv.clients?.name ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-500">{new Date(inv.issue_date).toLocaleDateString('en-GB')}</td>
+                    <td className={`px-4 py-3 ${pastDue ? 'text-red-600 font-medium' : 'text-slate-500'}`}>
+                      {new Date(inv.due_date).toLocaleDateString('en-GB')}
+                      {pastDue && <span className="ml-1 text-xs">({days}d late)</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium">{formatCurrency(inv.total)}</td>
+                    <td className="px-4 py-3"><Badge status={inv.status} /></td>
+                    <td className="px-4 py-3 text-right">
+                      <KebabMenu invoice={inv} onDelete={setDeleteTarget}
+                        onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
+                        onSendByEmail={handleSendByEmail} />
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       )}
 
 
-        {/* Mobile cards — month sections only when sorted by issue date */}
-        <div className="md:hidden space-y-4">
+        {/* Mobile cards — hidden on md and above */}
+        <div className="md:hidden fd-page-enter space-y-2">
           {loading ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default p-4">
+            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
               <div className="h-4 fd-skeleton w-24 mb-3" />
               <div className="h-3 fd-skeleton w-32 mb-2" />
               <div className="h-3 fd-skeleton w-20" />
             </div>
-          )) : (mobileGroupedByMonth ?? [{ label: '', items: sorted }]).map(({ label, items }, groupIdx) => (
-            <div key={label || `flat-${groupIdx}`}>
-              {label && <p className="text-caption font-semibold text-text-muted mb-2 px-1">{label}</p>}
-              <div className="bg-surface-card rounded-xl border border-border-default overflow-hidden divide-y divide-border-subtle">
-                {items.map(inv => {
-                  const days = calcDaysOverdue(inv.due_date)
-                  const pastDue = isPastDue(inv.status, inv.due_date, today)
-                  const isSelected = selected.has(inv.id)
-                  return (
-                    <div key={inv.id} className={`p-4 transition-colors ${pastDue ? 'bg-danger-50/30' : ''} ${isSelected ? 'bg-forest-50/30' : ''}`}>
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <input type="checkbox" aria-label={`Select invoice ${inv.invoice_number}`} checked={isSelected} onChange={() => toggleSelect(inv.id)}
-                            onClick={e => e.stopPropagation()} className="rounded border-border-strong cursor-pointer flex-shrink-0" />
-                          <Link href={`/invoices/${inv.id}`} className="font-medium text-forest-700 hover:underline truncate">
-                            {inv.invoice_number}
-                          </Link>
-                        </div>
-                        <span className="font-semibold text-text-primary flex-shrink-0">{formatCurrency(inv.total)}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-3 mb-2 pl-7">
-                        <span className="text-sm text-text-primary truncate">{inv.clients?.name ?? '—'}</span>
-                        <div className="flex-shrink-0"><Badge status={inv.status} /></div>
-                      </div>
-                      <div className="flex items-center justify-between gap-3 pl-7">
-                        <span className={`text-xs ${pastDue ? 'text-danger-700 font-medium' : 'text-text-primary'}`}>
-                          Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
-                          {pastDue && ` · ${days}d late`}
-                        </span>
-                        <KebabMenu invoice={inv} onDelete={scheduleDelete}
-                          onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
-                          onSendByEmail={handleSendByEmail} />
-                      </div>
-                    </div>
-                  )
-                })}
+          )) : sorted.map(inv => {
+            const days = calcDaysOverdue(inv.due_date)
+            const pastDue = isPastDue(inv.status, inv.due_date, today)
+            const isSelected = selected.has(inv.id)
+            return (
+              <div key={inv.id}
+                className={`bg-white rounded-xl border p-4 transition-colors ${
+                  pastDue ? 'border-red-200 bg-red-50/30' : 'border-slate-200'
+                } ${isSelected ? 'border-blue-300 bg-blue-50/30' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(inv.id)}
+                      onClick={e => e.stopPropagation()} className="rounded border-slate-300 cursor-pointer flex-shrink-0" />
+                    <Link href={`/invoices/${inv.id}`} className="font-medium text-blue-600 hover:underline truncate">
+                      {inv.invoice_number}
+                    </Link>
+                  </div>
+                  <span className="font-semibold text-slate-900 flex-shrink-0">{formatCurrency(inv.total)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 mb-2 pl-7">
+                  <span className="text-sm text-slate-600 truncate">{inv.clients?.name ?? '—'}</span>
+                  <div className="flex-shrink-0"><Badge status={inv.status} /></div>
+                </div>
+                <div className="flex items-center justify-between gap-3 pl-7">
+                  <span className={`text-xs ${pastDue ? 'text-red-600 font-medium' : 'text-slate-400'}`}>
+                    Due {new Date(inv.due_date).toLocaleDateString('en-GB')}
+                    {pastDue && ` · ${days}d late`}
+                  </span>
+                  <KebabMenu invoice={inv} onDelete={setDeleteTarget}
+                    onStatusChange={(inv, status) => setStatusTarget({ invoice: inv, status })}
+                    onSendByEmail={handleSendByEmail} />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
-      {bulkDeleteOpen && (
-        <ConfirmDeleteModal
-          title={selected.size > 1 ? `Delete ${selected.size} invoices?` : 'Delete invoice?'}
-          description={`${selected.size} invoice${selected.size !== 1 ? 's' : ''} will be permanently removed.`}
-          warning={paidSelectedCount > 0 ? `⚠ ${paidSelectedCount} paid invoice${paidSelectedCount !== 1 ? 's' : ''} selected — deleting will remove them from your income totals.` : undefined}
-          onConfirm={handleBulkDelete}
-          onCancel={() => setBulkDeleteOpen(false)}
-          loading={bulkDeleting}
-        />
-      )}
-      {statusTarget && (
-        <StatusConfirmModal
-          statusKey={statusTarget.status}
-          title={
-            <>
-              Mark as{' '}
-              <span style={{ color: tonePalette(statusTarget.status).text }}>
-                {INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
-              </span>
-              ?
-            </>
-          }
-          description={
-            <>
-              1 invoice will be marked as{' '}
-              <span className="font-semibold" style={{ color: tonePalette(statusTarget.status).text }}>
-                {INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}
-              </span>
-              .
-            </>
-          }
-          footerNote={
-            statusTarget.status === 'paid' ? (
-              <span className="block mt-1 text-warning-800 text-xs">
-                Paid date will be set to today for any unpaid invoices.
-              </span>
-            ) : undefined
-          }
-          confirmLabel={`Mark as ${INVOICE_STATUS_LABELS[statusTarget.status] ?? statusTarget.status}`}
-          onConfirm={handleStatusChange}
-          onCancel={() => setStatusTarget(null)}
-          loading={statusUpdating}
-        />
-      )}
+      {deleteTarget && <DeleteModal invoiceNumber={deleteTarget.invoice_number} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />}
+      {bulkDeleteOpen && <DeleteModal invoiceNumber="" count={selected.size} paidCount={paidSelectedCount} onConfirm={handleBulkDelete} onCancel={() => setBulkDeleteOpen(false)} loading={bulkDeleting} />}
+      {statusTarget && <StatusModal count={1} newStatus={statusTarget.status} onConfirm={handleStatusChange} onCancel={() => setStatusTarget(null)} loading={statusUpdating} />}
     </div>
   )
 }

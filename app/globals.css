@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,320 +7,24 @@
 
 @layer base {
   :root {
-    /* ── Forest colour ramp ────────────────────────────────────────── */
-    --forest-50:  #EDF3EF;
-    --forest-100: #DEEBE2;
-    --forest-200: #BFD7C9;
-    --forest-300: #8FB59C;
-    --forest-400: #5E8E72;
-    --forest-500: #3D6B52;
-    --forest-600: #2B5340;
-    --forest-700: #1F3D2D;
-    --forest-800: #143020;
-    --forest-900: #0D2014;
-    --forest-950: #05110A;
-
-    /* ── Cream colour ramp ─────────────────────────────────────────── */
-    --cream-50:  #FAF6EA;
-    --cream-100: #F5EFE2;
-    --cream-200: #ECE3CC;
-    --cream-300: #E8DCC4;
-    --cream-400: #D9C79E;
-    --cream-500: #C9B58A;
-    --cream-600: #A08A5A;
-    --cream-700: #8C7544;
-    --cream-800: #5F4F2D;
-    --cream-900: #4A3D1F;
-
-    /* ── Semantic surface tokens ───────────────────────────────────── */
-    --surface-paper:   #FFFFFF;
-    --surface-card:    #FFFFFF;
-    --surface-sunken:  #F5F4F2;
-    --surface-overlay: rgba(15, 32, 22, 0.5);
-
-    /* ── Semantic text tokens ──────────────────────────────────────── */
-    --text-primary:   #1F3D2D;
-    --text-body:      #2C2C2A;
-    --text-secondary: #5F5E5A;
-    --text-muted:     #696863;
-    --text-disabled:  #B4B2A9;
-    --text-on-dark:   #E8DCC4;
-    --text-on-accent: #1F3D2D;
-
-    /* ── Semantic border tokens ────────────────────────────────────── */
-    --border-default: #E2E1DE;
-    --border-hover:   #C8C6C2;
-    --border-subtle:  #EBEBEA;
-    --border-strong:  #888780;
-    --border-focus:   #3D6B52;
-
-    /* ── Brand semantic tokens ─────────────────────────────────────── */
-    --brand-primary:        var(--forest-700);
-    --brand-primary-hover:  var(--forest-800);
-    --brand-primary-active: var(--forest-900);
-    --brand-accent:         var(--cream-300);
-    --brand-accent-hover:   var(--cream-400);
-    --brand-accent-active:  var(--cream-500);
-
-    /* ── Status colour tokens ──────────────────────────────────────── */
-    /* Realigned to deeper brand-tone palette used by status badges.   */
-    /* -100 stops added for hover states. Use the helpers in           */
-    /* lib/status-palette.ts rather than referencing raw stops in JSX. */
-    --success-50:  #EAFAF0;
-    --success-100: #D4F5E2;
-    --success-200: #B8DFC3;
-    --success-500: #1D6B35;
-    --success-600: #0F5A28;
-    --success-700: #0A4520;
-    --success-800: #06321A;
-    --warning-50:  #FEFCE8;
-    --warning-100: #FDF0C0;
-    --warning-200: #F5E29B;
-    --warning-500: #9A7B0A;
-    --warning-600: #5C480C;
-    --warning-700: #3F3208;
-    --warning-800: #2A2105;
-    --danger-50:   #FDECEA;
-    --danger-100:  #FAD7D4;
-    --danger-200:  #F5C0BB;
-    --danger-500:  #C0392B;
-    --danger-600:  #8B1E15;
-    --danger-700:  #6B1410;
-    --danger-800:  #4A0D0B;
-    --info-50:     #EBF4FD;
-    --info-100:    #D6ECFB;
-    --info-200:    #B8D9F0;
-    --info-500:    #1A5E8A;
-    --info-600:    #0E4566;
-    --info-700:    #093550;
-    --info-800:    #06243A;
-
-    /* ── Typography tokens ─────────────────────────────────────────── */
-    /* Two fonts only: Outfit (UI) · DM Serif Display (display/wordmark) */
-    --font-serif: "DM Serif Display", Georgia, serif;
-    --font-sans:  "Outfit", system-ui, sans-serif;
-
-    /* ── Type scale (9 steps) ─────────────────────────────────────── */
-    /*   micro   10px — tiny pills, avatar initials, kbd hints         */
-    /*   caption 11px — meta, timestamps, field hints                  */
-    /*   xs      12px — secondary labels, badges                       */
-    /*   sm      14px — default UI body, inputs, buttons               */
-    /*   base    16px — section headings, prominent CTAs               */
-    /*   lg      18px — card headings, modal subtitles                 */
-    /*   xl      22px — page titles in modals/drawers                  */
-    /*   2xl     28px — page titles, stat values                       */
-    /*   3xl     36px — hero stats (rare)                              */
-    --text-micro:   0.625rem;
-    --text-caption: 0.6875rem;
-    --text-xs:      0.75rem;
-    --text-sm:      0.875rem;
-    --text-base:    1rem;
-    --text-lg:      1.125rem;
-    --text-xl:      1.375rem;
-    --text-2xl:     1.75rem;
-    --text-3xl:     2.25rem;
-
-    /* ── Line-height ──────────────────────────────────────────────── */
-    /* Wired through tailwind.config.js extend.lineHeight so              */
-    /* leading-display / leading-heading / leading-body / leading-relaxed */
-    /* resolve here and can be tuned globally.                            */
-    --leading-display: 1.15;  /* hero numbers, large serif headings */
-    --leading-heading: 1.3;   /* card titles, section heads         */
-    --leading-body:    1.5;   /* default body text, inputs          */
-    --leading-relaxed: 1.65;  /* long-form prose, legal copy        */
-
-    /* ── Font weights ─────────────────────────────────────────────── */
-    --weight-regular:  400;
-    --weight-medium:   500;
-    --weight-semibold: 600;
-
-    /* ── Spacing tokens ────────────────────────────────────────────── */
-    /* Canonical scale — mirrors Tailwind's default 0.25rem base unit.
-       All keys are wired through tailwind.config.js extend.spacing so
-       Tailwind utility classes (p-4, gap-3, mx-6 …) resolve to these
-       CSS vars and can be globally adjusted here.               */
-    --space-0:    0;
-    --space-px:   1px;
-    --space-0-5:  0.125rem;   /*  2px */
-    --space-1:    0.25rem;    /*  4px */
-    --space-1-5:  0.375rem;   /*  6px */
-    --space-2:    0.5rem;     /*  8px */
-    --space-3:    0.75rem;    /* 12px */
-    --space-4:    1rem;       /* 16px */
-    --space-5:    1.25rem;    /* 20px */
-    --space-6:    1.5rem;     /* 24px */
-    --space-7:    1.75rem;    /* 28px */
-    --space-8:    2rem;       /* 32px */
-    --space-9:    2.25rem;    /* 36px */
-    --space-10:   2.5rem;     /* 40px */
-    --space-12:   3rem;       /* 48px */
-    --space-14:   3.5rem;     /* 56px */
-    --space-16:   4rem;       /* 64px */
-    --space-20:   5rem;       /* 80px */
-    --space-24:   6rem;       /* 96px */
-
-    /* ── Radius tokens ─────────────────────────────────────────────── */
-    --radius-none: 0;
-    --radius-xs:   2px;
-    --radius-sm:   4px;
-    --radius-md:   8px;
-    --radius-lg:   12px;
-    --radius-xl:   18px;
-    --radius-2xl:  28px;
-    --radius-3xl:  40px;
-    --radius-full: 9999px;
-
-    /* ── Elevation tokens ──────────────────────────────────────────── */
-    --shadow-xs:    0 1px 2px rgba(15, 32, 22, 0.04);
-    --shadow-sm:    0 2px 4px rgba(15, 32, 22, 0.05), 0 1px 2px rgba(15, 32, 22, 0.04);
-    --shadow-md:    0 4px 12px rgba(15, 32, 22, 0.07), 0 2px 4px rgba(15, 32, 22, 0.05);
-    --shadow-lg:    0 12px 24px rgba(15, 32, 22, 0.10), 0 4px 8px rgba(15, 32, 22, 0.06);
-    --shadow-xl:    0 24px 48px rgba(15, 32, 22, 0.14), 0 8px 16px rgba(15, 32, 22, 0.08);
-    --shadow-inset: inset 0 1px 2px rgba(15, 32, 22, 0.06);
-
-    /* ── Named elevation (Tailwind shadow-card, shadow-modal, …) ─── */
-    --shadow-card:         0 2px 8px rgba(15, 32, 22, 0.08);
-    --shadow-card-sm:      0 1px 3px rgba(15, 32, 22, 0.05);
-    --shadow-card-public:  0 1px 3px rgba(15, 32, 22, 0.06), 0 8px 32px rgba(15, 32, 22, 0.04);
-    --shadow-modal:        0 24px 64px rgba(15, 32, 22, 0.18);
-    --shadow-popover:      0 8px 24px rgba(15, 32, 22, 0.10);
-    --shadow-overlay:      0 8px 32px rgba(15, 32, 22, 0.12);
-    --shadow-overlay-dark: 0 8px 32px rgba(15, 32, 22, 0.24);
-    --shadow-tooltip:      0 8px 20px rgba(15, 32, 22, 0.15);
-    --shadow-sheet-bottom: 0 -4px 32px rgba(15, 32, 22, 0.15);
-    --shadow-slide-left:   -4px 0 24px rgba(15, 32, 22, 0.12);
-    --shadow-btn-dark:     0 2px 8px rgba(15, 32, 22, 0.18);
-
-    /* ── Motion tokens ─────────────────────────────────────────────── */
-    --duration-fast:    120ms;
-    --duration-default: 200ms;
-    --duration-slow:    400ms;
-    --ease-out:         cubic-bezier(0.2, 0.7, 0.3, 1);
-    --ease-in-out:      cubic-bezier(0.5, 0, 0.3, 1);
-
-    /* ── Container widths ──────────────────────────────────────────── */
-    --container-xs:  360px;
-    --container-sm:  640px;
-    --container-md:  768px;
-    --container-lg:  1024px;
-    --container-xl:  1280px;
-    --container-2xl: 1536px;
-
-    /* ── shadcn / Tailwind compatibility (HSL, no hsl() wrapper) ───── */
-    --background:              0  0% 100%;   /* surface-paper  #FFFFFF */
-    --foreground:             60  2% 17%;   /* text-body      #2C2C2A */
-    --card:                    0  0% 100%;  /* surface-card   #FFFFFF */
-    --card-foreground:        60  2% 17%;
-    --border:                 40  5% 87%;   /* border-default #E2E1DE */
-    --input:                  40  5% 87%;
-    --primary:               152 32% 18%;   /* brand-primary  #1F3D2D */
-    --primary-foreground:     39 40% 84%;   /* text-on-dark   #E8DCC4 */
-    --secondary:             145 28% 88%;   /* forest-100     #DEEBE2 */
-    --secondary-foreground:  152 32% 18%;
-    --muted:                  40  8% 96%;   /* surface-sunken #F5F4F2 */
-    --muted-foreground:       45  3% 36%;   /* text-secondary #5F5E5A */
-    --accent:                 39 40% 84%;   /* cream-300      #E8DCC4 */
-    --accent-foreground:     152 32% 18%;
-    --destructive:             2 55% 50%;   /* danger-500     #C4413B */
-    --destructive-foreground:  0  0% 100%;
-    --ring:                  151 30% 33%;   /* border-focus   #3D6B52 */
-    --radius:                0.5rem;        /* radius-md      8px     */
-  }
-
-  /* ── Dark mode ─────────────────────────────────────────────────────── */
-  .dark,
-  [data-theme="dark"] {
-    --surface-paper:   #0D2014;
-    --surface-card:    #143020;
-    --surface-sunken:  #05110A;
-    --surface-overlay: rgba(0, 0, 0, 0.65);
-
-    --text-primary:   #F5EFE2;
-    --text-body:      #E8DCC4;
-    --text-secondary: #BFD7C9;
-    --text-muted:     #8FB59C;
-    --text-disabled:  #5E8E72;
-    --text-on-dark:   #F5EFE2;
-    --text-on-accent: #0D2014;
-
-    --border-default: #2B5340;
-    --border-hover:   #3D6B52;
-    --border-subtle:  #1F3D2D;
-    --border-strong:  #5E8E72;
-    --border-focus:   #C9B58A;
-
-    --brand-primary:        #C9B58A;
-    --brand-primary-hover:  #D9C79E;
-    --brand-primary-active: #E8DCC4;
-    --brand-accent:         #3D6B52;
-    --brand-accent-hover:   #2B5340;
-    --brand-accent-active:  #1F3D2D;
-
-    --success-50:  #0D2914;
-    --success-100: #14391C;
-    --success-200: #1F5C2E;
-    --success-500: #8FB59C;
-    --success-600: #A8CBAF;
-    --success-700: #DEEBE2;
-    --success-800: #EEF5F0;
-    --warning-50:  #2A1A0A;
-    --warning-100: #3A2510;
-    --warning-200: #4A3010;
-    --warning-500: #E89B6F;
-    --warning-600: #F0AE87;
-    --warning-700: #F8C9A2;
-    --warning-800: #FDE8D0;
-    --danger-50:   #2E0F0F;
-    --danger-100:  #421515;
-    --danger-200:  #5C1A1A;
-    --danger-500:  #E59082;
-    --danger-600:  #EDA89F;
-    --danger-700:  #F5D3CD;
-    --danger-800:  #FAE8E5;
-    --info-50:     #0A2238;
-    --info-100:    #102E48;
-    --info-200:    #1A4569;
-    --info-500:    #6FA8D6;
-    --info-600:    #93BFE0;
-    --info-700:    #C6DCEE;
-    --info-800:    #E5EFF7;
-
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.5);
-
-    --shadow-card:         0 2px 8px rgba(0, 0, 0, 0.45);
-    --shadow-card-sm:      0 1px 3px rgba(0, 0, 0, 0.35);
-    --shadow-card-public:  0 1px 3px rgba(0, 0, 0, 0.35), 0 8px 32px rgba(0, 0, 0, 0.4);
-    --shadow-modal:        0 24px 64px rgba(0, 0, 0, 0.65);
-    --shadow-popover:      0 8px 24px rgba(0, 0, 0, 0.5);
-    --shadow-overlay:      0 8px 32px rgba(0, 0, 0, 0.55);
-    --shadow-overlay-dark: 0 8px 32px rgba(0, 0, 0, 0.7);
-    --shadow-tooltip:      0 8px 20px rgba(0, 0, 0, 0.55);
-    --shadow-sheet-bottom: 0 -4px 32px rgba(0, 0, 0, 0.55);
-    --shadow-slide-left:   -4px 0 24px rgba(0, 0, 0, 0.5);
-    --shadow-btn-dark:     0 2px 8px rgba(0, 0, 0, 0.5);
-
-    /* shadcn / Tailwind compat — dark */
-    --background:            152 43%  8%;   /* surface-paper  #0D2014 */
-    --foreground:             39 40% 84%;   /* text-body      #E8DCC4 */
-    --card:                  152 38% 13%;   /* surface-card   #143020 */
-    --card-foreground:        39 40% 84%;
-    --border:                152 30% 24%;   /* border-default #2B5340 */
-    --input:                 152 30% 24%;
-    --primary:                38 45% 67%;   /* brand-primary  #C9B58A */
-    --primary-foreground:    152 43%  8%;
-    --secondary:             152 25% 22%;
-    --secondary-foreground:   39 40% 84%;
-    --muted:                 149 55%  5%;   /* surface-sunken #05110A */
-    --muted-foreground:      145 20% 63%;   /* text-muted     #8FB59C */
-    --accent:                151 30% 33%;   /* brand-accent   #3D6B52 */
-    --accent-foreground:      39 40% 84%;
-    --destructive:             0 55% 70%;
-    --destructive-foreground:  0  0% 100%;
-    --ring:                   38 45% 67%;   /* border-focus   #C9B58A */
+    --background: 0 0% 96%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 0 0% 7%;
+    --radius: 0.5rem;
   }
 }
 
@@ -327,41 +32,19 @@
   html {
     scroll-behavior: smooth;
   }
-
   * { @apply border-border; }
-
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-    background-color: var(--surface-paper);
-    color: var(--text-body);
-    font-size: var(--text-base);
-    line-height: var(--leading-body);
-    font-variant-numeric: tabular-nums;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    padding-top:    env(safe-area-inset-top, 0px);
-    padding-right:  env(safe-area-inset-right, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left:   env(safe-area-inset-left, 0px);
-    overscroll-behavior-y: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #FAFAF7;
+  font-variant-numeric: tabular-nums;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
-    font-weight: var(--weight-medium);
-    letter-spacing: -0.015em;
-    color: var(--text-primary);
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
   }
-
-  /* Serif display titles (page h1, form headers) — default tracking, lighter weight */
-  :is(h1, h2, h3, h4, h5, h6).font-serif {
-    letter-spacing: 0;
-    font-weight: var(--weight-regular);
-  }
-
   code, kbd, pre, samp {
-    font-family: var(--font-sans);
+    font-family: 'DM Mono', monospace;
   }
 }
 
@@ -369,7 +52,7 @@
 /* ── Smooth scrollbar ───────────────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-default) transparent;
+  scrollbar-color: #D0D0D0 transparent;
 }
 *::-webkit-scrollbar {
   width: 6px;
@@ -379,39 +62,44 @@
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: var(--radius-full);
+  background: #D0D0D0;
+  border-radius: 99px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong);
+  background: #B0B0B0;
 }
 
-/* ── Input placeholder contrast (WCAG AA) ─────────────────────────────── */
-input::placeholder, textarea::placeholder {
-  color: var(--text-secondary);
-  opacity: 1;
-}
+/* ── Badge styles ──────────────────────────────────────────────────────── */
+.badge-draft         { background:#F0F0F0; color:#555; border:1px solid #E0E0E0; }
+.badge-sent          { background:#EBF4FD; color:#1A5E8A; border:1px solid #B8D9F0; }
+.badge-paid          { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-overdue       { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-cancelled     { background:#F0F0F0; color:#888; border:1px solid #DDD; }
+.badge-active        { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-paused        { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
+.badge-archived      { background:#F0F0F0; color:#666; border:1px solid #DDD; }
+.badge-outside-ir35  { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-inside-ir35   { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-needs-review  { background:#FEF9E7; color:#9A7B0A; border:1px solid #F5E29B; }
+.badge-accepted      { background:#EAFAF0; color:#1D6B35; border:1px solid #B8DFC3; }
+.badge-declined      { background:#FDECEA; color:#C0392B; border:1px solid #F5C0BB; }
+.badge-expired       { background:#F0F0F0; color:#888; border:1px solid #DDD; }
 
-select option {
-  background-color: var(--surface-card);
-  color: var(--text-primary);
-}
-
-/* ── Nav tab ────────────────────────────────────────────────────────────── */
+/* ── Nav tab hover zoom ─────────────────────────────────────────────────── */
+/* In @layer components so Tailwind utilities (hidden, lg:flex) can override */
 @layer components {
   .fd-nav-tab {
-    padding: 0 var(--space-4);
+    padding: 0 16px;
     display: flex;
     align-items: center;
     height: 100%;
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    font-family: var(--font-sans);
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: rgba(255,255,255,0.6);
     border-bottom: 3px solid transparent;
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out),
-                border-color var(--duration-fast) var(--ease-out);
+    transition: color 0.15s ease, border-color 0.15s ease;
     cursor: pointer;
     background: none;
     border-top: none;
@@ -420,149 +108,308 @@ select option {
   }
   .fd-nav-tab:hover {
     color: #fff;
-    border-bottom-color: rgba(255, 255, 255, 0.5);
+    border-bottom-color: rgba(255,255,255,0.5);
   }
   .fd-nav-tab.active {
     color: #fff;
     border-bottom-color: #fff;
-    font-weight: var(--weight-semibold);
+    font-weight: 600;
+  }
+  .fd-nav-tab.active:hover {
+    /* no transform */
   }
 }
 
 /* ── Keyframes ──────────────────────────────────────────────────────────── */
 
+/* Fade up — cards and sections entering the viewport */
+@keyframes fd-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Blur fade — premium page entry (blur + fade + subtle rise) */
+@keyframes fd-blur-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Fade in — subtle opacity only, for chart containers */
+@keyframes fd-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scale in — for stat card numbers popping in */
+@keyframes fd-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide in from left — for sidebar/panel */
+@keyframes fd-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse once — for alert/overdue numbers */
+@keyframes fd-pulse-once {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Shimmer — for skeleton loaders */
 @keyframes fd-shimmer {
   0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
+  100% { background-position: 400px 0; }
 }
 
 /* ── Animation utility classes ──────────────────────────────────────────── */
 
+/* Dashboard page — staggered entry */
+.fd-animate-page > * {
+  animation: fd-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-animate-page > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-animate-page > *:nth-child(2) { animation-delay: 0.06s; }
+.fd-animate-page > *:nth-child(3) { animation-delay: 0.12s; }
+.fd-animate-page > *:nth-child(4) { animation-delay: 0.18s; }
+.fd-animate-page > *:nth-child(5) { animation-delay: 0.24s; }
+.fd-animate-page > *:nth-child(6) { animation-delay: 0.30s; }
+.fd-animate-page > *:nth-child(7) { animation-delay: 0.36s; }
+.fd-animate-page > *:nth-child(8) { animation-delay: 0.42s; }
+.fd-animate-page > *:nth-child(9) { animation-delay: 0.48s; }
+
+/* Page entry — blur fade with staggered children */
+/* Use fd-page-enter on root div of each page */
+.fd-page-enter {
+  animation: fd-blur-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter > * {
+  animation: fd-blur-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-page-enter > *:nth-child(2) { animation-delay: 0.05s; }
+.fd-page-enter > *:nth-child(3) { animation-delay: 0.10s; }
+.fd-page-enter > *:nth-child(4) { animation-delay: 0.15s; }
+.fd-page-enter > *:nth-child(5) { animation-delay: 0.20s; }
+.fd-page-enter > *:nth-child(6) { animation-delay: 0.25s; }
+.fd-page-enter > *:nth-child(7) { animation-delay: 0.30s; }
+.fd-page-enter > *:nth-child(8) { animation-delay: 0.35s; }
+
+/* Page entry (safe) — fade+rise only, no filter, safe for modals/fixed overlays */
+.fd-page-enter-safe {
+  animation: fd-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter-safe > * {
+  animation: fd-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fd-page-enter-safe > *:nth-child(1) { animation-delay: 0.00s; }
+.fd-page-enter-safe > *:nth-child(2) { animation-delay: 0.05s; }
+.fd-page-enter-safe > *:nth-child(3) { animation-delay: 0.10s; }
+.fd-page-enter-safe > *:nth-child(4) { animation-delay: 0.15s; }
+.fd-page-enter-safe > *:nth-child(5) { animation-delay: 0.20s; }
+.fd-page-enter-safe > *:nth-child(6) { animation-delay: 0.25s; }
+.fd-page-enter-safe > *:nth-child(7) { animation-delay: 0.30s; }
+.fd-page-enter-safe > *:nth-child(8) { animation-delay: 0.35s; }
+
+/* Stat card number — scale in on load */
+.fd-stat-value {
+  animation: fd-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.2s;
+  display: inline-block;
+}
+
+/* Alert stat — pulse once to draw the eye */
+.fd-stat-alert .fd-stat-value {
+  animation: fd-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             fd-pulse-once 0.6s ease 0.8s both;
+}
+
+/* Chart cards — fade in slightly after the stat cards */
+.fd-chart-card {
+  animation: fd-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.28s;
+}
+
+/* Customise panel slide in */
+.fd-panel-enter {
+  animation: fd-slide-left 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Enhanced skeleton shimmer */
 .fd-skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--surface-sunken) 25%,
-    var(--border-subtle)  50%,
-    var(--surface-sunken) 75%
-  );
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
   background-size: 400px 100%;
   animation: fd-shimmer 1.4s ease-in-out infinite;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
 }
 
+/* Table row hover */
 .fd-table-row {
-  transition: background var(--duration-fast) var(--ease-out);
+  transition: background 0.12s ease;
 }
 .fd-table-row:hover {
-  background: var(--forest-50) !important;
+  background: #F7F9F7 !important;
 }
 
-/* ── Focus ring ─────────────────────────────────────────────────────────── */
+/* Sidebar dropdown */
+.fd-dropdown-enter {
+  animation: fd-fade-up 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* IR35 badge pulse for inside/needs_review */
+.badge-inside-ir35,
+.badge-needs-review {
+  animation: fd-pulse-once 0.7s ease 1s both;
+}
+
+/* Slide-over panel */
+.fd-slide-over-enter {
+  animation: fd-slide-left 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  .fd-animate-page > *,
+  .fd-page-enter,
+  .fd-page-enter > *,
+  .fd-stat-value,
+  .fd-chart-card,
+  .fd-panel-enter,
+  .fd-dropdown-enter,
+  .fd-slide-over-enter,
+  .badge-inside-ir35,
+  .badge-needs-review {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@keyframes fd-dropdown-in {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
 :focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid #1D6B35;
   outline-offset: 2px;
-}
-/* Outline helper radius for links/buttons only — form fields keep their own rounded-lg */
-:focus-visible:not(input):not(textarea):not(select) {
-  border-radius: var(--radius-xs);
-}
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: none;
-  outline-offset: 0;
 }
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible) {
   outline: none;
 }
 
-/* Neutral autofill — match surface-card (no browser yellow/blue fill) */
-input:-webkit-autofill,
-textarea:-webkit-autofill,
-select:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px var(--surface-sunken) inset !important;
-  -webkit-text-fill-color: var(--text-primary) !important;
-  caret-color: var(--text-primary);
-  transition: background-color 99999s ease-out 0s;
-}
-
-/* ── Reduced motion ─────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ── Forced colours (Windows high-contrast) ─────────────────────────────── */
-@media (forced-colors: active) {
-  .card, input, button { border: 1px solid CanvasText; }
-  :focus-visible { outline: 2px solid Highlight; }
-}
-
-/* ── Print ──────────────────────────────────────────────────────────────── */
-@media print {
-  body { background: white; color: black; font-size: 11pt; }
-  .invoice-row { page-break-inside: avoid; }
-}
-
-/* ── PWA standalone ─────────────────────────────────────────────────────── */
-@media (display-mode: standalone) {
-  .browser-only { display: none; }
-}
 
 /* ── Mobile responsive utilities ─────────────────────────────────────── */
 
+/* Three-pots and any 3-col card grid */
 .fd-cards-grid {
   display: flex;
-  align-items: stretch;
-  gap: var(--space-3);
+  gap: 14px;
 }
 
-.fd-cards-grid > * {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Equal-height tiles inside CSS grid stat rows */
+/* 4-col stat grid (invoices, clients etc) */
 .fd-stat-grid {
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.fd-stat-grid > * {
-  height: 100%;
-  min-height: 0;
+/* 2-col grid */
+.fd-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Page header with title + action button */
+.fd-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
 }
 
 @media (max-width: 768px) {
+  /* Stack card grids vertically */
   .fd-cards-grid {
     flex-direction: column;
   }
-  .p-6 {
-    padding: var(--space-4) !important;
+
+  /* 4-col → 2-col on mobile */
+  .fd-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
+
+  /* 2-col → 1-col on mobile */
+  .fd-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Page header stacks on very small screens */
+  .fd-page-header {
+    flex-wrap: wrap;
+  }
+
+  /* Reduce page padding on mobile */
+  .p-6 {
+    padding: 16px !important;
+  }
+
+  /* Table overflow on mobile */
   .fd-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Hide keyboard shortcut hint on mobile */
   .fd-shortcut-hint {
     display: none;
   }
+
+  /* Reduce large hero text on mobile */
+  .fd-hero-number {
+    font-size: 28px !important;
+  }
+
+  /* Full width buttons on mobile */
+  .fd-mobile-full {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
+/* Settings nav on mobile — horizontal pill tabs */
 @media (max-width: 1024px) {
   nav.w-full.lg\:w-44 button {
     padding: 6px 12px;
@@ -571,6 +418,7 @@ select:-webkit-autofill:focus {
   }
 }
 
+/* Tax pot input grid on mobile */
 @media (max-width: 480px) {
   .grid.grid-cols-\[1fr_1fr_auto\] {
     grid-template-columns: 1fr 1fr;
@@ -578,5 +426,19 @@ select:-webkit-autofill:focus {
   .grid.grid-cols-\[1fr_1fr_auto\] button[type="button"],
   .grid.grid-cols-\[1fr_1fr_auto\] > button {
     grid-column: 1 / -1;
+  }
+}
+
+/* Invoice/quote detail pages - action button bar */
+@media (max-width: 768px) {
+  /* Wrap action buttons on mobile */
+  .fd-action-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Make page headers wrap nicely */
+  .fd-page-enter h1 {
+    font-size: clamp(18px, 4vw, 28px);
   }
 }

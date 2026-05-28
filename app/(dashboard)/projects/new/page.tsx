@@ -11,10 +11,7 @@ import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fi
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Link from 'next/link'
-import Button, { buttonVariants } from '@/components/ui/button'
-import Alert from '@/components/ui/alert'
-import { ArrowLeft, Lock, ArrowRight } from '@phosphor-icons/react'
-import { sectionTitle } from '@/lib/typography'
+import { ArrowLeft } from 'lucide-react'
 import type { Client, IR35Answer } from '@/types/database'
 
 export default function NewProjectPage() {
@@ -22,13 +19,9 @@ export default function NewProjectPage() {
   const searchParams = useSearchParams()
   const defaultClientId = searchParams.get('client') ?? ''
 
-  const [clients, setClients] = useState<Pick<Client, 'id' | 'name'>[]>([])
+  const [clients, setClients] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showNewClient, setShowNewClient] = useState(false)
-  const [newClientName, setNewClientName] = useState('')
-  const [creatingClient, setCreatingClient] = useState(false)
-  const [canUseIR35, setCanUseIR35] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -44,48 +37,12 @@ export default function NewProjectPage() {
   const [ir35Answers, setIr35Answers] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
-    ;(async () => {
-      const supabase = createClient()
-      const [{ data: clientsData }, { data: { user } }] = await Promise.all([
-        supabase.from('clients').select('id, name').order('name'),
-        supabase.auth.getUser(),
-      ])
-      setClients(clientsData ?? [])
-      if (user) {
-        const { data: planProfile } = await supabase
-          .from('users')
-          .select('subscription_plan')
-          .eq('id', user.id)
-          .single()
-        setCanUseIR35(['pro', 'studio'].includes(planProfile?.subscription_plan ?? 'free'))
-      }
-    })()
+    const supabase = createClient()
+    supabase.from('clients').select('id, name').order('name').then(({ data }) => setClients(data ?? []))
   }, [])
 
   function set(field: string, value: string) {
     setForm(p => ({ ...p, [field]: value }))
-  }
-
-  async function handleCreateClient() {
-    if (!newClientName.trim()) return
-    setCreatingClient(true)
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: client } = await supabase
-        .from('clients')
-        .insert({ name: newClientName.trim(), user_id: user.id, status: 'active' })
-        .select('id, name')
-        .single()
-      if (client) {
-        setClients(prev => [...prev, client].sort((a, b) => a.name.localeCompare(b.name)))
-        set('client_id', client.id)
-      }
-      setShowNewClient(false)
-      setNewClientName('')
-    } catch (e) { console.error(e) }
-    setCreatingClient(false)
   }
 
   const allAnswered = IR35_QUESTIONS.every(q => ir35Answers[q.number] !== undefined)
@@ -130,19 +87,19 @@ export default function NewProjectPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <div>
-        <Link href="/projects" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to projects
+        <Link href="/projects" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
+          <ArrowLeft className="w-4 h-4" /> Back to projects
         </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New project</h1>
+        <h1 className="text-2xl font-bold text-slate-900">New project</h1>
       </div>
 
       {error && (
-        <Alert intent="danger">{error}</Alert>
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className={sectionTitle}>Project details</h2>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+          <h2 className="font-semibold text-slate-800">Project details</h2>
 
           <Field label="Project title" required>
             <Input
@@ -156,36 +113,9 @@ export default function NewProjectPage() {
           <Field label="Client">
             <Select
               value={form.client_id}
-              onChange={e => {
-                if (e.target.value === '__new__') { setShowNewClient(true) }
-                else { set('client_id', e.target.value); setShowNewClient(false) }
-              }}
-              options={[
-                { value: '', label: 'No client' },
-                ...clients.map(c => ({ value: c.id, label: c.name })),
-                { value: '__new__', label: '+ Create new client' },
-              ]}
+              onChange={e => set('client_id', e.target.value)}
+              options={[{ value: '', label: 'No client' }, ...clients.map(c => ({ value: c.id, label: c.name }))]}
             />
-            {showNewClient && (
-              <div className="mt-2 border border-border-default rounded-xl p-3 bg-surface-sunken space-y-2">
-                <p className="text-xs font-semibold text-text-secondary">New client</p>
-                <Input
-                  aria-label="New client name"
-                  variant="inline"
-                  value={newClientName}
-                  onChange={e => setNewClientName(e.target.value)}
-                  placeholder="Client name *"
-                />
-                <div className="flex gap-2 pt-1">
-                  <Button type="button" intent="primary" size="xs" onClick={handleCreateClient} disabled={!newClientName.trim() || creatingClient}>
-                    {creatingClient ? 'Saving...' : 'Create client'}
-                  </Button>
-                  <Button type="button" intent="secondary" size="xs" onClick={() => { setShowNewClient(false); setNewClientName('') }}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
           </Field>
 
           <Field label="Description">
@@ -228,61 +158,52 @@ export default function NewProjectPage() {
         </div>
 
         {/* IR35 */}
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className={sectionTitle}>IR35 questionnaire</h2>
-              {canUseIR35 && <p className="text-xs text-text-secondary mt-0.5">Answer all 8 questions to get a calculated status</p>}
+              <h2 className="font-semibold text-slate-800">IR35 questionnaire</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Answer all 8 questions to get a calculated status</p>
             </div>
-            {canUseIR35 && allAnswered && <Badge status={ir35Status} />}
+            {allAnswered && <Badge status={ir35Status} />}
           </div>
 
-          {canUseIR35 ? (
-            <div className="space-y-3">
-              {IR35_QUESTIONS.map(q => (
-                <div key={q.number} className="bg-surface-sunken rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
-                          {q.importance}
-                        </span>
-                        <span className="text-xs text-text-muted">{q.label}</span>
-                      </div>
-                      <p className="text-sm text-text-secondary">{q.text}</p>
+          <div className="space-y-3">
+            {IR35_QUESTIONS.map(q => (
+              <div key={q.number} className="bg-slate-50 rounded-lg p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {q.importance}
+                      </span>
+                      <span className="text-xs text-slate-500">{q.label}</span>
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                      {[true, false].map(val => (
-                        <Button
-                          key={String(val)}
-                          type="button"
-                          size="xs"
-                          intent={ir35Answers[q.number] === val ? 'primary' : 'secondary'}
-                          onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
-                        >
-                          {val ? 'Yes' : 'No'}
-                        </Button>
-                      ))}
-                    </div>
+                    <p className="text-sm text-slate-700">{q.text}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {[true, false].map(val => (
+                      <button
+                        key={String(val)}
+                        type="button"
+                        onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          ir35Answers[q.number] === val
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {val ? 'Yes' : 'No'}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 rounded-xl bg-surface-sunken text-center">
-              <div className="w-10 h-10 rounded-full bg-surface-sunken flex items-center justify-center mb-3">
-                <Lock weight="regular" className="w-5 h-5 text-text-secondary" />
               </div>
-              <p className="text-sm font-medium text-text-secondary mb-1">IR35 assessment is available on the Pro plan</p>
-              <Link href="/settings?tab=billing" className={buttonVariants({ intent: 'primary', size: 'sm' })}>
-                Upgrade to Pro <ArrowRight weight="regular" className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link href="/projects" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
+          <Link href="/projects" className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
             Cancel
           </Link>
           <SaveButton loading={saving} label="Add project" />

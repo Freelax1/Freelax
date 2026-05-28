@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Question } from '@phosphor-icons/react'
+import { HelpCircle } from 'lucide-react'
 
 interface Props {
   children: React.ReactNode
@@ -29,21 +29,49 @@ export default function InfoTooltip({ children, width = 280 }: Props) {
   }, [open])
 
   return (
-    <span ref={ref} className="relative inline-flex items-center">
+    <span ref={ref} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-label="More information"
-        className="bg-transparent border-none p-0 ml-1 cursor-pointer inline-flex items-center transition-colors text-text-secondary hover:text-brand-primary"
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          marginLeft: 4,
+          cursor: 'pointer',
+          color: '#94A3B8',
+          display: 'inline-flex',
+          alignItems: 'center',
+          transition: 'color 150ms',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#1D6B35')}
+        onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}
       >
-        <Question weight="regular" size={13} />
+        <HelpCircle size={13} strokeWidth={2} />
       </button>
 
       {open && (
         <span
           role="tooltip"
-          className="absolute top-[calc(100%+6px)] left-0 z-dropdown text-text-secondary text-xs leading-relaxed px-3 py-2.5 rounded-lg font-normal bg-surface-card border border-border-default shadow-tooltip"
-          style={{ width, maxWidth: 'calc(100vw - 32px)' }}
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            left: 0,
+            zIndex: 50,
+            width,
+            maxWidth: 'calc(100vw - 32px)',
+            background: '#0F172A',
+            color: '#FFFFFF',
+            fontSize: 12,
+            lineHeight: 1.6,
+            padding: '10px 12px',
+            borderRadius: 8,
+            boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+            fontWeight: 400,
+            textTransform: 'none',
+            letterSpacing: 0,
+          }}
           onClick={e => e.stopPropagation()}
         >
           {children}

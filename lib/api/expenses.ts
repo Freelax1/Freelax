@@ -2,6 +2,8 @@
 // All Supabase queries for expenses. No UI, no calculations.
 
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 export async function fetchExpenses(start: Date, end: Date) {
   const supabase = createClient()
@@ -31,12 +33,14 @@ export async function createExpense(payload: Record<string, unknown>) {
   const supabase = createClient()
   const { error } = await supabase.from('expenses').insert(payload)
   if (error) throw error
+  track(String(payload.user_id), Events.EXPENSE_CREATED)
 }
 
 export async function updateExpense(id: string, payload: Record<string, unknown>) {
   const supabase = createClient()
   const { error } = await supabase.from('expenses').update(payload).eq('id', id)
   if (error) throw error
+  if (payload.user_id) track(String(payload.user_id), Events.EXPENSE_UPDATED, { expense_id: id })
 }
 
 export async function uploadReceipt(userId: string, file: File): Promise<string | null> {
@@ -51,6 +55,8 @@ export async function uploadReceipt(userId: string, file: File): Promise<string 
 
 export async function deleteExpense(id: string) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const { error } = await supabase.from('expenses').delete().eq('id', id)
   if (error) throw error
+  if (user) track(user.id, Events.EXPENSE_DELETED, { expense_id: id })
 }

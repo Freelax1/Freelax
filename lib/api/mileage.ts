@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 // HMRC approved mileage allowance: 45p/mile first 10,000 miles, 25p thereafter
 export const HMRC_RATE_FIRST  = 0.45
@@ -42,10 +44,13 @@ export async function addMileageEntry(entry: {
     .select()
     .single()
   if (error) throw error
+  track(entry.user_id, Events.MILEAGE_ENTRY_ADDED, { entry_id: data.id })
   return data
 }
 
 export async function deleteMileageEntry(id: string) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   await supabase.from('mileage_entries').delete().eq('id', id)
+  if (user) track(user.id, Events.MILEAGE_ENTRY_DELETED, { entry_id: id })
 }

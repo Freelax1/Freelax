@@ -2,6 +2,8 @@
 // All Supabase queries for user/profile data. No UI, no calculations.
 
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 export async function fetchCurrentUser() {
   const supabase = createClient()
@@ -27,14 +29,5 @@ export async function updateUserProfile(userId: string, payload: Record<string, 
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq('id', userId)
   if (error) throw error
-}
-
-export async function fetchUserDefaults(userId: string) {
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('users')
-    .select('invoice_prefix, invoice_default_notes, invoice_email_subject, invoice_email_body, quote_prefix, quote_validity_days, quote_default_notes, quote_email_subject, quote_email_body')
-    .eq('id', userId)
-    .single()
-  return data
+  track(userId, Events.PROFILE_UPDATED)
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, DownloadSimple } from "@phosphor-icons/react";
+import { X, Download } from "lucide-react";
 
 const STORAGE_KEY = "freedesk-pwa-dismissed";
 const DISMISS_DAYS = 30;
@@ -91,26 +91,26 @@ export function PWAInstallBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-dropdown p-3 md:p-4 md:max-w-sm md:left-auto md:right-4 md:bottom-4">
-      <div className="bg-surface-card border border-border-default rounded-xl shadow-lg p-4 flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center flex-shrink-0">
-          <DownloadSimple weight="regular" className="w-5 h-5 text-white" />
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4 md:max-w-sm md:left-auto md:right-4 md:bottom-4">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-4 flex items-start gap-3">
+        <div className="w-10 h-10 rounded-lg bg-[#1D6B35] flex items-center justify-center flex-shrink-0">
+          <Download className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-text-primary">Add Freelax to your home screen</p>
+          <p className="text-sm font-semibold text-gray-900">Add Freelax to your home screen</p>
           {isIOSDevice ? (
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Tap <span className="font-medium">Share</span> then <span className="font-medium">Add to Home Screen</span>
             </p>
           ) : (
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Install for faster access — works offline too
             </p>
           )}
           {!isIOSDevice && (
             <button
               onClick={handleInstall}
-              className="mt-2 text-xs font-semibold text-brand-primary hover:underline"
+              className="mt-2 text-xs font-semibold text-[#1D6B35] hover:underline"
             >
               Install now
             </button>
@@ -118,10 +118,10 @@ export function PWAInstallBanner() {
         </div>
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 text-text-muted hover:text-text-secondary -mt-0.5"
+          className="flex-shrink-0 text-gray-400 hover:text-gray-600 -mt-0.5"
           aria-label="Dismiss"
         >
-          <X weight="regular" className="w-4 h-4" />
+          <X className="w-4 h-4" />
         </button>
       </div>
     </div>

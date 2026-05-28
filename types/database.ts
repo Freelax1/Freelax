@@ -4,7 +4,7 @@
 
 export type BusinessType     = 'sole_trader' | 'limited_company' | 'partnership'
 export type VatScheme        = 'standard' | 'flat_rate' | 'cash'
-export type SubscriptionPlan = 'free' | 'solo' | 'pro'
+export type SubscriptionPlan = 'free' | 'solo' | 'pro' | 'studio'
 export type ClientStatus     = 'active' | 'paused' | 'archived'
 export type ProjectStatus    = 'active' | 'completed' | 'on_hold' | 'cancelled'
 export type RateType         = 'fixed' | 'day_rate' | 'hourly'
@@ -108,8 +108,6 @@ export interface Client {
   notes: string | null
   created_at: string
   updated_at: string
-  // joined
-  invoices?: { total: number; status: string }[]
 }
 
 export interface Project {

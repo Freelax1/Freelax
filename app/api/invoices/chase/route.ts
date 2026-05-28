@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const maxDuration = 30
 
@@ -6,11 +6,6 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/tax-calculations'
 import { logActivity } from '@/lib/api/invoice-activity'
 import { escapeHtml } from '@/lib/escape-html'
-import {
-  EMAIL_TEXT_PRIMARY, EMAIL_TEXT_SECONDARY, EMAIL_TEXT_MUTED,
-  EMAIL_BG_SUBTLE, EMAIL_BORDER_DEFAULT, EMAIL_BORDER_SUBTLE,
-  EMAIL_DANGER_TEXT, EMAIL_DANGER_BORDER, EMAIL_DANGER_STRONG,
-} from '@/lib/email-colours'
 
 const COOLDOWN_DAYS = 7
 const TIER_MIN_PRIOR_CHASES: Record<'friendly' | 'formal' | 'legal', number> = {
@@ -22,7 +17,7 @@ const VALID_TIERS = ['friendly', 'formal', 'legal'] as const
 type Tier = typeof VALID_TIERS[number]
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -114,44 +109,44 @@ export async function POST(req: NextRequest) {
       const hasBankDetails = sender?.bank_sort_code && sender?.bank_account_number
       const bankHtml = hasBankDetails
         ? `
-          <div style="background:${EMAIL_BG_SUBTLE};border-radius:8px;padding:16px 20px;margin:24px 0;border:1px solid ${EMAIL_BORDER_SUBTLE};">
-            <p style="font-size:12px;font-weight:600;color:${EMAIL_TEXT_SECONDARY};margin-bottom:10px;">Payment details</p>
+          <div style="background:#f8f9fa;border-radius:8px;padding:16px 20px;margin:24px 0;border:1px solid #e9ecef;">
+            <p style="font-size:12px;font-weight:600;color:#6c757d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Payment details</p>
             <table style="border-collapse:collapse;width:100%;">
-              <tr><td style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;padding:3px 0;width:140px;">Account name</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_account_name || businessName)}</td></tr>
-              <tr><td style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;padding:3px 0;">Sort code</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_sort_code)}</td></tr>
-              <tr><td style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;padding:3px 0;">Account number</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_account_number)}</td></tr>
-              ${sender.bank_reference_note ? `<tr><td style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;padding:3px 0;">Reference</td><td style="font-size:13px;">${escapeHtml(sender.bank_reference_note)}</td></tr>` : `<tr><td style="color:${EMAIL_TEXT_SECONDARY};font-size:13px;padding:3px 0;">Reference</td><td style="font-size:13px;">${escapeHtml(invoice.invoice_number)}</td></tr>`}
+              <tr><td style="color:#6c757d;font-size:13px;padding:3px 0;width:140px;">Account name</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_account_name || businessName)}</td></tr>
+              <tr><td style="color:#6c757d;font-size:13px;padding:3px 0;">Sort code</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_sort_code)}</td></tr>
+              <tr><td style="color:#6c757d;font-size:13px;padding:3px 0;">Account number</td><td style="font-weight:600;font-size:13px;">${escapeHtml(sender.bank_account_number)}</td></tr>
+              ${sender.bank_reference_note ? `<tr><td style="color:#6c757d;font-size:13px;padding:3px 0;">Reference</td><td style="font-size:13px;">${escapeHtml(sender.bank_reference_note)}</td></tr>` : `<tr><td style="color:#6c757d;font-size:13px;padding:3px 0;">Reference</td><td style="font-size:13px;">${escapeHtml(invoice.invoice_number)}</td></tr>`}
             </table>
           </div>`
         : ''
 
       const customMessage = message
-        ? `<p style="color:${EMAIL_TEXT_PRIMARY};margin:16px 0;">${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`
+        ? `<p style="color:#1e293b;margin:16px 0;">${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`
         : ''
 
       const html = `
-        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:${EMAIL_TEXT_PRIMARY};">
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#1e293b;">
           <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${tier === 'legal' ? 'Notice of Intended Legal Proceedings' : tier === 'formal' ? 'Formal Payment Notice' : 'Payment Reminder'} — ${escapeHtml(invoice.invoice_number)}</h2>
-          <p style="color:${EMAIL_TEXT_SECONDARY};margin-bottom:20px;">From ${escapeHtml(businessName)}</p>
+          <p style="color:#64748b;margin-bottom:20px;">From ${escapeHtml(businessName)}</p>
 
           <p>Hi ${escapeHtml(client.contact_name || client.name)},</p>
 
-          ${tier === 'legal' ? `<p style="color:${EMAIL_DANGER_STRONG};font-weight:600;border-left:3px solid ${EMAIL_DANGER_BORDER};padding-left:12px;margin:16px 0;">This is a formal legal notice. Please read carefully.</p>` : ''}
+          ${tier === 'legal' ? `<p style="color:#7f1d1d;font-weight:600;border-left:3px solid #dc2626;padding-left:12px;margin:16px 0;">This is a formal legal notice. Please read carefully.</p>` : ''}
 
           ${customMessage}
 
-          <table style="width:100%;border-collapse:collapse;margin:24px 0;background:${EMAIL_BG_SUBTLE};border-radius:8px;overflow:hidden;">
-            <tr style="border-bottom:1px solid ${EMAIL_BORDER_SUBTLE};">
-              <td style="padding:10px 16px;color:${EMAIL_TEXT_SECONDARY};font-size:13px;">Invoice</td>
+          <table style="width:100%;border-collapse:collapse;margin:24px 0;background:#f8f9fa;border-radius:8px;overflow:hidden;">
+            <tr style="border-bottom:1px solid #e9ecef;">
+              <td style="padding:10px 16px;color:#6c757d;font-size:13px;">Invoice</td>
               <td style="padding:10px 16px;font-weight:600;font-size:13px;">${escapeHtml(invoice.invoice_number)}</td>
             </tr>
-            <tr style="border-bottom:1px solid ${EMAIL_BORDER_SUBTLE};">
-              <td style="padding:10px 16px;color:${EMAIL_TEXT_SECONDARY};font-size:13px;">Amount due</td>
-              <td style="padding:10px 16px;font-weight:700;font-size:14px;color:${EMAIL_DANGER_TEXT};">${escapeHtml(formatCurrency(invoice.total))}</td>
+            <tr style="border-bottom:1px solid #e9ecef;">
+              <td style="padding:10px 16px;color:#6c757d;font-size:13px;">Amount due</td>
+              <td style="padding:10px 16px;font-weight:700;font-size:14px;color:#dc2626;">${escapeHtml(formatCurrency(invoice.total))}</td>
             </tr>
             <tr>
-              <td style="padding:10px 16px;color:${EMAIL_TEXT_SECONDARY};font-size:13px;">Due date</td>
-              <td style="padding:10px 16px;font-weight:600;font-size:13px;">${escapeHtml(dueDate)}${overdueDays > 0 ? ` <span style="color:${EMAIL_DANGER_TEXT}">(${overdueDays}d overdue)</span>` : ''}</td>
+              <td style="padding:10px 16px;color:#6c757d;font-size:13px;">Due date</td>
+              <td style="padding:10px 16px;font-weight:600;font-size:13px;">${escapeHtml(dueDate)}${overdueDays > 0 ? ` <span style="color:#dc2626">(${overdueDays}d overdue)</span>` : ''}</td>
             </tr>
           </table>
 
@@ -161,13 +156,13 @@ export async function POST(req: NextRequest) {
 
           <p style="margin-top:24px;">Kind regards,<br/><strong>${escapeHtml(sender?.full_name || businessName)}</strong><br/>${escapeHtml(sender?.email || '')}</p>
 
-          <hr style="margin:32px 0;border:none;border-top:1px solid ${EMAIL_BORDER_DEFAULT};"/>
-          <p style="font-size:11px;color:${EMAIL_TEXT_MUTED};">This is an automated payment reminder sent via <a href="https://freelax.co.uk" style="color:${EMAIL_TEXT_MUTED};">Freelax</a> — hassle-free invoicing for freelancers.</p>
+          <hr style="margin:32px 0;border:none;border-top:1px solid #e2e8f0;"/>
+          <p style="font-size:11px;color:#94a3b8;">This is an automated payment reminder sent via <a href="https://freelax.co.uk" style="color:#94a3b8;">Freelax</a> — hassle-free invoicing for freelancers.</p>
         </div>
       `
 
       await resend.emails.send({
-        from:     `Freelax <noreply@freelax.co.uk>`,
+        from:     `Freelax <onboarding@resend.dev>`,
         reply_to: sender?.email || undefined,
         to: client.email,
         subject: tier === 'legal'

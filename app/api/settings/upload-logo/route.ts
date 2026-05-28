@@ -1,5 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 // Detect actual image type from file content, ignoring browser-supplied MIME.
 function detectImageMimeType(buf: Uint8Array): string | null {
@@ -18,7 +20,7 @@ function detectImageMimeType(buf: Uint8Array): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -59,5 +61,6 @@ export async function POST(req: NextRequest) {
     .update({ logo_url: publicUrl, updated_at: new Date().toISOString() })
     .eq('id', user.id)
 
+  await trackServer(user.id, Events.LOGO_UPLOADED)
   return NextResponse.json({ url: publicUrl })
 }

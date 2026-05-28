@@ -1,19 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { Plus, X, ArrowLeft } from '@phosphor-icons/react'
+import { Plus, X, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import type { Invoice, InvoiceLineItem } from '@/types/database'
-import { Input, Select, Textarea, Field } from '@/components/form-fields'
-import Button from '@/components/ui/button'
-import Tooltip from '@/components/tooltip'
-import { sectionTitle } from '@/lib/typography'
-
-type ClientOption = { id: string; name: string }
-type ProjectOption = { id: string; title: string }
 
 interface LineItem {
   id?: string
@@ -23,12 +15,11 @@ interface LineItem {
   vat_rate: number
 }
 
-export default function InvoiceEditPage() {
-  const params = useParams<{ id: string }>()
+export default function InvoiceEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [invoice, setInvoice] = useState<Invoice | null>(null)
-  const [clients, setClients] = useState<ClientOption[]>([])
-  const [projects, setProjects] = useState<ProjectOption[]>([])
+  const [invoice, setInvoice] = useState<any>(null)
+  const [clients, setClients] = useState<any[]>([])
+  const [projects, setProjects] = useState<any[]>([])
   const [clientId, setClientId] = useState('')
   const [projectId, setProjectId] = useState('')
   const [issueDate, setIssueDate] = useState('')
@@ -54,7 +45,7 @@ export default function InvoiceEditPage() {
         setDueDate(inv.due_date)
         setPaymentTerms(inv.payment_terms ?? '')
         setNotes(inv.notes ?? '')
-        setLineItems((inv.invoice_line_items as InvoiceLineItem[] | undefined)?.map((l) => ({
+        setLineItems(inv.invoice_line_items?.map((l: any) => ({
           id: l.id,
           description: l.description,
           quantity: l.quantity,
@@ -117,50 +108,55 @@ export default function InvoiceEditPage() {
     router.push(`/invoices/${params.id}`)
   }
 
-  if (loading) return <div className="space-y-4">{Array.from({length:3}).map((_,i) => <div key={i} className="h-16 bg-surface-sunken rounded-xl animate-pulse"/>)}</div>
+  if (loading) return <div className="space-y-4">{Array.from({length:3}).map((_,i) => <div key={i} className="h-16 bg-slate-100 rounded-xl animate-pulse"/>)}</div>
 
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <Link href={`/invoices/${params.id}`} className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to invoice
+        <Link href={`/invoices/${params.id}`} className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
+          <ArrowLeft className="w-4 h-4" /> Back to invoice
         </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">Edit {invoice?.invoice_number}</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Edit {invoice?.invoice_number}</h1>
       </div>
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-        <h2 className={sectionTitle}>Invoice details</h2>
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+        <h2 className="font-semibold text-slate-800">Invoice Details</h2>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Client">
-            <Select value={clientId} onChange={e => setClientId(e.target.value)}>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Client</label>
+            <select value={clientId} onChange={e => setClientId(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">No client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </Select>
-          </Field>
-          <Field label="Project">
-            <Select value={projectId} onChange={e => setProjectId(e.target.value)}>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Project</label>
+            <select value={projectId} onChange={e => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-            </Select>
-          </Field>
-          <Field label="Issue date">
-            <Input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-          </Field>
-          <Field label="Due date">
-            <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-          </Field>
-          <Field label="Payment terms" className="col-span-2">
-            <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
-          </Field>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Issue date</label>
+            <input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Due date</label>
+            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-medium text-slate-500 mb-1">Payment terms</label>
+            <input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
         </div>
       </div>
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-3">
-        <h2 className={sectionTitle}>Line items</h2>
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-3">
+        <h2 className="font-semibold text-slate-800">Line Items</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-text-muted border-b border-border-subtle">
+              <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
                 <th className="pb-2 font-medium w-1/2">Description</th>
                 <th className="pb-2 font-medium w-16">Qty</th>
                 <th className="pb-2 font-medium w-24">Price (£)</th>
@@ -172,24 +168,22 @@ export default function InvoiceEditPage() {
             <tbody>
               {lineItems.map((item, i) => (
                 <tr key={i}>
-                  <td className="py-1 pr-2"><Input variant="inline" value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} /></td>
-                  <td className="py-1 pr-2"><Input variant="inline" type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} /></td>
-                  <td className="py-1 pr-2"><Input variant="inline" type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} /></td>
+                  <td className="py-1 pr-2"><input value={item.description} onChange={e => updateLine(i, 'description', e.target.value)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" /></td>
+                  <td className="py-1 pr-2"><input type="number" value={item.quantity} onChange={e => updateLine(i, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" /></td>
+                  <td className="py-1 pr-2"><input type="number" step="0.01" value={item.unit_price} onChange={e => updateLine(i, 'unit_price', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" /></td>
                   <td className="py-1 pr-2">
-                    <Select variant="inline" value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))}>
+                    <select value={item.vat_rate} onChange={e => updateLine(i, 'vat_rate', parseFloat(e.target.value))} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                       <option value={20}>20%</option>
                       <option value={5}>5%</option>
                       <option value={0}>0%</option>
-                    </Select>
+                    </select>
                   </td>
                   <td className="py-1 text-right font-medium">{formatCurrency(Number(item.quantity) * Number(item.unit_price))}</td>
                   <td className="py-1 pl-2">
                     {lineItems.length > 1 && (
-                      <Tooltip label="Remove line item">
-                        <button type="button" onClick={() => setLineItems(prev => prev.filter((_,idx) => idx !== i))} className="text-text-muted hover:text-danger-500">
-                          <X weight="regular" className="w-4 h-4" />
-                        </button>
-                      </Tooltip>
+                      <button type="button" onClick={() => setLineItems(prev => prev.filter((_,idx) => idx !== i))} className="text-slate-300 hover:text-red-500">
+                        <X className="w-4 h-4" />
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -197,33 +191,26 @@ export default function InvoiceEditPage() {
             </tbody>
           </table>
         </div>
-        <Button
-          type="button"
-          intent="ghost"
-          size="sm"
-          className="-ml-2"
-          onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])}
-        >
-          <Plus weight="regular" className="w-3.5 h-3.5" /> Add line item
-        </Button>
-        <div className="border-t border-border-subtle pt-3 space-y-1 max-w-xs ml-auto text-sm">
-          <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-          <div className="flex justify-between"><span className="text-text-muted">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
-          <div className="flex justify-between border-t border-border-subtle pt-1"><span className="font-semibold text-text-secondary">Total</span><span className="font-semibold text-text-primary text-base">{formatCurrency(total)}</span></div>
+        <button type="button" onClick={() => setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])} className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+          <Plus className="w-4 h-4" /> Add line item
+        </button>
+        <div className="border-t border-slate-100 pt-3 space-y-1 max-w-xs ml-auto text-sm">
+          <div className="flex justify-between"><span className="text-slate-500">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">VAT</span><span className="font-medium">{formatCurrency(vatAmount)}</span></div>
+          <div className="flex justify-between border-t border-slate-100 pt-1"><span className="font-semibold text-slate-700">Total</span><span className="font-bold text-slate-900 text-base">{formatCurrency(total)}</span></div>
         </div>
       </div>
 
-      <div className="bg-surface-card rounded-xl border border-border-default p-6">
-        <Field label="Notes">
-          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
-        </Field>
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <label className="block text-xs font-medium text-slate-500 mb-1">Notes</label>
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
       </div>
 
       <div className="flex justify-end gap-3">
-        <Link href={`/invoices/${params.id}`} className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">Cancel</Link>
-        <Button type="button" intent="primary" size="md" onClick={handleSave} disabled={saving}>
+        <Link href={`/invoices/${params.id}`} className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">Cancel</Link>
+        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save changes'}
-        </Button>
+        </button>
       </div>
     </div>
   )

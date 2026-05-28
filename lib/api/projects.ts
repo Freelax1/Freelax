@@ -2,28 +2,18 @@
 // All Supabase queries for projects. No UI, no calculations.
 
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 import type { IR35Answer, IR35Status } from '@/types/database'
 
-export type ProjectListRow = {
-  id: string
-  title: string
-  status: string
-  rate_type: string | null
-  rate_amount: number | null
-  end_date: string | null
-  ir35_status: IR35Status | null
-  client_id: string | null
-  clients: { id: string; name: string } | null
-}
-
-export async function fetchProjects(): Promise<ProjectListRow[]> {
+export async function fetchProjects() {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('projects')
     .select('id, title, status, rate_type, rate_amount, end_date, ir35_status, client_id, clients(id, name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data ?? []) as unknown as ProjectListRow[]
+  return data ?? []
 }
 
 export async function fetchProjectById(id: string) {
@@ -67,6 +57,7 @@ export async function createProject(payload: Record<string, unknown>) {
     .select()
     .single()
   if (error) throw error
+  track(String(payload.user_id), Events.PROJECT_CREATED, { project_id: data.id })
   return data
 }
 
@@ -77,6 +68,7 @@ export async function updateProject(id: string, payload: Record<string, unknown>
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw error
+  if (payload.user_id) track(String(payload.user_id), Events.PROJECT_UPDATED, { project_id: id })
 }
 
 export async function saveIR35Assessment(
@@ -84,15 +76,20 @@ export async function saveIR35Assessment(
   answers: IR35Answer[],
   status: IR35Status,
 ) {
-  return updateProject(projectId, {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  await updateProject(projectId, {
     ir35_answers: answers,
     ir35_status: status,
     ir35_assessed_at: new Date().toISOString(),
   })
+  if (user) track(user.id, Events.IR35_ASSESSMENT_SAVED, { project_id: projectId, ir35_status: status })
 }
 
 export async function deleteProject(id: string) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const { error } = await supabase.from('projects').delete().eq('id', id)
   if (error) throw error
+  if (user) track(user.id, Events.PROJECT_DELETED, { project_id: id })
 }

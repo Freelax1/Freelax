@@ -1,28 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { calculateTax, getCurrentTaxYear, type StudentLoanPlan } from '@/lib/tax-calculations'
+import { useState, useEffect, useRef } from 'react'
+import { calculateTax, getCurrentTaxYear, formatCurrency, type StudentLoanPlan } from '@/lib/tax-calculations'
 import { fetchDashboardData } from '@/lib/api/dashboard'
 import { fetchCurrentUser, fetchUserProfile } from '@/lib/api/users'
 import { fetchTaxPotTotal } from '@/lib/api/tax-pot'
 import {
   calcMonthlyChart, calcUnpaidTotal, hasOverdue,
-  calcTaxDeadline, calcActionItems,
+  calcTaxDeadline, calcActionItems, calcRunway,
 } from '@/lib/logic/dashboard'
 import OnboardingChecklist from '@/components/onboarding-checklist'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
-import { PageHeader } from '@/components/ui'
-import AiLauncher  from './components/ai-launcher'
 import StatusLine  from './components/status-line'
 import ThreePots   from './components/three-pots'
 import ThisMonth   from './components/this-month'
 import WhatsComing from './components/whats-coming'
 import QuietRow    from './components/quiet-row'
+import CommandMenu from './components/command-menu'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
-import ActionList from '@/components/ui/action-list'
-import { Plus, Question } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
+import { Zap, ArrowRight, Plus, HelpCircle, FileText } from 'lucide-react'
 
 // ── Local types ────────────────────────────────────────────────────────
 type ComingItem = {
@@ -94,9 +90,9 @@ function LoadingBar({ active }: { active: boolean }) {
 
   if (!visible) return null
   return (
-    <div className="fixed top-0 left-0 right-0 z-progress h-[2px] bg-black/[0.04]">
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999, height: 2, background: 'rgba(0,0,0,0.04)' }}>
       <div style={{
-        height: '100%', background: 'var(--brand-primary)',
+        height: '100%', background: '#1D6B35',
         width: `${width}%`,
         transition: active ? 'width 800ms cubic-bezier(0.22,1,0.36,1)' : 'width 250ms cubic-bezier(0.22,1,0.36,1)',
       }} />
@@ -108,24 +104,23 @@ function LoadingBar({ active }: { active: boolean }) {
 function ShortcutHint() {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fd-shortcut-hint fixed bottom-5 right-5 z-dropdown">
+    <div className="fd-shortcut-hint" style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 100 }}>
       <button onClick={() => setOpen(o => !o)}
-        className="w-7 h-7 rounded-full border-none cursor-pointer flex items-center justify-center bg-black/[0.06]"
-        title="Keyboard shortcuts"
-        aria-label="Keyboard shortcuts">
-        <Question weight="regular" className="w-[13px] h-[13px] text-text-secondary" />
+        style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        title="Keyboard shortcuts">
+        <HelpCircle style={{ width: 13, height: 13, color: '#94A3B8' }} strokeWidth={1.75} />
       </button>
       {open && (
-        <div className="absolute bottom-9 right-0 bg-surface-card border border-border-default rounded-lg px-3.5 py-2.5 min-w-[200px] shadow-popover">
+        <div style={{ position: 'absolute', bottom: 36, right: 0, background: '#1A1A1A', borderRadius: 10, padding: '10px 14px', minWidth: 200, boxShadow: '0 8px 32px rgba(0,0,0,0.25)' }}>
           {[
             ['N', 'New invoice'],
             ['T', 'Tax page'],
             ['E', 'Expenses'],
             ['⌘K', 'Command menu'],
           ].map(([k, v]) => (
-            <div key={k} className="flex justify-between items-center py-1 border-b border-border-subtle last:border-0">
-              <span className="text-xs text-text-secondary">{v}</span>
-              <kbd className="text-micro text-text-primary rounded-sm px-1.5 py-px bg-surface-sunken border border-border-default">{k}</kbd>
+            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{v}</span>
+              <kbd style={{ fontSize: 10, color: '#fff', background: 'rgba(255,255,255,0.1)', borderRadius: 4, padding: '2px 6px' }}>{k}</kbd>
             </div>
           ))}
         </div>
@@ -137,6 +132,7 @@ function ShortcutHint() {
 export default function DashboardPage() {
   const [data, setData]           = useState<DashboardData | null>(null)
   const [loading, setLoading]     = useState(true)
+  const [cmdOpen, setCmdOpen]     = useState(false)
   const [syncedAt, setSyncedAt]   = useState<Date | null>(null)
   const { start, end, label }     = getCurrentTaxYear()
 
@@ -145,6 +141,7 @@ export default function DashboardPage() {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(true); return }
       if (e.key === 'n' || e.key === 'N') { window.location.href = '/invoices/new'; return }
       if (e.key === 't' || e.key === 'T') { window.location.href = '/tax'; return }
       if (e.key === 'e' || e.key === 'E') { window.location.href = '/expenses'; return }
@@ -327,12 +324,8 @@ export default function DashboardPage() {
     }
     load()
 
-    let lastLoadAt = Date.now()
     function onVisible() {
-      if (document.visibilityState === 'visible' && Date.now() - lastLoadAt > 30_000) {
-        lastLoadAt = Date.now()
-        load()
-      }
+      if (document.visibilityState === 'visible') load()
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => {
@@ -350,53 +343,44 @@ export default function DashboardPage() {
     return `Synced ${Math.round(secs / 60)}m ago`
   }
 
-  const todayLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
-  const headerSubtitle = data
-    ? `${todayLabel} · Tax year ${data.taxYearLabel}`
-    : todayLabel
-
-  const newInvoiceAction = (
-    <Link
-      href="/invoices/new"
-      className={cn(buttonVariants({ intent: 'primary', size: 'sm' }), 'no-underline')}
-    >
-      <Plus weight="regular" className="w-[13px] h-[13px]" />
-      New invoice
-    </Link>
-  )
-
   return (
     <>
       <LoadingBar active={loading} />
+      <CommandMenu open={cmdOpen} onClose={() => setCmdOpen(false)} />
       <ShortcutHint />
 
-      <PageHeader
-        title="Dashboard"
-        subtitle={headerSubtitle}
-        action={newInvoiceAction}
-        className="mb-0"
-      />
+      {/* Header row — New invoice button sits here, no overlap */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: 8 }}>
+        <Link href="/invoices/new"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#111', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.18)', transition: 'background 150ms' }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#000')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#111')}
+        >
+          <Plus style={{ width: 13, height: 13 }} strokeWidth={2.5} />
+          New invoice
+        </Link>
+      </div>
 
       {loading || !data ? (
-        <div className="flex flex-col gap-8 mt-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingTop: 60 }}>
           {/* Line skeleton */}
-          <div className="h-7 rounded w-1/2 bg-black/[0.05]" />
+          <div style={{ height: 28, background: 'rgba(0,0,0,0.05)', borderRadius: 6, width: '50%' }} />
           {/* Three pots — no shimmer per spec, just muted placeholders */}
           <div className="fd-cards-grid">
             {[1,2,3].map(i => (
-              <div key={i} className="flex-1 h-[160px] rounded-xl p-6 border border-border-default bg-surface-card">
-                <div className="h-[10px] rounded w-[80px] mb-4 bg-black/[0.05]" />
-                <div className="h-9 rounded w-3/5 bg-black/[0.05]" />
+              <div key={i} style={{ flex: 1, height: 160, background: i === 1 ? '#F5F4EE' : '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)', padding: '32px 32px 28px' }}>
+                <div style={{ height: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 4, width: 80, marginBottom: 16 }} />
+                <div style={{ height: 36, background: 'rgba(0,0,0,0.05)', borderRadius: 4, width: '60%' }} />
               </div>
             ))}
           </div>
           {/* Lower placeholders */}
           {[100, 80, 40].map((h, i) => (
-            <div key={i} className="bg-surface-card rounded-xl border border-border-default" style={{ height: h }} />
+            <div key={i} style={{ height: h, background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)' }} />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-8 mt-8 pb-14">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 56 }}>
 
           {/* Onboarding checklist — top of page for brand new users */}
           {data.isNewUser && (
@@ -410,15 +394,50 @@ export default function DashboardPage() {
           )}
 
           {/* A. The Line */}
-          <StatusLine
-            actionCount={data.actionCount}
-            hasOverdue={data.hasOverdue}
-            taxProgress={data.taxProgress}
-            isNewUser={data.isNewUser}
-            taxTotal={data.taxTotal}
-          />
+          <div>
+            <StatusLine
+              actionCount={data.actionCount}
+              hasOverdue={data.hasOverdue}
+              taxProgress={data.taxProgress}
+              isNewUser={data.isNewUser}
+              taxTotal={data.taxTotal}
+            />
+            <p style={{ fontSize: 12.5, color: '#64748B', marginTop: 6, marginLeft: 23 }}>
+              {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {' · '}Tax year {data.taxYearLabel}
+            </p>
+          </div>
 
-          {/* B. The Three Pots */}
+          {/* B. Do This Now — hidden when empty */}
+          {data.actions.length > 0 && (
+            <div style={{
+              background: '#FFFDF5', borderRadius: 14,
+              border: '1px solid rgba(245,226,155,0.6)',
+              padding: '18px 22px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
+                <Zap style={{ width: 12, height: 12, color: '#9A7B0A' }} strokeWidth={2} />
+                <p style={{ fontSize: 11, fontWeight: 500, color: '#9A7B0A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Do this now
+                </p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {data.actions.map((action: DashboardAction, i: number) => (
+                  <Link key={i} href={action.href}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: action.priority === 'red' ? '#C0392B' : '#9A7B0A' }} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: '#1E293B' }}>{action.title}</p>
+                      {action.sub && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{action.sub}</p>}
+                    </div>
+                    <ArrowRight style={{ width: 12, height: 12, color: '#CBD5E1', flexShrink: 0 }} strokeWidth={1.75} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* C. The Three Pots */}
           <ThreePots
             earnedThisYear={data.netProfit}
             taxSetAside={data.taxPotSaved}
@@ -426,32 +445,28 @@ export default function DashboardPage() {
             taxDeadline={data.taxDeadline}
             safeToSpend={data.safeToSpend}
             safeToSpendMissingInput={data.safeToSpendMissingInput}
+            monthlyAvg={data.monthlyAvg}
             weeklySaveNeeded={data.weeklySaveNeeded}
             isNewUser={data.isNewUser}
           />
 
-          <ActionList items={data.actions} />
+          {/* D. This Month
+              Slice: take up to 6 months ending at the current month in the tax year array.
+              thisMonthIdx=0 means April (start of tax year), so slice(0,1) = just April.
+              By June (idx=2) it becomes slice(0,3) — enough for the chart to render. */}
+          <ThisMonth
+            thisMonthIncome={data.thisMonthIncome}
+            monthlyAvg={data.monthlyAvg}
+            chartData={data.monthlyChart.slice(
+              Math.max(0, data.thisMonthIdx - 5),
+              data.thisMonthIdx + 1
+            )}
+            expensesThisMonth={data.expensesThisMonth}
+            isNewUser={data.isNewUser}
+          />
 
-          <AiLauncher />
-
-          {/* D+E. This Month + What's Coming — stack on mobile */}
-          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-            <div className="flex-[2] min-w-0">
-              <ThisMonth
-                thisMonthIncome={data.thisMonthIncome}
-                monthlyAvg={data.monthlyAvg}
-                chartData={data.monthlyChart.slice(
-                  Math.max(0, data.thisMonthIdx - 5),
-                  data.thisMonthIdx + 1
-                )}
-                expensesThisMonth={data.expensesThisMonth}
-                isNewUser={data.isNewUser}
-              />
-            </div>
-            <div className="flex-[1] min-w-0">
-              <WhatsComing items={data.comingItems} />
-            </div>
-          </div>
+          {/* E. What's Coming */}
+          <WhatsComing items={data.comingItems} />
 
           {/* F. The Quiet Row */}
           <QuietRow
@@ -474,8 +489,8 @@ export default function DashboardPage() {
           )}
 
           {/* "Synced" footer */}
-          <p className="text-caption text-text-secondary text-center pt-2">
-            {syncedLabel()} · Built in the UK · <Link href="/security" className="text-text-secondary no-underline font-medium">Your data is encrypted</Link>
+          <p style={{ fontSize: 11.5, color: '#94A3B8', textAlign: 'center', paddingTop: 8 }}>
+            {syncedLabel()} · Built in the UK · <Link href="/security" style={{ color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>Your data is encrypted</Link>
           </p>
 
           <NotTaxAdviceDisclaimer variant="footer" />

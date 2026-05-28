@@ -8,11 +8,8 @@ import { useRouter } from 'next/navigation'
 import { fetchCurrentUser } from '@/lib/api/users'
 import { createExpense, uploadReceipt } from '@/lib/api/expenses'
 import { Field, Input, Select, Toggle, SaveButton } from '@/components/form-fields'
-import { Scan, UploadSimple, CircleNotch, ArrowLeft } from '@phosphor-icons/react'
-import { sectionTitle } from '@/lib/typography'
+import { ScanLine, Upload, Loader2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import Button from '@/components/ui/button'
-import Alert from '@/components/ui/alert'
 
 const CATEGORIES = [
   { value: 'office_supplies',   label: 'Office & Supplies' },
@@ -135,29 +132,30 @@ export default function NewExpensePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <div>
-        <Link href="/expenses" className="flex items-center gap-1 text-sm text-text-muted hover:text-text-secondary mb-3">
-          <ArrowLeft weight="regular" className="w-4 h-4" /> Back to expenses
+        <Link href="/expenses" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
+          <ArrowLeft className="w-4 h-4" /> Back to expenses
         </Link>
-        <h1 className="text-2xl font-serif font-normal text-text-primary tracking-normal leading-heading">New expense</h1>
+        <h1 className="text-2xl font-bold text-slate-900">New expense</h1>
       </div>
 
       {error && (
-        <Alert intent="danger">{error}</Alert>
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* AI receipt scanner */}
-        <Alert intent="info" title="Scan receipt with AI" className="p-5">
-          <p className="text-xs text-forest-600 mb-4 -mt-1">Upload a receipt image and AI will auto-fill the fields below.</p>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <p className="text-sm font-semibold text-blue-800 mb-1">📷 Scan receipt with AI</p>
+          <p className="text-xs text-blue-600 mb-4">Upload a receipt image and AI will auto-fill the fields below.</p>
 
           <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileSelect} />
 
           {receiptPreview && receiptFile && (
             <div className="mb-4">
-              <img src={receiptPreview} alt="Receipt preview" className="max-h-36 rounded-xl border border-forest-200 object-contain" />
+              <img src={receiptPreview} alt="Receipt preview" className="max-h-36 rounded-lg border border-blue-200 object-contain" />
               {scanConfidence && (
-                <p className="text-xs mt-1.5 text-forest-600">
+                <p className="text-xs mt-1.5 text-blue-600">
                   Scan confidence: <span className="font-medium capitalize">{scanConfidence}</span>
                 </p>
               )}
@@ -165,22 +163,24 @@ export default function NewExpensePage() {
           )}
 
           <div className="flex gap-2">
-            <Button type="button" intent="secondary" size="sm" onClick={() => fileRef.current?.click()}>
-              <UploadSimple weight="regular" className="w-3.5 h-3.5" />
+            <button type="button" onClick={() => fileRef.current?.click()}
+              className="flex items-center gap-1.5 px-3 py-2 border border-blue-300 bg-white text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-50">
+              <Upload className="w-3.5 h-3.5" />
               {receiptFile ? 'Change image' : 'Upload receipt'}
-            </Button>
+            </button>
             {receiptFile && (
-              <Button type="button" intent="primary" size="sm" onClick={handleScanReceipt} disabled={scanning || scanCooldown}>
-                {scanning ? <CircleNotch weight="regular" className="w-3.5 h-3.5 animate-spin" /> : <Scan weight="regular" className="w-3.5 h-3.5" />}
+              <button type="button" onClick={handleScanReceipt} disabled={scanning || scanCooldown}
+                className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ScanLine className="w-3.5 h-3.5" />}
                 {scanning ? 'Reading receipt...' : 'Scan with AI'}
-              </Button>
+              </button>
             )}
           </div>
-        </Alert>
+        </div>
 
         {/* Main fields */}
-        <div className="bg-surface-card rounded-xl border border-border-default p-6 space-y-4">
-          <h2 className={sectionTitle}>Expense details</h2>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+          <h2 className="font-semibold text-slate-800">Expense details</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Date" required error={errors.date}>
@@ -215,7 +215,7 @@ export default function NewExpensePage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link href="/expenses" className="px-4 py-2 border border-border-default rounded-lg text-sm text-text-secondary hover:bg-surface-sunken">
+          <Link href="/expenses" className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
             Cancel
           </Link>
           <SaveButton loading={saving} label="Save expense" />

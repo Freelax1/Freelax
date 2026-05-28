@@ -1,8 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
-import { cardLabel } from '@/lib/typography'
-import { cn } from '@/lib/utils'
 
 interface Props {
   activeClients:     number
@@ -15,19 +13,19 @@ interface Props {
 export default function QuietRow({ activeClients, openInvoices, openInvoicesTotal, expensesThisMonth, liveProjects }: Props) {
   const stats = [
     { label: 'Active clients',       value: String(activeClients),            href: '/clients' },
-    { label: 'Waiting to be paid',   value: openInvoices > 0 ? `${openInvoices} · ${formatCurrency(openInvoicesTotal)}` : 'None', href: '/invoices' },
+    { label: 'Waiting to be paid',   value: openInvoices > 0 ? `${openInvoices} (${formatCurrency(openInvoicesTotal)})` : 'None', href: '/invoices' },
     { label: 'Money out this month', value: formatCurrency(expensesThisMonth), href: '/expenses' },
     { label: 'Live projects',        value: String(liveProjects),             href: '/projects' },
   ]
 
   return (
-    <div className="pt-5 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 border-t border-border-default">
-      {stats.map(s => (
-        <Link key={s.label} href={s.href} className="no-underline group">
-          <p className={cn(cardLabel, 'mb-1')}>
+    <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 20, display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+      {stats.map((s, i) => (
+        <Link key={s.label} href={s.href} style={{ textDecoration: 'none' }}>
+          <p style={{ fontSize: 10.5, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: 4 }}>
             {s.label}
           </p>
-          <p className="text-sm font-medium text-text-primary tabular-nums group-hover:text-brand-primary transition-colors">
+          <p style={{ fontSize: 15, fontWeight: 600, color: '#475569', fontVariantNumeric: 'tabular-nums' }}>
             {s.value}
           </p>
         </Link>

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
 import type { Client } from '@/types/database'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 interface ClientFormProps {
   client?: Partial<Client>
@@ -59,13 +61,16 @@ export default function ClientForm({ client, onSuccess }: ClientFormProps) {
 
     setSaving(false)
     if (error) { setErrors({ _: error.message }); return }
+    track(user.id, isEdit ? Events.CLIENT_UPDATED : Events.CLIENT_CREATED, {
+      client_id: isEdit ? client!.id : undefined,
+    })
     onSuccess?.()
     router.refresh()
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
+      {errors._ && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errors._}</p>}
 
       <Field label="Business name" required error={errors.name}>
         <Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Acme Ltd" error={!!errors.name} />

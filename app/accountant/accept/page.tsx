@@ -2,8 +2,7 @@
 export const dynamic = 'force-dynamic'
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { CheckCircle, CircleNotch, Warning } from '@phosphor-icons/react'
-import { buttonVariants } from '@/components/ui/button'
+import { CheckCircle, Loader2, AlertTriangle } from 'lucide-react'
 
 function AcceptInviteContent() {
   const searchParams = useSearchParams()
@@ -28,28 +27,29 @@ function AcceptInviteContent() {
   }, [token])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-paper font-sans">
-      <div className="bg-surface-card rounded-xl border border-border-default p-10 max-w-[420px] w-full text-center">
-        <p className="text-2xl font-serif mb-6 text-text-primary">Freelax</p>
-        {status === 'loading' && <CircleNotch weight="regular" className="w-8 h-8 mx-auto text-text-secondary animate-spin" />}
+    <div style={{ minHeight: '100vh', background: '#F6F6F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E8E8E8', padding: 40, maxWidth: 420, width: '100%', textAlign: 'center' }}>
+        <p style={{ fontSize: 24, fontWeight: 800, color: '#111', marginBottom: 24 }}>Freelax</p>
+        {status === 'loading' && <Loader2 style={{ width: 32, height: 32, color: '#94A3B8', margin: '0 auto', animation: 'spin 1s linear infinite' }} />}
         {status === 'success' && (
           <>
-            <CheckCircle weight="regular" className="w-10 h-10 mx-auto mb-4 text-success-600" />
-            <h1 className="text-xl font-semibold mb-2 text-text-primary">Invitation accepted</h1>
-            <p className="text-sm mb-6 text-text-secondary">You now have read-only access to <strong>{ownerName}</strong>'s Freelax account.</p>
-            <a href={viewUrl} className={buttonVariants({ intent: 'primary', size: 'md' })}>
+            <CheckCircle style={{ width: 40, height: 40, color: '#1D6B35', margin: '0 auto 16px' }} />
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111', marginBottom: 8 }}>Invitation accepted</h1>
+            <p style={{ fontSize: 14, color: '#64748B', marginBottom: 24 }}>You now have read-only access to <strong>{ownerName}</strong>'s Freelax account.</p>
+            <a href={viewUrl} style={{ display: 'inline-block', background: '#111', color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
               View account
             </a>
           </>
         )}
         {status === 'error' && (
           <>
-            <Warning weight="regular" className="w-10 h-10 mx-auto mb-4 text-danger-500" />
-            <h1 className="text-xl font-semibold mb-2 text-text-primary">Invalid invite</h1>
-            <p className="text-sm text-text-secondary">This invitation link has expired, been revoked, or already been used.</p>
+            <AlertTriangle style={{ width: 40, height: 40, color: '#C0392B', margin: '0 auto 16px' }} />
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111', marginBottom: 8 }}>Invalid invite</h1>
+            <p style={{ fontSize: 14, color: '#64748B' }}>This invitation link has expired, been revoked, or already been used.</p>
           </>
         )}
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 }
@@ -57,8 +57,9 @@ function AcceptInviteContent() {
 export default function AcceptInvitePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-surface-paper">
-        <CircleNotch weight="regular" className="w-8 h-8 text-text-secondary animate-spin" />
+      <div style={{ minHeight: '100vh', background: '#F6F6F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 style={{ width: 32, height: 32, color: '#94A3B8', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     }>
       <AcceptInviteContent />
