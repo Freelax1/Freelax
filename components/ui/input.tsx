@@ -2,7 +2,6 @@
 
 import { CaretDown, Eye, EyeSlash } from '@phosphor-icons/react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { floatingFieldLabel, floatingFieldValue } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import React, { cloneElement, isValidElement, useState } from 'react'
 
@@ -287,7 +286,7 @@ function FloatingFieldShell({
     className: cn(
       inputControlVariants({ variant: error ? 'error' : childVariant }),
       floated
-        ? cn(floatingFieldValue, isAuth && 'text-white text-sm')
+        ? cn('fd-field-input--floated text-text-primary', isAuth && 'text-white')
         : cn('text-sm font-normal', isAuth && 'text-sm text-white'),
       floated ? 'pt-4 pb-1.5 px-3' : 'py-2.5 px-3',
       children.props.type === 'date' && 'appearance-none',
@@ -310,15 +309,18 @@ function FloatingFieldShell({
         className={cn(
           fieldShellVariants({ variant: shellVariant }),
           'relative',
-          error && isAuth && 'border-danger-400 focus-within:border-danger-400',
+          error && isAuth && 'border-danger-500 focus-within:border-danger-500',
         )}
       >
         <label
           className={cn(
             'absolute left-3 right-3 pointer-events-none truncate origin-left',
-            'transition-[top,transform,font-size,color] duration-fast',
+            'transition-[top,transform,color] duration-fast',
             floated
-              ? cn('top-1', floatingFieldLabel, isAuth && 'text-white/55')
+              ? cn(
+                  'top-1 fd-field-label--floated',
+                  isAuth ? 'text-white/55' : 'text-text-muted',
+                )
               : cn(
                   'top-1/2 -translate-y-1/2 text-sm font-normal leading-none',
                   isAuth ? 'text-white/45' : 'text-text-muted',
@@ -332,7 +334,7 @@ function FloatingFieldShell({
       </div>
       {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
       {error && (
-        <p className={cn('text-xs', isAuth ? 'text-danger-300' : 'text-danger-600')}>{error}</p>
+        <p className={cn('text-xs', isAuth ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
       )}
     </div>
   )
@@ -402,7 +404,7 @@ function Field({
       {stackedControl}
       {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
       {error && (
-        <p className={cn('text-xs', isAuthLabel ? 'text-danger-300' : 'text-danger-600')}>{error}</p>
+        <p className={cn('text-xs', isAuthLabel ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
       )}
     </div>
   )

@@ -8,6 +8,7 @@ import { IconButton } from '@/components/ui/icon-button'
 import Button from '@/components/ui/button'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
 import { cardLabel } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 interface MonthData { month: string; income: number }
 
@@ -99,7 +100,7 @@ export default function ThisMonth({ thisMonthIncome, monthlyAvg, chartData, expe
     <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
       {/* Header row */}
       <div className="flex justify-between items-center mb-3">
-        <p className={cardLabel}>
+        <p className={cn('text-xs', cardLabel)}>
           This month
         </p>
         {!isNewUser && monthlyAvg > 0 && (

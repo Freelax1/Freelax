@@ -24,8 +24,8 @@ export const cardLabel =
 
 /** Floating field — label when raised (smaller than value) */
 export const floatingFieldLabel =
-  'text-micro leading-none font-normal text-text-muted'
+  'text-micro leading-none font-normal tracking-label text-text-muted'
 
 /** Floating field — input value (primary readable size) */
 export const floatingFieldValue =
-  'text-sm leading-snug font-normal text-text-primary'
+  'text-base leading-snug font-normal text-text-primary'

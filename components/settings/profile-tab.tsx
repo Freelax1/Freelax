@@ -6,6 +6,7 @@ import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'
+import { cn } from '@/lib/utils'
 import { Field, Input, SaveSettingsButton, labelClass } from './shared'
 
 interface Props {
@@ -59,7 +60,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
     <div className="divide-y divide-border-subtle -mx-7 -my-6">
       {/* Logo upload */}
       <div className="px-7 py-6">
-        <label className={labelClass}>Business logo</label>
+        <label className={cn('text-xs', labelClass)}>Business logo</label>
         <p className="text-xs text-text-secondary mb-3">Appears on all invoices and quotes sent to clients.</p>
         <div className="flex items-start gap-5">
 

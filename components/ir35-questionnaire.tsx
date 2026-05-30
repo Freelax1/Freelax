@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
+import { cn } from '@/lib/utils'
 
 interface Props {
   projectId: string
@@ -15,24 +17,40 @@ interface Props {
   onSave?: (answers: IR35Answer[], status: IR35Status) => Promise<void>
 }
 
+const RISK_SEGMENTS = [
+  {
+    key: 'Low' as const,
+    active: 'bg-success-50 border-success-200 text-success-700',
+  },
+  {
+    key: 'Medium' as const,
+    active: 'bg-warning-50 border-warning-200 text-warning-800',
+  },
+  {
+    key: 'High' as const,
+    active: 'bg-danger-50 border-danger-200 text-danger-700',
+  },
+]
+
+const sectionLabelClass =
+  'text-micro font-semibold text-text-muted uppercase tracking-label mb-1.5'
+
 function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
-  const segments = [
-    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
-    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
-    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
-  ] as const
   return (
     <div className="flex gap-2">
-      {segments.map(s => {
+      {RISK_SEGMENTS.map(s => {
         const active = level === s.key
         return (
-          <div key={s.key} style={{
-            flex: 1, padding: '6px 0', borderRadius: 8, textAlign: 'center',
-            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
-            background: active ? s.activeBg : '#F8FAFC',
-            opacity: active ? 1 : 0.45,
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
+          <div
+            key={s.key}
+            className={cn(
+              'flex-1 py-1.5 rounded-lg text-center border transition-opacity',
+              active
+                ? s.active
+                : 'bg-surface-sunken border-border-subtle text-text-muted opacity-45',
+            )}
+          >
+            <span className="text-caption font-bold tracking-wide">
               {s.key.toUpperCase()}
             </span>
           </div>
@@ -78,7 +96,7 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       })
       const data = await res.json()
       setAiResult(data)
-    } catch (e) {
+    } catch {
       setAiResult({ error: 'Failed to get AI assessment. Please try again.' })
     }
     setAiLoading(false)
@@ -93,7 +111,12 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
+                  <span className={cn(
+                    'text-xs font-medium px-1.5 py-0.5 rounded',
+                    q.importance === 'HIGH'
+                      ? 'bg-danger-100 text-danger-700'
+                      : 'bg-warning-100 text-warning-800',
+                  )}>
                     {q.importance}
                   </span>
                   <span className="text-xs text-text-secondary">{q.label}</span>
@@ -145,33 +168,32 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {aiResult && !aiResult.error && (
         <div className="bg-surface-card border border-border-default rounded-xl p-5 space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-text-primary">IR35 Assessment</h3>
+            <h3 className="text-sm font-semibold text-text-primary">IR35 Assessment</h3>
             <AIFlag />
           </div>
 
-          {/* Verdict */}
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
-            <p className="text-sm text-slate-800 leading-relaxed">{aiResult.verdict}</p>
+            <p className={sectionLabelClass}>Verdict</p>
+            <p className="text-sm text-text-primary leading-relaxed">{aiResult.verdict}</p>
           </div>
 
-          {/* Risk level */}
           {aiResult.risk_level && (
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
+              <p className={cn(sectionLabelClass, 'mb-2')}>Risk Level</p>
               <IR35RiskBar level={aiResult.risk_level} />
-              <p className="text-sm text-slate-600 mt-2">{aiResult.risk_level_explanation}</p>
+              <p className="text-sm text-text-secondary mt-2">{aiResult.risk_level_explanation}</p>
             </div>
           )}
 
-          {/* Next steps */}
           {aiResult.next_steps?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
+              <p className={cn(sectionLabelClass, 'mb-2.5')}>Next Steps</p>
               <ol className="space-y-2.5">
                 {aiResult.next_steps.map((step: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-text-on-dark text-xs font-bold flex items-center justify-center mt-0.5">
+                      {i + 1}
+                    </span>
                     {step}
                   </li>
                 ))}
@@ -179,16 +201,14 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             </div>
           )}
 
-          <div className="border-t border-slate-100 pt-3">
+          <div className="border-t border-border-subtle pt-3">
             <NotTaxAdviceDisclaimer />
           </div>
         </div>
       )}
 
       {aiResult?.error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-600">{aiResult.error}</p>
-        </div>
+        <Alert intent="danger">{aiResult.error}</Alert>
       )}
     </div>
   )

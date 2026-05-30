@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Sparkle, X, Receipt, PenNib, ChatDots, ChartBar, ArrowRight } from '@phosphor-icons/react'
 import { IconButton } from '@/components/ui/icon-button'
-import { cardLabel } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import type { Icon } from '@phosphor-icons/react'
 

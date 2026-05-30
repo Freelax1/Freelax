@@ -394,6 +394,22 @@ select option {
   color: var(--text-primary);
 }
 
+/* ── Floating field typography (CSS vars — not reliant on Tailwind purge) ─ */
+@layer components {
+  .fd-field-label--floated {
+    font-size: var(--text-micro);
+    line-height: 1;
+    letter-spacing: 0.012em;
+    font-weight: var(--weight-regular);
+  }
+
+  .fd-field-input--floated {
+    font-size: var(--text-base);
+    line-height: 1.375;
+    font-weight: var(--weight-regular);
+  }
+}
+
 /* ── Nav tab ────────────────────────────────────────────────────────────── */
 @layer components {
   .fd-nav-tab {

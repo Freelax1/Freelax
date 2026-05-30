@@ -40,7 +40,7 @@ export default function SectionCard({
               (action || children) && 'mb-3',
             )}
           >
-            <h2 className={sectionTitle}>{title}</h2>
+            <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
             {action ? <div className="shrink-0">{action}</div> : null}
           </div>
           <div className={bodyClassName}>{children}</div>
@@ -52,7 +52,7 @@ export default function SectionCard({
   return (
     <div className={cn('bg-surface-card rounded-xl border border-border-default overflow-hidden', className)}>
       <div className={cn('px-5 py-3 border-b border-border-subtle', accent ?? 'bg-surface-sunken')}>
-        <h2 className={sectionTitle}>{title}</h2>
+        <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
       </div>
       <div className={cn('px-5 py-1', bodyClassName)}>{children}</div>
     </div>

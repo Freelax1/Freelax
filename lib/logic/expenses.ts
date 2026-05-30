@@ -17,16 +17,16 @@ export const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  office_supplies:   'bg-blue-100 text-blue-700',
-  travel:            'bg-orange-100 text-orange-700',
-  software:          'bg-purple-100 text-purple-700',
-  phone_internet:    'bg-cyan-100 text-cyan-700',
-  professional_fees: 'bg-slate-100 text-slate-700',
-  marketing:         'bg-pink-100 text-pink-700',
-  equipment:         'bg-green-100 text-green-700',
-  training:          'bg-yellow-100 text-yellow-700',
-  meals:             'bg-red-100 text-red-700',
-  other:             'bg-gray-100 text-gray-600',
+  office_supplies:   'bg-info-50 text-info-700',
+  travel:            'bg-warning-50 text-warning-800',
+  software:          'bg-forest-50 text-forest-700',
+  phone_internet:    'bg-info-50 text-info-600',
+  professional_fees: 'bg-surface-sunken text-text-secondary',
+  marketing:         'bg-danger-50 text-danger-700',
+  equipment:         'bg-success-50 text-success-700',
+  training:          'bg-warning-50 text-warning-700',
+  meals:             'bg-danger-50 text-danger-700',
+  other:             'bg-surface-sunken text-text-muted',
 }
 
 export function calcTotalExVat(expenses: Expense[]): number {

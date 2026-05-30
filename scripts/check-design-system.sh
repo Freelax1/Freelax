@@ -16,6 +16,8 @@ bash scripts/check-hand-rolled-primary-buttons.sh || FAILED=1
 bash scripts/check-hand-rolled-input-focus.sh    || FAILED=1
 bash scripts/check-hand-rolled-charts.sh         || FAILED=1
 bash scripts/check-hand-rolled-form-sections.sh  || FAILED=1
+bash scripts/check-typography-tokens.sh          || FAILED=1
+bash scripts/check-status-color-steps.sh       || FAILED=1
 
 if ((FAILED)); then
   echo "" >&2

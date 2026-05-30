@@ -336,7 +336,7 @@ export default function QuoteDetailPage() {
               <IconButton
                 label="Dismiss"
                 onClick={() => setMsg(null)}
-                className="flex-shrink-0 hover:bg-transparent text-warning-400 hover:text-warning-600"
+                className="flex-shrink-0 hover:bg-transparent text-warning-500 hover:text-warning-600"
                 icon={<X weight="regular" className="w-4 h-4" />}
               />
             </div>
