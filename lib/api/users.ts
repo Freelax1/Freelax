@@ -22,6 +22,17 @@ export async function fetchUserProfile(userId: string) {
   return data
 }
 
+export async function fetchUserDefaults(userId: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('users')
+    .select('invoice_prefix, invoice_default_notes, quote_prefix, quote_default_notes, quote_validity_days')
+    .eq('id', userId)
+    .single()
+  if (error) return null
+  return data
+}
+
 export async function updateUserProfile(userId: string, payload: Record<string, unknown>) {
   const supabase = createClient()
   const { error } = await supabase
