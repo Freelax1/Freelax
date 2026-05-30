@@ -1,6 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/tax-calculations'
+import { cn } from '@/lib/utils'
+import { cardLabel } from '@/lib/typography'
 
 interface TimelineItem {
   id:      string
@@ -31,70 +33,47 @@ function absoluteLabel(dateStr: string) {
 }
 
 export default function WhatsComing({ items }: Props) {
-  const CARD: React.CSSProperties = {
-    background: '#fff', borderRadius: 14,
-    border: '1px solid rgba(0,0,0,0.06)', padding: '24px 28px',
-  }
-  const LABEL: React.CSSProperties = {
-    fontSize: 11, fontWeight: 500, color: '#94A3B8',
-    textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 20,
-  }
-
   if (!items.length) {
     return (
-      <div style={CARD}>
-        <p style={LABEL}>What's coming</p>
-        <p style={{ fontSize: 14, color: '#64748B' }}>Nothing due in the next 30 days. Enjoy the quiet.</p>
+      <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
+        <p className={cn(cardLabel, 'mb-5')}>What's coming</p>
+        <p className="text-sm text-text-secondary">Nothing due in the next 30 days. Enjoy the quiet.</p>
       </div>
     )
   }
 
   return (
-    <div style={CARD}>
-      <p style={LABEL}>What's coming — next 30 days</p>
+    <div className="bg-surface-card rounded-xl border border-border-default p-6 h-full">
+      <p className={cn(cardLabel, 'mb-4')}>What's coming — next 30 days</p>
 
-      {/* Desktop: horizontal timeline */}
-      <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
-        <div style={{ display: 'flex', gap: 0, minWidth: items.length * 160, position: 'relative' }}>
-          {/* Connecting line */}
-          <div style={{
-            position: 'absolute', top: 20, left: 20, right: 20, height: 1,
-            background: 'rgba(0,0,0,0.06)', zIndex: 0,
-          }} />
+      <div className="flex flex-col divide-y divide-border-subtle">
+        {items.map((item) => {
+          const days     = daysUntil(item.dueDate)
+          const isLate   = days < 0
+          const isUrgent = days >= 0 && days <= 3
+          const isTax    = item.type === 'tax'
+          const dotColor = isLate ? 'var(--danger-500)' : isUrgent ? 'var(--warning-500)' : isTax ? 'var(--warning-500)' : 'var(--success-500)'
 
-          {items.map((item) => {
-            const days     = daysUntil(item.dueDate)
-            const isLate   = days < 0
-            const isUrgent = days >= 0 && days <= 3
-            const isTax    = item.type === 'tax'
-            const dotColor = isLate ? '#C0392B' : isUrgent ? '#9A7B0A' : isTax ? '#9A7B0A' : '#1D6B35'
-            const amtColor = isLate ? '#C0392B' : '#0F172A'
+          return (
+            <Link key={item.id} href={item.href}
+              title={absoluteLabel(item.dueDate)}
+              className="flex items-center gap-3 py-2.5 no-underline group hover:bg-surface-sunken -mx-6 px-6 first:-mt-0 transition-colors">
+              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
 
-            return (
-              <Link key={item.id} href={item.href}
-                title={absoluteLabel(item.dueDate)}
-                style={{ flex: '0 0 160px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingRight: 12, textDecoration: 'none', position: 'relative', zIndex: 1 }}>
-                {/* Dot on timeline */}
-                <div style={{
-                  width: 10, height: 10, borderRadius: '50%',
-                  background: dotColor, marginBottom: 10,
-                  boxShadow: `0 0 0 3px #fff, 0 0 0 4px ${dotColor}20`,
-                  flexShrink: 0,
-                }} />
-                <p style={{ fontSize: 12, fontWeight: 600, color: amtColor, fontVariantNumeric: 'tabular-nums' }}>
-                  {formatCurrency(item.amount)}
-                </p>
-                <p style={{ fontSize: 11, color: '#64748B', marginTop: 2, lineHeight: 1.4,
-                  overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {item.label}
-                </p>
-                <p style={{ fontSize: 10, color: isLate ? '#C0392B' : isUrgent ? '#9A7B0A' : '#94A3B8', marginTop: 3, fontWeight: isLate || isUrgent ? 500 : 400 }}>
-                  {relativeLabel(days)}
-                </p>
-              </Link>
-            )
-          })}
-        </div>
+              <p className="flex-1 text-sm text-text-primary truncate">
+                {item.label}
+              </p>
+
+              <p className={cn('text-caption shrink-0', isLate ? 'text-danger-500 font-medium' : isUrgent ? 'text-warning-700 font-medium' : 'text-text-secondary')}>
+                {relativeLabel(days)}
+              </p>
+
+              <p className={cn('text-sm font-semibold tabular-nums shrink-0 w-20 text-right', isLate ? 'text-danger-500' : 'text-text-primary')}>
+                {formatCurrency(item.amount)}
+              </p>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )
