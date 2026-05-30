@@ -5,6 +5,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+if ! command -v rg >/dev/null 2>&1; then
+  echo "check-design-system: ripgrep (rg) is required — install with: brew install ripgrep" >&2
+  exit 1
+fi
+
 FAILED=0
 
 bash scripts/check-hand-rolled-alerts.sh       || FAILED=1

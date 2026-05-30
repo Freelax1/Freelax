@@ -84,7 +84,7 @@ export default function AiLauncher() {
               href={f.href}
               className={cn(
                 'flex items-center gap-3 px-5 py-3.5 no-underline transition-colors',
-                'hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-primary/40',
+                'hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-strong',
               )}
             >
               <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center shrink-0">
