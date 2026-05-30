@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freelax — The Product</title>
+  <meta name="description" content="See every screen of Freelax — Dashboard, Invoices, Quotes and Tax. Built for UK freelancers and contractors." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --g0: #020b05; --g1: #0b1f10; --g2: #1D6B35; --g3: #277a40; --g4: #3da85a; --g5: #7dd89a; --g6: #dcfce7;
+      --amber: #c9973a; --amber-lit: #e0b455; --amber-dim: rgba(201,151,58,.10); --amber-border: rgba(201,151,58,.20);
+      --bg: #080f0a; --bg2: #0d1b10; --bg3: #060c08;
+      --surface: rgba(255,244,218,.042); --surface2: rgba(255,244,218,.072);
+      --border: rgba(255,244,218,.09); --border2: rgba(255,244,218,.15);
+      --ink: rgba(255,249,238,.95); --ink2: rgba(255,249,238,.80); --muted: rgba(255,248,234,.40);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink2); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ─── GRAIN ─── */
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 9000; pointer-events: none; opacity: .028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ─── SCROLL PROGRESS ─── */
+    #spb { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: linear-gradient(90deg, var(--g2), var(--g5)); z-index: 9999; pointer-events: none; transition: width .08s linear; }
+
+    /* ─── NAV ─── */
+    #nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 16px 6%; transition: all .3s; }
+    #nav.solid { background: rgba(4,16,10,.88); backdrop-filter: blur(24px) saturate(1.5); border-bottom: 1px solid var(--border); }
+    .nav-in { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 22px; letter-spacing: -.7px; color: var(--ink); text-decoration: none; transition: opacity .2s; }
+    .nav-logo:hover { opacity: .8; }
+    .nav-logo b { color: var(--g5); font-weight: 800; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; letter-spacing: -.1px; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a.active { color: var(--ink); }
+    .nav-btns { display: flex; gap: 8px; align-items: center; }
+    .btn-ghost-nav { font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; color: var(--muted); transition: all .2s; }
+    .btn-ghost-nav:hover { background: var(--surface); color: var(--ink); }
+    .btn-cta-nav { font-size: 14px; font-weight: 700; padding: 9px 20px; border-radius: 8px; text-decoration: none; background: var(--g2); color: white; transition: all .2s; letter-spacing: -.1px; }
+    .btn-cta-nav:hover { background: var(--g3); box-shadow: 0 0 24px rgba(29,107,53,.5); }
+
+    /* ─── SHARED ─── */
+    .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: var(--g5); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 20px; }
+    .section-label::before { content:''; display:block; width:20px; height:2px; background: var(--g5); border-radius:2px; }
+    .display { font-family: 'DM Serif Display', serif; font-size: clamp(42px, 4.5vw, 64px); line-height: 1.04; letter-spacing: -2.5px; color: var(--ink); }
+    .display em { font-style: italic; color: var(--g5); }
+    .lead { font-size: 17px; line-height: 1.8; color: var(--muted); }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      padding: 140px 6% 60px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .page-header .display { margin-bottom: 16px; }
+    .page-header .lead { max-width: 520px; }
+
+    /* ─── PRODUCT TOUR ─── */
+    .pt-section { background: var(--bg); padding: 0 6% 100px; }
+    .pt-in { max-width: 1160px; margin: 0 auto; }
+    .pt-tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+    .pt-tab { padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); background: transparent; border: 1px solid transparent; cursor: pointer; transition: all .18s; letter-spacing: -.1px; }
+    .pt-tab:hover { color: var(--ink2); border-color: var(--border); }
+    .pt-tab.active { background: var(--surface2); border-color: var(--border2); color: var(--ink); }
+    /* Chrome */
+    .pt-chrome { border-radius: 12px; overflow: hidden; border: 1px solid var(--border2); box-shadow: 0 40px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04); }
+    .pt-chrome-bar { background: #0d1014; border-bottom: 1px solid rgba(255,255,255,.06); padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+    .pt-chrome-dots { display: flex; gap: 5px; }
+    .pt-chrome-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .pt-chrome-url { margin: 0 auto; background: rgba(255,255,255,.06); border-radius: 4px; padding: 4px 14px; font-size: 11px; color: rgba(255,255,255,.22); font-family: monospace; }
+    /* App shell */
+    .pt-app { display: grid; grid-template-columns: 196px 1fr; height: 620px; }
+    /* Sidebar */
+    .app-sb { background: #111318; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,.07); overflow: hidden; flex-shrink: 0; }
+    .app-sb-brand { padding: 16px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .app-sb-logo { font-weight: 800; font-size: 14px; color: #fff; letter-spacing: -.4px; }
+    .app-sb-logo span { color: #7dd89a; }
+    .app-sb-chip { margin-top: 10px; display: inline-flex; flex-direction: column; gap: 1px; background: rgba(255,255,255,.05); border-radius: 6px; padding: 5px 8px; }
+    .app-sb-date { font-size: 9.5px; color: rgba(255,255,255,.45); font-weight: 600; }
+    .app-sb-yr { font-size: 9px; color: rgba(255,255,255,.25); }
+    .app-sb-nav { padding: 10px 8px; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+    .app-nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: 6px; font-size: 11.5px; color: rgba(255,255,255,.4); font-weight: 500; cursor: default; transition: all .15s; white-space: nowrap; }
+    .app-nav-item svg { width: 13px; height: 13px; flex-shrink: 0; opacity: .55; }
+    .app-nav-item.active { background: rgba(29,107,53,.3); color: #7dd89a; }
+    .app-nav-item.active svg { opacity: 1; }
+    /* Main */
+    .app-main { background: #F7F5F0; display: flex; flex-direction: column; overflow: hidden; }
+    .app-topbar { background: #F7F5F0; border-bottom: 1px solid rgba(0,0,0,.09); padding: 0 18px; height: 46px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .app-topbar-title { font-size: 14px; font-weight: 700; color: #0d1a12; letter-spacing: -.3px; }
+    .app-topbar-right { display: flex; align-items: center; gap: 7px; }
+    .app-btn-icon { width: 28px; height: 28px; border-radius: 6px; background: transparent; border: 1px solid rgba(0,0,0,.11); color: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; cursor: default; font-size: 13px; }
+    .app-btn-dark { font-size: 10.5px; font-weight: 700; padding: 5px 11px; background: #0d1a12; color: white; border-radius: 6px; border: none; cursor: default; letter-spacing: -.1px; white-space: nowrap; }
+    .app-btn-green { font-size: 10.5px; font-weight: 700; padding: 5px 11px; background: #1D6B35; color: white; border-radius: 6px; border: none; cursor: default; letter-spacing: -.1px; white-space: nowrap; }
+    .app-btn-outline { font-size: 10.5px; font-weight: 600; padding: 5px 11px; background: transparent; color: #0d1a12; border-radius: 6px; border: 1px solid rgba(0,0,0,.15); cursor: default; white-space: nowrap; }
+    .app-body { flex: 1; overflow: hidden; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .app-panel { display: none; flex-direction: column; gap: 10px; height: 100%; }
+    .app-panel.active { display: flex; }
+    /* Greeting */
+    .app-greeting-head { font-size: 17px; font-weight: 700; color: #0d1a12; letter-spacing: -.5px; line-height: 1.2; }
+    .app-greeting-sub { font-size: 11px; color: rgba(0,0,0,.42); margin-top: 2px; }
+    /* Action panel */
+    .app-action-panel { background: rgba(201,151,58,.07); border: 1px solid rgba(201,151,58,.2); border-left: 3px solid #c9973a; border-radius: 8px; padding: 9px 13px; flex-shrink: 0; }
+    .app-action-label { font-size: 8.5px; font-weight: 800; letter-spacing: .1em; color: #c9973a; text-transform: uppercase; margin-bottom: 7px; }
+    .app-action-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
+    .app-action-row + .app-action-row { border-top: 1px solid rgba(201,151,58,.11); }
+    .app-action-text { font-size: 10.5px; color: rgba(0,0,0,.62); font-weight: 500; }
+    .app-action-arrow { font-size: 11px; color: rgba(201,151,58,.6); }
+    /* Metrics */
+    .app-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
+    .app-metric-card { border-radius: 9px; padding: 11px; }
+    .app-metric-card.white { background: #fff; border: 1px solid rgba(0,0,0,.07); }
+    .app-metric-card.cream { background: #edeae3; border: 1px solid rgba(0,0,0,.09); }
+    .app-metric-card.mint  { background: #d1fae5; border: 1px solid rgba(22,163,74,.15); }
+    .app-metric-lbl { font-size: 9px; font-weight: 600; color: rgba(0,0,0,.38); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .app-metric-val { font-size: 19px; font-weight: 800; color: #0d1a12; letter-spacing: -.6px; line-height: 1; }
+    .app-metric-card.mint .app-metric-val { color: #064e3b; font-size: 21px; }
+    .app-metric-delta { font-size: 9.5px; font-weight: 700; color: #16a34a; margin-top: 4px; display: block; }
+    .app-metric-sub { font-size: 9.5px; color: rgba(0,0,0,.38); margin-top: 3px; }
+    .app-prog-track { background: rgba(0,0,0,.09); border-radius: 100px; height: 4px; overflow: hidden; margin: 6px 0 3px; }
+    .app-prog-fill { height: 100%; border-radius: 100px; background: #1D6B35; }
+    .app-prog-row { display: flex; align-items: center; justify-content: space-between; }
+    .app-sparkline { width: 100%; height: 28px; margin-top: 6px; }
+    /* Bar chart */
+    .app-chart-panel { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 9px; padding: 10px 12px; flex-shrink: 0; }
+    .app-panel-title { font-size: 9.5px; font-weight: 700; color: rgba(0,0,0,.42); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .app-bars { display: flex; align-items: flex-end; gap: 4px; height: 44px; }
+    .app-bar { flex: 1; border-radius: 2px 2px 0 0; background: rgba(29,107,53,.18); }
+    .app-bar.hi { background: #1D6B35; }
+    /* Stat grid */
+    .app-stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; flex-shrink: 0; }
+    .app-stat-card { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 9px; padding: 9px 11px; }
+    .app-stat-lbl { font-size: 9px; font-weight: 600; color: rgba(0,0,0,.38); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .app-stat-val { font-size: 16px; font-weight: 800; color: #0d1a12; letter-spacing: -.5px; }
+    .app-stat-val.amber { color: #c9973a; }
+    .app-stat-val.green { color: #1D6B35; }
+    /* Filter cards */
+    .app-filter-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; flex-shrink: 0; }
+    .app-filter-card { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 8px; padding: 9px 11px; border-left: 3px solid transparent; }
+    .app-filter-card.fc-grey  { border-left-color: rgba(0,0,0,.22); }
+    .app-filter-card.fc-blue  { border-left-color: #3b82f6; }
+    .app-filter-card.fc-red   { border-left-color: #ef4444; }
+    .app-filter-card.fc-green { border-left-color: #16a34a; }
+    .app-filter-card.fc-amber { border-left-color: #c9973a; }
+    .app-filter-lbl { font-size: 9px; font-weight: 600; color: rgba(0,0,0,.38); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .app-filter-count { font-size: 15px; font-weight: 800; color: #0d1a12; letter-spacing: -.4px; }
+    .app-filter-amt { font-size: 10px; color: rgba(0,0,0,.38); margin-top: 2px; }
+    /* Search */
+    .app-search { background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 6px; padding: 6px 11px; font-size: 10.5px; color: rgba(0,0,0,.3); display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    /* Table */
+    .app-table { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 9px; overflow: hidden; flex: 1; }
+    .app-thead { display: grid; padding: 7px 13px; background: rgba(0,0,0,.02); border-bottom: 1px solid rgba(0,0,0,.07); }
+    .app-thead span { font-size: 8.5px; font-weight: 700; color: rgba(0,0,0,.32); text-transform: uppercase; letter-spacing: .06em; }
+    .app-trow { display: grid; padding: 8px 13px; border-bottom: 1px solid rgba(0,0,0,.05); align-items: center; transition: background .12s; }
+    .app-trow:last-child { border-bottom: none; }
+    .app-trow:hover { background: rgba(0,0,0,.02); }
+    .app-trow-inv,.app-thead-inv { grid-template-columns: 80px 1fr 60px 60px 72px 76px; }
+    .app-trow-qt,.app-thead-qt   { grid-template-columns: 80px 1fr 60px 72px 72px 76px; }
+    .app-cell { font-size: 10.5px; color: rgba(0,0,0,.55); }
+    .app-cell.bold { color: #0d1a12; font-weight: 600; }
+    .app-cell.muted { color: rgba(0,0,0,.32); }
+    .app-cell.expired  { color: #ef4444; font-weight: 600; }
+    .app-cell.expiring { color: #c9973a; font-weight: 600; }
+    .app-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+    .app-badge::before { content:''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .app-badge.paid     { color: #16a34a; background: rgba(22,163,74,.1); }
+    .app-badge.sent     { color: #3b82f6; background: rgba(59,130,246,.1); }
+    .app-badge.overdue  { color: #ef4444; background: rgba(239,68,68,.1); }
+    .app-badge.draft    { color: rgba(0,0,0,.42); background: rgba(0,0,0,.06); }
+    .app-badge.accepted { color: #16a34a; background: rgba(22,163,74,.1); }
+    .app-badge.expired-b{ color: #c9973a; background: rgba(201,151,58,.1); }
+    /* Tax screen */
+    .app-disclaimer { background: rgba(201,151,58,.07); border: 1px solid rgba(201,151,58,.18); border-radius: 7px; padding: 7px 11px; font-size: 10px; color: rgba(0,0,0,.52); flex-shrink: 0; line-height: 1.5; }
+    .app-kpi-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; flex-shrink: 0; }
+    .app-kpi-card { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 8px; padding: 9px 11px; border-top: 3px solid transparent; }
+    .app-kpi-card.kt-amber { border-top-color: #c9973a; }
+    .app-kpi-card.kt-green { border-top-color: #16a34a; }
+    .app-kpi-card.kt-blue  { border-top-color: #3b82f6; }
+    .app-kpi-lbl { font-size: 9px; font-weight: 600; color: rgba(0,0,0,.38); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .app-kpi-val { font-size: 17px; font-weight: 800; letter-spacing: -.5px; color: #0d1a12; }
+    .app-kpi-val.amber { color: #c9973a; } .app-kpi-val.green { color: #16a34a; } .app-kpi-val.blue { color: #3b82f6; }
+    .app-kpi-sub { font-size: 9.5px; color: rgba(0,0,0,.35); margin-top: 3px; }
+    .app-wtdn { background: rgba(29,107,53,.06); border: 1px solid rgba(29,107,53,.13); border-left: 3px solid #1D6B35; border-radius: 8px; padding: 9px 13px; flex-shrink: 0; }
+    .app-wtdn-lbl { font-size: 8.5px; font-weight: 800; letter-spacing: .1em; color: #1D6B35; text-transform: uppercase; margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+    .app-wtdn-row { display: flex; align-items: flex-start; gap: 7px; padding: 3px 0; font-size: 10.5px; color: rgba(0,0,0,.6); }
+    .app-wtdn-dot { width: 5px; height: 5px; border-radius: 50%; background: #1D6B35; margin-top: 4px; flex-shrink: 0; box-shadow: 0 0 0 3px rgba(29,107,53,.15); }
+    .app-tax-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; flex: 1; overflow: hidden; }
+    .app-tax-col { display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+    .app-pnl { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 8px; padding: 10px 12px; }
+    .app-pnl-title { font-size: 9.5px; font-weight: 700; color: rgba(0,0,0,.45); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; }
+    .app-pnl-row { display: flex; justify-content: space-between; align-items: center; padding: 3.5px 0; border-bottom: 1px solid rgba(0,0,0,.04); font-size: 10.5px; }
+    .app-pnl-row:last-child { border-bottom: none; font-weight: 700; }
+    .app-pnl-lbl { color: rgba(0,0,0,.52); }
+    .app-pnl-val { color: #0d1a12; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .app-pnl-val.green { color: #16a34a; } .app-pnl-val.red { color: #ef4444; } .app-pnl-val.amber { color: #c9973a; }
+    .app-taxpot { background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 8px; padding: 11px; display: flex; flex-direction: column; gap: 7px; }
+    .app-taxpot-title { font-size: 9.5px; font-weight: 700; color: rgba(0,0,0,.45); text-transform: uppercase; letter-spacing: .05em; }
+    .app-taxpot-nums { display: flex; align-items: baseline; gap: 5px; }
+    .app-taxpot-saved { font-size: 20px; font-weight: 800; color: #16a34a; letter-spacing: -.6px; }
+    .app-taxpot-sep { font-size: 12px; color: rgba(0,0,0,.3); }
+    .app-taxpot-target { font-size: 14px; font-weight: 700; color: rgba(0,0,0,.45); letter-spacing: -.3px; }
+    .app-taxpot-row { display: flex; justify-content: space-between; font-size: 10px; color: rgba(0,0,0,.45); padding: 2px 0; }
+    .app-taxpot-add { display: flex; gap: 5px; margin-top: 3px; }
+    .app-taxpot-inp { flex: 1; background: #F7F5F0; border: 1px solid rgba(0,0,0,.1); border-radius: 5px; padding: 5px 8px; font-size: 10px; color: rgba(0,0,0,.45); }
+    .app-taxpot-btn { background: #1D6B35; color: white; border: none; border-radius: 5px; padding: 5px 10px; font-size: 10px; font-weight: 700; cursor: default; white-space: nowrap; }
+
+    /* ─── FOOTER ─── */
+    footer { background: var(--bg3); padding: 64px 6% 36px; border-top: 1px solid var(--border); }
+    .footer-in { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+    .footer-logo { font-weight: 800; font-size: 22px; letter-spacing: -.6px; color: var(--ink); margin-bottom: 12px; }
+    .footer-logo span { color: var(--g5); }
+    .footer-desc { font-size: 13px; color: rgba(255,255,255,.28); line-height: 1.75; max-width: 260px; margin-bottom: 16px; }
+    .footer-uk { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.2); background: var(--surface); border-radius: 5px; padding: 5px 10px; border: 1px solid var(--border); }
+    .fcol-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+    .fcol ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .fcol ul a { font-size: 13px; color: rgba(255,255,255,.28); text-decoration: none; transition: color .2s; }
+    .fcol ul a:hover { color: rgba(255,255,255,.65); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 22px; display: flex; justify-content: space-between; align-items: center; }
+    .footer-bottom p { font-size: 11px; color: rgba(255,255,255,.15); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 11px; color: rgba(255,255,255,.15); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: rgba(255,255,255,.4); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .pt-app { grid-template-columns: 1fr; height: 520px; }
+      .app-sb { display: none; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div id="spb"></div>
+
+<nav id="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="index.html">Freelax<b>.</b></a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#ir35">IR35</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="product.html" class="active">Product</a></li>
+    </ul>
+    <div class="nav-btns">
+      <a class="btn-ghost-nav" href="https://app.freelax.co.uk/auth/login">Sign in</a>
+      <a class="btn-cta-nav" href="https://app.freelax.co.uk/auth/signup">Start free →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="section-label">The product</div>
+  <h1 class="display" style="margin-bottom:16px;">Four screens.<br><em>Complete clarity.</em></h1>
+  <p class="lead">Dashboard, Invoices, Quotes and Tax — every screen built around the way UK freelancers actually work. Click any tab to explore.</p>
+</div>
+
+<!-- PRODUCT TOUR -->
+<div class="pt-section">
+  <div class="pt-in">
+    <div class="pt-tabs">
+      <button class="pt-tab active" data-tab="dashboard">Dashboard</button>
+      <button class="pt-tab" data-tab="invoices">Invoices</button>
+      <button class="pt-tab" data-tab="quotes">Quotes</button>
+      <button class="pt-tab" data-tab="tax">Tax</button>
+    </div>
+    <div class="pt-chrome">
+      <div class="pt-chrome-bar">
+        <div class="pt-chrome-dots">
+          <div class="pt-chrome-dot" style="background:#ff5f57"></div>
+          <div class="pt-chrome-dot" style="background:#ffbd2e"></div>
+          <div class="pt-chrome-dot" style="background:#28c840"></div>
+        </div>
+        <div class="pt-chrome-url">app.freelax.co.uk</div>
+      </div>
+      <div class="pt-app">
+        <!-- SIDEBAR -->
+        <div class="app-sb">
+          <div class="app-sb-brand">
+            <div class="app-sb-logo">Freelax<span>.</span></div>
+            <div class="app-sb-chip">
+              <span class="app-sb-date">12 May 2026</span>
+              <span class="app-sb-yr">Tax Year 2026/27</span>
+            </div>
+          </div>
+          <nav class="app-sb-nav">
+            <div class="app-nav-item active" data-view="dashboard"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+            <div class="app-nav-item" data-view="tax"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 10.5l5-5M6 6h.01M10 10h.01"/></svg>Tax</div>
+            <div class="app-nav-item" data-view="invoices"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V5l-3-4z"/><path d="M10 1v4h3M5 8h6M5 11h4"/></svg>Invoices</div>
+            <div class="app-nav-item" data-view="quotes"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H3a1 1 0 00-1 1v10l3-2h8a1 1 0 001-1V3a1 1 0 00-1-1z"/><path d="M5 6h6M5 9h4"/></svg>Quotes</div>
+            <div class="app-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 6h14"/></svg>Expenses</div>
+            <div class="app-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 14c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12" cy="5" r="2"/><path d="M15 14c0-2.21-1.34-4-3-4"/></svg>Clients</div>
+            <div class="app-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>Projects</div>
+          </nav>
+        </div>
+        <!-- MAIN -->
+        <div class="app-main">
+          <div class="app-topbar" id="app-topbar">
+            <span class="app-topbar-title">Dashboard</span>
+            <div class="app-topbar-right">
+              <div class="app-btn-icon">🔔</div>
+              <button class="app-btn-dark">+ New invoice</button>
+            </div>
+          </div>
+          <div class="app-body">
+
+            <!-- DASHBOARD -->
+            <div class="app-panel active" data-panel="dashboard">
+              <div>
+                <div class="app-greeting-head">Good morning, Alex.</div>
+                <div class="app-greeting-sub">Here's where things stand today.</div>
+              </div>
+              <div class="app-action-panel">
+                <div class="app-action-label">⚡ Do this now</div>
+                <div class="app-action-row"><span class="app-action-text">Set aside tax for April invoices — £1,240 due</span><span class="app-action-arrow">→</span></div>
+                <div class="app-action-row"><span class="app-action-text">Invoice INV-009 is overdue — send a reminder</span><span class="app-action-arrow">→</span></div>
+              </div>
+              <div class="app-metrics">
+                <div class="app-metric-card white">
+                  <div class="app-metric-lbl">Earned This Year</div>
+                  <div class="app-metric-val">£68,400</div>
+                  <svg class="app-sparkline" viewBox="0 0 120 28" fill="none" preserveAspectRatio="none"><polyline points="0,22 15,18 30,20 45,12 60,15 75,8 90,10 105,6 120,4" stroke="#1D6B35" stroke-width="1.5" fill="none"/><polyline points="0,22 15,18 30,20 45,12 60,15 75,8 90,10 105,6 120,4 120,28 0,28" fill="rgba(29,107,53,.08)"/></svg>
+                  <span class="app-metric-delta">↑ 12.4% vs last year</span>
+                </div>
+                <div class="app-metric-card cream">
+                  <div class="app-metric-lbl">Tax Set Aside</div>
+                  <div class="app-metric-val">£16,240</div>
+                  <div class="app-prog-track"><div class="app-prog-fill" style="width:72%"></div></div>
+                  <div class="app-prog-row"><span class="app-metric-sub">72% of estimate</span><span style="font-size:11px">⚠️</span></div>
+                </div>
+                <div class="app-metric-card mint">
+                  <div class="app-metric-lbl">Safe to Spend</div>
+                  <div class="app-metric-val">£3,840</div>
+                  <div class="app-metric-sub">This month · after tax</div>
+                </div>
+              </div>
+              <div class="app-chart-panel">
+                <div class="app-panel-title">This month · income vs tax set-aside</div>
+                <div class="app-bars">
+                  <div class="app-bar" style="height:40%"></div><div class="app-bar" style="height:55%"></div><div class="app-bar" style="height:45%"></div><div class="app-bar" style="height:70%"></div><div class="app-bar" style="height:50%"></div><div class="app-bar hi" style="height:88%"></div><div class="app-bar" style="height:60%"></div><div class="app-bar" style="height:72%"></div><div class="app-bar" style="height:65%"></div><div class="app-bar" style="height:80%"></div><div class="app-bar hi" style="height:95%"></div><div class="app-bar" style="height:55%"></div>
+                </div>
+              </div>
+              <div class="app-stat-grid">
+                <div class="app-stat-card"><div class="app-stat-lbl">Active Clients</div><div class="app-stat-val">8</div></div>
+                <div class="app-stat-card"><div class="app-stat-lbl">Waiting to be Paid</div><div class="app-stat-val amber">£7,200</div></div>
+                <div class="app-stat-card"><div class="app-stat-lbl">Money Out</div><div class="app-stat-val">£1,840</div></div>
+                <div class="app-stat-card"><div class="app-stat-lbl">Live Projects</div><div class="app-stat-val green">3</div></div>
+              </div>
+            </div>
+
+            <!-- INVOICES -->
+            <div class="app-panel" data-panel="invoices">
+              <div class="app-filter-cards">
+                <div class="app-filter-card fc-grey"><div class="app-filter-lbl">Draft</div><div class="app-filter-count">2</div><div class="app-filter-amt">£3,600</div></div>
+                <div class="app-filter-card fc-blue"><div class="app-filter-lbl">Sent</div><div class="app-filter-count">4</div><div class="app-filter-amt">£14,400</div></div>
+                <div class="app-filter-card fc-red"><div class="app-filter-lbl">Overdue</div><div class="app-filter-count">1</div><div class="app-filter-amt">£2,400</div></div>
+                <div class="app-filter-card fc-green"><div class="app-filter-lbl">Paid</div><div class="app-filter-count">12</div><div class="app-filter-amt">£48,600</div></div>
+              </div>
+              <div class="app-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;opacity:.4"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>Search invoices…</div>
+              <div class="app-table">
+                <div class="app-thead app-thead-inv"><span>Invoice #</span><span>Client</span><span>Issued</span><span>Due</span><span>Total</span><span>Status</span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-012</span><span class="app-cell bold">Acme Corp</span><span class="app-cell muted">01 Apr</span><span class="app-cell muted">01 May</span><span class="app-cell bold">£4,800</span><span class="app-cell"><span class="app-badge paid">Paid</span></span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-011</span><span class="app-cell bold">TechFirm Ltd</span><span class="app-cell muted">15 Apr</span><span class="app-cell muted">15 May</span><span class="app-cell bold">£2,400</span><span class="app-cell"><span class="app-badge sent">Sent</span></span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-009</span><span class="app-cell bold">StartupXYZ</span><span class="app-cell muted">22 Mar</span><span class="app-cell expired">22 Apr</span><span class="app-cell bold">£2,400</span><span class="app-cell"><span class="app-badge overdue">Overdue</span></span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-008</span><span class="app-cell bold">GlobalDesign</span><span class="app-cell muted">01 Apr</span><span class="app-cell muted">30 May</span><span class="app-cell bold">£6,000</span><span class="app-cell"><span class="app-badge sent">Sent</span></span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-007</span><span class="app-cell bold">Northlight Co</span><span class="app-cell muted">15 Mar</span><span class="app-cell muted">15 Apr</span><span class="app-cell bold">£3,600</span><span class="app-cell"><span class="app-badge paid">Paid</span></span></div>
+                <div class="app-trow app-trow-inv"><span class="app-cell bold">INV-006</span><span class="app-cell bold">Meridian Labs</span><span class="app-cell muted">01 Mar</span><span class="app-cell muted">31 Mar</span><span class="app-cell bold">£1,200</span><span class="app-cell"><span class="app-badge draft">Draft</span></span></div>
+              </div>
+            </div>
+
+            <!-- QUOTES -->
+            <div class="app-panel" data-panel="quotes">
+              <div class="app-filter-cards">
+                <div class="app-filter-card fc-grey"><div class="app-filter-lbl">Draft</div><div class="app-filter-count">3</div><div class="app-filter-amt">£8,400</div></div>
+                <div class="app-filter-card fc-blue"><div class="app-filter-lbl">Sent</div><div class="app-filter-count">5</div><div class="app-filter-amt">£22,000</div></div>
+                <div class="app-filter-card fc-green"><div class="app-filter-lbl">Accepted</div><div class="app-filter-count">7</div><div class="app-filter-amt">£31,200</div></div>
+                <div class="app-filter-card fc-amber"><div class="app-filter-lbl">Expired</div><div class="app-filter-count">2</div><div class="app-filter-amt">£5,600</div></div>
+              </div>
+              <div class="app-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;opacity:.4"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>Search quotes…</div>
+              <div class="app-table">
+                <div class="app-thead app-thead-qt"><span>Quote #</span><span>Client</span><span>Issued</span><span>Valid Until</span><span>Total</span><span>Status</span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-018</span><span class="app-cell bold">Acme Corp</span><span class="app-cell muted">08 May</span><span class="app-cell muted">07 Jun</span><span class="app-cell bold">£6,000</span><span class="app-cell"><span class="app-badge sent">Sent</span></span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-017</span><span class="app-cell bold">BlueHorizon</span><span class="app-cell muted">01 May</span><span class="app-cell expiring">14 May</span><span class="app-cell bold">£4,800</span><span class="app-cell"><span class="app-badge sent">Sent</span></span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-016</span><span class="app-cell bold">TechFirm Ltd</span><span class="app-cell muted">10 Apr</span><span class="app-cell muted">10 May</span><span class="app-cell bold">£9,600</span><span class="app-cell"><span class="app-badge accepted">Accepted</span></span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-015</span><span class="app-cell bold">Meridian Labs</span><span class="app-cell muted">20 Mar</span><span class="app-cell expired">19 Apr</span><span class="app-cell bold">£3,200</span><span class="app-cell"><span class="app-badge expired-b">Expired</span></span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-014</span><span class="app-cell bold">GlobalDesign</span><span class="app-cell muted">15 Apr</span><span class="app-cell muted">14 Jun</span><span class="app-cell bold">£7,200</span><span class="app-cell"><span class="app-badge accepted">Accepted</span></span></div>
+                <div class="app-trow app-trow-qt"><span class="app-cell bold">QT-013</span><span class="app-cell bold">Northlight Co</span><span class="app-cell muted">01 Apr</span><span class="app-cell muted">31 May</span><span class="app-cell bold">£2,400</span><span class="app-cell"><span class="app-badge draft">Draft</span></span></div>
+              </div>
+            </div>
+
+            <!-- TAX -->
+            <div class="app-panel" data-panel="tax">
+              <div class="app-disclaimer">⚠ Estimates based on 2026/27 UK tax rates. Consult a qualified accountant for personal advice.</div>
+              <div class="app-kpi-cards">
+                <div class="app-kpi-card kt-amber"><div class="app-kpi-lbl">Tax Owed</div><div class="app-kpi-val amber">£16,842</div><div class="app-kpi-sub">Estimated · 2026/27</div></div>
+                <div class="app-kpi-card kt-green"><div class="app-kpi-lbl">Set Aside</div><div class="app-kpi-val green">£16,240</div><div class="app-prog-track" style="margin-top:5px"><div class="app-prog-fill" style="width:72%"></div></div><div class="app-kpi-sub">72% · £602 short</div></div>
+                <div class="app-kpi-card kt-green"><div class="app-kpi-lbl">Take-home YTD</div><div class="app-kpi-val green">£51,558</div><div class="app-kpi-sub">After all tax</div></div>
+                <div class="app-kpi-card kt-blue"><div class="app-kpi-lbl">SA Deadline</div><div class="app-kpi-val blue">264</div><div class="app-kpi-sub">days · 31 Jan 2027</div></div>
+              </div>
+              <div class="app-wtdn">
+                <div class="app-wtdn-lbl">⚡ What to do next</div>
+                <div class="app-wtdn-row"><div class="app-wtdn-dot"></div>Add £602 to your Tax Pot to reach your estimate</div>
+                <div class="app-wtdn-row"><div class="app-wtdn-dot"></div>Claim home office expenses for April — you haven't logged any yet</div>
+              </div>
+              <div class="app-tax-grid">
+                <div class="app-tax-col">
+                  <div class="app-pnl">
+                    <div class="app-pnl-title">Profit &amp; Loss</div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Gross income</span><span class="app-pnl-val">£68,400</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Allowable expenses</span><span class="app-pnl-val red">− £5,220</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Net profit</span><span class="app-pnl-val">£63,180</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Personal Allowance</span><span class="app-pnl-val red">− £12,570</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Taxable income</span><span class="app-pnl-val">£50,610</span></div>
+                  </div>
+                  <div class="app-pnl">
+                    <div class="app-pnl-title">Income Tax &amp; NI</div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Basic rate · 20%</span><span class="app-pnl-val">£7,540</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Higher rate · 40%</span><span class="app-pnl-val">£136</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Class 4 NI · 6%/2%</span><span class="app-pnl-val">£2,264</span></div>
+                    <div class="app-pnl-row"><span class="app-pnl-lbl">Total tax</span><span class="app-pnl-val amber">£16,842</span></div>
+                  </div>
+                </div>
+                <div class="app-tax-col">
+                  <div class="app-taxpot">
+                    <div class="app-taxpot-title">Tax Pot</div>
+                    <div class="app-taxpot-nums"><span class="app-taxpot-saved">£16,240</span><span class="app-taxpot-sep">/</span><span class="app-taxpot-target">£16,842</span></div>
+                    <div class="app-prog-track"><div class="app-prog-fill" style="width:72%"></div></div>
+                    <div class="app-taxpot-row"><span>Apr income</span><span style="font-weight:600;color:#0d1a12">+ £1,240</span></div>
+                    <div class="app-taxpot-row"><span>Mar income</span><span style="font-weight:600;color:#0d1a12">+ £980</span></div>
+                    <div class="app-taxpot-row"><span>Feb income</span><span style="font-weight:600;color:#0d1a12">+ £1,100</span></div>
+                    <div class="app-taxpot-add">
+                      <div class="app-taxpot-inp">£ add contribution…</div>
+                      <button class="app-taxpot-btn">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-in">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Freelax<span>.</span></div>
+        <p class="footer-desc">The UK freelancer's financial command centre. Know exactly what you owe, when you owe it — without the spreadsheets.</p>
+        <div class="footer-uk">🇬🇧 Built in the UK · Encrypted · Never sold</div>
+      </div>
+      <div class="fcol"><div class="fcol-title">Product</div><ul><li><a href="#">Invoicing</a></li><li><a href="#">Tax calculations</a></li><li><a href="#">IR35 checker</a></li><li><a href="#">Expenses</a></li><li><a href="#">Quotes</a></li></ul></div>
+      <div class="fcol"><div class="fcol-title">Company</div><ul><li><a href="#">About</a></li><li><a href="#">Pricing</a></li><li><a href="#">Changelog</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="fcol"><div class="fcol-title">Support</div><ul><li><a href="#">Help centre</a></li><li><a href="mailto:support@freelax.co.uk">Contact</a></li><li><a href="#">Security</a></li><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Britnova Limited t/a Freelax. All rights reserved. Freelax is not a regulated financial adviser.</p>
+      <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Security</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll progress
+  const spb = document.getElementById('spb');
+  window.addEventListener('scroll', () => {
+    spb.style.width = (scrollY / (document.documentElement.scrollHeight - innerHeight) * 100) + '%';
+  }, { passive: true });
+
+  // Nav
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 50), { passive: true });
+  nav.classList.add('solid');
+
+  // Product tour tabs
+  const TOPBARS = {
+    dashboard: `<span class="app-topbar-title">Dashboard</span><div class="app-topbar-right"><div class="app-btn-icon">🔔</div><button class="app-btn-dark">+ New invoice</button></div>`,
+    invoices:  `<span class="app-topbar-title">Invoices</span><div class="app-topbar-right"><button class="app-btn-green">+ New invoice</button></div>`,
+    quotes:    `<span class="app-topbar-title">Quotes</span><div class="app-topbar-right"><button class="app-btn-green">+ New quote</button></div>`,
+    tax:       `<span class="app-topbar-title">Tax</span><div class="app-topbar-right"><button class="app-btn-outline">Download SA pack</button><button class="app-btn-green">✦ SA Summary</button></div>`
+  };
+  const topbarEl = document.getElementById('app-topbar');
+  const tabs = document.querySelectorAll('.pt-tab');
+  const panels = document.querySelectorAll('.app-panel');
+  const navItems = document.querySelectorAll('.app-nav-item[data-view]');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const t = tab.dataset.tab;
+      tabs.forEach(x => x.classList.toggle('active', x.dataset.tab === t));
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === t));
+      navItems.forEach(n => n.classList.toggle('active', n.dataset.view === t));
+      if (topbarEl && TOPBARS[t]) topbarEl.innerHTML = TOPBARS[t];
+    });
+  });
+</script>
+</body>
+</html>
