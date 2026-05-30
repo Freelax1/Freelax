@@ -18,14 +18,14 @@ import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'
 import type { IR35Answer, IR35Status } from '@/types/database'
 
-export async function fetchProjects() {
+export async function fetchProjects(): Promise<ProjectListRow[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('projects')
     .select('id, title, status, rate_type, rate_amount, end_date, ir35_status, client_id, clients(id, name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as unknown as ProjectListRow[]
 }
 
 export async function fetchProjectById(id: string) {

@@ -15,14 +15,14 @@ import { createClient } from '@/lib/supabase/client'
 import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'
 
-export async function fetchQuotes() {
+export async function fetchQuotes(): Promise<QuoteListRow[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('quotes')
     .select('id, quote_number, status, issue_date, expiry_date, total, clients(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as unknown as QuoteListRow[]
 }
 
 export async function fetchQuoteById(id: string) {
