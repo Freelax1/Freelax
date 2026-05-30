@@ -20,8 +20,8 @@ export function calcQuoteTotal(items: QuoteLineItem[]): number {
   return calcQuoteSubtotal(items) + calcQuoteVat(items)
 }
 
-export function generateQuoteNumber(existingCount: number): string {
-  return `QUO-${String(existingCount + 1).padStart(4, '0')}`
+export function generateQuoteNumber(existingCount: number, prefix = 'QUO'): string {
+  return `${prefix}-${String(existingCount + 1).padStart(4, '0')}`
 }
 
 export function isQuoteExpired(expiryDate: string | null | undefined): boolean {
