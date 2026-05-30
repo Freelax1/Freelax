@@ -36,7 +36,7 @@ function RightPanel() {
       <div className="relative z-[1] h-screen flex flex-col justify-center overflow-y-hidden pt-20 px-10 pb-6">
         <div className="w-full mt-8 max-w-[420px]">
           <div
-            className="text-lg font-semibold text-white leading-tight mb-3 min-h-11 tracking-tight transition-opacity duration-[400ms] ease-[ease]"
+            className="text-lg font-semibold text-white leading-tight mb-3 min-h-11 tracking-tight transition-opacity duration-slow ease-in-out"
             style={{ opacity: taglineVisible ? 1 : 0 }}
           >
             {taglines[taglineIdx]}

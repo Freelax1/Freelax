@@ -233,9 +233,16 @@ module.exports = {
       },
 
       transitionDuration: {
-        'fast':    '120ms',
-        'default': '200ms',
-        'slow':    '400ms',
+        'fast':     '120ms',
+        'default':  '200ms',
+        'slow':     '400ms',
+        'sidebar':  '280ms',
+        'progress': '800ms',
+      },
+
+      transitionTimingFunction: {
+        'out-expo': 'cubic-bezier(0.22, 1, 0.36, 1)',
+        'standard': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
 
       zIndex: {
