@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
+import Button from '@/components/ui/button'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
@@ -88,38 +89,34 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {!aiResult && <NotTaxAdviceDisclaimer />}
       <div className="space-y-3">
         {IR35_QUESTIONS.map(q => (
-          <div key={q.number} className="bg-slate-50 rounded-lg p-4">
+          <div key={q.number} className="bg-surface-sunken rounded-xl p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
                     {q.importance}
                   </span>
-                  <span className="text-xs text-slate-500">{q.label}</span>
+                  <span className="text-xs text-text-secondary">{q.label}</span>
                 </div>
-                <p className="text-sm text-slate-700">{q.text}</p>
+                <p className="text-sm text-text-primary">{q.text}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button
+                <Button
+                  type="button"
+                  size="xs"
+                  intent={answers[q.number] === true ? 'primary' : 'secondary'}
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: true }))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    answers[q.number] === true
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
                 >
                   Yes
-                </button>
-                <button
+                </Button>
+                <Button
+                  type="button"
+                  size="xs"
+                  intent={answers[q.number] === false ? 'primary' : 'secondary'}
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: false }))}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    answers[q.number] === false && answers[q.number] !== undefined
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
                 >
                   No
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -129,34 +126,26 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {allAnswered && calculatedStatus && (
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-600">Calculated status:</span>
+            <span className="text-sm text-text-secondary">Calculated status:</span>
             <Badge status={calculatedStatus} />
           </div>
           <div className="flex gap-2">
             {onSave && (
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
-              >
+              <Button type="button" intent="secondary" size="sm" onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : 'Save assessment'}
-              </button>
+              </Button>
             )}
-            <button
-              onClick={handleAIAssess}
-              disabled={aiLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
+            <Button type="button" intent="primary" size="sm" onClick={handleAIAssess} disabled={aiLoading}>
               {aiLoading ? 'Analysing...' : 'Assess with AI'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {aiResult && !aiResult.error && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-5">
+        <div className="bg-surface-card border border-border-default rounded-xl p-5 space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">IR35 Assessment</h3>
+            <h3 className="font-semibold text-text-primary">IR35 Assessment</h3>
             <AIFlag />
           </div>
 

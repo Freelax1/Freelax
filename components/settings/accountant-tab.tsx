@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { inputClass } from './shared'
 import Button from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Field, Input } from '@/components/ui/input'
 
 export default function AccountantTab() {
   const [acctEmail, setAcctEmail]     = useState('')
@@ -48,14 +47,15 @@ export default function AccountantTab() {
         <p className="text-sm text-text-muted mb-4">
           Invite your accountant to view your Freelax data in read-only mode. They can see invoices, expenses, and tax summaries but cannot make any changes.
         </p>
-        <div className="flex gap-2">
-          <Input
-            type="email"
-            placeholder="accountant@example.com"
-            value={acctEmail}
-            onChange={e => setAcctEmail(e.target.value)}
-            className="flex-1 min-w-0"
-          />
+        <div className="flex gap-2 items-end">
+          <Field label="Accountant email" className="flex-1 min-w-0">
+            <Input
+              type="email"
+              placeholder="accountant@example.com"
+              value={acctEmail}
+              onChange={e => setAcctEmail(e.target.value)}
+            />
+          </Field>
           <Button type="button" intent="primary" size="sm" onClick={sendAccountantInvite} disabled={acctSending || !acctEmail.trim()} className="whitespace-nowrap shrink-0">
             {acctSending ? 'Sending…' : 'Send invite'}
           </Button>
