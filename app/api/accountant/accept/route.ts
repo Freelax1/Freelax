@@ -1,8 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { token } = await req.json()
 
   const { data: invite } = await supabase
@@ -16,6 +18,7 @@ export async function POST(req: NextRequest) {
   if (invite.accepted_at) return NextResponse.json({ error: 'Already accepted' }, { status: 400 })
 
   await supabase.from('accountant_invites').update({ accepted_at: new Date().toISOString() }).eq('id', invite.id)
+  await trackServer(invite.owner_id, Events.ACCOUNTANT_INVITE_ACCEPTED, { invite_id: invite.id })
 
   return NextResponse.json({
     success: true,

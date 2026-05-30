@@ -28,6 +28,6 @@ export function isPastDue(status: string, dueDate: string, today: string): boole
   return ['sent', 'draft'].includes(status) && dueDate < today
 }
 
-export function generateInvoiceNumber(maxNumber: number, prefix = 'INV'): string {
-  return `${prefix}-${String(maxNumber + 1).padStart(4, '0')}`
+export function generateInvoiceNumber(maxNumber: number): string {
+  return `INV-${String(maxNumber + 1).padStart(4, '0')}`
 }

@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentTaxYear } from '@/lib/tax-calculations'
-import { DISCLAIMER_FOOTER_TEXT } from '@/lib/disclaimer-text'
+import { DISCLAIMER_FOOTER_TEXT } from '@/components/not-tax-advice'
 import JSZip from 'jszip'
 import ExcelJS from 'exceljs'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 // ── Styling constants ─────────────────────────────────────────────────
 const BRAND_GREEN     = 'FF1D6B35'
@@ -56,11 +58,12 @@ function stripeRows(sheet: ExcelJS.Worksheet, firstDataRow: number, lastDataRow:
 
 // ── Main handler ──────────────────────────────────────────────────────
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { start, end, label } = getCurrentTaxYear()
+  await trackServer(user.id, Events.TAX_PACK_EXPORTED, { tax_year: label })
 
   const [
     { data: invoices },

@@ -2,25 +2,17 @@
 // All Supabase queries for invoices. No UI, no calculations.
 
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
-export type InvoiceListRow = {
-  id: string
-  invoice_number: string
-  status: string
-  issue_date: string
-  due_date: string
-  total: number
-  clients: { name: string } | null
-}
-
-export async function fetchInvoices(): Promise<InvoiceListRow[]> {
+export async function fetchInvoices() {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('invoices')
     .select('id, invoice_number, status, issue_date, due_date, total, clients(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data ?? []) as unknown as InvoiceListRow[]
+  return data ?? []
 }
 
 export async function fetchInvoiceById(id: string) {
@@ -80,6 +72,7 @@ export async function createInvoice(payload: Record<string, unknown>) {
     .select()
     .single()
   if (error) throw error
+  track(String(payload.user_id), Events.INVOICE_CREATED, { invoice_id: data.id })
   return data
 }
 
@@ -90,6 +83,7 @@ export async function updateInvoice(id: string, payload: Record<string, unknown>
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw error
+  if (payload.user_id) track(String(payload.user_id), Events.INVOICE_UPDATED, { invoice_id: id })
 }
 
 export async function createInvoiceLineItems(items: Record<string, unknown>[]) {
@@ -109,7 +103,9 @@ export async function deleteInvoiceLineItems(invoiceId: string) {
 
 export async function deleteInvoice(id: string) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   await deleteInvoiceLineItems(id)
   const { error } = await supabase.from('invoices').delete().eq('id', id)
   if (error) throw error
+  if (user) track(user.id, Events.INVOICE_DELETED, { invoice_id: id })
 }

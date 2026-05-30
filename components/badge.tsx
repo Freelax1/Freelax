@@ -1,41 +1,27 @@
-import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-const badge = cva(
-  'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border whitespace-nowrap',
-  {
-    variants: {
-      intent: {
-        success: 'bg-success-50 text-success-700 border-success-200',
-        danger:  'bg-danger-50  text-danger-700  border-danger-200',
-        warning: 'bg-warning-50 text-warning-700 border-warning-200',
-        neutral: 'bg-surface-sunken text-text-secondary border-border-subtle',
-        info:    'bg-forest-50 text-forest-700 border-forest-200',
-      },
-    },
-    defaultVariants: { intent: 'neutral' },
-  }
-)
+interface BadgeProps {
+  status: string
+  className?: string
+}
 
-type Intent = NonNullable<VariantProps<typeof badge>['intent']>
-
-const STATUS_INTENT: Record<string, Intent> = {
-  paid:           'success',
-  active:         'success',
-  accepted:       'success',
-  outside_ir35:   'success',
-  overdue:        'danger',
-  cancelled:      'danger',
-  declined:       'danger',
-  inside_ir35:    'danger',
-  paused:         'warning',
-  on_hold:        'warning',
-  needs_review:   'warning',
-  sent:           'info',
-  draft:          'neutral',
-  archived:       'neutral',
-  expired:        'neutral',
-  completed:      'neutral',
+const STATUS_CLASSES: Record<string, string> = {
+  outside_ir35:  'bg-green-100 text-green-800 border border-green-200',
+  inside_ir35:   'bg-red-100 text-red-800 border border-red-200',
+  needs_review:  'bg-amber-100 text-amber-800 border border-amber-200',
+  draft:         'bg-gray-100 text-gray-600 border border-gray-200',
+  sent:          'bg-blue-100 text-blue-800 border border-blue-200',
+  paid:          'bg-green-100 text-green-800 border border-green-200',
+  overdue:       'bg-red-100 text-red-800 border border-red-200',
+  cancelled:     'bg-gray-100 text-gray-400 border border-gray-200',
+  active:        'bg-green-100 text-green-800 border border-green-200',
+  paused:        'bg-amber-100 text-amber-800 border border-amber-200',
+  archived:      'bg-gray-100 text-gray-600 border border-gray-200',
+  on_hold:       'bg-amber-100 text-amber-800 border border-amber-200',
+  completed:     'bg-slate-100 text-slate-700 border border-slate-200',
+  accepted:      'bg-green-100 text-green-800 border border-green-200',
+  declined:      'bg-red-100 text-red-800 border border-red-200',
+  expired:       'bg-gray-100 text-gray-500 border border-gray-200',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -48,16 +34,11 @@ const STATUS_LABELS: Record<string, string> = {
   fixed:        'Fixed',
 }
 
-interface BadgeProps extends VariantProps<typeof badge> {
-  status?: string
-  className?: string
-}
-
-export default function Badge({ status = '', intent, className }: BadgeProps) {
-  const resolvedIntent = intent ?? STATUS_INTENT[status] ?? 'neutral'
+export default function Badge({ status, className }: BadgeProps) {
+  const classes = STATUS_CLASSES[status] ?? 'bg-gray-100 text-gray-600 border border-gray-200'
   const label = STATUS_LABELS[status] ?? status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   return (
-    <span className={cn(badge({ intent: resolvedIntent }), className)}>
+    <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium', classes, className)}>
       {label}
     </span>
   )

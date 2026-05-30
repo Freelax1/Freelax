@@ -1,4 +1,4 @@
-﻿// lib/plan-limits.ts
+// lib/plan-limits.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Plan limits for each Freelax subscription tier.
 // To bypass all limits during development:
@@ -12,50 +12,38 @@ import { createClient } from '@/lib/supabase/server'
 export type Plan = 'free' | 'solo' | 'pro' | 'studio'
 
 export interface PlanLimits {
-  invoicesPerMonth:    number   // -1 = unlimited
-  clientsTotal:        number   // -1 = unlimited
-  expensesPerMonth:    number   // -1 = unlimited
-  aiCallsPerMonth:     number   // -1 = unlimited
-  canSendByEmail:      boolean
-  canUseStripe:        boolean
-  canUseRecurring:     boolean
+  invoicesPerMonth:  number   // -1 = unlimited
+  clientsTotal:      number   // -1 = unlimited
+  expensesPerMonth:  number   // -1 = unlimited
+  aiCallsPerMonth:   number   // -1 = unlimited
+  canSendByEmail:    boolean
+  canUseStripe:      boolean
+  canUseRecurring:   boolean
   canInviteAccountant: boolean
-  canUseIR35:          boolean
-  canUseMileage:       boolean
-  canExport:           boolean
-  quotesPerMonth:      number   // -1 = unlimited
-  seats:               number
+  seats:             number
 }
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   free: {
-    invoicesPerMonth:    3,
+    invoicesPerMonth:    10,
     clientsTotal:        1,
-    expensesPerMonth:    10,
-    aiCallsPerMonth:     5,
+    expensesPerMonth:    20,
+    aiCallsPerMonth:     10,
     canSendByEmail:      false,
     canUseStripe:        false,
     canUseRecurring:     false,
     canInviteAccountant: false,
-    canUseIR35:          false,
-    canUseMileage:       false,
-    canExport:           false,
-    quotesPerMonth:      1,
     seats:               1,
   },
   solo: {
-    invoicesPerMonth:    -1,
-    clientsTotal:        5,
-    expensesPerMonth:    -1,
+    invoicesPerMonth:    10,
+    clientsTotal:        3,
+    expensesPerMonth:    20,
     aiCallsPerMonth:     50,
-    canSendByEmail:      true,
-    canUseStripe:        true,
+    canSendByEmail:      false,
+    canUseStripe:        false,
     canUseRecurring:     false,
     canInviteAccountant: false,
-    canUseIR35:          false,
-    canUseMileage:       true,
-    canExport:           true,
-    quotesPerMonth:      -1,
     seats:               1,
   },
   pro: {
@@ -67,10 +55,6 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     canUseStripe:        true,
     canUseRecurring:     true,
     canInviteAccountant: true,
-    canUseIR35:          true,
-    canUseMileage:       true,
-    canExport:           true,
-    quotesPerMonth:      -1,
     seats:               1,
   },
   studio: {
@@ -82,18 +66,14 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     canUseStripe:        true,
     canUseRecurring:     true,
     canInviteAccountant: true,
-    canUseIR35:          true,
-    canUseMileage:       true,
-    canExport:           true,
-    quotesPerMonth:      -1,
-    seats:               1,
+    seats:               3,
   },
 }
 
 // ── Get the current user's plan limits ───────────────────────────────────────
 
 export async function getUserPlan(userId: string): Promise<Plan> {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data } = await supabase
     .from('users')
     .select('subscription_plan')
@@ -120,7 +100,7 @@ export async function canCreateInvoice(userId: string): Promise<{ allowed: boole
 
   if (limits.invoicesPerMonth === -1) return { allowed: true }
 
-  const supabase = await createClient()
+  const supabase = createClient()
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)
@@ -146,7 +126,7 @@ export async function canCreateClient(userId: string): Promise<{ allowed: boolea
 
   if (limits.clientsTotal === -1) return { allowed: true }
 
-  const supabase = await createClient()
+  const supabase = createClient()
   const { count } = await supabase
     .from('clients')
     .select('*', { count: 'exact', head: true })
@@ -168,7 +148,7 @@ export async function canCreateExpense(userId: string): Promise<{ allowed: boole
 
   if (limits.expensesPerMonth === -1) return { allowed: true }
 
-  const supabase = await createClient()
+  const supabase = createClient()
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)
@@ -213,7 +193,7 @@ export async function canUseAI(userId: string): Promise<{ allowed: boolean; reas
     const upgradeMsg =
       plan === 'free'   ? 'Upgrade to Solo for 50 AI calls per month.' :
       plan === 'solo'   ? 'Upgrade to Pro for 150 AI calls per month.' :
-      plan === 'pro'    ? 'Contact support@freelax.co.uk to discuss higher usage.' :
+      plan === 'pro'    ? 'Upgrade to Studio for 750 AI calls per month.' :
                           'Contact support if you need more.'
     return {
       allowed: false,
@@ -233,7 +213,7 @@ export async function canSendByEmail(userId: string): Promise<{ allowed: boolean
   if (!limits.canSendByEmail) {
     return {
       allowed: false,
-      reason: `Sending invoices by email requires the Solo plan or above. Upgrade to unlock email sending.`,
+      reason: `Sending invoices by email requires the Pro plan or above. Upgrade to unlock email sending.`,
     }
   }
   return { allowed: true }

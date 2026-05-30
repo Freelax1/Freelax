@@ -4,6 +4,8 @@ import { useState, useRef } from 'react'
 import { UploadSimple, X } from '@phosphor-icons/react'
 import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 import { Field, Input, SaveSettingsButton, labelClass } from './shared'
 
 interface Props {
@@ -50,6 +52,7 @@ export default function ProfileTab({ profile, email, save, saving }: Props) {
     setLogoUrl(null)
     const supabase = createClient()
     await supabase.from('users').update({ logo_url: null, updated_at: new Date().toISOString() }).eq('id', profile.id)
+    track(profile.id, Events.LOGO_REMOVED)
   }
 
   return (

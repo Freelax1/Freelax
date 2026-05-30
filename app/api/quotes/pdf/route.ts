@@ -1,10 +1,12 @@
-﻿// app/api/quotes/pdf/route.ts
+// app/api/quotes/pdf/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildQuoteHtml } from '@/lib/pdf/generate-invoice-pdf'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
@@ -28,6 +30,7 @@ export async function GET(req: NextRequest) {
     .eq('id', quote.user_id)
     .single()
 
+  await trackServer(user.id, Events.QUOTE_PDF_GENERATED, { quote_id: quoteId })
   const html = buildQuoteHtml(quote, senderProfile, true)
   return new NextResponse(html, { headers: { 'Content-Type': 'text/html' } })
 }

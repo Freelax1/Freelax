@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 export async function fetchTaxPotTotal(userId: string, taxYearStart: number): Promise<number> {
   const supabase = createClient()
@@ -36,5 +38,6 @@ export async function addTaxPotEntry(entry: {
     .select()
     .single()
   if (error) throw error
+  if (data) track(entry.user_id, Events.TAX_POT_ENTRY_ADDED, { entry_id: data.id })
   return data
 }

@@ -1,11 +1,12 @@
-﻿// app/api/auth/callback/hmrc/route.ts
+// app/api/auth/callback/hmrc/route.ts
 // Handles the redirect back from HMRC after the user authorises the connection.
 // Validates state, exchanges authorization code for tokens, stores in oauth_connections.
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { exchangeCodeForTokens } from '@/lib/hmrc/client'
-import { encryptToken } from '@/lib/hmrc/token-crypto'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function GET(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Get the logged-in Freelax user
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     // Session expired during the HMRC flow — redirect to login
@@ -78,8 +79,8 @@ export async function GET(req: NextRequest) {
     .upsert({
       user_id:       user.id,
       provider:      'hmrc',
-      access_token:  encryptToken(tokens.access_token),
-      refresh_token: encryptToken(tokens.refresh_token),
+      access_token:  tokens.access_token,
+      refresh_token: tokens.refresh_token,
       token_expiry:  tokenExpiry,
       updated_at:    new Date().toISOString(),
     }, {
@@ -90,6 +91,8 @@ export async function GET(req: NextRequest) {
     console.error('Failed to store HMRC tokens:', dbError)
     return NextResponse.redirect(`${settingsUrl}&hmrc_error=storage_failed`)
   }
+
+  await trackServer(user.id, Events.HMRC_CONNECTED)
 
   // Clear the OAuth state cookie and redirect to Settings → HMRC tab
   const response = NextResponse.redirect(`${settingsUrl}&hmrc_connected=true`)

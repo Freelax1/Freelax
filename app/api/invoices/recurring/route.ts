@@ -4,6 +4,8 @@
 
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 function advanceDate(date: string, frequency: string): string {
   const d = new Date(date)
@@ -81,6 +83,10 @@ export async function GET(req: Request) {
         }))
       )
       created++
+      await trackServer(tmpl.user_id, Events.INVOICE_RECURRING_GENERATED, {
+        template_id: tmpl.id,
+        invoice_id: invoice.id,
+      })
     }
 
     // Advance the next_run_date

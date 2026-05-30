@@ -1,4 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export type QuoteActivityAction =
   | 'sent'
@@ -6,6 +8,14 @@ export type QuoteActivityAction =
   | 'declined'
   | 'expired'
   | 'status_changed'
+
+const ACTION_EVENTS: Partial<Record<QuoteActivityAction, (typeof Events)[keyof typeof Events]>> = {
+  sent: Events.QUOTE_SENT,
+  accepted: Events.QUOTE_STATUS_UPDATED,
+  declined: Events.QUOTE_STATUS_UPDATED,
+  expired: Events.QUOTE_STATUS_UPDATED,
+  status_changed: Events.QUOTE_STATUS_UPDATED,
+}
 
 /**
  * Append one entry to quote_activity.
@@ -28,6 +38,14 @@ export async function logQuoteActivity(
       action,
       metadata: metadata ?? null,
     })
+    const event = ACTION_EVENTS[action]
+    if (event) {
+      await trackServer(userId, event, {
+        quote_id: quoteId,
+        action,
+        ...metadata,
+      })
+    }
   } catch (e) {
     console.error('[logQuoteActivity] Failed to log activity:', e)
   }

@@ -3,6 +3,8 @@
 // and called from each AI route after a successful Anthropic response.
 
 import { createServiceClient } from '@/lib/supabase/server'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export type AiRoute =
   | 'tax-qa'
@@ -11,6 +13,15 @@ export type AiRoute =
   | 'sa-narrative'
   | 'scan-receipt'
   | 'invoice-assist'
+
+const AI_ROUTE_EVENTS: Record<AiRoute, (typeof Events)[keyof typeof Events]> = {
+  'tax-qa': Events.AI_TAX_QA_USED,
+  'ir35-explain': Events.AI_IR35_EXPLAIN_USED,
+  'monthly-insight': Events.AI_MONTHLY_INSIGHT_USED,
+  'sa-narrative': Events.AI_SA_NARRATIVE_USED,
+  'scan-receipt': Events.AI_SCAN_RECEIPT_USED,
+  'invoice-assist': Events.AI_INVOICE_ASSIST_USED,
+}
 
 /**
  * Logs a successful AI API call. Called after the Anthropic response succeeds.
@@ -25,6 +36,8 @@ export async function logAiCall(userId: string, route: AiRoute): Promise<void> {
       .insert({ user_id: userId, route })
     if (error) {
       console.error('[ai-usage] Failed to log AI call', { userId, route, error })
+    } else {
+      await trackServer(userId, AI_ROUTE_EVENTS[route], { route })
     }
   } catch (e) {
     console.error('[ai-usage] Exception logging AI call', { userId, route, error: e })

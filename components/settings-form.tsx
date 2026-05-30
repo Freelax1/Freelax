@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { TABS, TAB_GROUPS, TAB_DESCRIPTIONS, SettingsTab } from './settings/shared'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 import { toast } from '@/lib/toast'
 import type { User } from '@/types/database'
 
@@ -63,6 +65,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
       if (!user) throw new Error('Not authenticated')
       const { error } = await supabase.from('users').update(data).eq('id', user.id)
       if (error) throw error
+      track(user.id, Events.PROFILE_UPDATED, { tab })
       toast('Settings saved')
       router.refresh()
     } catch {
@@ -111,6 +114,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         <button
           onClick={async () => {
             const supabase = createClient()
+            track(profile.id, Events.USER_LOGGED_OUT)
             await supabase.auth.signOut()
             router.push('/auth/login')
             router.refresh()

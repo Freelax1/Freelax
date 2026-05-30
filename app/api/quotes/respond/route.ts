@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { logQuoteActivity } from '@/lib/api/quote-activity'
+import { Events } from '@/lib/posthog-events'
+import { trackServer } from '@/lib/posthog-server'
 
 export async function POST(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -47,6 +49,11 @@ export async function POST(req: NextRequest) {
 
   const activityAction = action === 'accept' ? 'accepted' : 'declined'
   await logQuoteActivity(supabase, quote.id, quote.user_id, activityAction, { via: 'public_token' })
+  await trackServer(quote.user_id, Events.QUOTE_RESPONDED, {
+    quote_id: quote.id,
+    response: action,
+    via: 'public_token',
+  })
 
   return NextResponse.redirect(new URL(`/q/${token}`, req.url), { status: 303 })
 }

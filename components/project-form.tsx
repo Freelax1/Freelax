@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Field, Input, Textarea, Select, SaveButton } from '@/components/form-fields'
-import Button from '@/components/ui/button'
 import { IR35_QUESTIONS, calculateIR35 } from '@/lib/ir35-scoring'
 import Badge from '@/components/badge'
 import type { Project, Client, IR35Answer } from '@/types/database'
+import { Events } from '@/lib/posthog-events'
+import { track } from '@/lib/posthog-track'
 
 interface ProjectFormProps {
   project?: Partial<Project>
@@ -96,13 +97,17 @@ export default function ProjectForm({ project, defaultClientId, onSuccess, onSav
 
     setSaving(false)
     if (error) { setErrors({ _: error.message }); return }
+    track(user.id, isEdit ? Events.PROJECT_UPDATED : Events.PROJECT_CREATED, {
+      project_id: isEdit ? project!.id : undefined,
+    })
+    if (allAnswered) track(user.id, Events.IR35_ASSESSMENT_SAVED, { project_id: isEdit ? project!.id : undefined })
     onSuccess?.()
     router.refresh()
   }
 
   return (
     <form id="project-form" onSubmit={handleSubmit} className="space-y-4">
-      {errors._ && <p className="text-sm text-danger-600 bg-danger-50 px-3 py-2 rounded-xl">{errors._}</p>}
+      {errors._ && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errors._}</p>}
 
       <Field label="Project title" required error={errors.title}>
         <Input value={form.title} onChange={e => set('title', e.target.value)} placeholder="Website redesign" error={!!errors.title} />
@@ -155,33 +160,36 @@ export default function ProjectForm({ project, defaultClientId, onSuccess, onSav
       </div>
 
       {/* IR35 */}
-      <div className="border-t border-border-subtle pt-4">
+      <div className="border-t border-slate-100 pt-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold text-text-primary">IR35 Questionnaire</p>
+          <p className="text-sm font-semibold text-slate-700">IR35 Questionnaire</p>
           {allAnswered && <Badge status={ir35Status} />}
         </div>
         <div className="space-y-3">
           {IR35_QUESTIONS.map(q => (
-            <div key={q.number} className="bg-surface-sunken rounded-xl p-3">
+            <div key={q.number} className="bg-slate-50 rounded-lg p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>{q.importance}</span>
-                    <span className="text-xs text-text-secondary">{q.label}</span>
+                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{q.importance}</span>
+                    <span className="text-xs text-slate-400">{q.label}</span>
                   </div>
-                  <p className="text-xs text-text-secondary">{q.text}</p>
+                  <p className="text-xs text-slate-600">{q.text}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   {[true, false].map(val => (
-                    <Button
+                    <button
                       key={String(val)}
                       type="button"
-                      size="xs"
-                      intent={ir35Answers[q.number] === val ? 'primary' : 'secondary'}
                       onClick={() => setIr35Answers(p => ({ ...p, [q.number]: val }))}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        ir35Answers[q.number] === val
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'
+                      }`}
                     >
                       {val ? 'Yes' : 'No'}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </div>

@@ -6,8 +6,6 @@ import Badge from '@/components/badge'
 import type { IR35Answer, IR35Status } from '@/types/database'
 import AIFlag from '@/components/ai-flag'
 import NotTaxAdviceDisclaimer from '@/components/not-tax-advice'
-import Button from '@/components/ui/button'
-import Alert from '@/components/ui/alert'
 
 interface Props {
   projectId: string
@@ -17,23 +15,23 @@ interface Props {
 }
 
 function IR35RiskBar({ level }: { level: 'Low' | 'Medium' | 'High' }) {
-  const segments: { key: 'Low' | 'Medium' | 'High'; bg: string; border: string; color: string }[] = [
-    { key: 'Low',    bg: 'var(--success-50)', border: 'var(--success-200)', color: 'var(--success-600)' },
-    { key: 'Medium', bg: 'var(--warning-50)', border: 'var(--warning-200)', color: 'var(--warning-600)' },
-    { key: 'High',   bg: 'var(--danger-50)',  border: 'var(--danger-200)',  color: 'var(--danger-600)'  },
-  ]
+  const segments = [
+    { key: 'Low',    activeColor: '#1D6B35', activeBg: '#F0FDF4', activeBorder: '#B8DFC3' },
+    { key: 'Medium', activeColor: '#9A7B0A', activeBg: '#FEFCE8', activeBorder: '#F5E29B' },
+    { key: 'High',   activeColor: '#C0392B', activeBg: '#FDECEA', activeBorder: '#F5C0BB' },
+  ] as const
   return (
     <div className="flex gap-2">
       {segments.map(s => {
         const active = level === s.key
         return (
-          <div key={s.key} className="py-1.5 text-center rounded" style={{
-            flex: 1,
-            border: `1px solid ${active ? s.border : 'var(--border-default)'}`,
-            background: active ? s.bg : 'var(--surface-sunken)',
+          <div key={s.key} style={{
+            flex: 1, padding: '6px 0', borderRadius: 8, textAlign: 'center',
+            border: `1px solid ${active ? s.activeBorder : '#E2E8F0'}`,
+            background: active ? s.activeBg : '#F8FAFC',
             opacity: active ? 1 : 0.45,
           }}>
-            <span style={{ fontSize: 'var(--text-caption)', fontWeight: 600, letterSpacing: '0', color: active ? s.color : 'var(--text-muted)' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: active ? s.activeColor : '#94A3B8' }}>
               {s.key.toUpperCase()}
             </span>
           </div>
@@ -90,34 +88,38 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {!aiResult && <NotTaxAdviceDisclaimer />}
       <div className="space-y-3">
         {IR35_QUESTIONS.map(q => (
-          <div key={q.number} className="bg-surface-sunken rounded-xl p-4">
+          <div key={q.number} className="bg-slate-50 rounded-lg p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-800'}`}>
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${q.importance === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                     {q.importance}
                   </span>
-                  <span className="text-xs text-text-secondary">{q.label}</span>
+                  <span className="text-xs text-slate-500">{q.label}</span>
                 </div>
-                <p className="text-sm text-text-primary">{q.text}</p>
+                <p className="text-sm text-slate-700">{q.text}</p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <Button
-                  type="button"
-                  size="xs"
-                  intent={answers[q.number] === true ? 'primary' : 'secondary'}
+                <button
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: true }))}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    answers[q.number] === true
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
                 >
                   Yes
-                </Button>
-                <Button
-                  type="button"
-                  size="xs"
-                  intent={answers[q.number] === false && answers[q.number] !== undefined ? 'primary' : 'secondary'}
+                </button>
+                <button
                   onClick={() => setAnswers(prev => ({ ...prev, [q.number]: false }))}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    answers[q.number] === false && answers[q.number] !== undefined
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
                 >
                   No
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -127,52 +129,60 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
       {allAnswered && calculatedStatus && (
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-text-secondary">Calculated status:</span>
+            <span className="text-sm text-slate-600">Calculated status:</span>
             <Badge status={calculatedStatus} />
           </div>
           <div className="flex gap-2">
             {onSave && (
-              <Button type="button" intent="primary" size="sm" onClick={handleSave} disabled={saving}>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+              >
                 {saving ? 'Saving...' : 'Save assessment'}
-              </Button>
+              </button>
             )}
-            <Button type="button" intent="primary" size="sm" onClick={handleAIAssess} disabled={aiLoading}>
+            <button
+              onClick={handleAIAssess}
+              disabled={aiLoading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
               {aiLoading ? 'Analysing...' : 'Assess with AI'}
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
       {aiResult && !aiResult.error && (
-        <div className="bg-surface-card border border-border-default rounded-xl p-5 space-y-5">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-text-primary">IR35 Assessment</h3>
+            <h3 className="font-semibold text-slate-900">IR35 Assessment</h3>
             <AIFlag />
           </div>
 
           {/* Verdict */}
           <div>
-            <p className="text-xs font-semibold text-text-secondary mb-1.5">Verdict</p>
-            <p className="text-sm text-text-primary leading-relaxed">{aiResult.verdict}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Verdict</p>
+            <p className="text-sm text-slate-800 leading-relaxed">{aiResult.verdict}</p>
           </div>
 
           {/* Risk level */}
           {aiResult.risk_level && (
             <div>
-              <p className="text-xs font-semibold text-text-secondary mb-2">Risk Level</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Risk Level</p>
               <IR35RiskBar level={aiResult.risk_level} />
-              <p className="text-sm text-text-secondary mt-2">{aiResult.risk_level_explanation}</p>
+              <p className="text-sm text-slate-600 mt-2">{aiResult.risk_level_explanation}</p>
             </div>
           )}
 
           {/* Next steps */}
           {aiResult.next_steps?.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-text-secondary mb-2.5">Next Steps</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2.5">Next Steps</p>
               <ol className="space-y-2.5">
                 {aiResult.next_steps.map((step: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-text-primary">
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-white text-xs font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
                     {step}
                   </li>
                 ))}
@@ -180,16 +190,16 @@ export default function IR35Questionnaire({ projectId, initialAnswers, initialSt
             </div>
           )}
 
-          <div className="border-t border-border-subtle pt-3">
+          <div className="border-t border-slate-100 pt-3">
             <NotTaxAdviceDisclaimer />
           </div>
         </div>
       )}
 
       {aiResult?.error && (
-        <Alert intent="danger">
-          {aiResult.error}
-        </Alert>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-sm text-red-600">{aiResult.error}</p>
+        </div>
       )}
     </div>
   )

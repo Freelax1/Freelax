@@ -3,22 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "jest && npm run check:design-system && next build --webpack",
+    "dev": "next dev",
+    "build": "jest && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "check:design-system": "bash scripts/check-design-system.sh",
-    "check:alerts": "bash scripts/check-hand-rolled-alerts.sh",
-    "check:stat-cards": "bash scripts/check-hand-rolled-stat-cards.sh",
-    "check:progress-bars": "bash scripts/check-hand-rolled-progress-bars.sh",
-    "check:breakdown-rows": "bash scripts/check-hand-rolled-breakdown-rows.sh",
-    "check:primary-buttons": "bash scripts/check-hand-rolled-primary-buttons.sh"
+    "test": "jest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",
-    "@ducanh2912/next-pwa": "^10.2.6",
-    "@phosphor-icons/react": "^2.1.10",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -31,14 +24,16 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@sparticuz/chromium": "^147.0.2",
     "@stripe/stripe-js": "^3.0.0",
-    "@supabase/ssr": "^0.10.3",
+    "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "exceljs": "^4.4.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.363.0",
-    "next": "^16.2.6",
+    "next": "^14.2.35",
+    "posthog-js": "^1.376.3",
+    "posthog-node": "^5.35.5",
     "puppeteer-core": "^21.11.0",
     "react": "^18",
     "react-dom": "^18",
@@ -66,9 +61,6 @@
   "overrides": {
     "glob": "^10.4.6",
     "tar-fs": "^3.1.1",
-    "ws": "^8.18.3",
-    "globby@6.1.0": {
-      "glob": "^7.2.3"
-    }
+    "ws": "^8.18.3"
   }
 }

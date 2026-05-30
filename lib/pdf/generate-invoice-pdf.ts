@@ -79,28 +79,28 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
     .sender-name  { font-size:17px; font-weight:800; color:#0f172a; letter-spacing:-0.03em; margin-bottom:4px; }
     .sender-logo  { height:40px; width:auto; object-fit:contain; display:block; margin-bottom:4px; }
     .sender-det   { font-size:11px; color:#94a3b8; line-height:1.7; }
-    .doc-type-label { font-size:10px; font-weight:700; color:#64748b;  text-align:right; margin-bottom:6px; }
+    .doc-type-label { font-size:10px; font-weight:700; color:#64748b; letter-spacing:0.16em; text-transform:uppercase; text-align:right; margin-bottom:6px; }
     .doc-number   { font-size:22px; font-weight:800; color:#0f172a; letter-spacing:-0.03em; text-align:right; }
 
     /* Meta row */
     .meta-row { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:24px; border-bottom:1px solid #f1f5f9; margin-bottom:24px; }
-    .bill-label  { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:8px; }
+    .bill-label  { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:8px; }
     .client-name { font-size:15px; font-weight:700; color:#0f172a; letter-spacing:-0.01em; margin-bottom:4px; }
     .client-det  { font-size:11.5px; color:#64748b; margin-bottom:2px; }
     .dates-col   { text-align:right; }
     .date-block  { margin-bottom:10px; }
-    .date-label  { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:3px; }
+    .date-label  { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:3px; }
     .date-val    { font-size:12.5px; font-weight:600; color:#0f172a; }
     .date-val.overdue { color:#dc2626; }
     .date-val.paid    { color:#16a34a; }
-    .status-stamp { display:inline-block; font-size:10px; font-weight:700;  padding:3px 10px; border:1.5px solid #94a3b8; color:#94a3b8; margin-top:6px; }
+    .status-stamp { display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:3px 10px; border:1.5px solid #94a3b8; color:#94a3b8; margin-top:6px; }
     .status-stamp.paid-stamp    { border-color:#16a34a; color:#16a34a; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .status-stamp.overdue-stamp { border-color:#dc2626; color:#dc2626; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 
     /* Table */
     table { width:100%; border-collapse:collapse; margin-bottom:20px; }
     thead tr { border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; }
-    th { font-size:9px; font-weight:700; color:#94a3b8;  padding:9px 0; text-align:left; }
+    th { font-size:9px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.12em; padding:9px 0; text-align:left; }
     th.r { text-align:right; }
     td { padding:12px 0; font-size:12.5px; border-bottom:1px solid #f8fafc; vertical-align:top; }
     td.td-desc  { color:#334155; padding-right:16px; }
@@ -111,7 +111,7 @@ export function buildInvoiceHtml(invoice: any, withPrintScript = false): string 
     /* Footer row */
     .doc-footer-row { display:flex; justify-content:space-between; align-items:flex-start; gap:32px; margin-top:8px; }
     .payment-col   { flex:1; }
-    .payment-label { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:10px; }
+    .payment-label { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:10px; }
     .pay-grid { display:grid; grid-template-columns:110px 1fr; row-gap:5px; }
     .pay-l { font-size:11.5px; color:#64748b; }
     .pay-r { font-size:11.5px; font-weight:600; color:#334155; }
@@ -293,24 +293,24 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
     .sender-name  { font-size:17px; font-weight:800; color:#0f172a; letter-spacing:-0.03em; margin-bottom:4px; }
     .sender-logo  { height:40px; width:auto; object-fit:contain; display:block; margin-bottom:4px; }
     .sender-det   { font-size:11px; color:#94a3b8; line-height:1.7; }
-    .doc-type-label { font-size:10px; font-weight:700; color:#64748b;  text-align:right; margin-bottom:6px; }
+    .doc-type-label { font-size:10px; font-weight:700; color:#64748b; letter-spacing:0.16em; text-transform:uppercase; text-align:right; margin-bottom:6px; }
     .doc-number   { font-size:22px; font-weight:800; color:#0f172a; letter-spacing:-0.03em; text-align:right; }
     .meta-row { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:24px; border-bottom:1px solid #f1f5f9; margin-bottom:24px; }
-    .bill-label  { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:8px; }
+    .bill-label  { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:8px; }
     .client-name { font-size:15px; font-weight:700; color:#0f172a; letter-spacing:-0.01em; margin-bottom:4px; }
     .client-det  { font-size:11.5px; color:#64748b; margin-bottom:2px; }
     .dates-col   { text-align:right; }
     .date-block  { margin-bottom:10px; }
-    .date-label  { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:3px; }
+    .date-label  { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:3px; }
     .date-val    { font-size:12.5px; font-weight:600; color:#0f172a; }
     .date-val.overdue { color:#dc2626; }
-    .status-stamp { display:inline-block; font-size:10px; font-weight:700;  padding:3px 10px; margin-top:6px; border:1.5px solid #94a3b8; color:#94a3b8; }
+    .status-stamp { display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:3px 10px; margin-top:6px; border:1.5px solid #94a3b8; color:#94a3b8; }
     .status-stamp.accepted-stamp { border-color:#16a34a; color:#16a34a; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .status-stamp.expired-stamp  { border-color:#94a3b8; color:#94a3b8; }
     .status-stamp.declined-stamp { border-color:#dc2626; color:#dc2626; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     table { width:100%; border-collapse:collapse; margin-bottom:20px; }
     thead tr { border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; }
-    th { font-size:9px; font-weight:700; color:#94a3b8;  padding:9px 0; text-align:left; }
+    th { font-size:9px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.12em; padding:9px 0; text-align:left; }
     th.r { text-align:right; }
     td { padding:12px 0; font-size:12.5px; border-bottom:1px solid #f8fafc; vertical-align:top; }
     td.td-desc  { color:#334155; padding-right:16px; }
@@ -319,7 +319,7 @@ export function buildQuoteHtml(quote: any, sender: any, withPrintScript = false)
     td.td-total { text-align:right; color:#0f172a; font-weight:600; white-space:nowrap; }
     .doc-footer-row { display:flex; justify-content:space-between; align-items:flex-start; gap:32px; margin-top:8px; }
     .validity-col  { flex:1; }
-    .validity-label { font-size:9px; font-weight:700; color:#64748b;  margin-bottom:8px; }
+    .validity-label { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:8px; }
     .validity-text  { font-size:11.5px; color:#64748b; line-height:1.6; }
     .notes { font-size:11px; color:#94a3b8; line-height:1.6; margin-top:10px; font-style:italic; }
     .totals-col { width:220px; flex-shrink:0; }
