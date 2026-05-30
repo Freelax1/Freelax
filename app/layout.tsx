@@ -1,7 +1,21 @@
 import type { Metadata, Viewport } from 'next'
+import { DM_Serif_Display, Outfit } from 'next/font/google'
 import './globals.css'
 import { PostHogProvider } from '@/components/posthog-provider'
 import { PostHogPageView } from '@/components/posthog-pageview'
+
+const fontSans = Outfit({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+const fontSerif = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-serif',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Freelax — Tax & invoicing for UK freelancers',
@@ -28,7 +42,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en" data-theme="light" className={`${fontSans.variable} ${fontSerif.variable}`}>
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

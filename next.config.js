@@ -37,6 +37,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://hooks.stripe.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co",
       [
@@ -63,7 +64,14 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Static assets only — avoid CSP/nosniff blocking CSS if a path ever 404s as HTML
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/((?!_next/static).*)',
         headers: securityHeaders,
       },
     ]
