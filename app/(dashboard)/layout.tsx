@@ -3,9 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/sidebar'
 import TaxQAChat from '@/components/tax-qa-chat'
 import { PWAInstallBanner } from '@/components/pwa-install-banner'
+import CookieNotice from '@/components/cookie-notice'
+import Toaster from '@/components/toaster'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -13,15 +15,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div style={{ background: '#FAFAF7', minHeight: '100vh' }}>
+    <div className="bg-surface-paper min-h-screen">
       <Sidebar />
-      <main style={{ paddingTop: '48px' }}>
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto" style={{ paddingBottom: '80px' }}>
+      <main className="lg:pl-[264px] pt-[52px] lg:pt-0">
+        <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-20">
           {children}
         </div>
       </main>
       <TaxQAChat />
       <PWAInstallBanner />
+      <CookieNotice />
+      <Toaster />
     </div>
   )
 }
