@@ -1,6 +1,16 @@
 // lib/api/quotes.ts — v1.0
 // All Supabase queries for quotes. No UI, no calculations.
 
+export interface QuoteListRow {
+  id: string
+  quote_number: string
+  status: string
+  issue_date: string
+  expiry_date: string | null
+  total: number
+  clients: { name: string } | null
+}
+
 import { createClient } from '@/lib/supabase/client'
 import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'

@@ -1,6 +1,18 @@
 // lib/api/projects.ts — v1.0
 // All Supabase queries for projects. No UI, no calculations.
 
+export interface ProjectListRow {
+  id: string
+  title: string
+  status: string
+  rate_type: string | null
+  rate_amount: number | null
+  end_date: string | null
+  ir35_status: string | null
+  client_id: string | null
+  clients: { id: string; name: string } | null
+}
+
 import { createClient } from '@/lib/supabase/client'
 import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'

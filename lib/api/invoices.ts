@@ -1,6 +1,16 @@
 // lib/api/invoices.ts — v1.0
 // All Supabase queries for invoices. No UI, no calculations.
 
+export interface InvoiceListRow {
+  id: string
+  invoice_number: string
+  status: string
+  issue_date: string
+  due_date: string
+  total: number
+  clients: { name: string } | null
+}
+
 import { createClient } from '@/lib/supabase/client'
 import { Events } from '@/lib/posthog-events'
 import { track } from '@/lib/posthog-track'
