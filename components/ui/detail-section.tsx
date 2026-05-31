@@ -28,7 +28,7 @@ export function DetailSection({
           hasBody && 'mb-4',
         )}
       >
-        <h2 className={sectionTitle}>{title}</h2>
+        <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
         {action ? <div className="flex shrink-0 items-center gap-3">{action}</div> : null}
       </div>
       {hasBody ? <div className={bodyClassName}>{children}</div> : null}

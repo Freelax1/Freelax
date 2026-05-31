@@ -8,6 +8,7 @@ import Button from '@/components/ui/button'
 import Alert from '@/components/ui/alert'
 import { Field, Input, Select, Toggle } from '@/components/form-fields'
 import { stepTitle } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 const STEPS = [
   { id: 1, label: 'About you' },
@@ -120,7 +121,7 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="space-y-5">
               <div>
-                <h2 className={stepTitle}>Tell us about yourself</h2>
+                <h2 className={cn('text-xl', stepTitle)}>Tell us about yourself</h2>
                 <p className="text-sm text-text-secondary mt-1">This appears on your invoices and account.</p>
               </div>
               <Field label="Full name" required>
@@ -145,7 +146,7 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <h2 className={stepTitle}>Your business</h2>
+                <h2 className={cn('text-xl', stepTitle)}>Your business</h2>
                 <p className="text-sm text-text-secondary mt-1">Used for tax calculations and invoices.</p>
               </div>
               <Field label={<>Trading name <span className="text-text-secondary font-normal normal-case">(optional)</span></>}>
@@ -196,7 +197,7 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div className="space-y-5">
               <div>
-                <h2 className={stepTitle}>Your address</h2>
+                <h2 className={cn('text-xl', stepTitle)}>Your address</h2>
                 <p className="text-sm text-text-secondary mt-1">Appears on invoices you send to clients.</p>
               </div>
               <Field label="Address line 1">
@@ -245,7 +246,7 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-5">
               <div>
-                <h2 className={stepTitle}>Personal tax inputs</h2>
+                <h2 className={cn('text-xl', stepTitle)}>Personal tax inputs</h2>
                 <p className="text-sm text-text-secondary mt-1">Improves the accuracy of your tax estimates. You can skip and set these later in Settings.</p>
               </div>
 

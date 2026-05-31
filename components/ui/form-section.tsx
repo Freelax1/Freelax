@@ -32,7 +32,7 @@ export function FormSection({
   return (
     <div className={cn('bg-surface-card rounded-xl border border-border-default p-6', className)}>
       {title ? (
-        <h2 className={cn(sectionTitle, stackClass && 'mb-4')}>{title}</h2>
+        <h2 className={cn('text-sm', sectionTitle, stackClass && 'mb-4')}>{title}</h2>
       ) : null}
       <div className={cn(stackClass, bodyClassName)}>{children}</div>
     </div>

@@ -31,7 +31,7 @@ export function ActivitySection({
     >
       <div className="flex items-center gap-2 border-b border-border-subtle bg-surface-sunken px-5 py-3">
         {icon ?? <Clock weight="regular" className="h-4 w-4 shrink-0 text-text-secondary" />}
-        <h2 className={sectionTitle}>{title}</h2>
+        <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
         {eventCount > 0 && (
           <span className="ml-auto text-xs text-text-secondary">
             {eventCount} event{eventCount !== 1 ? 's' : ''}

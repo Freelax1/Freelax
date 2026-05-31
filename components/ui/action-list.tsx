@@ -170,7 +170,7 @@ export default function ActionList({
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
-      {title ? <p className={cardLabel}>{title}</p> : null}
+      {title ? <p className={cn('text-xs', cardLabel)}>{title}</p> : null}
 
       <div className="flex flex-col gap-3">
         {visibleItems.map(item => {

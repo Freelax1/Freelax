@@ -27,7 +27,7 @@ export default function QuietRow({
 
   return (
     <div>
-      <p className={cn(cardLabel, 'mb-3')}>At a glance</p>
+      <p className={cn('text-xs', cardLabel, 'mb-3')}>At a glance</p>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 fd-stat-grid">
         <Link href="/clients" className={tileLinkClass}>
@@ -55,7 +55,7 @@ export default function QuietRow({
             className={cn(
               'w-full h-full transition-[border-color,background-color] duration-fast',
               hasUnpaid
-                ? 'border-warning-200 bg-warning-50 hover:border-warning-300'
+                ? 'border-warning-200 bg-warning-50 hover:border-warning-500'
                 : 'hover:border-border-hover',
             )}
           />

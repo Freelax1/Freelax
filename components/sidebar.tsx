@@ -557,7 +557,7 @@ export default function Sidebar() {
         className={cn(
           'flex items-center lg:hidden fixed top-0 left-0 right-0 z-sticky h-[52px] gap-3 px-4',
           'border-b border-border-default bg-surface-card',
-          'transition-transform duration-280 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          'transition-transform duration-sidebar ease-standard',
           headerHidden ? '-translate-y-full' : 'translate-y-0',
         )}
       >

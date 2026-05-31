@@ -96,7 +96,7 @@ export default function MonthlyIncomeChart({
       {showTypical && (
         <div className="flex justify-end items-center gap-1 mt-1">
           <div className="w-3.5 border-t border-dashed border-border-default" />
-          <p className={cn(cardLabel, 'text-text-secondary')}>Typical month</p>
+          <p className={cn('text-xs', cardLabel, 'text-text-secondary')}>Typical month</p>
         </div>
       )}
     </div>

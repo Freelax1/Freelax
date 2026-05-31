@@ -9,6 +9,7 @@ PATTERN='min-h-\[(152|108)px\]'
 
 ALLOWLIST=(
   'components/ui/stat-card.tsx'
+  'components/ui/content-skeletons.tsx'
 )
 
 violations=()

@@ -286,7 +286,7 @@ export default function VatReturnPage() {
         <label className="flex items-start gap-3 text-sm text-text-primary cursor-pointer select-none">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-border-default text-brand-primary focus:ring-brand-primary/40"
+            className="mt-0.5 h-4 w-4 rounded border-border-default text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
             checked={declared}
             onChange={e => setDeclared(e.target.checked)}
           />

@@ -22,6 +22,7 @@ import AccountantTab       from './settings/accountant-tab'
 import HmrcTab             from './settings/hmrc-tab'
 import DangerZoneTab       from './settings/danger-zone-tab'
 import { sectionTitle } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   free:   { label: 'Free',   color: 'bg-surface-sunken text-text-primary' },
@@ -130,7 +131,7 @@ export default function SettingsForm({ profile, email, embedded, initialTab }: P
         <div className={embedded ? '' : 'bg-surface-card border border-border-default rounded-2xl overflow-hidden'}>
           {/* Tab header */}
           <div className={embedded ? 'pb-4 mb-2 border-b border-border-subtle' : 'px-7 py-5 border-b border-border-subtle'}>
-            <h2 className={sectionTitle}>{tab}</h2>
+            <h2 className={cn('text-sm', sectionTitle)}>{tab}</h2>
             <p className="text-xs text-text-secondary mt-1">{TAB_DESCRIPTIONS[tab]}</p>
           </div>
 

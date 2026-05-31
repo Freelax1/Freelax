@@ -203,7 +203,7 @@ export default function BillingTab({ profile }: Props) {
                   key={plan.id}
                   className={cn(
                     'relative overflow-visible rounded-xl border-2 p-5 flex flex-col transition-all',
-                    isCurrent && 'border-success-400 bg-success-50',
+                    isCurrent && 'border-success-500 bg-success-50',
                     isBelow && 'border-border-subtle bg-surface-sunken opacity-50',
                     isFeatured && 'border-brand-primary bg-forest-50 shadow-card',
                     !isCurrent && !isBelow && !isFeatured && 'border-border-default bg-surface-card hover:border-border-strong',

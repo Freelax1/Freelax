@@ -52,7 +52,7 @@ Run locally: `npm run check:design-system` (also runs in `build`).
 |------|--------|
 | Button | `@/components/ui/button` — `intent` + `size` variants; disabled → `bg-surface-sunken` + `text-text-disabled` |
 | Link / anchor as button | `ButtonLink` (Next `Link`) or `ButtonAnchor` (`<a>`, e.g. `/api/*`, external) — **not** `className={buttonVariants(...)}` on raw links |
-| Inputs, labels, fields | `@/components/ui/input` — **Field + Input**: floating label (`text-micro` raised / `text-sm` value). **Field + Select/Textarea**: stacked label above (`text-caption`). Custom chevron on `Select`. |
+| Inputs, labels, fields | `@/components/ui/input` — **Field + Input**: floating label (`text-micro` raised / `text-base` value). **Field + Select/Textarea**: stacked label above (`text-caption`). Custom chevron on `Select`. |
 | Auth submit | `Button` `intent="auth"` `size="auth"` `fullWidth` |
 | Generic card shell | `Card`, `CardHeader`, `CardTitle` from `@/components/ui/card` |
 | Section card (header + body) | `SectionCard` from `@/components/ui/section-card` — `variant="flat"` + optional `action` on dashboard/tax; default `sunken` in settings |

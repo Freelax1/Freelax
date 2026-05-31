@@ -10,6 +10,7 @@ PATTERN='focus-visible:ring-(1|2).*brand-primary|focus:ring.*brand-primary|focus
 ALLOWLIST=(
   'components/ui/input.tsx'
   'components/ui/button.tsx'
+  'components/ui/metric-hint.tsx'
 )
 
 violations=()

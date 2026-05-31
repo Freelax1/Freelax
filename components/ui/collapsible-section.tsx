@@ -42,7 +42,7 @@ export function CollapsibleSection({
         }}
         aria-expanded={open}
       >
-        <h2 className={sectionTitle}>{title}</h2>
+        <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
         <div className="flex items-center gap-4">
           {headerAction ? (
             <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>

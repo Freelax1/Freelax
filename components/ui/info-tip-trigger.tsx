@@ -72,7 +72,7 @@ export function InfoTipTrigger({
         onClick={() => setOpen(o => !o)}
         onMouseEnter={() => setOpen(true)}
         className={cn(
-          'w-[18px] h-[18px] rounded-full text-[10px] font-semibold cursor-pointer flex items-center justify-center shrink-0 leading-none p-0 transition-all duration-[150ms] border-[1.5px]',
+          'w-[18px] h-[18px] rounded-full text-[10px] font-semibold cursor-pointer flex items-center justify-center shrink-0 leading-none p-0 transition-all duration-fast border-[1.5px]',
           open
             ? 'border-border-focus bg-forest-50 text-brand-primary'
             : 'border-border-default bg-transparent text-text-secondary',

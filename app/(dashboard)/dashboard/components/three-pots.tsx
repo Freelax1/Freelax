@@ -66,7 +66,7 @@ export default function ThreePots({
 
   const safeLabel = (
     <div className="flex items-center justify-between gap-2">
-      <p className={cardLabel}>Safe to spend</p>
+      <p className={cn('text-xs', cardLabel)}>Safe to spend</p>
       {showInfo && <SafeToSpendInfo />}
     </div>
   )

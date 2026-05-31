@@ -22,7 +22,7 @@ export default function ProgressBar({
       <div
         className={cn(
           'h-full rounded-full',
-          animate && 'transition-[width] duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+          animate && 'transition-[width] duration-progress ease-out-expo',
         )}
         style={{ background: color, width: `${width}%` }}
       />

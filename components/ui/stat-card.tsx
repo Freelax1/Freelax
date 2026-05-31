@@ -49,7 +49,7 @@ export default function StatCard({
 
   const labelBlock =
     typeof label === 'string' ? (
-      <p className={cardLabel}>{label}</p>
+      <p className={cn('text-xs', cardLabel)}>{label}</p>
     ) : (
       label
     )

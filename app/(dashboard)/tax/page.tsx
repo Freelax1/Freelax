@@ -182,7 +182,7 @@ function VatPositionCard({
         </Alert>
       )}
       <div className="shrink-0 mb-3">
-        <p className={cardLabel}>Net VAT owed</p>
+        <p className={cn('text-xs', cardLabel)}>Net VAT owed</p>
       </div>
       <div className="py-1">
         <p className={cn('text-2xl', serifStat, 'text-text-primary')}>
@@ -552,7 +552,7 @@ export default function TaxPage() {
           {/* Empty state — no income data yet */}
           {pageData.taxDetail.grossIncome === 0 && pageData.taxDetail.totalExpenses === 0 && (
             <div className="bg-surface-card rounded-xl border border-border-default p-8 text-center">
-              <h2 className={cn(sectionTitle, 'mb-2')}>
+              <h2 className={cn('text-sm', sectionTitle, 'mb-2')}>
                 Your tax summary will appear here
               </h2>
               <p className="text-sm text-text-secondary mb-5 max-w-md mx-auto">

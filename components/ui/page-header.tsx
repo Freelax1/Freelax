@@ -39,7 +39,7 @@ export default function PageHeader({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className={pageTitle}>{title}</h1>
+            <h1 className={cn('text-2xl', pageTitle)}>{title}</h1>
             {titleAddon}
           </div>
           {meta ? <div className="mt-1">{meta}</div> : null}

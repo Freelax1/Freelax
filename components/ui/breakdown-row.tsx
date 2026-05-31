@@ -23,7 +23,7 @@ export function BreakdownGroup({
 }) {
   return (
     <div className={cn('space-y-0', className)}>
-      <p className={cn(cardLabel, 'mb-2')}>{label}</p>
+      <p className={cn('text-xs', cardLabel, 'mb-2')}>{label}</p>
       {children}
     </div>
   )
