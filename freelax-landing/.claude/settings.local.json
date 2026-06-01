@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git mv *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(powershell *)",
+      "Bash(git reset *)",
+      "Read(//mnt/c/Freelax/**)",
+      "Bash(python3 -)"
+    ]
+  }
+}
