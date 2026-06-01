@@ -2,7 +2,7 @@
 // AI call logging and counting. Used by canUseAI() in plan-limits.ts
 // and called from each AI route after a successful Anthropic response.
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { Events } from '@/lib/posthog-events'
 import { trackServer } from '@/lib/posthog-server'
 
@@ -49,7 +49,7 @@ export async function logAiCall(userId: string, route: AiRoute): Promise<void> {
  * Calendar month, not rolling 30 days, so users get a clean reset on the 1st.
  */
 export async function countAiCallsThisMonth(userId: string): Promise<number> {
-  const supabase = createServiceClient()
+  const supabase = createClient()
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)
