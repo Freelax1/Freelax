@@ -73,7 +73,10 @@ async function ensureHmrcBusinessId(opts: {
     const res = await hmrcGet(
       `/individuals/business/details/${nino}/list`,
       accessToken,
-      fraudHeaders,
+      {
+        ...fraudHeaders,
+        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
+      },
     )
     const json = (await res.json()) as HmrcBusinessListResponse
     const selfEmp = (json.listOfBusinesses ?? []).find(b => b.typeOfBusiness === 'self-employment')
