@@ -77,6 +77,7 @@ async function ensureHmrcBusinessId(opts: {
         ...fraudHeaders,
         ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
       },
+      '2.0',
     )
     const json = (await res.json()) as HmrcBusinessListResponse
     const selfEmp = (json.listOfBusinesses ?? []).find(b => b.typeOfBusiness === 'self-employment')

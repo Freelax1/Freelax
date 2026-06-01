@@ -125,11 +125,12 @@ export async function hmrcGet(
   path: string,
   accessToken: string,
   extraHeaders?: Record<string, string>,
+  version: string = '1.0',
 ): Promise<Response> {
   const res = await fetch(`${HMRC_URLS.api}${path}`, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/vnd.hmrc.1.0+json',
+      'Accept': `application/vnd.hmrc.${version}+json`,
       ...extraHeaders,
     },
   })
