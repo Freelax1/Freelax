@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { exchangeCodeForTokens } from '@/lib/hmrc/client'
+import { encryptToken } from '@/lib/hmrc/token-crypto'
 import { Events } from '@/lib/posthog-events'
 import { trackServer } from '@/lib/posthog-server'
 
@@ -79,8 +80,8 @@ export async function GET(req: NextRequest) {
     .upsert({
       user_id:       user.id,
       provider:      'hmrc',
-      access_token:  tokens.access_token,
-      refresh_token: tokens.refresh_token,
+      access_token:  encryptToken(tokens.access_token),
+      refresh_token: encryptToken(tokens.refresh_token),
       token_expiry:  tokenExpiry,
       updated_at:    new Date().toISOString(),
     }, {
