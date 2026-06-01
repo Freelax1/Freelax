@@ -10,6 +10,22 @@ import { CircleNotch } from '@phosphor-icons/react'
 
 const SANDBOX_MODE = process.env.NEXT_PUBLIC_HMRC_SANDBOX_MODE === 'true'
 
+// Format a National Insurance Number as 'QQ 12 34 56 C'.
+// Accepts any input; strips non-alphanumeric, uppercases, caps at 9 chars,
+// and inserts spaces between the two-letter prefix, the three digit pairs,
+// and the trailing suffix letter.
+function formatNino(raw: string): string {
+  const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9)
+  const parts = [
+    cleaned.slice(0, 2),
+    cleaned.slice(2, 4),
+    cleaned.slice(4, 6),
+    cleaned.slice(6, 8),
+    cleaned.slice(8, 9),
+  ].filter(Boolean)
+  return parts.join(' ')
+}
+
 export default function HmrcTab() {
   const searchParams                        = useSearchParams()
   const [connected, setConnected]           = useState(false)
@@ -21,6 +37,9 @@ export default function HmrcTab() {
   const [vrn, setVrn]                       = useState('')
   const [vrnSaving, setVrnSaving]           = useState<'idle' | 'saving' | 'saved'>('idle')
   const vrnTimerRef                         = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [nino, setNino]                     = useState('')
+  const [ninoSaving, setNinoSaving]         = useState<'idle' | 'saving' | 'saved'>('idle')
+  const ninoTimerRef                        = useRef<ReturnType<typeof setTimeout> | null>(null)
   const userIdRef                           = useRef<string | null>(null)
 
   // Show success/error from OAuth callback redirect
@@ -50,13 +69,14 @@ export default function HmrcTab() {
             .maybeSingle(),
           supabase
             .from('users')
-            .select('vat_registration_number')
+            .select('vat_registration_number, nino')
             .eq('id', user.id)
             .maybeSingle(),
         ])
         if (isMounted) {
           setConnected(!!conn)
           setVrn(profile?.vat_registration_number ?? '')
+          setNino(formatNino(profile?.nino ?? ''))
         }
       } catch {}
       if (isMounted) setLoading(false)
@@ -64,6 +84,29 @@ export default function HmrcTab() {
     checkConnection()
     return () => { isMounted = false }
   }, [])
+
+  function handleNinoChange(next: string) {
+    const formatted = formatNino(next)
+    setNino(formatted)
+    setNinoSaving('saving')
+    if (ninoTimerRef.current) clearTimeout(ninoTimerRef.current)
+    ninoTimerRef.current = setTimeout(async () => {
+      const uid = userIdRef.current
+      if (!uid) { setNinoSaving('idle'); return }
+      try {
+        const supabase = createClient()
+        const compact = formatted.replace(/\s+/g, '')
+        await supabase
+          .from('users')
+          .update({ nino: compact.length ? compact : null })
+          .eq('id', uid)
+        setNinoSaving('saved')
+        setTimeout(() => setNinoSaving(curr => (curr === 'saved' ? 'idle' : curr)), 1800)
+      } catch {
+        setNinoSaving('idle')
+      }
+    }, 800)
+  }
 
   function handleVrnChange(next: string) {
     setVrn(next)
@@ -89,6 +132,7 @@ export default function HmrcTab() {
 
   useEffect(() => () => {
     if (vrnTimerRef.current) clearTimeout(vrnTimerRef.current)
+    if (ninoTimerRef.current) clearTimeout(ninoTimerRef.current)
   }, [])
 
   async function handleTestConnection() {
@@ -198,6 +242,31 @@ export default function HmrcTab() {
             <div className="h-3 text-xs text-text-muted">
               {vrnSaving === 'saving' && 'Saving…'}
               {vrnSaving === 'saved'  && 'Saved'}
+            </div>
+          </div>
+        )}
+
+        {/* National Insurance Number — only when connected */}
+        {connected && (
+          <div className="space-y-1.5">
+            <Field
+              label="National Insurance Number"
+              hint="Required for MTD for Income Tax submissions."
+            >
+              <Input
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="QQ 12 34 56 C"
+                maxLength={13}
+                value={nino}
+                onChange={e => handleNinoChange(e.target.value)}
+              />
+            </Field>
+            <div className="h-3 text-xs text-text-muted">
+              {ninoSaving === 'saving' && 'Saving…'}
+              {ninoSaving === 'saved'  && 'Saved'}
             </div>
           </div>
         )}

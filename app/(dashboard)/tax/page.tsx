@@ -210,18 +210,29 @@ function VatPositionCard({
 function MtdQuartersCard({
   quarters,
   compact,
+  hmrcConnected,
+  submittedPeriods,
 }: {
   quarters: ReturnType<typeof getCurrentYearQuartersWithStatus>
   compact: boolean
+  hmrcConnected: boolean
+  submittedPeriods: Set<string>
 }) {
+  const isoDay = (d: Date) => d.toISOString().slice(0, 10)
   return (
     <SectionCard
       variant="flat"
       title="Making Tax Digital"
       action={
-        <ButtonLink href="/settings?tab=HMRC" intent="secondary" size="sm">
-          Connect HMRC →
-        </ButtonLink>
+        hmrcConnected ? (
+          <ButtonLink href="/tax/itsa" intent="secondary" size="sm">
+            MTD Submissions →
+          </ButtonLink>
+        ) : (
+          <ButtonLink href="/settings?tab=HMRC" intent="secondary" size="sm">
+            Connect HMRC →
+          </ButtonLink>
+        )
       }
       bodyClassName="space-y-0"
     >
@@ -239,14 +250,21 @@ function MtdQuartersCard({
           const isCurrent = q.status === 'current'
           const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
           const fmtShort = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+          const periodStartIso = isoDay(q.periodStart)
+          const periodEndIso   = isoDay(q.periodEnd)
+          const dueIso         = isoDay(q.deadline)
+          const isSubmitted    = submittedPeriods.has(`${periodStartIso}-${periodEndIso}`)
+          const synthKey       = `Q${q.quarter}-${q.taxYear}`
 
           const { badgeBg, badgeText, cardBorder } =
-            q.status === 'current'  ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
-            q.status === 'upcoming' ? { badgeBg: 'bg-warning-50',  badgeText: 'text-warning-800',  cardBorder: 'border-warning-200' } :
-            q.status === 'overdue'  ? { badgeBg: 'bg-danger-50',    badgeText: 'text-danger-600',    cardBorder: 'border-danger-200'   } :
-                                      { badgeBg: 'bg-surface-sunken',  badgeText: 'text-text-secondary',  cardBorder: 'border-border-subtle' }
+            isSubmitted             ? { badgeBg: 'bg-success-50',    badgeText: 'text-success-700',    cardBorder: 'border-success-200'  } :
+            q.status === 'current'  ? { badgeBg: 'bg-warning-50',    badgeText: 'text-warning-800',    cardBorder: 'border-warning-200'  } :
+            q.status === 'upcoming' ? { badgeBg: 'bg-warning-50',    badgeText: 'text-warning-800',    cardBorder: 'border-warning-200'  } :
+            q.status === 'overdue'  ? { badgeBg: 'bg-danger-50',     badgeText: 'text-danger-600',     cardBorder: 'border-danger-200'   } :
+                                      { badgeBg: 'bg-surface-sunken', badgeText: 'text-text-secondary', cardBorder: 'border-border-subtle' }
 
           const statusLabel =
+            isSubmitted             ? 'Submitted' :
             q.status === 'current'  ? 'Open now' :
             q.status === 'upcoming' ? 'Submit soon' :
             q.status === 'overdue'  ? 'Overdue' :
@@ -272,7 +290,25 @@ function MtdQuartersCard({
                 <p className="text-xs text-text-secondary">
                   Deadline: {fmt(q.deadline)}
                 </p>
-                <p className="text-xs text-text-secondary font-medium">Not Started</p>
+                {hmrcConnected ? (
+                  <ButtonLink
+                    href={{
+                      pathname: '/tax/itsa',
+                      query: {
+                        periodKey:   synthKey,
+                        periodStart: periodStartIso,
+                        periodEnd:   periodEndIso,
+                        due:         dueIso,
+                      },
+                    }}
+                    intent={isSubmitted ? 'ghost' : 'secondary'}
+                    size="sm"
+                  >
+                    {isSubmitted ? 'View submission' : 'Prepare submission'}
+                  </ButtonLink>
+                ) : (
+                  <p className="text-xs text-text-secondary font-medium">Not Started</p>
+                )}
               </div>
             </div>
           )
@@ -317,6 +353,8 @@ export default function TaxPage() {
   const [exportLoading, setExportLoading]   = useState(false)
   const [canExport, setCanExport]           = useState(false)
   const [syncedAt, setSyncedAt]             = useState<Date | null>(null)
+  const [hmrcConnected, setHmrcConnected]   = useState(false)
+  const [submittedItsaPeriods, setSubmittedItsaPeriods] = useState<Set<string>>(new Set())
   useEffect(() => {
     async function load() {
       const user   = await fetchCurrentUser()
@@ -330,6 +368,42 @@ export default function TaxPage() {
           .eq('id', userId)
           .single()
         setCanExport(['solo', 'pro', 'studio'].includes(planProfile?.subscription_plan ?? 'free'))
+
+        // HMRC connection + this tax year's ITSA submissions, for the quarter cards.
+        const [{ data: conn }, { data: biz }] = await Promise.all([
+          supabase
+            .from('oauth_connections')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('provider', 'hmrc')
+            .maybeSingle(),
+          supabase
+            .from('businesses')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('is_primary', true)
+            .maybeSingle(),
+        ])
+        setHmrcConnected(!!conn)
+
+        if (biz?.id) {
+          const yearStartIso = start.toISOString().slice(0, 10)
+          const yearEndIso   = end.toISOString().slice(0, 10)
+          const { data: submissions } = await supabase
+            .from('submission_periods')
+            .select('period_start, period_end, status')
+            .eq('business_id', biz.id)
+            .eq('period_type', 'itsa_quarterly')
+            .gte('period_start', yearStartIso)
+            .lte('period_end',   yearEndIso)
+          const submitted = new Set<string>()
+          for (const s of submissions ?? []) {
+            if (s.status === 'submitted' || s.status === 'accepted') {
+              submitted.add(`${s.period_start}-${s.period_end}`)
+            }
+          }
+          setSubmittedItsaPeriods(submitted)
+        }
       }
 
       const [paidInvoices, expenses, profile] = await Promise.all([
@@ -735,7 +809,12 @@ export default function TaxPage() {
           })()}
 
           {!pageData.vatRegistered && (
-            <MtdQuartersCard quarters={mtdQuarters} compact={false} />
+            <MtdQuartersCard
+              quarters={mtdQuarters}
+              compact={false}
+              hmrcConnected={hmrcConnected}
+              submittedPeriods={submittedItsaPeriods}
+            />
           )}
 
           {/* ── SOLE TRADER ── */}
@@ -841,7 +920,12 @@ export default function TaxPage() {
 
                 <div className="space-y-4 min-w-0" id="tax-pot">
                   {pageData.vatRegistered && (
-                    <MtdQuartersCard quarters={mtdQuarters} compact />
+                    <MtdQuartersCard
+                      quarters={mtdQuarters}
+                      compact
+                      hmrcConnected={hmrcConnected}
+                      submittedPeriods={submittedItsaPeriods}
+                    />
                   )}
 
                   <TaxPotCard
@@ -929,7 +1013,12 @@ export default function TaxPage() {
 
                 <div className="space-y-4 min-w-0" id="tax-pot">
                   {pageData.vatRegistered && (
-                    <MtdQuartersCard quarters={mtdQuarters} compact />
+                    <MtdQuartersCard
+                      quarters={mtdQuarters}
+                      compact
+                      hmrcConnected={hmrcConnected}
+                      submittedPeriods={submittedItsaPeriods}
+                    />
                   )}
 
                   {/* Ltd summary: compact inline stat row — complements KPI row above */}
