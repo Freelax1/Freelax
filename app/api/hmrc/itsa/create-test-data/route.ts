@@ -1,6 +1,9 @@
-// TEMPORARY — seed-only route. Delete after calling once against the sandbox.
-// Creates a self-employment business on the HMRC sandbox for the signed-in
-// user's NINO so that obligations and periods endpoints have data to return.
+// TEMPORARY — sandbox seeding only. Delete after use.
+// Calls the HMRC sandbox test-only endpoint to create a self-employment
+// business record for the signed-in user's NINO so that obligations and
+// periods endpoints have data to work with.
+//
+// POST https://test-api.service.hmrc.gov.uk/individuals/business/self-employment/test-only/create
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
@@ -9,7 +12,7 @@ import {
   buildFraudPreventionHeaders,
   extractFpFromBody,
 } from '@/lib/hmrc/fraud-prevention'
-import { hmrcPost, HMRC_URLS } from '@/lib/hmrc/client'
+import { hmrcPost } from '@/lib/hmrc/client'
 
 export async function POST(request: NextRequest) {
   if (process.env.HMRC_SANDBOX_MODE !== 'true') {
@@ -49,27 +52,23 @@ export async function POST(request: NextRequest) {
   const fp = extractFpFromBody(body)
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
-    userId:      user.id,
-    timezone:    fp.timezone     ?? 'Europe/London',
-    screenWidth: fp.screenWidth,
+    userId:       user.id,
+    timezone:     fp.timezone      ?? 'Europe/London',
+    screenWidth:  fp.screenWidth,
     screenHeight: fp.screenHeight,
-    windowWidth: fp.windowWidth,
+    windowWidth:  fp.windowWidth,
     windowHeight: fp.windowHeight,
-    doNotTrack:  fp.doNotTrack,
-    deviceId:    fp.deviceId ?? user.id,
+    doNotTrack:   fp.doNotTrack,
+    deviceId:     fp.deviceId ?? user.id,
   })
 
-  // HMRC sandbox: POST /individuals/business/self-employment/{nino}
-  // Creates a self-employment business record on the sandbox.
-  const seedPayload = {
-    typeOfBusiness: 'self-employment',
-    tradingName: body.tradingName ?? 'Freelax Test Business',
-    commencementDate: body.commencementDate ?? '2023-04-06',
-    accountingType: body.accountingType ?? 'CASH',
-    address: {
-      addressLine1: body.addressLine1 ?? '1 Test Street',
-      postcode:     body.postcode     ?? 'SW1A 1AA',
-      countryCode:  'GB',
+  const payload = {
+    nino,
+    businessDetails: {
+      typeOfBusiness:   'self-employment',
+      tradingName:      body.tradingName      ?? 'Freelax Test Business',
+      commencementDate: body.commencementDate ?? '2023-04-06',
+      accountingType:   body.accountingType   ?? 'CASH',
     },
   }
 
@@ -77,23 +76,18 @@ export async function POST(request: NextRequest) {
   let responseBody: unknown
   try {
     hmrcRes = await hmrcPost(
-      `/individuals/business/self-employment/${nino}`,
+      '/individuals/business/self-employment/test-only/create',
       tokens.accessToken,
-      seedPayload,
+      payload,
       fraudHeaders,
     )
     try { responseBody = await hmrcRes.json() } catch { responseBody = null }
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'HMRC seed request failed.' },
+      { error: e instanceof Error ? e.message : 'HMRC test-data request failed.' },
       { status: 502 },
     )
   }
 
-  return NextResponse.json({
-    success: true,
-    nino,
-    payload: seedPayload,
-    hmrcResponse: responseBody,
-  })
+  return NextResponse.json({ success: true, nino, payload, hmrcResponse: responseBody })
 }
