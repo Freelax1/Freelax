@@ -73,14 +73,12 @@ async function ensureHmrcBusinessId(opts: {
     const res = await hmrcGet(
       `/individuals/business/details/${nino}/list`,
       accessToken,
-      {
-        ...fraudHeaders,
-        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'SELF_EMPLOYMENT' }),
-      },
+      fraudHeaders,
       '2.0',
     )
     const json = (await res.json()) as HmrcBusinessListResponse
-    const selfEmp = (json.listOfBusinesses ?? []).find(b => b.typeOfBusiness === 'self-employment')
+    console.log('[ensureHmrcBusinessId] HMRC business list response:', JSON.stringify(json, null, 2))
+    const selfEmp = (json.listOfBusinesses ?? []).find(b => true)
     if (!selfEmp) return { businessId: null, bizRowId: biz.id as string }
     await supabase
       .from('businesses')

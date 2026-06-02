@@ -61,13 +61,11 @@ export async function POST(request: NextRequest) {
     const res = await hmrcGet(
       `/individuals/business/details/${nino}/list`,
       tokens.accessToken,
-      {
-        ...fraudHeaders,
-        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'SELF_EMPLOYMENT' }),
-      },
+      fraudHeaders,
       '2.0',
     )
     const json = await res.json() as { listOfBusinesses?: HmrcBusiness[] }
+    console.log('[fetch-business] HMRC business list response:', JSON.stringify(json, null, 2))
     businesses = json.listOfBusinesses ?? []
   } catch (e) {
     return NextResponse.json(
@@ -76,7 +74,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const selfEmp = businesses.find(b => b.typeOfBusiness === 'self-employment')
+  const selfEmp = businesses.find(b => true)
   if (!selfEmp) {
     return NextResponse.json(
       { error: 'No self-employment business found on your HMRC account.' },
