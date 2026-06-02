@@ -144,7 +144,11 @@ export default async function ItsaObligationsPage() {
     const res = await hmrcGet(
       `/individuals/business/self-employment/${nino}/${businessResult.businessId}/obligations`,
       tokens.accessToken,
-      fraudHeaders,
+      {
+        ...fraudHeaders,
+        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
+      },
+      '5.0',
     )
     const json = (await res.json()) as HmrcObligationsResponse
     obligations = (json.obligations ?? [])
