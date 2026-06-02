@@ -34,6 +34,15 @@ function normaliseNino(raw: string): string {
   return raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
 }
 
+function currentTaxYearDates(): { fromDate: string; toDate: string } {
+  const now = new Date()
+  const y = now.getUTCFullYear()
+  const m = now.getUTCMonth() + 1
+  const d = now.getUTCDate()
+  const start = (m > 4 || (m === 4 && d >= 6)) ? y : y - 1
+  return { fromDate: `${start}-04-06`, toDate: `${start + 1}-04-05` }
+}
+
 // Map a period start date to its ITSA quarter number (1–4).
 // Quarter boundaries: Q1 6 Apr, Q2 6 Jul, Q3 6 Oct, Q4 6 Jan.
 function quarterFromStart(startIso: string): 1 | 2 | 3 | 4 {
@@ -141,14 +150,19 @@ export default async function ItsaObligationsPage() {
 
   let obligations: ItsaObligationView[]
   try {
+    const { fromDate, toDate } = currentTaxYearDates()
+    const obligationsPath =
+      `/obligations/details/${nino}/income-and-expenditure` +
+      `?typeOfBusiness=self-employment&businessId=${businessResult.businessId}` +
+      `&fromDate=${fromDate}&toDate=${toDate}&status=Open`
     const res = await hmrcGet(
-      `/individuals/business/self-employment/${nino}/${businessResult.businessId}/obligations`,
+      obligationsPath,
       tokens.accessToken,
       {
         ...fraudHeaders,
         ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
       },
-      '5.0',
+      '3.0',
     )
     const json = (await res.json()) as HmrcObligationsResponse
     obligations = (json.obligations ?? [])
