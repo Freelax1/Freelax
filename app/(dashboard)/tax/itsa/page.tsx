@@ -75,7 +75,7 @@ async function ensureHmrcBusinessId(opts: {
       accessToken,
       {
         ...fraudHeaders,
-        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
+        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'SELF_EMPLOYMENT' }),
       },
       '2.0',
     )
