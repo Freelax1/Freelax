@@ -146,9 +146,11 @@ export async function POST(request: NextRequest) {
         .update({ status: 'pending', updated_at: new Date().toISOString() })
         .match(periodKeyCols)
       if (upgradeErr) {
+        console.error('[vat/submit] idempotency upgrade-to-pending failed:', upgradeErr.code, upgradeErr.message, upgradeErr.details, upgradeErr.hint)
         return NextResponse.json({ error: 'Could not record submission.' }, { status: 500 })
       }
     } else {
+      console.error('[vat/submit] idempotency claim INSERT failed:', claimErr.code, claimErr.message, claimErr.details, claimErr.hint)
       return NextResponse.json({ error: 'Could not record submission.' }, { status: 500 })
     }
   }
@@ -213,9 +215,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Finalise audit row.
-  try {
-    await supabase
+  // Finalise audit row.  Supabase never throws — must destructure { error }.
+  {
+    const { error: finaliseErr } = await supabase
       .from('submission_periods')
       .update({
         status:       'submitted',
@@ -223,9 +225,10 @@ export async function POST(request: NextRequest) {
         updated_at:   new Date().toISOString(),
       })
       .match(periodKeyCols)
-  } catch (e) {
-    // Audit failure should not roll back a successful HMRC submission.
-    console.error('submission_periods finalise failed after successful HMRC submission:', e instanceof Error ? e.message : 'finalise_failed')
+    if (finaliseErr) {
+      // Audit failure should not roll back a successful HMRC submission.
+      console.error('[vat/submit] submission_periods finalise failed after HMRC accepted:', finaliseErr.code, finaliseErr.message, finaliseErr.details, finaliseErr.hint)
+    }
   }
 
   // Drain HMRC body so the connection releases cleanly.
