@@ -178,25 +178,6 @@ export default function DashboardPage() {
       const totalExpenses = raw.expenses.reduce((s: number, e: { amount: number }) => s + Number(e.amount), 0)
       const netProfit     = totalIncome - totalExpenses
 
-      // ── TEMP DEBUG ──────────────────────────────────────────────────────
-      console.group('[Dashboard] Earned this year — income')
-      console.log('Tax year range:', { start: start.toISOString(), end: end.toISOString() })
-      console.log(`Paid invoices (${raw.paidInvoices.length}):`)
-      raw.paidInvoices.forEach((i: any) => {
-        const exVat = Number(i.total) - Number(i.vat_amount ?? 0)
-        console.log(`  id=${i.id}  total=${i.total}  vat_amount=${i.vat_amount ?? 0}  ex_vat=${exVat.toFixed(2)}  paid_date=${i.paid_date}`)
-      })
-      console.log('Total income (ex-VAT):', totalIncome.toFixed(2))
-      console.groupEnd()
-
-      console.group('[Dashboard] Earned this year — expenses')
-      console.log(`Expenses (${raw.expenses.length}):`)
-      raw.expenses.forEach((e: any) => {
-        console.log(`  id=${e.id}  amount=${e.amount}  date=${e.date}`)
-      })
-      console.log('Total expenses:', totalExpenses.toFixed(2))
-      console.groupEnd()
-      // ── END TEMP DEBUG ──────────────────────────────────────────────────
 
       // TASK B: use full calculateTax API so Ltd users get correct personal tax figure
       const taxResult = calculateTax({
