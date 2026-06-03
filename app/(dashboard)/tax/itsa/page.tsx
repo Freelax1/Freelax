@@ -154,7 +154,7 @@ export default async function ItsaObligationsPage() {
     const obligationsPath =
       `/obligations/details/${nino}/income-and-expenditure` +
       `?typeOfBusiness=self-employment&businessId=${businessResult.businessId}` +
-      `&fromDate=${fromDate}&toDate=${toDate}&status=Open`
+      `&fromDate=${fromDate}&toDate=${toDate}`
     const res = await hmrcGet(
       obligationsPath,
       tokens.accessToken,
