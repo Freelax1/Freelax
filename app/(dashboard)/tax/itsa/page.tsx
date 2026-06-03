@@ -86,8 +86,7 @@ async function ensureHmrcBusinessId(opts: {
       '2.0',
     )
     const json = (await res.json()) as HmrcBusinessListResponse
-    console.log('[ensureHmrcBusinessId] HMRC business list response:', JSON.stringify(json, null, 2))
-    const selfEmp = (json.listOfBusinesses ?? []).find(b => true)
+    const selfEmp = (json.listOfBusinesses ?? []).find(b => b.typeOfBusiness === 'self-employment' || b.typeOfBusiness === 'sole-trader')
     if (!selfEmp) return { businessId: null, bizRowId: biz.id as string }
     await supabase
       .from('businesses')

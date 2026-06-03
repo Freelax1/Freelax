@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
       '2.0',
     )
     const json = await res.json() as { listOfBusinesses?: HmrcBusiness[] }
-    console.log('[fetch-business] HMRC business list response:', JSON.stringify(json, null, 2))
     businesses = json.listOfBusinesses ?? []
   } catch (e) {
     return NextResponse.json(
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const selfEmp = businesses.find(b => true)
+  const selfEmp = businesses.find(b => b.typeOfBusiness === 'self-employment' || b.typeOfBusiness === 'sole-trader')
   if (!selfEmp) {
     return NextResponse.json(
       { error: 'No self-employment business found on your HMRC account.' },
