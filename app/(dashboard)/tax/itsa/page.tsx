@@ -158,10 +158,7 @@ export default async function ItsaObligationsPage() {
     const res = await hmrcGet(
       obligationsPath,
       tokens.accessToken,
-      {
-        ...fraudHeaders,
-        ...(process.env.HMRC_SANDBOX_MODE === 'true' && { 'Gov-Test-Scenario': 'STATEFUL' }),
-      },
+      fraudHeaders,
       '3.0',
     )
     const json = (await res.json()) as HmrcObligationsResponse
