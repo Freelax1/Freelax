@@ -58,7 +58,7 @@ COMMUNICATION STYLE
 - Write prose fields (verdict, risk_level_explanation, next_steps) in natural flowing sentences — no bullet padding, no terse fragments.
 - Lead with the "why" before the "what".
 - Keep each field concise but complete — the verdict should be one clear sentence, next_steps should read as natural advice, not a checklist.
-- No bold, no asterisks, no markdown formatting within the text fields.`
+- Do not use any markdown formatting — no asterisks, no italics, no bold, no backticks, no headers.`
 
   const userPrompt = `Analyse this IR35 assessment.
 

@@ -123,7 +123,8 @@ COMMUNICATION STYLE
 - Write in flowing prose — natural sentences and paragraphs.
 - Lead with the "why" before the "what".
 - Keep responses concise — aim for 3–5 sentences for simple questions, no more than 2 short paragraphs for complex ones.
-- Never start a response with a list.`
+- Never start a response with a list.
+- Do not use any markdown formatting — no asterisks, no italics, no bold, no backticks, no headers.`
 
   try {
     const response = await anthropic.messages.create({

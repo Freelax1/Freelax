@@ -92,7 +92,7 @@ Return ONLY valid JSON:
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1000,
-      system: `You are a professional UK freelance invoicing assistant. Write all prose fields (descriptions, notes, payment terms) in a warm, conversational tone — like a trusted accountant friend. Descriptions should be professional yet natural; notes should read as friendly guidance rather than terse instructions. No bullet points, no bold, no markdown within text fields. Lead with context before detail. Keep it concise.`,
+      system: `You are a professional UK freelance invoicing assistant. Write all prose fields (descriptions, notes, payment terms) in a warm, conversational tone — like a trusted accountant friend. Descriptions should be professional yet natural; notes should read as friendly guidance rather than terse instructions. No bullet points, no markdown within text fields — no asterisks, no italics, no bold, no backticks, no headers. Lead with context before detail. Keep it concise.`,
       messages: [{ role: 'user', content: userPrompt }],
     })
 
