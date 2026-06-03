@@ -16,31 +16,69 @@ export async function POST(req: NextRequest) {
 
   const { answers, projectId, calculatedStatus } = await req.json()
 
-  // Fetch project + client details
-  const { data: project } = await supabase
-    .from('projects')
-    .select('title, rate_type, rate_amount, clients(name)')
-    .eq('id', projectId)
-    .single()
+  // Fetch full project + client + user business context so the AI can be specific
+  // rather than offering generic IR35 platitudes.
+  const [{ data: project }, { data: userData }] = await Promise.all([
+    supabase
+      .from('projects')
+      .select('title, description, rate_type, rate_amount, start_date, end_date, status, ir35_status, ir35_assessed_at, clients(name)')
+      .eq('id', projectId)
+      .single(),
+    supabase
+      .from('users')
+      .select('business_name, business_type, vat_registered')
+      .eq('id', user.id)
+      .single(),
+  ])
 
-  const systemPrompt = `You are a UK IR35 specialist. Give plain English, practical guidance a freelancer can act on immediately. Be direct and concise — no jargon, no hedging.`
+  // Approximate annualised contract value — helps the model gauge whether the
+  // freelancer should escalate (e.g. high-value inside-IR35 contracts deserve a stronger nudge).
+  const rate = Number(project?.rate_amount ?? 0)
+  const annualisedValue = (() => {
+    if (!rate || !project?.rate_type) return null
+    switch (project.rate_type) {
+      case 'day_rate': return rate * 220   // ~220 working days/year
+      case 'hourly':   return rate * 1800  // ~1800 chargeable hours/year
+      case 'fixed':    return rate
+      default:         return null
+    }
+  })()
 
-  const userPrompt = `Analyse this IR35 assessment for a freelancer.
+  const startDate = project?.start_date ?? 'not set'
+  const endDate   = project?.end_date   ?? 'not set'
+  const previousStatus = project?.ir35_status && project.ir35_status !== 'needs_review'
+    ? `Previously assessed as ${project.ir35_status.replace('_', ' ')} on ${project.ir35_assessed_at ?? 'unknown date'}`
+    : 'No prior IR35 assessment on record'
 
-Project: ${project?.title ?? 'Unknown'}
-Client: ${(project as any)?.clients?.name ?? 'Unknown'}
-Rate: ${project?.rate_type} £${project?.rate_amount}
-Calculated status: ${calculatedStatus}
+  const systemPrompt = `You are a UK IR35 specialist working inside Freelax. You have full access to the freelancer's project, client, and business details below — never say "I'd need more information" or "without more context". Use the specific contract details to give concrete, actionable guidance. Plain English, no jargon, no hedging.`
 
-Questionnaire answers:
-${JSON.stringify(answers, null, 2)}
+  const userPrompt = `Analyse this IR35 assessment.
+
+FREELANCER
+- Business: ${userData?.business_name ?? 'Unknown'}
+- Trading as: ${userData?.business_type ?? 'sole_trader'}
+- VAT registered: ${userData?.vat_registered ? 'yes' : 'no'}
+
+CONTRACT
+- Project title: ${project?.title ?? 'Unknown'}
+- Description: ${project?.description ?? 'none provided'}
+- Client: ${(project as any)?.clients?.name ?? 'Unknown'}
+- Rate: ${project?.rate_type ?? 'unknown'} £${rate.toFixed(2)}${annualisedValue ? ` (≈ £${annualisedValue.toLocaleString('en-GB')} annualised)` : ''}
+- Start date: ${startDate}
+- End date: ${endDate}
+- Project status: ${project?.status ?? 'unknown'}
+- ${previousStatus}
+
+ASSESSMENT
+- Calculated status (from scoring engine): ${calculatedStatus}
+- Questionnaire answers: ${JSON.stringify(answers, null, 2)}
 
 Return ONLY valid JSON with exactly these four fields:
 {
-  "verdict": "One plain English sentence saying whether this contract looks inside or outside IR35 and the single most important reason why.",
+  "verdict": "One plain English sentence stating inside or outside IR35 and the single most important reason why, referencing this specific contract.",
   "risk_level": "Low" | "Medium" | "High",
-  "risk_level_explanation": "One sentence explaining what is driving this risk level.",
-  "next_steps": ["Up to 3 specific, actionable steps the freelancer should take now — plain English, no bullet padding."]
+  "risk_level_explanation": "One sentence explaining what is driving this risk level for this specific contract.",
+  "next_steps": ["Up to 3 specific actionable steps for THIS contract (mention the client / rate / dates where useful) — no generic IR35 advice."]
 }`
 
   try {

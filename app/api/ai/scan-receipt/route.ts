@@ -22,6 +22,18 @@ export async function POST(req: NextRequest) {
   const base64Image = Buffer.from(bytes).toString('base64')
   const mediaType = (file.type || 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
 
+  // Pull VAT status + last 5 expense categories so the model can pick the user's
+  // typical category instead of defaulting to "other".
+  const [{ data: userData }, { data: recentExpenses }] = await Promise.all([
+    supabase.from('users').select('vat_registered, business_type').eq('id', user.id).single(),
+    supabase.from('expenses').select('category, merchant').eq('user_id', user.id)
+      .order('date', { ascending: false })
+      .limit(5),
+  ])
+
+  const recentCategories = Array.from(new Set((recentExpenses ?? []).map(e => e.category).filter(Boolean)))
+  const recentVendors    = Array.from(new Set((recentExpenses ?? []).map(e => e.merchant).filter(Boolean)))
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -35,7 +47,15 @@ export async function POST(req: NextRequest) {
           },
           {
             type: 'text',
-            text: `Extract expense details from this receipt.
+            text: `Extract expense details from this UK receipt for a ${userData?.business_type ?? 'sole_trader'} freelancer.
+
+CONTEXT
+- User is VAT registered: ${userData?.vat_registered ? 'YES — extract vat_amount if visible (UK standard rate 20%). If a VAT number is shown but no VAT line, infer vat_amount = total / 6.' : 'NO — set vat_amount to 0 (they cannot reclaim).'}
+- Recently used categories: ${recentCategories.length ? recentCategories.join(', ') : 'none yet'}
+- Recently used vendors: ${recentVendors.length ? recentVendors.join(', ') : 'none yet'}
+
+If the receipt is unclear in places, give your best estimate and set "confidence" accordingly — never refuse to extract. Never leave a field null just because it's hard to read; only use null when the data is genuinely absent from the receipt.
+
 Return ONLY valid JSON, no other text:
 {
   "date": "YYYY-MM-DD or null",

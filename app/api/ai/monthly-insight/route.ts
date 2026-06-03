@@ -21,21 +21,68 @@ export async function POST(req: NextRequest) {
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
 
-  // Fetch this month's paid invoices to find top client
-  const { data: monthInvoices } = await supabase
-    .from('invoices')
-    .select('total, vat_amount, clients(name)')
-    .eq('user_id', user.id)
-    .eq('status', 'paid')
-    .gte('paid_date', monthStart)
-    .lte('paid_date', end.toISOString())
+  // Look back 3 full months for trend context.
+  const threeMonthsAgoStart = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString().slice(0, 10)
+  const lastMonthStart      = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10)
+  const lastMonthEnd        = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0, 10)
 
-  // Fetch this month's top expense category
-  const { data: monthExpenses } = await supabase
-    .from('expenses')
-    .select('amount, category')
-    .eq('user_id', user.id)
-    .gte('date', monthStart)
+  // Fetch this month's paid invoices to find top client + this month's expenses + trailing 3 months income
+  const [
+    { data: monthInvoices },
+    { data: monthExpenses },
+    { data: trailingInvoices },
+    { data: lastMonthInvoices },
+    { data: lastMonthExpenses },
+  ] = await Promise.all([
+    supabase.from('invoices')
+      .select('total, vat_amount, clients(name)')
+      .eq('user_id', user.id)
+      .eq('status', 'paid')
+      .gte('paid_date', monthStart)
+      .lte('paid_date', end.toISOString()),
+    supabase.from('expenses')
+      .select('amount, category')
+      .eq('user_id', user.id)
+      .gte('date', monthStart),
+    supabase.from('invoices')
+      .select('total, vat_amount, paid_date')
+      .eq('user_id', user.id)
+      .eq('status', 'paid')
+      .gte('paid_date', threeMonthsAgoStart),
+    supabase.from('invoices')
+      .select('total, vat_amount')
+      .eq('user_id', user.id)
+      .eq('status', 'paid')
+      .gte('paid_date', lastMonthStart)
+      .lte('paid_date', lastMonthEnd),
+    supabase.from('expenses')
+      .select('amount')
+      .eq('user_id', user.id)
+      .gte('date', lastMonthStart)
+      .lte('date', lastMonthEnd),
+  ])
+
+  // Bucket trailing income by calendar month so the model can describe the trend specifically.
+  const monthBuckets: Record<string, number> = {}
+  trailingInvoices?.forEach(inv => {
+    if (!inv.paid_date) return
+    const d = new Date(inv.paid_date as string)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    monthBuckets[key] = (monthBuckets[key] ?? 0) + (Number(inv.total) - Number(inv.vat_amount ?? 0))
+  })
+  const trailing3 = Object.entries(monthBuckets)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-4)
+    .map(([key, total]) => {
+      const [y, m] = key.split('-').map(Number)
+      const name = new Date(y, m - 1, 1).toLocaleString('en-GB', { month: 'short' })
+      return `${name} £${Math.round(total).toLocaleString('en-GB')}`
+    })
+
+  const lastMonthIncome   = lastMonthInvoices?.reduce((s, i) => s + (Number(i.total) - Number(i.vat_amount ?? 0)), 0) ?? 0
+  const lastMonthExpTotal = lastMonthExpenses?.reduce((s, e) => s + Number(e.amount), 0) ?? 0
+  const lastMonthProfit   = lastMonthIncome - lastMonthExpTotal
+  const thisMonthProfit   = thisMonthIncome - expensesThisMonth
 
   const topClient = (() => {
     if (!monthInvoices?.length) return null
@@ -64,16 +111,22 @@ export async function POST(req: NextRequest) {
   const prompt = `You are a friendly financial assistant inside Freelax, a UK freelancer finance app.
 
 Write a single short paragraph (2-3 sentences max) summarising this freelancer's ${monthName}.
-Be conversational, warm, and specific. Use plain English — no jargon.
-If things look good, be encouraging. If it's a quiet month, be reassuring.
-Never use bullet points or headers. Never mention "Freelax".
+Be conversational, warm, and specific. Reference the trend (not just this month in isolation). Use plain English — no jargon.
+If things look good, be encouraging. If it's a quiet month, be reassuring. Never use bullet points or headers. Never mention "Freelax". Never say "I don't have data" — every figure you need is below.
 
-Data for ${monthName}:
+THIS MONTH (${monthName})
 - Income so far: £${thisMonthIncome.toLocaleString('en-GB')}
-- Monthly average: £${monthlyAvg.toLocaleString('en-GB')} (${trend} average)
 - Expenses: £${expensesThisMonth.toLocaleString('en-GB')}
-- Top client this month: ${topClient ?? 'none yet'}
+- Profit: £${thisMonthProfit.toLocaleString('en-GB')}
+- Top client: ${topClient ?? 'none yet'}
 - Top expense category: ${topCategory ?? 'none logged'}
+
+COMPARISON
+- Tax-year monthly average income: £${monthlyAvg.toLocaleString('en-GB')} (this month is ${trend} average)
+- Last month income: £${Math.round(lastMonthIncome).toLocaleString('en-GB')}, expenses £${Math.round(lastMonthExpTotal).toLocaleString('en-GB')}, profit £${Math.round(lastMonthProfit).toLocaleString('en-GB')}
+
+TRAILING 4-MONTH INCOME TREND
+${trailing3.length ? trailing3.join(' → ') : 'no income recorded in the past 4 months'}
 
 Write the paragraph now:`
 

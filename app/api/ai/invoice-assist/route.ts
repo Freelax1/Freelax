@@ -16,30 +16,75 @@ export async function POST(req: NextRequest) {
 
   const { userInput, clientId, projectId } = await req.json()
 
-  const [{ data: client }, { data: project }, { data: userData }] = await Promise.all([
-    clientId ? supabase.from('clients').select('name').eq('id', clientId).single() : Promise.resolve({ data: null }),
-    projectId ? supabase.from('projects').select('title, rate_type, rate_amount').eq('id', projectId).single() : Promise.resolve({ data: null }),
-    supabase.from('users').select('business_name').eq('id', user.id).single(),
+  const [
+    { data: client },
+    { data: project },
+    { data: userData },
+    { data: recentInvoices },
+    { data: clientInvoices },
+  ] = await Promise.all([
+    clientId ? supabase.from('clients').select('name, email').eq('id', clientId).single() : Promise.resolve({ data: null }),
+    projectId ? supabase.from('projects').select('title, description, rate_type, rate_amount, start_date, end_date').eq('id', projectId).single() : Promise.resolve({ data: null }),
+    supabase.from('users').select('business_name, vat_registered, business_type').eq('id', user.id).single(),
+    // Last 5 invoices anywhere — gives the model the freelancer's wording style and typical rates.
+    supabase.from('invoices').select('total, payment_terms, invoice_line_items(description, quantity, unit_price)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
+    // Last 3 invoices for THIS client — captures the client's typical rate / description style.
+    clientId
+      ? supabase.from('invoices').select('total, invoice_line_items(description, quantity, unit_price)')
+          .eq('user_id', user.id)
+          .eq('client_id', clientId)
+          .order('created_at', { ascending: false })
+          .limit(3)
+      : Promise.resolve({ data: null }),
   ])
+
+  // Pull typical unit prices from history so the AI can default sensibly when the user is vague.
+  const allLineItems = [...(recentInvoices ?? []), ...(clientInvoices ?? [])]
+    .flatMap((inv: any) => Array.isArray(inv.invoice_line_items) ? inv.invoice_line_items : [])
+  const typicalRates = allLineItems
+    .map((li: any) => Number(li?.unit_price))
+    .filter((n: number) => Number.isFinite(n) && n > 0)
+  const avgRate    = typicalRates.length ? Math.round(typicalRates.reduce((a, b) => a + b, 0) / typicalRates.length) : null
+  const recentDescriptions = allLineItems
+    .map((li: any) => typeof li?.description === 'string' ? li.description : '')
+    .filter(Boolean)
+    .slice(0, 8)
+
+  const typicalTerms = recentInvoices?.[0]?.payment_terms ?? 'Net 30'
 
   const userPrompt = `Create invoice line items from this description: "${userInput}"
 
-Context:
+FREELANCER
+- Business: ${userData?.business_name ?? 'not set'} (${userData?.business_type ?? 'sole_trader'})
+- VAT registered: ${userData?.vat_registered ? 'yes — apply 20% VAT' : 'no — set vat_rate to 0'}
+
+THIS INVOICE CONTEXT
 - Client: ${client?.name ?? 'not specified'}
-- Project: ${project?.title ?? 'not specified'}
-- Rate: ${project?.rate_type && project?.rate_amount ? `${project.rate_type} £${project.rate_amount}` : 'unknown'}
+- Project: ${project?.title ?? 'not specified'}${project?.description ? ` — ${project.description}` : ''}
+- Rate on file: ${project?.rate_type && project?.rate_amount ? `${project.rate_type} £${project.rate_amount}` : 'not set on project'}
+- Project dates: ${project?.start_date ?? '?'} → ${project?.end_date ?? '?'}
+
+HISTORY (use this to match the freelancer's style and pricing)
+- Recent line-item descriptions: ${recentDescriptions.length ? recentDescriptions.join(' | ') : 'none'}
+- Average unit price across recent invoices: ${avgRate ? `£${avgRate}` : 'no history'}
+- Typical payment terms: ${typicalTerms}
+
+Use the project rate above when it's set. Fall back to the average rate from history if the user's description is vague. Match the wording style of the recent line-item descriptions. Never reply with "unknown" — pick the best estimate from this context.
 
 Return ONLY valid JSON:
 {
   "line_items": [
     {
-      "description": "professional description",
+      "description": "professional description matching this user's style",
       "quantity": number,
       "unit_price": number,
-      "vat_rate": 20
+      "vat_rate": ${userData?.vat_registered ? 20 : 0}
     }
   ],
-  "suggested_payment_terms": "string",
+  "suggested_payment_terms": "string (e.g. '${typicalTerms}')",
   "notes": "optional notes or null"
 }`
 

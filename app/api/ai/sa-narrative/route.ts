@@ -72,6 +72,9 @@ export async function POST(req: NextRequest) {
   const paAlert      = taxDetail.kind === 'sole_trader' ? taxDetail.paAlert         : false
   const higherRate   = taxDetail.kind === 'sole_trader' ? taxDetail.higherRateAlert : false
   const poaDue       = Number(taxDetail.paymentsOnAccount ?? 0)
+  const januaryTotal = Number((taxDetail as any).totalJanuaryPayment ?? totalTax)
+  const julyDue      = Number((taxDetail as any).julyPayment ?? 0)
+  const poaApplies   = poaDue > 0
 
   // Top client
   const clientCounts: Record<string, number> = {}
@@ -117,7 +120,9 @@ export async function POST(req: NextRequest) {
     vatRegistered ? `VAT collected: £${vatCollected.toFixed(2)} · Reclaimable: £${vatReclaimable.toFixed(2)}` : `VAT threshold: £${vatThreshold.toLocaleString()} (you are at ${Math.round((totalIncome / vatThreshold) * 100)}% of it)`,
     `Personal Allowance taper triggered: ${paAlert ? 'yes (income over £100k)' : 'no'}`,
     `Higher-rate band hit: ${higherRate ? 'yes' : 'no'}`,
-    `Payments on Account this cycle: £${poaDue.toFixed(2)}`,
+    poaApplies
+      ? `Payments on Account: applies (tax bill > £1,000). 31 Jan ${deadlineYear} payment £${januaryTotal.toFixed(2)} (£${totalTax.toFixed(2)} balancing + £${poaDue.toFixed(2)} 1st POA). 31 Jul ${deadlineYear} payment £${julyDue.toFixed(2)} (2nd POA).`
+      : `Payments on Account: not required (tax bill £${totalTax.toFixed(2)} is at or below the £1,000 threshold). Single payment due 31 Jan ${deadlineYear}.`,
     `Self Assessment deadline: 31 January ${deadlineYear}`,
   ].join('\n')
 
