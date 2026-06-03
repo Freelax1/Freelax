@@ -49,3 +49,7 @@ public/worker-*.js.map
 # Claude Code local settings
 .claude/settings.local.json
 freelax-landing/.claude/settings.local.json
+
+# Accessibility / Lighthouse audit exports (local artefacts, not source)
+freelax-git-*.json
+evidence/
