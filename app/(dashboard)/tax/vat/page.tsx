@@ -6,9 +6,9 @@
 import { headers } from 'next/headers'
 import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDecryptedHmrcTokens } from '@/lib/hmrc/token-crypto'
+import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/token-crypto'
 import { buildFraudPreventionHeaders } from '@/lib/hmrc/fraud-prevention'
-import { hmrcGet } from '@/lib/hmrc/client'
+import { hmrcGet, type HmrcRefreshCallback } from '@/lib/hmrc/client'
 import VatObligationsView, { type ObligationView } from './vat-obligations-view'
 
 export const dynamic = 'force-dynamic'
@@ -36,11 +36,12 @@ async function fetchObligations(
   vrn: string,
   accessToken: string,
   fraudHeaders: Record<string, string>,
+  refresh: HmrcRefreshCallback,
 ): Promise<HmrcObligation[]> {
   const from = isoFromOffset(-365)
   const to   = isoFromOffset(0)
   const path = `/organisations/vat/${vrn}/obligations?from=${from}&to=${to}&status=O`
-  const res  = await hmrcGet(path, accessToken, fraudHeaders)
+  const res  = await hmrcGet(path, accessToken, fraudHeaders, '1.0', refresh)
   const body = await res.json() as { obligations?: HmrcObligation[] }
   return body.obligations ?? []
 }
@@ -84,9 +85,11 @@ export default async function VatObligationsPage() {
     deviceId: user.id,
   })
 
+  const refresh = buildHmrcRefreshCallback(user.id, tokens)
+
   let obligations: ObligationView[]
   try {
-    const raw = await fetchObligations(vrn, tokens.accessToken, fraudHeaders)
+    const raw = await fetchObligations(vrn, tokens.accessToken, fraudHeaders, refresh)
     obligations = raw.map(o => ({
       start:     o.start,
       end:       o.end,

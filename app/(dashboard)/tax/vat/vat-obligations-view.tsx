@@ -90,7 +90,7 @@ export default function VatObligationsView({ state }: VatObligationsViewProps) {
           <SectionCard title="VAT obligations">
             <div className="py-10 flex flex-col items-center text-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-surface-sunken flex items-center justify-center">
-                <CalendarBlank weight="regular" className="w-5 h-5 text-text-secondary" />
+                <CalendarBlank weight="regular" className="w-5 h-5 text-text-secondary" aria-hidden="true" />
               </div>
               <p className="text-sm text-text-secondary">No VAT returns due.</p>
             </div>
@@ -127,6 +127,7 @@ export default function VatObligationsView({ state }: VatObligationsViewProps) {
                         }}
                         intent="secondary"
                         size="sm"
+                        aria-label={`Prepare return for ${periodLabel}`}
                       >
                         Prepare return
                       </ButtonLink>

@@ -8,7 +8,7 @@
 //
 // The periodKey is part of the URL — never rendered.
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CircleNotch } from '@phosphor-icons/react'
@@ -135,6 +135,19 @@ export default function ItsaQuarterlyPage() {
   const [submitting, setSubmitting]   = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  const declarationHeadingRef = useRef<HTMLHeadingElement | null>(null)
+  const successContainerRef   = useRef<HTMLDivElement | null>(null)
+
+  // Move focus when transitioning between steps so AT and keyboard users
+  // know the page has changed.
+  useEffect(() => {
+    if (step === 'declaration') {
+      declarationHeadingRef.current?.focus()
+    } else if (step === 'success') {
+      successContainerRef.current?.focus()
+    }
+  }, [step])
+
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -242,7 +255,10 @@ export default function ItsaQuarterlyPage() {
     return (
       <PageLayout className="space-y-6">
         <PageHeader title="Quarterly Update" subtitle={periodLabel || undefined} />
-        <PanelCardSkeleton className="min-h-[280px]" />
+        <div role="status" aria-live="polite">
+          <span className="sr-only">Loading quarterly update.</span>
+          <PanelCardSkeleton className="min-h-[280px]" />
+        </div>
       </PageLayout>
     )
   }
@@ -263,7 +279,9 @@ export default function ItsaQuarterlyPage() {
     return (
       <PageLayout className="space-y-6">
         <PageHeader title="Quarterly Update" subtitle={periodLabel || undefined} />
-        <Alert intent="success">Quarterly update submitted successfully.</Alert>
+        <div ref={successContainerRef} tabIndex={-1} className="outline-none">
+          <Alert intent="success">Quarterly update submitted successfully.</Alert>
+        </div>
         {periodLabel && (
           <p className="text-sm text-text-secondary">
             Period covered: <span className="font-medium text-text-primary">{periodLabel}</span>
@@ -290,6 +308,14 @@ export default function ItsaQuarterlyPage() {
       <PageLayout className="space-y-6">
         <PageHeader title="Quarterly Update" subtitle={periodLabel || undefined} />
 
+        <h2
+          ref={declarationHeadingRef}
+          tabIndex={-1}
+          className="sr-only outline-none"
+        >
+          Review and confirm your quarterly update
+        </h2>
+
         <SectionCard title="Summary — please review">
           <BreakdownRow label="Turnover"     value={formatCurrency(income.turnover)} />
           <BreakdownRow label="Other income" value={formatCurrency(income.other)} />
@@ -309,7 +335,7 @@ export default function ItsaQuarterlyPage() {
         </SectionCard>
 
         <SectionCard variant="flat" title="Declaration">
-          <p className="py-3 text-sm text-text-primary leading-relaxed">
+          <p id="itsa-legal-declaration-text" className="py-3 text-sm text-text-primary leading-relaxed">
             When you submit this information you are making a legal declaration that the information is true and complete to the best of your knowledge. A false declaration can result in prosecution.
           </p>
         </SectionCard>
@@ -320,11 +346,15 @@ export default function ItsaQuarterlyPage() {
             className="mt-0.5 h-4 w-4 rounded border-border-default text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
             checked={declared}
             onChange={e => setDeclared(e.target.checked)}
+            aria-required="true"
+            aria-describedby="itsa-legal-declaration-text"
           />
           <span>I confirm this declaration is true and complete.</span>
         </label>
 
-        {submitError && <Alert intent="danger">{submitError}</Alert>}
+        <div role="alert" aria-live="assertive" aria-atomic="true">
+          {submitError && <Alert intent="danger">{submitError}</Alert>}
+        </div>
 
         <div className="flex items-center justify-between gap-3 pt-2">
           <Button
@@ -341,10 +371,20 @@ export default function ItsaQuarterlyPage() {
             type="button"
             intent="primary"
             size="md"
-            onClick={handleSubmit}
-            disabled={!declared || submitting}
+            onClick={() => {
+              if (!declared || submitting) return
+              handleSubmit()
+            }}
+            aria-disabled={!declared || submitting}
+            aria-describedby="itsa-legal-declaration-text"
+            className={(!declared || submitting) ? 'opacity-50 cursor-not-allowed' : undefined}
           >
-            {submitting && <CircleNotch weight="regular" className="w-4 h-4 animate-spin" />}
+            {submitting && (
+              <span role="status" className="inline-flex items-center">
+                <CircleNotch weight="regular" className="w-4 h-4 animate-spin" aria-hidden="true" />
+                <span className="sr-only">Submitting</span>
+              </span>
+            )}
             {submitting ? 'Submitting…' : 'Submit to HMRC'}
           </Button>
         </div>

@@ -23,6 +23,9 @@ export const HMRC_SCOPES = [
   'write:vat',
 ].join(' ')
 
+const HMRC_API_TIMEOUT_MS   = 20_000
+const HMRC_TOKEN_TIMEOUT_MS = 15_000
+
 // C1 fix: evaluate at call time so a missing NEXT_PUBLIC_APP_URL throws a clear
 // error at request time rather than silently producing "undefined/api/auth/…"
 // at module load time.
@@ -35,7 +38,13 @@ export function getHmrcRedirectUri(): string {
 // H4 fix: cap raw HMRC error bodies before including them in thrown errors so
 // credential fragments or large HTML error pages never reach log sinks.
 function safeErrText(raw: string): string {
-  return raw.replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]').slice(0, 200)
+  return raw
+    .replace(/Bearer\s+\S+/gi,           'Bearer [REDACTED]')
+    .replace(/refresh_token=[^&\s]+/gi,  'refresh_token=[REDACTED]')
+    .replace(/client_secret=[^&\s]+/gi,  'client_secret=[REDACTED]')
+    .replace(/code=[^&\s]+/gi,           'code=[REDACTED]')
+    .replace(/code_verifier=[^&\s]+/gi,  'code_verifier=[REDACTED]')
+    .slice(0, 200)
 }
 
 // C2 fix: validate credentials at call time in both token functions rather than
@@ -73,6 +82,7 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string):
       redirect_uri:  getHmrcRedirectUri(),
       code_verifier: codeVerifier,
     }),
+    signal: AbortSignal.timeout(HMRC_TOKEN_TIMEOUT_MS),
   })
 
   if (!res.ok) {
@@ -85,7 +95,9 @@ export async function exchangeCodeForTokens(code: string, codeVerifier: string):
 
 /**
  * Refresh an access token using a refresh token.
- * HMRC refresh tokens are single-use — the response includes a new refresh token.
+ * HMRC refresh tokens are single-use — the response includes a new refresh token,
+ * and the caller MUST persist the rotated pair atomically (see
+ * refreshAndPersistHmrcTokens in token-crypto.ts).
  */
 export async function refreshAccessToken(refreshToken: string): Promise<{
   access_token: string
@@ -103,6 +115,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
       grant_type:    'refresh_token',
       refresh_token: refreshToken,
     }),
+    signal: AbortSignal.timeout(HMRC_TOKEN_TIMEOUT_MS),
   })
 
   if (!res.ok) {
@@ -114,26 +127,46 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
 }
 
 /**
+ * Callback that returns a freshly refreshed access token.
+ * Created by route handlers via `buildHmrcRefreshCallback` so hmrcGet/hmrcPost
+ * can recover from a mid-flight 401 without leaking persistence concerns into
+ * this module.
+ */
+export type HmrcRefreshCallback = () => Promise<string>
+
+/**
  * Make an authenticated GET request to the HMRC API.
- * Throws on non-OK responses so callers don't silently process error bodies.
- *
- * TODO: Add fraud prevention headers before production launch.
- * HMRC requires these by law for VAT API and soon all APIs.
- * See: https://developer.service.hmrc.gov.uk/guides/fraud-prevention
+ * On a 401, optionally refreshes the access token via `refresh` and retries
+ * once. A second 401 indicates the user needs to reconnect HMRC.
  */
 export async function hmrcGet(
   path: string,
   accessToken: string,
   extraHeaders?: Record<string, string>,
   version: string = '1.0',
+  refresh?: HmrcRefreshCallback,
 ): Promise<Response> {
-  const res = await fetch(`${HMRC_URLS.api}${path}`, {
+  const url = `${HMRC_URLS.api}${path}`
+  const buildInit = (token: string): RequestInit => ({
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': `application/vnd.hmrc.${version}+json`,
+      'Authorization': `Bearer ${token}`,
+      'Accept':        `application/vnd.hmrc.${version}+json`,
       ...extraHeaders,
     },
+    signal: AbortSignal.timeout(HMRC_API_TIMEOUT_MS),
   })
+
+  let res = await fetch(url, buildInit(accessToken))
+  if (res.status === 401 && refresh) {
+    let newToken: string
+    try { newToken = await refresh() } catch {
+      throw new Error('HMRC authentication failed — please reconnect HMRC.')
+    }
+    res = await fetch(url, buildInit(newToken))
+    if (res.status === 401) {
+      throw new Error('HMRC authentication failed — please reconnect HMRC.')
+    }
+  }
   if (!res.ok) {
     const err = safeErrText(await res.text())
     throw new Error(`HMRC GET ${path} failed: ${res.status} ${err}`)
@@ -143,24 +176,41 @@ export async function hmrcGet(
 
 /**
  * Make an authenticated POST request to the HMRC API.
- * Throws on non-OK responses so callers don't silently process error bodies.
+ * On a 401, optionally refreshes the access token via `refresh` and retries
+ * once.
  */
 export async function hmrcPost(
   path: string,
   accessToken: string,
   body: unknown,
   extraHeaders?: Record<string, string>,
+  version: string = '1.0',
+  refresh?: HmrcRefreshCallback,
 ): Promise<Response> {
-  const res = await fetch(`${HMRC_URLS.api}${path}`, {
+  const url = `${HMRC_URLS.api}${path}`
+  const buildInit = (token: string): RequestInit => ({
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/vnd.hmrc.1.0+json',
-      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'Accept':        `application/vnd.hmrc.${version}+json`,
+      'Content-Type':  'application/json',
       ...extraHeaders,
     },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(HMRC_API_TIMEOUT_MS),
   })
+
+  let res = await fetch(url, buildInit(accessToken))
+  if (res.status === 401 && refresh) {
+    let newToken: string
+    try { newToken = await refresh() } catch {
+      throw new Error('HMRC authentication failed — please reconnect HMRC.')
+    }
+    res = await fetch(url, buildInit(newToken))
+    if (res.status === 401) {
+      throw new Error('HMRC authentication failed — please reconnect HMRC.')
+    }
+  }
   if (!res.ok) {
     const err = safeErrText(await res.text())
     throw new Error(`HMRC POST ${path} failed: ${res.status} ${err}`)

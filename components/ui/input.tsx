@@ -3,7 +3,7 @@
 import { CaretDown, Eye, EyeSlash } from '@phosphor-icons/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import React, { cloneElement, isValidElement, useState } from 'react'
+import React, { cloneElement, isValidElement, useId, useState } from 'react'
 
 /** Outer field chrome — white on card surfaces; border strengthens on focus. */
 export const fieldShellVariants = cva(
@@ -274,6 +274,11 @@ function FloatingFieldShell({
   children,
 }: FloatingFieldShellProps) {
   const [focused, setFocused] = useState(false)
+  const generatedId = useId()
+  const childId      = (children.props.id as string | undefined) ?? generatedId
+  const hintId       = hint  ? `${childId}-hint`  : undefined
+  const errorId      = error ? `${childId}-error` : undefined
+  const describedBy  = [hintId, errorId].filter(Boolean).join(' ') || undefined
   const childVariant = (children.props.variant as VariantProps<typeof inputVariants>['variant']) ?? 'default'
   const isAuth = labelVariant === 'auth' || childVariant === 'auth'
   const shellVariant = error && !isAuth ? 'error' : childVariant
@@ -281,8 +286,12 @@ function FloatingFieldShell({
   const floated = focused || hasFieldValue(value)
 
   const control = cloneElement(children, {
+    id: childId,
     bare: true,
     error: undefined,
+    'aria-required':   required || undefined,
+    'aria-invalid':    error    ? true : undefined,
+    'aria-describedby': describedBy,
     className: cn(
       inputControlVariants({ variant: error ? 'error' : childVariant }),
       floated
@@ -313,6 +322,7 @@ function FloatingFieldShell({
         )}
       >
         <label
+          htmlFor={childId}
           className={cn(
             'absolute left-3 right-3 pointer-events-none truncate origin-left',
             'transition-[top,transform,color] duration-fast',
@@ -328,13 +338,18 @@ function FloatingFieldShell({
           )}
         >
           {label}
-          {required && <span className={cn('ml-0.5', isAuth ? 'text-white/50' : 'text-danger-500')}>*</span>}
+          {required && (
+            <>
+              <span aria-hidden="true" className={cn('ml-0.5', isAuth ? 'text-white/50' : 'text-danger-500')}>*</span>
+              <span className="sr-only"> (required)</span>
+            </>
+          )}
         </label>
         {control}
       </div>
-      {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
+      {hint && !error && <p id={hintId} className="text-xs text-text-muted">{hint}</p>}
       {error && (
-        <p className={cn('text-xs', isAuth ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
+        <p id={errorId} className={cn('text-xs', isAuth ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
       )}
     </div>
   )
@@ -365,6 +380,7 @@ function Field({
   layout = 'floating',
 }: FieldProps) {
   const child = isValidElement(children) ? children : null
+  const generatedId = useId()
   const useFloating =
     label != null &&
     child != null &&
@@ -388,23 +404,39 @@ function Field({
   }
 
   const isAuthLabel = labelVariant === 'auth'
+  const childId = (child?.props.id as string | undefined) ?? generatedId
+  const hintId  = hint  ? `${childId}-hint`  : undefined
+  const errorId = error ? `${childId}-error` : undefined
+  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
+
   const stackedControl =
-    child && isFormControl(child) && error
-      ? cloneElement(child, { error: true })
+    child && isFormControl(child)
+      ? cloneElement(child, {
+          id:                child.props.id ?? childId,
+          'aria-required':   required || undefined,
+          'aria-invalid':    error    ? true : undefined,
+          'aria-describedby': describedBy,
+          ...(error ? { error: true } : {}),
+        })
       : children
 
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <Label variant={labelVariant}>
+        <Label variant={labelVariant} htmlFor={childId}>
           {label}
-          {required && <span className="text-danger-500 ml-0.5 normal-case">*</span>}
+          {required && (
+            <>
+              <span aria-hidden="true" className="text-danger-500 ml-0.5 normal-case">*</span>
+              <span className="sr-only"> (required)</span>
+            </>
+          )}
         </Label>
       )}
       {stackedControl}
-      {hint && !error && <p className="text-xs text-text-muted">{hint}</p>}
+      {hint && !error && <p id={hintId} className="text-xs text-text-muted">{hint}</p>}
       {error && (
-        <p className={cn('text-xs', isAuthLabel ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
+        <p id={errorId} className={cn('text-xs', isAuthLabel ? 'text-danger-200' : 'text-danger-600')}>{error}</p>
       )}
     </div>
   )

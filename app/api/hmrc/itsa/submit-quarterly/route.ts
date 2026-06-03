@@ -1,10 +1,10 @@
 // app/api/hmrc/itsa/submit-quarterly/route.ts
 // Submits a quarterly ITSA update to HMRC's Self-Employment Business API and
-// records the submission in submission_periods.
+// records the submission in submission_periods with idempotent pre-insert.
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDecryptedHmrcTokens } from '@/lib/hmrc/token-crypto'
+import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/token-crypto'
 import {
   buildFraudPreventionHeaders,
   extractFpFromBody,
@@ -21,21 +21,34 @@ const EXPENSE_KEYS = [
 type IncomeKey  = typeof INCOME_KEYS[number]
 type ExpenseKey = typeof EXPENSE_KEYS[number]
 
-function pickAmount(v: unknown): number {
-  if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) return 0
-  return Math.round(v * 100) / 100
-}
+const NINO_REGEX = /^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]?$/i
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 
-function readKeys<K extends string>(input: unknown, keys: readonly K[]): Record<K, number> {
-  const src = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
-  return keys.reduce((acc, k) => {
-    acc[k] = pickAmount(src[k])
-    return acc
-  }, {} as Record<K, number>)
-}
+const PG_UNIQUE_VIOLATION = '23505'
 
 function normaliseNino(raw: string): string {
   return raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
+}
+
+/** Reads a single amount field; returns the rounded value or null on invalid input. */
+function readAmount(v: unknown): number | null {
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) return null
+  return Math.round(v * 100) / 100
+}
+
+/** Reads a Record<K, number> from `input`. Returns null on the first invalid field, with that key. */
+function readKeys<K extends string>(
+  input: unknown,
+  keys: readonly K[],
+): { ok: true; values: Record<K, number> } | { ok: false; key: K } {
+  const src = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
+  const out = {} as Record<K, number>
+  for (const k of keys) {
+    const v = readAmount(src[k])
+    if (v === null) return { ok: false, key: k }
+    out[k] = v
+  }
+  return { ok: true, values: out }
 }
 
 export async function POST(request: NextRequest) {
@@ -58,9 +71,23 @@ export async function POST(request: NextRequest) {
   if (!periodKey || !periodStart || !periodEnd) {
     return NextResponse.json({ error: 'Missing periodKey / periodStart / periodEnd.' }, { status: 400 })
   }
+  if (!ISO_DATE_REGEX.test(periodStart) || !ISO_DATE_REGEX.test(periodEnd)) {
+    return NextResponse.json({ error: 'periodStart and periodEnd must be YYYY-MM-DD.' }, { status: 400 })
+  }
+  if (periodStart > periodEnd) {
+    return NextResponse.json({ error: 'periodStart must be on or before periodEnd.' }, { status: 400 })
+  }
 
-  const income   = readKeys<IncomeKey>(body?.income,   INCOME_KEYS)
-  const expenses = readKeys<ExpenseKey>(body?.expenses, EXPENSE_KEYS)
+  const incomeRead   = readKeys<IncomeKey>(body?.income,   INCOME_KEYS)
+  if (!incomeRead.ok) {
+    return NextResponse.json({ error: `Income field "${incomeRead.key}" is not a non-negative finite number.` }, { status: 400 })
+  }
+  const expensesRead = readKeys<ExpenseKey>(body?.expenses, EXPENSE_KEYS)
+  if (!expensesRead.ok) {
+    return NextResponse.json({ error: `Expense field "${expensesRead.key}" is not a non-negative finite number.` }, { status: 400 })
+  }
+  const income   = incomeRead.values
+  const expenses = expensesRead.values
 
   const { data: profile } = await supabase
     .from('users')
@@ -70,6 +97,9 @@ export async function POST(request: NextRequest) {
   const nino = normaliseNino(profile?.nino?.toString().trim() ?? '')
   if (!nino) {
     return NextResponse.json({ error: 'National Insurance Number not set in Settings → HMRC.' }, { status: 400 })
+  }
+  if (!NINO_REGEX.test(nino)) {
+    return NextResponse.json({ error: 'National Insurance Number is not in a valid format.' }, { status: 400 })
   }
 
   const { data: biz } = await supabase
@@ -83,8 +113,50 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'HMRC business id not yet linked. Open MTD overview to link it.' }, { status: 400 })
   }
 
+  // Idempotency: try to claim this period with a 'pending' row before calling HMRC.
+  // Unique constraint on (business_id, period_start, period_end, period_type) gives us
+  // a 23505 on a concurrent request — we branch on the existing row's status.
+  const periodKeyCols = {
+    business_id:  biz.id as string,
+    period_start: periodStart,
+    period_end:   periodEnd,
+    period_type:  'itsa_quarterly' as const,
+  }
+
+  const { error: claimErr } = await supabase
+    .from('submission_periods')
+    .insert({ ...periodKeyCols, status: 'pending' })
+
+  if (claimErr) {
+    if (claimErr.code === PG_UNIQUE_VIOLATION) {
+      const { data: existing } = await supabase
+        .from('submission_periods')
+        .select('status')
+        .match(periodKeyCols)
+        .maybeSingle()
+      const status = existing?.status as string | undefined
+      if (status === 'submitted' || status === 'accepted') {
+        return NextResponse.json({ success: true, alreadySubmitted: true })
+      }
+      if (status === 'pending') {
+        return NextResponse.json({ error: 'A submission for this period is already in progress.' }, { status: 409 })
+      }
+      // Stale 'draft', 'not_started', 'amendment_required' — re-claim by upgrading to 'pending'.
+      const { error: upgradeErr } = await supabase
+        .from('submission_periods')
+        .update({ status: 'pending', updated_at: new Date().toISOString() })
+        .match(periodKeyCols)
+      if (upgradeErr) {
+        return NextResponse.json({ error: 'Could not record submission.' }, { status: 500 })
+      }
+    } else {
+      return NextResponse.json({ error: 'Could not record submission.' }, { status: 500 })
+    }
+  }
+
   const tokens = await getDecryptedHmrcTokens(user.id)
   if (!tokens) {
+    await supabase.from('submission_periods').update({ status: 'draft' }).match(periodKeyCols)
     return NextResponse.json({ error: 'HMRC account is not connected.' }, { status: 403 })
   }
 
@@ -100,6 +172,8 @@ export async function POST(request: NextRequest) {
     doNotTrack:   fp.doNotTrack,
     deviceId:     fp.deviceId ?? user.id,
   })
+
+  const refresh = buildHmrcRefreshCallback(user.id, tokens)
 
   const payload = {
     from: periodStart,
@@ -123,18 +197,27 @@ export async function POST(request: NextRequest) {
   }
 
   let hmrcRes: Response
+  let alreadySubmittedAtHmrc = false
   try {
     hmrcRes = await hmrcPost(
       `/individuals/business/self-employment/${nino}/${businessId}/periods`,
       tokens.accessToken,
       payload,
       fraudHeaders,
+      '5.0',
+      refresh,
     )
   } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'HMRC submission failed.' },
-      { status: 502 },
-    )
+    const msg = e instanceof Error ? e.message : 'HMRC submission failed.'
+    // HMRC duplicate-submission codes — treat as success since the data is already at HMRC.
+    if (/BUSINESS_INCOME_PERIOD_RESTRICTION|DUPLICATE_SUBMISSION|PERIOD_OVERLAPS|ALREADY_SUBMITTED/i.test(msg)) {
+      alreadySubmittedAtHmrc = true
+      hmrcRes = new Response(null)
+    } else {
+      // Revert claim so the user can fix and retry.
+      await supabase.from('submission_periods').update({ status: 'draft' }).match(periodKeyCols)
+      return NextResponse.json({ error: msg }, { status: 502 })
+    }
   }
 
   const totalIncome   = Math.round((income.turnover + income.other) * 100) / 100
@@ -146,22 +229,20 @@ export async function POST(request: NextRequest) {
   try {
     await supabase
       .from('submission_periods')
-      .upsert({
-        business_id:    biz.id,
-        period_start:   periodStart,
-        period_end:     periodEnd,
-        period_type:    'itsa_quarterly',
+      .update({
         status:         'submitted',
         submitted_at:   new Date().toISOString(),
         income_total:   totalIncome,
         expenses_total: totalExpenses,
         profit_total:   totalProfit,
-      }, { onConflict: 'business_id,period_start,period_end' })
+        updated_at:     new Date().toISOString(),
+      })
+      .match(periodKeyCols)
   } catch (e) {
-    console.error('submission_periods upsert failed after successful HMRC submission:', e)
+    console.error('submission_periods finalise failed after successful HMRC submission:', e instanceof Error ? e.message : 'finalise_failed')
   }
 
   try { await hmrcRes.text() } catch {}
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, ...(alreadySubmittedAtHmrc && { alreadySubmitted: true }) })
 }

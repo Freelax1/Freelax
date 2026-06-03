@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDecryptedHmrcTokens } from '@/lib/hmrc/token-crypto'
+import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/token-crypto'
 import {
   buildFraudPreventionHeaders,
   extractFpFromBody,
@@ -16,6 +16,8 @@ type HmrcBusiness = {
   typeOfBusiness?: string
   tradingName?: string
 }
+
+const NINO_REGEX = /^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]?$/i
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -33,9 +35,12 @@ export async function POST(request: NextRequest) {
     .select('nino')
     .eq('id', user.id)
     .maybeSingle()
-  const nino = (profile?.nino ?? '').toString().replace(/\s+/g, '')
+  const nino = (profile?.nino ?? '').toString().toUpperCase().replace(/[^A-Z0-9]/g, '')
   if (!nino) {
     return NextResponse.json({ error: 'National Insurance Number not set in Settings → HMRC.' }, { status: 400 })
+  }
+  if (!NINO_REGEX.test(nino)) {
+    return NextResponse.json({ error: 'National Insurance Number is not in a valid format.' }, { status: 400 })
   }
 
   const tokens = await getDecryptedHmrcTokens(user.id)
@@ -56,6 +61,8 @@ export async function POST(request: NextRequest) {
     deviceId:     fp.deviceId ?? user.id,
   })
 
+  const refresh = buildHmrcRefreshCallback(user.id, tokens)
+
   let businesses: HmrcBusiness[]
   try {
     const res = await hmrcGet(
@@ -63,6 +70,7 @@ export async function POST(request: NextRequest) {
       tokens.accessToken,
       fraudHeaders,
       '2.0',
+      refresh,
     )
     const json = await res.json() as { listOfBusinesses?: HmrcBusiness[] }
     businesses = json.listOfBusinesses ?? []
@@ -81,22 +89,32 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { data: biz } = await supabase
-    .from('businesses')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('is_primary', true)
-    .maybeSingle()
-  if (!biz) {
-    return NextResponse.json({ error: 'No primary business record found.' }, { status: 404 })
-  }
-
-  const { error: updateError } = await supabase
+  // Race-safe: only update if the column is still NULL. If two requests run
+  // concurrently, the second one's UPDATE matches 0 rows — and that's fine,
+  // the first request already linked the business id.
+  const { data: updatedRows, error: updateError } = await supabase
     .from('businesses')
     .update({ hmrc_business_id: selfEmp.businessId })
-    .eq('id', biz.id)
+    .eq('user_id', user.id)
+    .eq('is_primary', true)
+    .is('hmrc_business_id', null)
+    .select('id')
+
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 })
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    // Column was already set — either by a concurrent request or a prior call.
+    const { data: existing } = await supabase
+      .from('businesses')
+      .select('hmrc_business_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .maybeSingle()
+    if (!existing?.hmrc_business_id) {
+      return NextResponse.json({ error: 'No primary business record found.' }, { status: 404 })
+    }
+    return NextResponse.json({ businessId: existing.hmrc_business_id })
   }
 
   return NextResponse.json({ businessId: selfEmp.businessId })

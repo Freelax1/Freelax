@@ -6,9 +6,9 @@
 import { headers } from 'next/headers'
 import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDecryptedHmrcTokens } from '@/lib/hmrc/token-crypto'
+import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/token-crypto'
 import { buildFraudPreventionHeaders } from '@/lib/hmrc/fraud-prevention'
-import { hmrcGet } from '@/lib/hmrc/client'
+import { hmrcGet, type HmrcRefreshCallback } from '@/lib/hmrc/client'
 import ItsaObligationsView, { type ItsaObligationView } from './itsa-obligations-view'
 
 export const dynamic = 'force-dynamic'
@@ -62,8 +62,9 @@ async function ensureHmrcBusinessId(opts: {
   nino:         string
   accessToken:  string
   fraudHeaders: Record<string, string>
+  refresh:      HmrcRefreshCallback
 }): Promise<{ businessId: string | null; bizRowId: string | null; error?: string }> {
-  const { supabase, userId, nino, accessToken, fraudHeaders } = opts
+  const { supabase, userId, nino, accessToken, fraudHeaders, refresh } = opts
 
   const { data: biz } = await supabase
     .from('businesses')
@@ -84,14 +85,17 @@ async function ensureHmrcBusinessId(opts: {
       accessToken,
       fraudHeaders,
       '2.0',
+      refresh,
     )
     const json = (await res.json()) as HmrcBusinessListResponse
     const selfEmp = (json.listOfBusinesses ?? []).find(b => b.typeOfBusiness === 'self-employment' || b.typeOfBusiness === 'sole-trader')
     if (!selfEmp) return { businessId: null, bizRowId: biz.id as string }
+    // Race-safe: only set if still null.
     await supabase
       .from('businesses')
       .update({ hmrc_business_id: selfEmp.businessId })
       .eq('id', biz.id)
+      .is('hmrc_business_id', null)
     return { businessId: selfEmp.businessId, bizRowId: biz.id as string }
   } catch (e) {
     return {
@@ -137,8 +141,10 @@ export default async function ItsaObligationsPage() {
     deviceId: user.id,
   })
 
+  const refresh = buildHmrcRefreshCallback(user.id, tokens)
+
   const businessResult = await ensureHmrcBusinessId({
-    supabase, userId: user.id, nino, accessToken: tokens.accessToken, fraudHeaders,
+    supabase, userId: user.id, nino, accessToken: tokens.accessToken, fraudHeaders, refresh,
   })
   if (!businessResult.businessId) {
     if (businessResult.error) {
@@ -159,6 +165,7 @@ export default async function ItsaObligationsPage() {
       tokens.accessToken,
       fraudHeaders,
       '3.0',
+      refresh,
     )
     const json = (await res.json()) as HmrcObligationsResponse
     obligations = (json.obligations ?? [])
