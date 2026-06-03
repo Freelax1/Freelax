@@ -38,7 +38,7 @@ export default function BusinessTab({ profile, save, saving }: Props) {
           To change your business type, contact support@freelax.co.uk.{' '}
           <a
             href={`mailto:support@freelax.co.uk?subject=Business%20type%20change%20request&body=Hi%2C%20I%20would%20like%20to%20change%20my%20business%20type%20from%20${encodeURIComponent(bf.business_type)}%20to%20%5Bblank%5D.%20My%20account%20email%20is%20${encodeURIComponent(profile?.email ?? '')}.`}
-            className="text-forest-600 hover:underline"
+            className="text-forest-600 underline"
           >
             Request business type change
           </a>

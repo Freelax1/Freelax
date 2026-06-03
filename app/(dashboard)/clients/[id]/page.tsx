@@ -172,7 +172,7 @@ export default function ClientDetailPage() {
         open={projectsOpen}
         onOpenChange={setProjectsOpen}
         headerAction={
-          <Link href={`/projects/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+          <Link href={`/projects/new?client=${client.id}`} className="inline-flex items-center min-h-[24px] text-sm text-forest-600 hover:underline">
             Add project
           </Link>
         }
@@ -191,7 +191,7 @@ export default function ClientDetailPage() {
         open={quotesOpen}
         onOpenChange={setQuotesOpen}
         headerAction={
-          <Link href={`/quotes/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+          <Link href={`/quotes/new?client=${client.id}`} className="inline-flex items-center min-h-[24px] text-sm text-forest-600 hover:underline">
             New quote
           </Link>
         }
@@ -235,7 +235,7 @@ export default function ClientDetailPage() {
         open={invoicesOpen}
         onOpenChange={setInvoicesOpen}
         headerAction={
-          <Link href={`/invoices/new?client=${client.id}`} className="text-sm text-forest-600 hover:underline">
+          <Link href={`/invoices/new?client=${client.id}`} className="inline-flex items-center min-h-[24px] text-sm text-forest-600 hover:underline">
             New invoice
           </Link>
         }

@@ -323,7 +323,7 @@ export default function ProjectsPage() {
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">End date</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">Status</th>
                   <th className="px-4 py-2.5 text-left text-caption font-medium text-text-muted bg-surface-sunken border-b border-border-default">IR35</th>
-                  <th className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
+                  <th aria-label="Row actions" className="px-3 py-2.5 bg-surface-sunken border-b border-border-default rounded-tr-xl"></th>
                 </tr>
               </thead>
               <tbody>

@@ -24,39 +24,41 @@ export function CollapsibleSection({
   children,
   className,
 }: CollapsibleSectionProps) {
+  const toggle = () => onOpenChange(!open)
   return (
     <div className={cn('bg-surface-card rounded-xl border border-border-default p-6', className)}>
       <div
-        role="button"
-        tabIndex={0}
         className={cn(
-          'flex cursor-pointer items-center justify-between gap-3',
+          'flex items-center justify-between gap-3',
           open && 'mb-4',
         )}
-        onClick={() => onOpenChange(!open)}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onOpenChange(!open)
-          }
-        }}
-        aria-expanded={open}
       >
-        <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
-        <div className="flex items-center gap-4">
-          {headerAction ? (
-            <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-              {headerAction}
-            </div>
-          ) : null}
-          <CaretDown
-            weight="regular"
-            className={cn(
-              'h-4 w-4 shrink-0 text-text-secondary transition-transform duration-200',
-              open ? 'rotate-0' : 'rotate-180',
-            )}
-            aria-hidden
-          />
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          className="flex flex-1 items-center gap-3 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus rounded-md"
+        >
+          <h2 className={cn('text-sm', sectionTitle)}>{title}</h2>
+        </button>
+        <div className="flex items-center gap-2">
+          {headerAction ? <div className="inline-flex">{headerAction}</div> : null}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={open}
+            aria-label={open ? 'Collapse section' : 'Expand section'}
+            className="inline-flex h-6 w-6 items-center justify-center rounded-md text-text-secondary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+          >
+            <CaretDown
+              weight="regular"
+              className={cn(
+                'h-4 w-4 transition-transform duration-200',
+                open ? 'rotate-0' : 'rotate-180',
+              )}
+              aria-hidden
+            />
+          </button>
         </div>
       </div>
       {open ? children : null}
