@@ -1,9 +1,10 @@
 'use client'
 
-// Client view for the ITSA obligations page.
-// Renders alerts, empty states, and obligation cards. All Supabase / HMRC
-// fetching happens on the server in page.tsx.
+// Client view + data fetcher for the ITSA obligations page.
+// Collects browser fraud-prevention context on mount, then fetches obligations
+// from /api/hmrc/itsa/obligations (which forwards _fp to HMRC with the request).
 
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { CalendarBlank } from '@phosphor-icons/react'
@@ -12,25 +13,51 @@ import SectionCard from '@/components/ui/section-card'
 import Alert from '@/components/ui/alert'
 import { ButtonLink } from '@/components/ui/button'
 import PageLayout from '@/components/page-layout'
+import { PanelCardSkeleton } from '@/components/ui/content-skeletons'
 import { cn } from '@/lib/utils'
 
 export type ItsaObligationView = {
   periodKey: string
-  start:     string  // ISO YYYY-MM-DD
+  start:     string
   end:       string
   due:       string
   status:    'Open' | 'Fulfilled'
   quarter:   1 | 2 | 3 | 4 | null
 }
 
-interface ItsaObligationsViewProps {
-  state:
-    | { kind: 'unauthorised' }
-    | { kind: 'no-nino' }
-    | { kind: 'no-connection' }
-    | { kind: 'no-business' }
-    | { kind: 'error'; message: string }
-    | { kind: 'obligations'; obligations: ItsaObligationView[] }
+type ViewState =
+  | { kind: 'loading' }
+  | { kind: 'unauthorised' }
+  | { kind: 'no-nino' }
+  | { kind: 'no-connection' }
+  | { kind: 'no-business' }
+  | { kind: 'error'; message: string }
+  | { kind: 'obligations'; obligations: ItsaObligationView[] }
+
+function collectFp() {
+  if (typeof window === 'undefined') return {}
+  let deviceId = ''
+  try {
+    deviceId = localStorage.getItem('freelax_device_id') ?? ''
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('freelax_device_id', deviceId)
+    }
+  } catch {}
+  const plugins = Array.from(navigator.plugins).map(p => p.name).filter(Boolean).join(',')
+  return {
+    timezone:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screenWidth:    window.screen.width,
+    screenHeight:   window.screen.height,
+    scalingFactor:  window.devicePixelRatio,
+    colourDepth:    window.screen.colorDepth,
+    windowWidth:    window.innerWidth,
+    windowHeight:   window.innerHeight,
+    doNotTrack:     navigator.doNotTrack ?? 'not-set',
+    userAgent:      navigator.userAgent,
+    browserPlugins: plugins || undefined,
+    deviceId,
+  }
 }
 
 function fmtDate(iso: string): string {
@@ -40,10 +67,52 @@ function fmtDate(iso: string): string {
 
 const ITSA_SUBTITLE = 'Quarterly updates for self-employment income.'
 
-export default function ItsaObligationsView({ state }: ItsaObligationsViewProps) {
+export default function ItsaObligationsView() {
+  const [state, setState] = useState<ViewState>({ kind: 'loading' })
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/hmrc/itsa/obligations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ _fp: collectFp() }),
+        })
+        const json = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (res.status === 401)              { setState({ kind: 'unauthorised' }); return }
+        if (json?.kind === 'no-nino')        { setState({ kind: 'no-nino' }); return }
+        if (json?.kind === 'no-connection')  { setState({ kind: 'no-connection' }); return }
+        if (json?.kind === 'no-business')    { setState({ kind: 'no-business' }); return }
+        if (!res.ok || json?.error) {
+          setState({ kind: 'error', message: json?.error ?? `HTTP ${res.status}` })
+          return
+        }
+        setState({ kind: 'obligations', obligations: json.obligations ?? [] })
+      } catch (e) {
+        if (!cancelled) {
+          setState({ kind: 'error', message: e instanceof Error ? e.message : 'Could not load ITSA obligations.' })
+        }
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
   let content: ReactNode
 
-  if (state.kind === 'unauthorised') {
+  if (state.kind === 'loading') {
+    content = (
+      <>
+        <PageHeader title="MTD for Income Tax" />
+        <div role="status" aria-live="polite">
+          <span className="sr-only">Loading MTD obligations.</span>
+          <PanelCardSkeleton className="min-h-[200px]" />
+        </div>
+      </>
+    )
+  } else if (state.kind === 'unauthorised') {
     content = (
       <>
         <PageHeader title="MTD for Income Tax" />
@@ -112,8 +181,8 @@ export default function ItsaObligationsView({ state }: ItsaObligationsViewProps)
               const periodLabel = ob.quarter
                 ? `Q${ob.quarter} — ${fmtDate(ob.start)} to ${fmtDate(ob.end)}`
                 : `${fmtDate(ob.start)} – ${fmtDate(ob.end)}`
-              const dueLabel = fmtDate(ob.due)
-              const today    = new Date()
+              const dueLabel  = fmtDate(ob.due)
+              const today     = new Date()
               const isOverdue = new Date(ob.due + 'T23:59:59Z') < today
               return (
                 <SectionCard key={ob.periodKey} title={periodLabel}>

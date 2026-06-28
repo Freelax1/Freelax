@@ -22,14 +22,18 @@ export interface FraudPreventionContext {
    * request body when calling a Freelax API route that calls HMRC.
    *
    * Example client-side collection:
-   *   timezone:    Intl.DateTimeFormat().resolvedOptions().timeZone
-   *   screenWidth: screen.width
-   *   screenHeight: screen.height
-   *   windowWidth: window.innerWidth
-   *   windowHeight: window.innerHeight
-   *   doNotTrack:  navigator.doNotTrack ?? 'not-set'
-   *   deviceId:    localStorage.getItem('freelax_device_id') ?? generateAndStoreUUID()
-   *   publicPort:  (not available in browsers — omit)
+   *   timezone:       Intl.DateTimeFormat().resolvedOptions().timeZone
+   *   screenWidth:    screen.width
+   *   screenHeight:   screen.height
+   *   scalingFactor:  window.devicePixelRatio
+   *   colourDepth:    screen.colorDepth
+   *   windowWidth:    window.innerWidth
+   *   windowHeight:   window.innerHeight
+   *   doNotTrack:     navigator.doNotTrack ?? 'not-set'
+   *   deviceId:       localStorage.getItem('freelax_device_id') ?? generateAndStoreUUID()
+   *   userAgent:      navigator.userAgent
+   *   browserPlugins: Array.from(navigator.plugins).map(p => p.name).filter(Boolean).join(',')
+   *   publicPort:     (not available in browsers — omit)
    */
   /** IANA timezone name (e.g. "Europe/London") or UTC offset (e.g. "UTC+01:00") */
   timezone?: string
@@ -40,6 +44,10 @@ export interface FraudPreventionContext {
   windowWidth?: number
   windowHeight?: number
   doNotTrack?: string
+  /** navigator.userAgent collected browser-side. Falls back to the server request UA if absent. */
+  userAgent?: string
+  /** Comma-separated navigator.plugins names. Omit the header entirely when empty. */
+  browserPlugins?: string
   /** Persistent UUID stored in the browser. Generate once, store in localStorage. Must be a bare UUID. */
   deviceId?: string
   /** The originating device's public TCP port. Browsers do not expose this — omit if unavailable. */
@@ -52,11 +60,17 @@ export interface FraudPreventionContext {
   vendorIp?: string
 }
 
-/** Extract the client's public IP from the Vercel/proxy forwarding headers */
+/** Extract the client's public IP from the Vercel/proxy forwarding headers.
+ *  Throws in production if neither header is present — HMRC rejects '0.0.0.0'. */
 function getClientIp(req: NextRequest): string {
   const forwarded = req.headers.get('x-forwarded-for')
   if (forwarded) return forwarded.split(',')[0].trim()
-  return req.headers.get('x-real-ip') ?? '0.0.0.0'
+  const realIp = req.headers.get('x-real-ip')
+  if (realIp) return realIp
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Gov-Client-Public-IP: x-forwarded-for missing on production request')
+  }
+  return '127.0.0.1'
 }
 
 /**
@@ -98,8 +112,9 @@ export function buildFraudPreventionHeaders(
 ): Record<string, string> {
   const now       = new Date().toISOString()
   const clientIp  = getClientIp(ctx.request)
-  // Raw browser UA — must NOT be percent-encoded per HMRC spec
-  const userAgent = ctx.request.headers.get('user-agent') ?? ''
+  // Prefer the browser-collected UA; fall back to the server request header.
+  // Must NOT be percent-encoded per HMRC spec.
+  const userAgent = ctx.userAgent ?? ctx.request.headers.get('user-agent') ?? ''
   const dnt       = ctx.doNotTrack
     ?? ctx.request.headers.get('dnt')
     ?? 'not-set'
@@ -121,17 +136,22 @@ export function buildFraudPreventionHeaders(
     // Raw string, NOT percent-encoded (HMRC spec v3.3 requirement)
     'Gov-Client-Browser-JS-User-Agent': userAgent,
     'Gov-Client-Browser-Do-Not-Track':  doNotTrack,
-    'Gov-Client-Browser-Plugins':       '',
+    // Gov-Client-Browser-Plugins: set below only when non-empty (modern
+    // browsers return an empty list; omitting the header is valid per spec).
 
     // ── User identity ─────────────────────────────────────────────────
     'Gov-Client-User-IDs': `freelax-user-id=${pct(ctx.userId)}`,
 
     // ── Vendor info ───────────────────────────────────────────────────
     'Gov-Vendor-Product-Name': 'Freelax',
-    'Gov-Vendor-Version':      'Freelax=1.0.0',
+    'Gov-Vendor-Version':      'Freelax=0.1.0',
   }
 
   // ── Optional browser-side headers ─────────────────────────────────────────
+
+  if (ctx.browserPlugins) {
+    headers['Gov-Client-Browser-Plugins'] = ctx.browserPlugins
+  }
 
   if (ctx.deviceId) {
     headers['Gov-Client-Device-ID'] = ctx.deviceId
@@ -198,12 +218,16 @@ export function extractFpFromBody(body: any): Partial<FraudPreventionContext> {
   const fp = body?._fp
   if (!fp || typeof fp !== 'object') return {}
   return {
-    timezone:      typeof fp.timezone     === 'string' ? fp.timezone     : undefined,
-    screenWidth:   typeof fp.screenWidth  === 'number' ? fp.screenWidth  : undefined,
-    screenHeight:  typeof fp.screenHeight === 'number' ? fp.screenHeight : undefined,
-    windowWidth:   typeof fp.windowWidth  === 'number' ? fp.windowWidth  : undefined,
-    windowHeight:  typeof fp.windowHeight === 'number' ? fp.windowHeight : undefined,
-    doNotTrack:    typeof fp.doNotTrack   === 'string' ? fp.doNotTrack   : undefined,
-    deviceId:      typeof fp.deviceId     === 'string' ? fp.deviceId     : undefined,
+    timezone:       typeof fp.timezone       === 'string' ? fp.timezone       : undefined,
+    screenWidth:    typeof fp.screenWidth    === 'number' ? fp.screenWidth    : undefined,
+    screenHeight:   typeof fp.screenHeight   === 'number' ? fp.screenHeight   : undefined,
+    scalingFactor:  typeof fp.scalingFactor  === 'number' ? fp.scalingFactor  : undefined,
+    colourDepth:    typeof fp.colourDepth    === 'number' ? fp.colourDepth    : undefined,
+    windowWidth:    typeof fp.windowWidth    === 'number' ? fp.windowWidth    : undefined,
+    windowHeight:   typeof fp.windowHeight   === 'number' ? fp.windowHeight   : undefined,
+    doNotTrack:     typeof fp.doNotTrack     === 'string' ? fp.doNotTrack     : undefined,
+    userAgent:      typeof fp.userAgent      === 'string' && fp.userAgent     ? fp.userAgent      : undefined,
+    browserPlugins: typeof fp.browserPlugins === 'string' && fp.browserPlugins ? fp.browserPlugins : undefined,
+    deviceId:       typeof fp.deviceId       === 'string' ? fp.deviceId       : undefined,
   }
 }

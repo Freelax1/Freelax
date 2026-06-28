@@ -83,13 +83,18 @@ function collectFp() {
       localStorage.setItem('freelax_device_id', deviceId)
     }
   } catch {}
+  const plugins = Array.from(navigator.plugins).map(p => p.name).filter(Boolean).join(',')
   return {
-    timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone,
-    screenWidth:  window.screen.width,
-    screenHeight: window.screen.height,
-    windowWidth:  window.innerWidth,
-    windowHeight: window.innerHeight,
-    doNotTrack:   navigator.doNotTrack ?? 'not-set',
+    timezone:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screenWidth:    window.screen.width,
+    screenHeight:   window.screen.height,
+    scalingFactor:  window.devicePixelRatio,
+    colourDepth:    window.screen.colorDepth,
+    windowWidth:    window.innerWidth,
+    windowHeight:   window.innerHeight,
+    doNotTrack:     navigator.doNotTrack ?? 'not-set',
+    userAgent:      navigator.userAgent,
+    browserPlugins: plugins || undefined,
     deviceId,
   }
 }

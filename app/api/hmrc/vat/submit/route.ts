@@ -166,14 +166,18 @@ export async function POST(request: NextRequest) {
   const fpFromBody = extractFpFromBody(body)
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
-    userId: user.id,
-    timezone: fpFromBody.timezone ?? 'Europe/London',
-    screenWidth:  fpFromBody.screenWidth,
-    screenHeight: fpFromBody.screenHeight,
-    windowWidth:  fpFromBody.windowWidth,
-    windowHeight: fpFromBody.windowHeight,
-    doNotTrack:   fpFromBody.doNotTrack,
-    deviceId:     fpFromBody.deviceId ?? user.id,
+    userId:         user.id,
+    timezone:       fpFromBody.timezone,
+    screenWidth:    fpFromBody.screenWidth,
+    screenHeight:   fpFromBody.screenHeight,
+    scalingFactor:  fpFromBody.scalingFactor,
+    colourDepth:    fpFromBody.colourDepth,
+    windowWidth:    fpFromBody.windowWidth,
+    windowHeight:   fpFromBody.windowHeight,
+    doNotTrack:     fpFromBody.doNotTrack,
+    userAgent:      fpFromBody.userAgent,
+    browserPlugins: fpFromBody.browserPlugins,
+    deviceId:       fpFromBody.deviceId,
   })
 
   const refresh = buildHmrcRefreshCallback(user.id, tokens)

@@ -1,10 +1,10 @@
 'use client'
 
-// Client view for the VAT obligations page.
-// Renders alerts, empty states, and obligation cards. All Supabase / HMRC
-// fetching happens on the server in page.tsx — this component receives the
-// computed data and only renders.
+// Client view + data fetcher for the VAT obligations page.
+// Collects browser fraud-prevention context on mount, then fetches obligations
+// from /api/hmrc/vat/obligations (which forwards _fp to HMRC with the request).
 
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { CalendarBlank } from '@phosphor-icons/react'
@@ -13,6 +13,7 @@ import SectionCard from '@/components/ui/section-card'
 import Alert from '@/components/ui/alert'
 import { ButtonLink } from '@/components/ui/button'
 import PageLayout from '@/components/page-layout'
+import { PanelCardSkeleton } from '@/components/ui/content-skeletons'
 import { cn } from '@/lib/utils'
 
 export type ObligationView = {
@@ -23,13 +24,38 @@ export type ObligationView = {
   periodKey: string
 }
 
-interface VatObligationsViewProps {
-  state:
-    | { kind: 'unauthorised' }
-    | { kind: 'no-vrn' }
-    | { kind: 'no-connection' }
-    | { kind: 'error'; message: string }
-    | { kind: 'ok'; obligations: ObligationView[] }
+type ViewState =
+  | { kind: 'loading' }
+  | { kind: 'unauthorised' }
+  | { kind: 'no-vrn' }
+  | { kind: 'no-connection' }
+  | { kind: 'error'; message: string }
+  | { kind: 'ok'; obligations: ObligationView[] }
+
+function collectFp() {
+  if (typeof window === 'undefined') return {}
+  let deviceId = ''
+  try {
+    deviceId = localStorage.getItem('freelax_device_id') ?? ''
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('freelax_device_id', deviceId)
+    }
+  } catch {}
+  const plugins = Array.from(navigator.plugins).map(p => p.name).filter(Boolean).join(',')
+  return {
+    timezone:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screenWidth:    window.screen.width,
+    screenHeight:   window.screen.height,
+    scalingFactor:  window.devicePixelRatio,
+    colourDepth:    window.screen.colorDepth,
+    windowWidth:    window.innerWidth,
+    windowHeight:   window.innerHeight,
+    doNotTrack:     navigator.doNotTrack ?? 'not-set',
+    userAgent:      navigator.userAgent,
+    browserPlugins: plugins || undefined,
+    deviceId,
+  }
 }
 
 function fmtDate(iso: string): string {
@@ -40,10 +66,51 @@ function fmtDate(iso: string): string {
 const VAT_SUBTITLE =
   'Open VAT obligations from HMRC. Prepare and submit each return when its window opens.'
 
-export default function VatObligationsView({ state }: VatObligationsViewProps) {
+export default function VatObligationsView() {
+  const [state, setState] = useState<ViewState>({ kind: 'loading' })
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/hmrc/vat/obligations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ _fp: collectFp() }),
+        })
+        const json = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (res.status === 401)               { setState({ kind: 'unauthorised' }); return }
+        if (json?.kind === 'no-vrn')          { setState({ kind: 'no-vrn' }); return }
+        if (json?.kind === 'no-connection')   { setState({ kind: 'no-connection' }); return }
+        if (!res.ok || json?.error) {
+          setState({ kind: 'error', message: json?.error ?? `HTTP ${res.status}` })
+          return
+        }
+        setState({ kind: 'ok', obligations: json.obligations ?? [] })
+      } catch (e) {
+        if (!cancelled) {
+          setState({ kind: 'error', message: e instanceof Error ? e.message : 'Could not load VAT obligations.' })
+        }
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
   let content: ReactNode
 
-  if (state.kind === 'unauthorised') {
+  if (state.kind === 'loading') {
+    content = (
+      <>
+        <PageHeader title="VAT Returns" />
+        <div role="status" aria-live="polite">
+          <span className="sr-only">Loading VAT obligations.</span>
+          <PanelCardSkeleton className="min-h-[200px]" />
+        </div>
+      </>
+    )
+  } else if (state.kind === 'unauthorised') {
     content = (
       <>
         <PageHeader title="VAT Returns" />
