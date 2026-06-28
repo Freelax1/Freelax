@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/token-crypto'
-import { buildFraudPreventionHeaders, extractFpFromBody } from '@/lib/hmrc/fraud-prevention'
+import { buildFraudPreventionHeaders, extractFpFromBody, fetchVendorIp } from '@/lib/hmrc/fraud-prevention'
 import { hmrcGet, type HmrcRefreshCallback } from '@/lib/hmrc/client'
 
 type ServerSupabase = Awaited<ReturnType<typeof createClient>>
@@ -125,6 +125,7 @@ export async function POST(request: NextRequest) {
   try { body = await request.json() } catch {}
 
   const fp = extractFpFromBody(body)
+  const vendorIp = await fetchVendorIp()
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
     userId:         user.id,
@@ -139,6 +140,7 @@ export async function POST(request: NextRequest) {
     userAgent:      fp.userAgent,
     browserPlugins: fp.browserPlugins,
     deviceId:       fp.deviceId,
+    vendorIp,
   })
 
   const refresh = buildHmrcRefreshCallback(user.id, tokens)

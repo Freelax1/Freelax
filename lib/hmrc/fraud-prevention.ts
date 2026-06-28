@@ -198,6 +198,26 @@ export function buildFraudPreventionHeaders(
 }
 
 /**
+ * Returns the server's public outbound IP for Gov-Vendor-Public-IP /
+ * Gov-Vendor-Forwarded. Checks HMRC_VENDOR_IP first (avoids the network
+ * round-trip in production where the env var is set). Falls back to a
+ * best-effort fetch from ipify.org. Returns undefined on failure so the
+ * caller can omit the vendor network headers rather than sending a wrong IP.
+ */
+export async function fetchVendorIp(): Promise<string | undefined> {
+  if (process.env.HMRC_VENDOR_IP) return process.env.HMRC_VENDOR_IP
+  try {
+    const res = await fetch('https://api.ipify.org?format=json', {
+      signal: AbortSignal.timeout(3000),
+    })
+    const { ip } = (await res.json()) as { ip: string }
+    return ip
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * Parses browser-side fraud prevention context from a request body.
  * Call this in Freelax API routes that trigger HMRC API calls.
  *

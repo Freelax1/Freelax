@@ -8,6 +8,7 @@ import { getDecryptedHmrcTokens, buildHmrcRefreshCallback } from '@/lib/hmrc/tok
 import {
   buildFraudPreventionHeaders,
   extractFpFromBody,
+  fetchVendorIp,
 } from '@/lib/hmrc/fraud-prevention'
 import { hmrcPost } from '@/lib/hmrc/client'
 
@@ -164,6 +165,7 @@ export async function POST(request: NextRequest) {
 
   // Build fraud prevention headers (browser-side context lives in body._fp)
   const fpFromBody = extractFpFromBody(body)
+  const vendorIp = await fetchVendorIp()
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
     userId:         user.id,
@@ -178,6 +180,7 @@ export async function POST(request: NextRequest) {
     userAgent:      fpFromBody.userAgent,
     browserPlugins: fpFromBody.browserPlugins,
     deviceId:       fpFromBody.deviceId,
+    vendorIp,
   })
 
   const refresh = buildHmrcRefreshCallback(user.id, tokens)
