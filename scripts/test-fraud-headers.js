@@ -34,6 +34,21 @@ const APIS = [
   'individuals-income-received-mtd',
 ]
 
+// ── Timezone helper (mirrors toHmrcTimezone in lib/hmrc/fraud-prevention.ts) ─
+function toHmrcTimezone(tz) {
+  if (/^UTC[+-]\d{2}:\d{2}$/.test(tz)) return tz
+  if (tz === 'UTC') return 'UTC+00:00'
+  try {
+    const fmt = new Intl.DateTimeFormat('en', { timeZone: tz, timeZoneName: 'shortOffset' })
+    const tzName = fmt.formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? 'GMT'
+    const m = tzName.match(/GMT([+-])(\d+)(?::(\d+))?/)
+    if (!m) return 'UTC+00:00'
+    return `UTC${m[1]}${m[2].padStart(2, '0')}:${(m[3] ?? '0').padStart(2, '0')}`
+  } catch {
+    return 'UTC+00:00'
+  }
+}
+
 // ── Fraud prevention headers (WEB_APP_VIA_SERVER) ──────────────────────────
 function buildFraudHeaders() {
   const now = new Date().toISOString()
@@ -41,16 +56,15 @@ function buildFraudHeaders() {
     'Gov-Client-Connection-Method':     'WEB_APP_VIA_SERVER',
     'Gov-Client-Public-IP':             '203.0.113.1',
     'Gov-Client-Public-IP-Timestamp':   now,
-    'Gov-Client-Browser-JS-User-Agent': encodeURIComponent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'),
+    'Gov-Client-Browser-JS-User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     'Gov-Client-Browser-Do-Not-Track':  'not-set',
-    'Gov-Client-Browser-Plugins':       '',
     'Gov-Client-User-IDs':              'freelax-user-id=test-script-user',
     'Gov-Client-Device-ID':             'test-device-00000000-0000-0000-0000-000000000001',
-    'Gov-Client-Timezone':              encodeURIComponent('Europe/London'),
+    'Gov-Client-Timezone':              toHmrcTimezone('Europe/London'),
     'Gov-Client-Screens':               'width=1920&height=1080&scaling-factor=1&colour-depth=24',
     'Gov-Client-Window-Size':           'width=1440&height=900',
     'Gov-Vendor-Product-Name':          'Freelax',
-    'Gov-Vendor-Version':               'Freelax=1.0.0',
+    'Gov-Vendor-Version':               'Freelax=0.1.0',
   }
 }
 

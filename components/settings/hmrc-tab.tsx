@@ -10,6 +10,32 @@ import { CircleNotch } from '@phosphor-icons/react'
 
 const SANDBOX_MODE = process.env.NEXT_PUBLIC_HMRC_SANDBOX_MODE === 'true'
 
+function collectFp() {
+  if (typeof window === 'undefined') return {}
+  let deviceId = ''
+  try {
+    deviceId = localStorage.getItem('freelax_device_id') ?? ''
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('freelax_device_id', deviceId)
+    }
+  } catch {}
+  const plugins = Array.from(navigator.plugins).map(p => p.name).filter(Boolean).join(',')
+  return {
+    timezone:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screenWidth:    window.screen.width,
+    screenHeight:   window.screen.height,
+    scalingFactor:  window.devicePixelRatio,
+    colourDepth:    window.screen.colorDepth,
+    windowWidth:    window.innerWidth,
+    windowHeight:   window.innerHeight,
+    doNotTrack:     navigator.doNotTrack ?? 'not-set',
+    userAgent:      navigator.userAgent,
+    browserPlugins: plugins || undefined,
+    deviceId,
+  }
+}
+
 // Format a National Insurance Number as 'QQ 12 34 56 C'.
 // Accepts any input; strips non-alphanumeric, uppercases, caps at 9 chars,
 // and inserts spaces between the two-letter prefix, the three digit pairs,
@@ -139,7 +165,11 @@ export default function HmrcTab() {
     setTestLoading(true)
     setTestResult(null)
     try {
-      const res = await fetch('/api/hmrc/test-connection')
+      const res = await fetch('/api/hmrc/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ _fp: collectFp() }),
+      })
       const data = await res.json()
       setTestResult(JSON.stringify(data, null, 2))
     } catch (e) {

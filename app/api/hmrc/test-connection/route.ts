@@ -5,11 +5,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getDecryptedHmrcTokens } from '@/lib/hmrc/token-crypto'
-import { buildFraudPreventionHeaders } from '@/lib/hmrc/fraud-prevention'
+import { buildFraudPreventionHeaders, extractFpFromBody } from '@/lib/hmrc/fraud-prevention'
 
 const SANDBOX_ONLY = process.env.HMRC_SANDBOX_MODE === 'true'
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   if (!SANDBOX_ONLY) {
     return NextResponse.json({ error: 'Only available in sandbox mode' }, { status: 403 })
   }
@@ -36,16 +36,24 @@ export async function GET(request: NextRequest) {
     vendorIp = ip
   } catch {}
 
+  let body: any = {}
+  try { body = await request.json() } catch {}
+
+  const fp = extractFpFromBody(body)
   const fraudHeaders = buildFraudPreventionHeaders({
     request,
-    userId: user.id,
-    timezone: 'Europe/London',
-    screenWidth: 1920,
-    screenHeight: 1080,
-    windowWidth: 1440,
-    windowHeight: 900,
-    doNotTrack: 'not-set',
-    deviceId: user.id,
+    userId:         user.id,
+    timezone:       fp.timezone,
+    screenWidth:    fp.screenWidth,
+    screenHeight:   fp.screenHeight,
+    scalingFactor:  fp.scalingFactor,
+    colourDepth:    fp.colourDepth,
+    windowWidth:    fp.windowWidth,
+    windowHeight:   fp.windowHeight,
+    doNotTrack:     fp.doNotTrack,
+    userAgent:      fp.userAgent,
+    browserPlugins: fp.browserPlugins,
+    deviceId:       fp.deviceId,
     vendorIp,
   })
 
@@ -60,13 +68,13 @@ export async function GET(request: NextRequest) {
     },
   )
 
-  let body: unknown
+  let hmrcBody: unknown
   const contentType = hmrcRes.headers.get('content-type') ?? ''
   if (contentType.includes('application/json') || contentType.includes('+json')) {
-    body = await hmrcRes.json()
+    hmrcBody = await hmrcRes.json()
   } else {
-    body = await hmrcRes.text()
+    hmrcBody = await hmrcRes.text()
   }
 
-  return NextResponse.json({ status: hmrcRes.status, body })
+  return NextResponse.json({ status: hmrcRes.status, body: hmrcBody })
 }
